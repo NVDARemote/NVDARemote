@@ -1,0 +1,57 @@
+# NVDA add-on template  SCONSTRUCT file
+#Copyright (C) 2012 Rui Batista <ruiandrebatista@gmail.com>
+#This file is covered by the GNU General Public License.
+#See the file COPYIG.txt for more details.
+
+import os.path
+import zipfile
+import configobj
+
+manifest_path = os.path.join("addon", "manifest.ini")
+manifest = configobj.ConfigObj(manifest_path, encoding="utf-8")
+
+env = Environment(ENV=os.environ,
+	version=manifest['version'],
+)
+
+
+addonFile = "%s-%s.%s" % (manifest['name'], manifest['version'], "nvda-addon")
+
+def addonGenerator(target, source, env, for_signature):
+	action = env.Action(lambda target, source, env : createAddonBundleFromPath(source[0].abspath, target[0].abspath) and None,
+	lambda target, source, env : "Generating Addon %s" % target[0])
+	return action
+
+env['BUILDERS']['NVDAAddon'] = Builder(generator=addonGenerator)
+
+
+env['BUILDERS']['gettextMoFile']=env.Builder(
+	action=env.Action(["msgfmt -o $TARGETS $SOURCES"], lambda t, s, e : "Compiling translation %s" % s[0]),
+	suffix=".mo",
+	src_suffix=".po"
+)
+
+
+def createAddonBundleFromPath(path, dest):
+	""" Creates a bundle from a directory that contains a a addon manifest file."""
+	basedir = os.path.abspath(path)
+	with zipfile.ZipFile(dest, 'w', zipfile.ZIP_DEFLATED) as z:
+		# FIXME: the include/exclude feature may or may not be useful. Also python files can be pre-compiled.
+		for dir, dirnames, filenames in os.walk(basedir):
+			relativePath = os.path.relpath(dir, basedir)
+			for filename in filenames:
+				pathInBundle = os.path.join(relativePath, filename)
+				absPath = os.path.join(dir, filename)
+				z.write(absPath, pathInBundle)
+	return dest
+
+addon = env.NVDAAddon(addonFile, env.Dir('addon'))
+
+#Allow all add-on gettext po files to be compiled in source/locale.
+pos = env.Glob(os.path.join("addon", "locale", "*", "LC_MESSAGES", "nvda.po"))
+for po in pos:
+	moFile=env.gettextMoFile(po)		
+	env.Depends(moFile, po)
+	env.Depends(addon, moFile)
+
+env.Default(addon)
