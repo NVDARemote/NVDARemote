@@ -11,7 +11,9 @@ This package is distributed under the terms of the GNU General Public License, v
 
 This template provides the following features you can use to help NVDA add-on development:
 * Automatic add-on package creation, with naming and version loaded from the add-on manifest file.
-* Compilation of gettext mo files before distribution, when needed.
+* Compilation of gettext mo files before distribution, when needed.file for the needs of your add-on.
+- To generate a gettext pot file, please run scons pot. a <adon-name>.pot file will be created with all gettext messages for your add-on. You need to check the buildVars.i18nSources variable to comply with your requirements.
+
 
 ## Requirements
 
@@ -31,7 +33,7 @@ To create a new NVDA add-on, taking advantage of this template:
 - Put your code in the usual folders for NVDA extension, under the **addon** folder. For instance: globalPlugins, synthDrivers, etc. You can delete folders you don't need on your particular add-on package.
 - Gettext translations must be placed into addon\locale\<lang>/LC_MESSAGES\nvda.po.
 - To package the add-on for distribution, open a command line, change to the folder that as the **SCONSTRUCT** file and run the **scons** command. The created add-on, if no errors happen, is placed on the current directory.
-
+- You can customize variables in the buildVars.py 
 Note that this template only provides a basic add-on structure and build infrastructure. You may need to adapt it for your specific needs.
 
 
