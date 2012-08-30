@@ -1,11 +1,14 @@
 # NVDA add-on template  SCONSTRUCT file
 #Copyright (C) 2012 Rui Batista <ruiandrebatista@gmail.com>
 #This file is covered by the GNU General Public License.
-#See the file COPYIG.txt for more details.
+#See the file COPYING.txt for more details.
 
+import operator
 import os.path
 import zipfile
 import configobj
+
+import buildVars
 
 manifest_path = os.path.join("addon", "manifest.ini")
 manifest = configobj.ConfigObj(manifest_path, encoding="utf-8")
@@ -31,6 +34,9 @@ env['BUILDERS']['gettextMoFile']=env.Builder(
 	src_suffix=".po"
 )
 
+env['BUILDERS']['gettextPotFile']=env.Builder(
+	action=env.Action(["xgettext -o $TARGETS $SOURCES"], lambda t, s, e : "Generating pot file %s" % t[0]),
+	sufix=".pot")
 
 def createAddonBundleFromPath(path, dest):
 	""" Creates a bundle from a directory that contains a a addon manifest file."""
@@ -45,13 +51,26 @@ def createAddonBundleFromPath(path, dest):
 				z.write(absPath, pathInBundle)
 	return dest
 
-addon = env.NVDAAddon(addonFile, env.Dir('addon'))
+def expandGlobs(files):
+	l = [env.Glob(pattern) for pattern in files]
+	return reduce(operator.add, l, [])
 
-#Allow all add-on gettext po files to be compiled in source/locale.
-pos = env.Glob(os.path.join("addon", "locale", "*", "LC_MESSAGES", "nvda.po"))
+addon = env.NVDAAddon(addonFile, env.Dir('addon'))
+#Allow all NVDA's gettext po files to be compiled in source/locale
+pos = env.Glob(os.path.join("addon", "locale", "*", "LC_MESSAGES", "*.po"))
 for po in pos:
-	moFile=env.gettextMoFile(po)		
+	moFile=env.gettextMoFile(po)
 	env.Depends(moFile, po)
 	env.Depends(addon, moFile)
 
+pythonFiles = expandGlobs(buildVars.pythonSources)
+env.Depends(addon, pythonFiles)
+
+# Pot target
+i18nFiles = expandGlobs(buildVars.i18nSources)
+pot = env.gettextPotFile("%s.pot" % manifest['name'], i18nFiles)
+env.Alias('pot', pot)
+env.Depends(pot, i18nFiles)
+
+env.Depends(addon, manifest_path)
 env.Default(addon)
