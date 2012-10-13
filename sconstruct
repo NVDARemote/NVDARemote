@@ -64,7 +64,8 @@ for po in pos:
 	env.Depends(addon, moFile)
 
 pythonFiles = expandGlobs(buildVars.pythonSources)
-env.Depends(addon, pythonFiles)
+for file in pythonFiles:
+	env.Depends(addon, file)
 
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
