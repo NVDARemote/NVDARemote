@@ -1,6 +1,18 @@
-
 # Build customizations
-# Change this file instead of sconstruct, whenever possible.
+# Change this file instead of sconstruct or manifest files, whenever possible.
+
+# Add-on information variables
+addon_info = {
+# add-on Name
+	"addon-name" : "addon-template",
+	# version
+	"addon-version" : "x.y.z",
+	# Author(s)
+	"addon-author" : "name <name@domain.com>",
+# URL for the add-on documentation support
+"addon-url" : None
+}
+
 
 import os.path
 
