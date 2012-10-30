@@ -10,23 +10,24 @@ import configobj
 
 import buildVars
 
-manifest_path = os.path.join("addon", "manifest.ini")
-manifest = configobj.ConfigObj(manifest_path, encoding="utf-8")
 
-env = Environment(ENV=os.environ,
-	version=manifest['version'],
-)
+env = Environment(ENV=os.environ)
 
 
-addonFile = "%s-%s.%s" % (manifest['name'], manifest['version'], "nvda-addon")
+addonFile = env.File("{addon-name}-{addon-version}.nvda-addon".format(**buildVars.addon_info))
 
 def addonGenerator(target, source, env, for_signature):
 	action = env.Action(lambda target, source, env : createAddonBundleFromPath(source[0].abspath, target[0].abspath) and None,
 	lambda target, source, env : "Generating Addon %s" % target[0])
 	return action
 
-env['BUILDERS']['NVDAAddon'] = Builder(generator=addonGenerator)
+def manifestGenerator(target, source, env, for_signature):
+	action = env.Action(lambda target, source, env : generateManifest(source[0].abspath, target[0].abspath) and None,
+	lambda target, source, env : "Generating manifest %s" % target[0])
+	return action
 
+env['BUILDERS']['NVDAAddon'] = Builder(generator=addonGenerator)
+env['BUILDERS']['NVDAManifest'] = Builder(generator=manifestGenerator)
 
 env['BUILDERS']['gettextMoFile']=env.Builder(
 	action=env.Action(["msgfmt -o $TARGETS $SOURCES"], lambda t, s, e : "Compiling translation %s" % s[0]),
@@ -51,6 +52,13 @@ def createAddonBundleFromPath(path, dest):
 				z.write(absPath, pathInBundle)
 	return dest
 
+def generateManifest(source, dest):
+	with open(source, "r") as f:
+		manifest_template = f.read()
+	manifest = manifest_template.format(**buildVars.addon_info)
+	with open(dest, "w") as f:
+		f.write(manifest)
+
 def expandGlobs(files):
 	l = [env.Glob(pattern) for pattern in files]
 	return reduce(operator.add, l, [])
@@ -69,9 +77,15 @@ for file in pythonFiles:
 
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
-pot = env.gettextPotFile("%s.pot" % manifest['name'], i18nFiles)
+pot = env.gettextPotFile("%s.pot" % "${addon-name}", i18nFiles)
 env.Alias('pot', pot)
 env.Depends(pot, i18nFiles)
 
-env.Depends(addon, manifest_path)
+manifestFiles = expandGlobs([os.path.join("addon", "manifest.ini"), os.path.join("addon", "local", "*", "manifest.ini")])
+for file in manifestFiles:
+	env.Depends(addon, file)
+
+# Generate Manifest path
+env.NVDAManifest(os.path.join("addon", "manifest.ini"), os.path.join("manifest.ini.tpl"))
+
 env.Default(addon)

@@ -1,6 +1,6 @@
-name = addon-template
+name = {addon-name}
 summary = NVDA sample add-on template
 description = Change name, summary, version, author and description for your specific add-on.
-author = Put your name here
-url = http://example.com
-version = x.y.z
+author = "{addon-author}"
+url = {addon-url}
+version = {addon-version}
