@@ -3,6 +3,7 @@
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
 
+import gettext
 import operator
 import os.path
 import zipfile
@@ -26,8 +27,17 @@ def manifestGenerator(target, source, env, for_signature):
 	lambda target, source, env : "Generating manifest %s" % target[0])
 	return action
 
+
+def translatedManifestGenerator(target, source, env, for_signature):
+	dir = os.path.abspath(os.path.join(os.path.dirname(str(source[0])), ".."))
+	lang = os.path.basename(dir)
+	action = env.Action(lambda target, source, env : generateTranslatedManifest(lang, target[0].abspath) and None,
+	lambda target, source, env : "Generating translated manifest %s" % target[0])
+	return action
+
 env['BUILDERS']['NVDAAddon'] = Builder(generator=addonGenerator)
 env['BUILDERS']['NVDAManifest'] = Builder(generator=manifestGenerator)
+env['BUILDERS']['NVDATranslatedManifest'] = Builder(generator=translatedManifestGenerator)
 
 env['BUILDERS']['gettextMoFile']=env.Builder(
 	action=env.Action(["msgfmt -o $TARGETS $SOURCES"], lambda t, s, e : "Compiling translation %s" % s[0]),
@@ -57,19 +67,32 @@ def generateManifest(source, dest):
 		manifest_template = f.read()
 	manifest = manifest_template.format(**buildVars.addon_info)
 	with open(dest, "w") as f:
-		f.write(manifest)
+		f.write(manifest.encode("utf-8"))
+
+def generateTranslatedManifest(language, out):
+	_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
+	template = u"""summary = \"{addon-summary}\"
+description = \"{addon-description}\""""
+	d = {k : _(buildVars.addon_info[k]) for k in ("addon-summary", "addon-description")}
+	result = template.format(**d)
+	with open(out, "w") as f:
+		f.write(result.encode("utf-8"))
 
 def expandGlobs(files):
 	l = [env.Glob(pattern) for pattern in files]
 	return reduce(operator.add, l, [])
 
 addon = env.NVDAAddon(addonFile, env.Dir('addon'))
-#Allow all NVDA's gettext po files to be compiled in source/locale
-pos = env.Glob(os.path.join("addon", "locale", "*", "LC_MESSAGES", "*.po"))
-for po in pos:
-	moFile=env.gettextMoFile(po)
-	env.Depends(moFile, po)
-	env.Depends(addon, moFile)
+
+langDirs = [f for f in env.Glob(os.path.join("addon", "locale", "*"))]
+
+#Allow all NVDA's gettext po files to be compiled in source/locale, and manifest files to be generated
+for dir in langDirs:
+	poFile = dir.File(os.path.join("LC_MESSAGES", "nvda.po"))
+	moFile=env.gettextMoFile(poFile)
+	env.Depends(moFile, poFile)
+	translatedManifest = env.NVDATranslatedManifest(dir.File("manifest.ini"), moFile)
+	env.Depends(addon, [translatedManifest, moFile])
 
 pythonFiles = expandGlobs(buildVars.pythonSources)
 for file in pythonFiles:
@@ -77,15 +100,12 @@ for file in pythonFiles:
 
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
-pot = env.gettextPotFile("%s.pot" % "${addon-name}", i18nFiles)
+pot = env.gettextPotFile("%s.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
 env.Alias('pot', pot)
 env.Depends(pot, i18nFiles)
 
-manifestFiles = expandGlobs([os.path.join("addon", "manifest.ini"), os.path.join("addon", "local", "*", "manifest.ini")])
-for file in manifestFiles:
-	env.Depends(addon, file)
-
 # Generate Manifest path
-env.NVDAManifest(os.path.join("addon", "manifest.ini"), os.path.join("manifest.ini.tpl"))
+manifest = env.NVDAManifest(os.path.join("addon", "manifest.ini"), os.path.join("manifest.ini.tpl"))
 
+env.Depends(addon, manifest)
 env.Default(addon)
