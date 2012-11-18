@@ -46,8 +46,10 @@ env['BUILDERS']['gettextMoFile']=env.Builder(
 )
 
 env['BUILDERS']['gettextPotFile']=env.Builder(
-	action=env.Action(["xgettext -o $TARGETS $SOURCES"], lambda t, s, e : "Generating pot file %s" % t[0]),
-	sufix=".pot")
+	action=env.Action(["xgettext --msgid-bugs-address='%s' --package-name='%s' --package-version='%s' -c -o $TARGETS $SOURCES" %
+		("nvda-translations@freelists.org", manifest['name'], manifest['version'])
+	], lambda t, s, e : "Generating pot file %s" % t[0]),
+	suffix=".pot")
 
 def createAddonBundleFromPath(path, dest):
 	""" Creates a bundle from a directory that contains a a addon manifest file."""
