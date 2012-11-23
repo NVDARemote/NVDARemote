@@ -4,7 +4,6 @@
 #See the file COPYING.txt for more details.
 
 import gettext
-import operator
 import os.path
 import zipfile
 import configobj
@@ -81,8 +80,7 @@ description = \"{addon-description}\""""
 		f.write(result.encode("utf-8"))
 
 def expandGlobs(files):
-	l = [env.Glob(pattern) for pattern in files]
-	return reduce(operator.add, l, [])
+	return [f for pattern in files for f in env.Glob(pattern)]
 
 addon = env.NVDAAddon(addonFile, env.Dir('addon'))
 
