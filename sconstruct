@@ -73,7 +73,7 @@ def generateManifest(source, dest):
 def generateTranslatedManifest(language, out):
 	_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
 	template = u"""summary = \"{addon-summary}\"
-description = \"{addon-description}\""""
+description = \"\"\"{addon-description}\"\"\""""
 	d = {k : _(buildVars.addon_info[k]) for k in ("addon-summary", "addon-description")}
 	result = template.format(**d)
 	with open(out, "w") as f:
