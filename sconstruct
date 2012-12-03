@@ -30,7 +30,7 @@ def manifestGenerator(target, source, env, for_signature):
 def translatedManifestGenerator(target, source, env, for_signature):
 	dir = os.path.abspath(os.path.join(os.path.dirname(str(source[0])), ".."))
 	lang = os.path.basename(dir)
-	action = env.Action(lambda target, source, env : generateTranslatedManifest(lang, target[0].abspath) and None,
+	action = env.Action(lambda target, source, env : generateTranslatedManifest(source[1].abspath, lang, target[0].abspath) and None,
 	lambda target, source, env : "Generating translated manifest %s" % target[0])
 	return action
 
@@ -70,12 +70,15 @@ def generateManifest(source, dest):
 	with open(dest, "w") as f:
 		f.write(manifest.encode("utf-8"))
 
-def generateTranslatedManifest(language, out):
+def generateTranslatedManifest(source, language, out):
 	_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
-	template = u"""summary = \"{addon-summary}\"
-description = \"\"\"{addon-description}\"\"\""""
-	d = {k : _(buildVars.addon_info[k]) for k in ("addon-summary", "addon-description")}
-	result = template.format(**d)
+	#template = u"""summary = \"{addon-summary}\"
+#description = \"\"\"{addon-description}\"\"\""""
+	#d = {k : _(buildVars.addon_info[k]) for k in ("addon-summary", "addon-description")}
+	#result = template.format(**d)
+	with open(source, "r") as f:
+		manifest_template = f.read()
+	result = manifest_template.format(**buildVars.addon_info)
 	with open(out, "w") as f:
 		f.write(result.encode("utf-8"))
 
@@ -91,7 +94,7 @@ for dir in langDirs:
 	poFile = dir.File(os.path.join("LC_MESSAGES", "nvda.po"))
 	moFile=env.gettextMoFile(poFile)
 	env.Depends(moFile, poFile)
-	translatedManifest = env.NVDATranslatedManifest(dir.File("manifest.ini"), moFile)
+	translatedManifest = env.NVDATranslatedManifest(dir.File("manifest.ini"), [moFile, os.path.join("manifest-translated.ini.tpl")])
 	env.Depends(addon, [translatedManifest, moFile])
 
 pythonFiles = expandGlobs(buildVars.pythonSources)
