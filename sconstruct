@@ -3,6 +3,7 @@
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
 
+import codecs
 import gettext
 import os.path
 import zipfile
@@ -64,19 +65,22 @@ def createAddonBundleFromPath(path, dest):
 	return dest
 
 def generateManifest(source, dest):
-	with open(source, "r") as f:
+	with codecs.open(source, "r", "utf-8") as f:
 		manifest_template = f.read()
 	manifest = manifest_template.format(**buildVars.addon_info)
-	with open(dest, "w") as f:
-		f.write(manifest.encode("utf-8"))
+	with codecs.open(dest, "w", "utf-8") as f:
+		f.write(manifest)
 
 def generateTranslatedManifest(source, language, out):
 	_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
-	with open(source, "r") as f:
+	vars = {}
+	for var in ("addon-summary", "addon-description"):
+		vars[var] = _(buildVars.addon_info[var])
+	with codecs.open(source, "r", "utf-8") as f:
 		manifest_template = f.read()
-	result = manifest_template.format(**buildVars.addon_info)
-	with open(out, "w") as f:
-		f.write(result.encode("utf-8"))
+	result = manifest_template.format(**vars)
+	with codecs.open(out, "w", "utf-8") as f:
+		f.write(result)
 
 def expandGlobs(files):
 	return [f for pattern in files for f in env.Glob(pattern)]
