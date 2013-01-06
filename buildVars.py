@@ -6,21 +6,21 @@ _ = lambda x : x
 
 # Add-on information variables
 addon_info = {
-# add-on Name
+	# add-on Name
 	"addon-name" : "addon-template",
 	# Add-on description
 	# TRANSLATORS: Summary for this add-on to be shown on installation and add-on informaiton.
 	"addon-summary" : _("Add-on quick summary"),
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on installation and add-on information
-	"addon-description" : _(""" description for the add-on.
+	"addon-description" : _("""Description for the add-on.
 It can span multiple lines."""),
 	# version
 	"addon-version" : "x.y.z",
 	# Author(s)
 	"addon-author" : "name <name@domain.com>",
-# URL for the add-on documentation support
-"addon-url" : None
+	# URL for the add-on documentation support
+	"addon-url" : None
 }
 
 
