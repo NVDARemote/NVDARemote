@@ -9,7 +9,7 @@ addon_info = {
 	# add-on Name
 	"addon-name" : "addon-template",
 	# Add-on description
-	# TRANSLATORS: Summary for this add-on to be shown on installation and add-on informaiton.
+	# TRANSLATORS: Summary for this add-on to be shown on installation and add-on information.
 	"addon-summary" : _("Add-on quick summary"),
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on installation and add-on information
