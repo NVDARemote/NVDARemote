@@ -50,6 +50,11 @@ env['BUILDERS']['gettextPotFile']=env.Builder(
 		("nvda-translations@freelists.org", buildVars.addon_info['addon-name'], buildVars.addon_info['addon-version'])
 	], lambda t, s, e : "Generating pot file %s" % t[0]),
 	suffix=".pot")
+env['BUILDERS']['gettextMergePotFile']=env.Builder(
+	action=env.Action(["xgettext --msgid-bugs-address='%s' --package-name='%s' --package-version='%s' --omit-header --no-location -c -o $TARGETS $SOURCES" %
+		("nvda-translations@freelists.org", buildVars.addon_info['addon-name'], buildVars.addon_info['addon-version'])
+	], lambda t, s, e : "Generating pot file %s" % t[0]),
+	suffix=".pot")
 
 def createAddonBundleFromPath(path, dest):
 	""" Creates a bundle from a directory that contains a a addon manifest file."""
@@ -61,7 +66,7 @@ def createAddonBundleFromPath(path, dest):
 			for filename in filenames:
 				pathInBundle = os.path.join(relativePath, filename)
 				absPath = os.path.join(dir, filename)
-				z.write(absPath, pathInBundle)
+				if pathInBundle not in buildVars.excludedFiles: z.write(absPath, pathInBundle)
 	return dest
 
 def generateManifest(source, dest):
@@ -106,6 +111,9 @@ i18nFiles = expandGlobs(buildVars.i18nSources)
 pot = env.gettextPotFile("%s.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
 env.Alias('pot', pot)
 env.Depends(pot, i18nFiles)
+mergePot = env.gettextMergePotFile("%s.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
+env.Alias('mergePot', mergePot)
+env.Depends(mergePot, i18nFiles)
 
 # Generate Manifest path
 manifest = env.NVDAManifest(os.path.join("addon", "manifest.ini"), os.path.join("manifest.ini.tpl"))
