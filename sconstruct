@@ -111,7 +111,7 @@ i18nFiles = expandGlobs(buildVars.i18nSources)
 pot = env.gettextPotFile("%s.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
 env.Alias('pot', pot)
 env.Depends(pot, i18nFiles)
-mergePot = env.gettextMergePotFile("%s.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
+mergePot = env.gettextMergePotFile("%s-merge.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
 env.Alias('mergePot', mergePot)
 env.Depends(mergePot, i18nFiles)
 
