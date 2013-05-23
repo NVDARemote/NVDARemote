@@ -34,7 +34,7 @@ To create a new NVDA add-on, taking advantage of this template:
 - Put your code in the usual folders for NVDA extension, under the **addon** folder. For instance: globalPlugins, synthDrivers, etc. You can delete folders you don't need for your particular add-on package.
 - Gettext translations must be placed into addon\locale\<lang>/LC_MESSAGES\nvda.po. 
 - Documentation files must be placed into addon\doc\<lang>/fileName, readme.html by default.
-- You can copy docHandler.py to a globalPlugins or appModules folder. Then import it and use docHandler.openDocPath() to open the documentation file corresponding to NVDA's current language, or English by default.
+- Assign a unique name to **docHandler.py** file, found under **addon\globalPlugins**, for instance **yourAddonName_docHandler**. This plugin will append an item to NVDA's help menu for opening your addon documentation in the current language, or English by default.
 - To package the add-on for distribution, open a command line, change to the folder that has the **SCONSTRUCT** file and run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
 - You can further customize variables in the **buildVars.py** file.
 
