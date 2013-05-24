@@ -5,6 +5,8 @@
 
 import codecs
 import gettext
+import shutil
+import os
 import os.path
 import zipfile
 import configobj
@@ -57,8 +59,27 @@ env['BUILDERS']['gettextMergePotFile']=env.Builder(
 	suffix=".pot")
 
 def createAddonBundleFromPath(path, dest):
-	""" Creates a bundle from a directory that contains a a addon manifest file."""
+	""" Creates a bundle from a directory that contains an addon manifest file."""
 	basedir = os.path.abspath(path)
+	plugindir = os.path.join(basedir, "globalPlugins")
+	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
+	if not os.path.isdir(plugindir):
+		try:
+			os.makedirs(plugindir)
+		except:
+			pass
+	try:
+		shutil.copy("docHandler.py", plugindir)
+	except:
+		pass
+	if not os.path.isfile(docFilename):
+		curdir = os.getcwd()
+		os.chdir(plugindir)
+		try:
+			os.rename("docHandler.py", docFilename)
+		except:
+			pass
+		os.chdir(curdir)
 	with zipfile.ZipFile(dest, 'w', zipfile.ZIP_DEFLATED) as z:
 		# FIXME: the include/exclude feature may or may not be useful. Also python files can be pre-compiled.
 		for dir, dirnames, filenames in os.walk(basedir):

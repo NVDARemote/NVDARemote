@@ -5,9 +5,19 @@
 
 import os
 import languageHandler
+import addonHandler
+import globalPluginHandler
+import gui
+import wx
+
+addonHandler.initTranslation()
 
 _addonDir = os.path.join(os.path.dirname(__file__), "..") # The root of an addon folder
 _docFileName = "readme.html" # The name of an addon documentation file
+_curAddon = addonHandler.Addon(_addonDir) # Addon instance
+_addonSummary = _curAddon.manifest['summary']
+_addonVersion = _curAddon.manifest['version']
+_addonName = _curAddon.manifest['name']
 
 def getDocFolder(addonDir=_addonDir):
 	langs = [languageHandler.getLanguage(), "en"]
@@ -39,3 +49,22 @@ def openDocPath():
 		os.startfile(getDocPath())
 	except WindowsError:
 		pass
+
+class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+
+	def __init__(self):
+		super(globalPluginHandler.GlobalPlugin, self).__init__()
+		self.help = gui.mainFrame.sysTrayIcon.helpMenu
+		self.helpItem = self.help.Append(wx.ID_ANY, "{summary} {version}".format(summary=_addonSummary, version=_addonVersion),
+		# Translators: Tooltip for an addon menu item.
+		_("Open documentation for %s") % _addonName)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onHelp, self.helpItem)
+
+	def onHelp(self, evt):
+		openDocPath()
+
+	def terminate(self):
+		try:
+			self.help.RemoveItem(self.helpItem)
+		except wx.PyDeadObjectError:
+			pass
