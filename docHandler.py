@@ -1,4 +1,4 @@
-﻿# -*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 
 # docHandler: module for managing addons documentation
 # See: http://community.nvda-project.org/ticket/2694
