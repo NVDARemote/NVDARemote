@@ -57,7 +57,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.help = gui.mainFrame.sysTrayIcon.helpMenu
 		self.helpItem = self.help.Append(wx.ID_ANY, "{summary} {version}".format(summary=_addonSummary, version=_addonVersion),
 		# Translators: Tooltip for an addon menu item.
-		_("Open documentation for %s") % _addonName)
+		_("Opens documentation for %s") % _addonName)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onHelp, self.helpItem)
 
 	def onHelp(self, evt):
