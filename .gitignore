@@ -1,3 +1,7 @@
+addon/doc/*.css
+addon/doc/en/
+*_docHandler.py
+*.html
 *.ini
 *.mo
 *.pot

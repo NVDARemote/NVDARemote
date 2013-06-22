@@ -9,12 +9,51 @@ import shutil
 import os
 import os.path
 import zipfile
+import markdown
 import configobj
 
 import buildVars
 
 
-env = Environment(ENV=os.environ)
+def md2html(source, dest):
+	lang = os.path.basename(os.path.dirname(source)).replace('_', '-')
+	title="{addonSummary} {addonVersion}".format(addonSummary=buildVars.addon_info["addon-summary"], addonVersion=buildVars.addon_info["addon-version"])
+	headerDic = {
+		"[[!meta title=\"": "# ",
+		"\"]]": " #",
+	}
+	with codecs.open(source, "r", "utf-8") as f:
+		mdText = f.read()
+		for k, v in headerDic.iteritems():
+			mdText = mdText.replace(k, v, 1)
+		htmlText = markdown.markdown(mdText)
+	with codecs.open(dest, "w", "utf-8") as f:
+		f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" +
+			"    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n" +
+			"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"%s\" lang=\"%s\">\n" % (lang, lang) +
+			"<head>\n" +
+			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+			"<link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\" media=\"screen\"/>\n" +
+			"<title>%s</title>\n" % title +
+			"</head>\n<body>\n"
+		)
+		f.write(htmlText)
+		f.write("\n</body>\n</html>")
+
+def mdownTool(env):
+	mdAction=env.Action(
+		lambda target,source,env: md2html(source[0].path, target[0].path),
+		lambda target,source,env: 'Generating %s'%target[0],
+	)
+	mdBuilder=env.Builder(
+		action=mdAction,
+		suffix='.html',
+		src_suffix='.mdown',
+	)
+	env['BUILDERS']['markdown']=mdBuilder
+
+env = Environment(ENV=os.environ, tools=[mdownTool])
 
 
 addonFile = env.File("{addon-name}-{addon-version}.nvda-addon".format(**buildVars.addon_info))
@@ -59,26 +98,25 @@ env['BUILDERS']['gettextMergePotFile']=env.Builder(
 	suffix=".pot")
 
 def createAddonHelp(dir):
-	docdir = os.path.join(dir, "doc", "en")
-	if not os.path.isdir(docdir):
+	if not os.path.isfile("readme.md") or not os.path.isfile("docHandler.py"):
 		return
-	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
+	docdirs = [os.path.join(dir, "doc"), os.path.join(dir, "doc", "en")]
+	for docdir in docdirs:
+		if not os.path.isdir(docdir):
+			os.makedirs(docdir)
+	if os.path.isfile("style.css"):
+		shutil.copy("style.css", docdirs[0])
+	shutil.copyfile("readme.md", os.path.join(docdir, "readme.mdown"))
 	plugindir = os.path.join(dir, "globalPlugins")
+	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
 	docPath = os.path.join(plugindir, docFilename)
 	if not os.path.isdir(plugindir):
 		os.makedirs(plugindir)
-	shutil.copy("docHandler.py", plugindir)
-	curdir = os.getcwd()
-	if os.path.isfile(docPath):
-		os.unlink(docPath)
-	os.chdir(plugindir)
-	os.rename("docHandler.py", docFilename)
-	os.chdir(curdir)
+	shutil.copyfile("docHandler.py", docPath)
 
 def createAddonBundleFromPath(path, dest):
 	""" Creates a bundle from a directory that contains an addon manifest file."""
 	basedir = os.path.abspath(path)
-	createAddonHelp(basedir)
 	with zipfile.ZipFile(dest, 'w', zipfile.ZIP_DEFLATED) as z:
 		# FIXME: the include/exclude feature may or may not be useful. Also python files can be pre-compiled.
 		for dir, dirnames, filenames in os.walk(basedir):
@@ -125,6 +163,12 @@ for dir in langDirs:
 pythonFiles = expandGlobs(buildVars.pythonSources)
 for file in pythonFiles:
 	env.Depends(addon, file)
+
+#Convert markdown files to html
+createAddonHelp("addon") # We need at least doc in English and should append an item to Help menu
+for mdownFile in env.Glob(os.path.join('addon', 'doc', '*', '*.mdown')):
+	htmlFile = env.markdown(mdownFile)
+	env.Depends(addon, htmlFile)
 
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
