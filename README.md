@@ -13,7 +13,7 @@ This template provides the following features you can use to help NVDA add-on de
 * Automatic add-on package creation, with naming and version loaded from a centralized build variables file (buildVars.py).
 * Manifest file creation using a template (manifest.ini.tpl). Build variables are replaced on this template.
 * Compilation of gettext mo files before distribution, when needed.
-- To generate a gettext pot file, please run scons pot. a **addon-name.pot** file will be created with all gettext messages for your add-on. You need to check the buildVars.i18nSources variable to comply with your requirements.
+- To generate a gettext pot file, please run scons pot. A **addon-name.pot** file will be created with all gettext messages for your add-on. You need to check the buildVars.i18nSources variable to comply with your requirements.
 * Automatic generation of manifest localization files directly from gettext po files. Please make sure buildVar.py is included in i18nFiles.
 * Automatic generation of HTML documents from markdown files, to manage documentation in different languages.
 
