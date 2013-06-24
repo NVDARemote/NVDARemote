@@ -10,6 +10,7 @@ This package is distributed under the terms of the GNU General Public License, v
 ## Features
 
 This template provides the following features you can use to help NVDA add-on development:
+
 *	Automatic add-on package creation, with naming and version loaded from a centralized build variables file (buildVars.py).
 *	Manifest file creation using a template (manifest.ini.tpl). Build variables are replaced on this template.
 *	Compilation of gettext mo files before distribution, when needed.
