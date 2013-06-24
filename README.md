@@ -15,7 +15,7 @@ This template provides the following features you can use to help NVDA add-on de
 *	Manifest file creation using a template (manifest.ini.tpl). Build variables are replaced on this template.
 *	Compilation of gettext mo files before distribution, when needed.
 - To generate a gettext pot file, please run scons pot. A **addon-name.pot** file will be created with all gettext messages for your add-on. You need to check the buildVars.i18nSources variable to comply with your requirements.
-*	Automatic generation of manifest localization files directly from gettext po files. Please make sure buildVar.py is included in i18nFiles.
+*	Automatic generation of manifest localization files directly from gettext po files. Please make sure buildVars.py is included in i18nFiles.
 *	Automatic generation of HTML documents from markdown files, to manage documentation in different languages.
 
 ## Requirements
@@ -42,7 +42,9 @@ You need the following software to use this code for your NVDA add-ons developme
 
 - Copy the **readme.md** file for your addon, and the **docHandler.py** file, contained into addonTemplate, to the first created folder, where you copied **buildVars.py**. You can also copy **style.css** to improve the presentation of HTML documents.
 - Documentation files (named **readme.mdown**) must be placed into addon\doc\<lang>/.
-- Don't use **yourAddonName_docHandler.py** as a name for any file contained in **globalPlugins**; it will be removed to create a menu item for opening your doc addon, under NVDA's help menu.
+- Don't use **yourAddonName_docHandler.py** as a name for any file contained in **globalPlugins**; it will be removed to create a menu item for opening your addon documentation, under NVDA's help menu.
+
+Note: It's recommended to use hyphens instead of asterisks as tags for lists items, since they provide a better result when converting to HTML.
 
 ### To package the add-on for distribution: ###
 
