@@ -41,7 +41,7 @@ def md2html(source, dest):
 		f.write(htmlText)
 		f.write("\n</body>\n</html>")
 
-def mdownTool(env):
+def mdTool(env):
 	mdAction=env.Action(
 		lambda target,source,env: md2html(source[0].path, target[0].path),
 		lambda target,source,env: 'Generating %s'%target[0],
@@ -49,11 +49,11 @@ def mdownTool(env):
 	mdBuilder=env.Builder(
 		action=mdAction,
 		suffix='.html',
-		src_suffix='.mdown',
+		src_suffix='.md',
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
-env = Environment(ENV=os.environ, tools=[mdownTool])
+env = Environment(ENV=os.environ, tools=[mdTool])
 
 
 addonFile = env.File("{addon-name}-{addon-version}.nvda-addon".format(**buildVars.addon_info))
@@ -106,7 +106,7 @@ def createAddonHelp(dir):
 			os.makedirs(docdir)
 	if os.path.isfile("style.css"):
 		shutil.copy("style.css", docdirs[0])
-	shutil.copyfile("readme.md", os.path.join(docdir, "readme.mdown"))
+	shutil.copyfile("readme.md", os.path.join(docdir, "readme.md"))
 	plugindir = os.path.join(dir, "globalPlugins")
 	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
 	docPath = os.path.join(plugindir, docFilename)
@@ -158,6 +158,7 @@ for dir in langDirs:
 	moFile=env.gettextMoFile(poFile)
 	env.Depends(moFile, poFile)
 	translatedManifest = env.NVDATranslatedManifest(dir.File("manifest.ini"), [moFile, os.path.join("manifest-translated.ini.tpl")])
+	env.Depends(translatedManifest, ["buildVars.py"])
 	env.Depends(addon, [translatedManifest, moFile])
 
 pythonFiles = expandGlobs(buildVars.pythonSources)
@@ -166,8 +167,9 @@ for file in pythonFiles:
 
 #Convert markdown files to html
 createAddonHelp("addon") # We need at least doc in English and should append an item to Help menu
-for mdownFile in env.Glob(os.path.join('addon', 'doc', '*', '*.mdown')):
-	htmlFile = env.markdown(mdownFile)
+for mdFile in env.Glob(os.path.join('addon', 'doc', '*', '*.md')):
+	htmlFile = env.markdown(mdFile)
+	env.Depends(htmlFile, mdFile)
 	env.Depends(addon, htmlFile)
 
 # Pot target
