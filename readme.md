@@ -42,10 +42,10 @@ You need the following software to use this code for your NVDA add-ons developme
 ### To manage documentation files for your addon: ###
 
 - Copy the **readme.md** file for your addon, and the **docHandler.py** file, contained into addonTemplate, to the first created folder, where you copied **buildVars.py**. You can also copy **style.css** to improve the presentation of HTML documents.
-- Documentation files (named **readme.mdown**) must be placed into addon\doc\<lang>/.
+- Documentation files (named **readme.md**) must be placed into addon\doc\<lang>/.
 - Don't use **yourAddonName_docHandler.py** as a name for any file contained in **globalPlugins**; it will be removed to create a menu item for opening your addon documentation, under NVDA's help menu.
 
-Note: It's recommended to use hyphens instead of asterisks as tags for lists items, since they provide a better result when converting to HTML.
+Note: It's recommended to use hyphens instead of asterisks as tags for lists items, since they provide a better result when converting to HTML. You can also use asterisks followed by tab.
 
 ### To package the add-on for distribution: ###
 
