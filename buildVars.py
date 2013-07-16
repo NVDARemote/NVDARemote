@@ -16,7 +16,7 @@ addon_info = {
 	# TRANSLATORS: Summary for this add-on to be shown on installation and add-on information.
 	"addon-summary" : _("Add-on user visible name"),
 	# Add-on description
-	# Translators: Long description to be shown for this add-on on installation and add-on information
+	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon-description" : _("""Description for the add-on.
 It can span multiple lines."""),
 	# version
