@@ -8,17 +8,19 @@ _ = lambda x : x
 
 # Add-on information variables
 addon_info = {
-	# add-on Name
-	"addon-name" : "addon-template",
-	# Add-on summary
+	# for previously unpublished addons, please follow the community guidelines at:
+	# https://bitbucket.org/nvdaaddonteam/todo guide guideLines.txt
+	# add-on Name, internal for nvda
+	"addon-name" : "addonTemplate",
+	# Add-on summary, usually the user visible name of the addon.
 	# TRANSLATORS: Summary for this add-on to be shown on installation and add-on information.
-	"addon-summary" : _("Add-on quick summary"),
+	"addon-summary" : _("Add-on user visible name"),
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on installation and add-on information
 	"addon-description" : _("""Description for the add-on.
 It can span multiple lines."""),
 	# version
-	"addon-version" : "x.y.z",
+	"addon-version" : "x.y",
 	# Author(s)
 	"addon-author" : "name <name@domain.com>",
 	# URL for the add-on documentation support
