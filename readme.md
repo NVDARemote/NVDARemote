@@ -17,7 +17,7 @@ This template provides the following features you can use to help NVDA add-on de
 *	Compilation of gettext mo files before distribution, when needed.
 - To generate a gettext pot file, please run scons pot. A **addon-name.pot** file will be created with all gettext messages for your add-on. You need to check the buildVars.i18nSources variable to comply with your requirements.
 *	Automatic generation of manifest localization files directly from gettext po files. Please make sure buildVars.py is included in i18nFiles.
-*	Automatic generation of HTML documents from markdown files, to manage documentation in different languages.
+*	Automatic generation of HTML documents from markdown (.md) files, to manage documentation in different languages.
 
 ## Requirements
 
