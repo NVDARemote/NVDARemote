@@ -9,13 +9,13 @@ import shutil
 import os
 import os.path
 import zipfile
-import markdown
 import configobj
 
 import buildVars
 
 
 def md2html(source, dest):
+	import markdown
 	lang = os.path.basename(os.path.dirname(source)).replace('_', '-')
 	title="{addonSummary} {addonVersion}".format(addonSummary=buildVars.addon_info["addon-summary"], addonVersion=buildVars.addon_info["addon-version"])
 	headerDic = {
@@ -98,8 +98,9 @@ env['BUILDERS']['gettextMergePotFile']=env.Builder(
 	suffix=".pot")
 
 def createAddonHelp(dir):
-	if not os.path.isfile("readme.md") or not os.path.isfile("docHandler.py"):
+	if not os.path.isfile("docHandler.py"):
 		return
+	assert os.path.isfile("readme.md")
 	docdirs = [os.path.join(dir, "doc"), os.path.join(dir, "doc", "en")]
 	for docdir in docdirs:
 		if not os.path.isdir(docdir):
