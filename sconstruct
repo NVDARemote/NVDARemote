@@ -5,7 +5,6 @@
 
 import codecs
 import gettext
-import shutil
 import os
 import os.path
 import zipfile
@@ -100,20 +99,22 @@ env['BUILDERS']['gettextMergePotFile']=env.Builder(
 def createAddonHelp(dir):
 	if not os.path.isfile("docHandler.py"):
 		return
-	assert os.path.isfile("readme.md")
-	docdirs = [os.path.join(dir, "doc"), os.path.join(dir, "doc", "en")]
-	for docdir in docdirs:
-		if not os.path.isdir(docdir):
-			os.makedirs(docdir)
-	if os.path.isfile("style.css"):
-		shutil.copy("style.css", docdirs[0])
-	shutil.copyfile("readme.md", os.path.join(docdir, "readme.md"))
 	plugindir = os.path.join(dir, "globalPlugins")
 	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
 	docPath = os.path.join(plugindir, docFilename)
-	if not os.path.isdir(plugindir):
-		os.makedirs(plugindir)
-	shutil.copyfile("docHandler.py", docPath)
+	docFileTarget = env.Command(docPath, "docHandler.py", Copy("$TARGET", "$SOURCE"))
+	env.Depends(addon, docFileTarget)
+	docsDir = os.path.join(dir, "doc")
+	if os.path.isfile("style.css"):
+		cssPath = os.path.join(docsDir, "style.css")
+		cssTarget = env.Command(cssPath, "style.css", Copy("$TARGET", "$SOURCE"))
+		env.Depends(docFileTarget, cssTarget)
+	if os.path.isfile("README.md"):
+		readmePath = os.path.join(docsDir, "en", "README.md")
+		readmeTarget = env.Command(readmePath, "README.md", Copy("$TARGET", "$SOURCE"))
+		env.Depends(docFileTarget, readmeTarget)
+
+
 
 def createAddonBundleFromPath(path, dest):
 	""" Creates a bundle from a directory that contains an addon manifest file."""
