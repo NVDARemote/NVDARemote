@@ -13,7 +13,7 @@ addon_info = {
 	# add-on Name, internal for nvda
 	"addon-name" : "addonTemplate",
 	# Add-on summary, usually the user visible name of the addon.
-	# TRANSLATORS: Summary for this add-on to be shown on installation and add-on information.
+	# Translators: Summary for this add-on to be shown on installation and add-on information.
 	"addon-summary" : _("Add-on user visible name"),
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
