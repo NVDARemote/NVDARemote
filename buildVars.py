@@ -22,7 +22,7 @@ It can span multiple lines."""),
 	# version
 	"addon-version" : "x.y",
 	# Author(s)
-	"addon-author" : "name <name@domain.com>",
+	"addon-author" : u"name <name@domain.com>",
 	# URL for the add-on documentation support
 	"addon-url" : None
 }
