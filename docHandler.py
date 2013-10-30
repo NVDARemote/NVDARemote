@@ -12,7 +12,7 @@ import wx
 
 addonHandler.initTranslation()
 
-_addonDir = os.path.join(os.path.dirname(__file__), "..") # The root of an addon folder
+_addonDir = os.path.join(os.path.dirname(__file__), "..").decode("mbcs") # The root of an addon folder
 _docFileName = "readme.html" # The name of an addon documentation file
 _curAddon = addonHandler.Addon(_addonDir) # Addon instance
 _addonSummary = _curAddon.manifest['summary']
