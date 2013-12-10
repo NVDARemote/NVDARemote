@@ -45,8 +45,6 @@ You need the following software to use this code for your NVDA add-ons developme
 - Documentation files (named **readme.md**) must be placed into addon\doc\<lang>/.
 - Don't use **yourAddonName_docHandler.py** as a name for any file contained in **globalPlugins**; it will be removed to create a menu item for opening your addon documentation, under NVDA's help menu.
 
-Note: It's recommended to use hyphens instead of asterisks as tags for lists items, since they provide a better result when converting to HTML. You can also use asterisks followed by tab.
-
 ### To package the add-on for distribution: ###
 
 - Open a command line, change to the folder that has the **SCONSTRUCT** file and run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
