@@ -36,7 +36,7 @@ You need the following software to use this code for your NVDA add-ons developme
 - Create an empty folder to hold the files for your add-on.
 - Copy the **addon** folder, the **buildVars.py** file, the manifest.ini.tpl file, the manifest-translated.ini.tpl, **SCONSTRUCT**, .gitignore and .gitattributes files to the created folder.
 - In the **buildVars.py** file, change variable **addon_info** with your add-on's information (name, summary, description, version, author and url).
-- Put your code in the usual folders for NVDA extension, under the **addon** folder. For instance: globalPlugins, synthDrivers, etc. You can delete folders you don't need for your particular add-on package.
+- Put your code in the usual folders for NVDA extension, under the **addon** folder. For instance: globalPlugins, synthDrivers, etc. You can delete folders you don't need for your particular add-on package. Be sure to not include the readme.txt file inside these subfolders in your add-on.
 - Gettext translations must be placed into addon\locale\<lang>/LC_MESSAGES\nvda.po. 
 
 ### To manage documentation files for your addon: ###
@@ -47,7 +47,7 @@ You need the following software to use this code for your NVDA add-ons developme
 
 ### To package the add-on for distribution: ###
 
-- Open a command line, change to the folder that has the **SCONSTRUCT** file and run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
+- Open a command line, change to the folder that has the **SCONSTRUCT** file (usually the root of your add-on development folder) and run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
 - You can further customize variables in the **buildVars.py** file.
 
 Note that this template only provides a basic add-on structure and build infrastructure. You may need to adapt it for your specific needs.
