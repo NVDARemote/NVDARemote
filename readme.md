@@ -27,6 +27,7 @@ You need the following software to use this code for your NVDA add-ons developme
 - Scons - [Website](http://www.scons.org/) - version 2.1.0 or greater. Install it using **easy_install** or grab an windows installer from the website.
 - GNU Gettext tools, if you want to have localization support for your add-on - Recommended. Any Linux distro or cygwin have those installed. You can find windows builds [here](http://gnuwin32.sourceforge.net/downlinks/gettext.php).
 - Markdown-2.0.1 or greater, if you want to convert documentation files to HTML documents. You can [Download Markdown-2.0.1 installer for Windows](https://pypi.python.org/pypi/Markdown/2.0.1).
+- ConfigObj 4.6.2 or later to store add-on settings. You can grab the latest version here: [ConfigObj latest download](https://pypi.python.org/pypi/configobj/).
 
 
 ## Usage
