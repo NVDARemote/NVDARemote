@@ -4,3 +4,4 @@ description = """{addon-description}"""
 author = "{addon-author}"
 url = {addon-url}
 version = {addon-version}
+docFileName = readme.html

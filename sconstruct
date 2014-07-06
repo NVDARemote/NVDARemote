@@ -97,13 +97,6 @@ env['BUILDERS']['gettextMergePotFile']=env.Builder(
 	suffix=".pot")
 
 def createAddonHelp(dir):
-	if not os.path.isfile("docHandler.py"):
-		return
-	plugindir = os.path.join(dir, "globalPlugins")
-	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
-	docPath = os.path.join(plugindir, docFilename)
-	docFileTarget = env.Command(docPath, "docHandler.py", Copy("$TARGET", "$SOURCE"))
-	env.Depends(addon, docFileTarget)
 	docsDir = os.path.join(dir, "doc")
 	if os.path.isfile("style.css"):
 		cssPath = os.path.join(docsDir, "style.css")
