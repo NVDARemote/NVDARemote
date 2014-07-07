@@ -1,5 +1,5 @@
 # NVDA add-on template  SCONSTRUCT file
-#Copyright (C) 2012 Rui Batista <ruiandrebatista@gmail.com>
+#Copyright (C) 2012, 2014 Rui Batista <ruiandrebatista@gmail.com>
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
 
@@ -51,12 +51,13 @@ def mdTool(env):
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
-env = Environment(ENV=os.environ, tools=['gettexttool', mdTool],
-	gettextvars={
-		'package-bugs-address' : 'nvda-translations@freelists.org',
-		'package-name' : buildVars.addon_info['addon-name'],
-		'package-version' : buildVars.addon_info['addon-version']
-	})
+
+gettextvars={
+		'gettext_package_bugs_address' : 'nvda-translations@freelists.org',
+		'gettext_package_name' : buildVars.addon_info['addon-name'],
+		'gettext_package_version' : buildVars.addon_info['addon-version']
+	}
+env = Environment(ENV=os.environ, tools=['gettexttool', mdTool], **gettextvars)
 
 
 addonFile = env.File("{addon-name}-{addon-version}.nvda-addon".format(**buildVars.addon_info))
