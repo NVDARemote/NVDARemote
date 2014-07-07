@@ -4,7 +4,6 @@
 #See the file COPYING.txt for more details.
 
 import codecs
-import gettext
 import os
 import os.path
 import zipfile
@@ -52,7 +51,12 @@ def mdTool(env):
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
-env = Environment(ENV=os.environ, tools=[mdTool])
+env = Environment(ENV=os.environ, tools=['gettexttool', mdTool],
+	gettextvars={
+		'package-bugs-address' : 'nvda-translations@freelists.org',
+		'package-name' : buildVars.addon_info['addon-name'],
+		'package-version' : buildVars.addon_info['addon-version']
+	})
 
 
 addonFile = env.File("{addon-name}-{addon-version}.nvda-addon".format(**buildVars.addon_info))
@@ -78,23 +82,6 @@ def translatedManifestGenerator(target, source, env, for_signature):
 env['BUILDERS']['NVDAAddon'] = Builder(generator=addonGenerator)
 env['BUILDERS']['NVDAManifest'] = Builder(generator=manifestGenerator)
 env['BUILDERS']['NVDATranslatedManifest'] = Builder(generator=translatedManifestGenerator)
-
-env['BUILDERS']['gettextMoFile']=env.Builder(
-	action=env.Action(["msgfmt -o $TARGETS $SOURCES"], lambda t, s, e : "Compiling translation %s" % s[0]),
-	suffix=".mo",
-	src_suffix=".po"
-)
-
-env['BUILDERS']['gettextPotFile']=env.Builder(
-	action=env.Action(["xgettext --msgid-bugs-address='%s' --package-name='%s' --package-version='%s' -c -o $TARGETS $SOURCES" %
-		("nvda-translations@freelists.org", buildVars.addon_info['addon-name'], buildVars.addon_info['addon-version'])
-	], lambda t, s, e : "Generating pot file %s" % t[0]),
-	suffix=".pot")
-env['BUILDERS']['gettextMergePotFile']=env.Builder(
-	action=env.Action(["xgettext --msgid-bugs-address='%s' --package-name='%s' --package-version='%s' --omit-header --no-location -c -o $TARGETS $SOURCES" %
-		("nvda-translations@freelists.org", buildVars.addon_info['addon-name'], buildVars.addon_info['addon-version'])
-	], lambda t, s, e : "Generating pot file %s" % t[0]),
-	suffix=".pot")
 
 def createAddonHelp(dir):
 	docsDir = os.path.join(dir, "doc")
