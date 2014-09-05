@@ -1,5 +1,5 @@
 # NVDA add-on template  SCONSTRUCT file
-#Copyright (C) 2012 Rui Batista <ruiandrebatista@gmail.com>
+#Copyright (C) 2012, 2014 Rui Batista <ruiandrebatista@gmail.com>
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
 
@@ -8,7 +8,6 @@ import gettext
 import os
 import os.path
 import zipfile
-import configobj
 
 import buildVars
 
@@ -16,7 +15,7 @@ import buildVars
 def md2html(source, dest):
 	import markdown
 	lang = os.path.basename(os.path.dirname(source)).replace('_', '-')
-	title="{addonSummary} {addonVersion}".format(addonSummary=buildVars.addon_info["addon-summary"], addonVersion=buildVars.addon_info["addon-version"])
+	title="{addonSummary} {addonVersion}".format(addonSummary=buildVars.addon_info["addon_summary"], addonVersion=buildVars.addon_info["addon_version"])
 	headerDic = {
 		"[[!meta title=\"": "# ",
 		"\"]]": " #",
@@ -52,10 +51,11 @@ def mdTool(env):
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
-env = Environment(ENV=os.environ, tools=[mdTool])
 
+env = Environment(ENV=os.environ, tools=['gettexttool', mdTool])
+env.Append(**buildVars.addon_info)
 
-addonFile = env.File("{addon-name}-{addon-version}.nvda-addon".format(**buildVars.addon_info))
+addonFile = env.File("${addon_name}-${addon_version}.nvda-addon")
 
 def addonGenerator(target, source, env, for_signature):
 	action = env.Action(lambda target, source, env : createAddonBundleFromPath(source[0].abspath, target[0].abspath) and None,
@@ -79,31 +79,7 @@ env['BUILDERS']['NVDAAddon'] = Builder(generator=addonGenerator)
 env['BUILDERS']['NVDAManifest'] = Builder(generator=manifestGenerator)
 env['BUILDERS']['NVDATranslatedManifest'] = Builder(generator=translatedManifestGenerator)
 
-env['BUILDERS']['gettextMoFile']=env.Builder(
-	action=env.Action(["msgfmt -o $TARGETS $SOURCES"], lambda t, s, e : "Compiling translation %s" % s[0]),
-	suffix=".mo",
-	src_suffix=".po"
-)
-
-env['BUILDERS']['gettextPotFile']=env.Builder(
-	action=env.Action(["xgettext --msgid-bugs-address='%s' --package-name='%s' --package-version='%s' -c -o $TARGETS $SOURCES" %
-		("nvda-translations@freelists.org", buildVars.addon_info['addon-name'], buildVars.addon_info['addon-version'])
-	], lambda t, s, e : "Generating pot file %s" % t[0]),
-	suffix=".pot")
-env['BUILDERS']['gettextMergePotFile']=env.Builder(
-	action=env.Action(["xgettext --msgid-bugs-address='%s' --package-name='%s' --package-version='%s' --omit-header --no-location -c -o $TARGETS $SOURCES" %
-		("nvda-translations@freelists.org", buildVars.addon_info['addon-name'], buildVars.addon_info['addon-version'])
-	], lambda t, s, e : "Generating pot file %s" % t[0]),
-	suffix=".pot")
-
 def createAddonHelp(dir):
-	if not os.path.isfile("docHandler.py"):
-		return
-	plugindir = os.path.join(dir, "globalPlugins")
-	docFilename = "{addonName}_docHandler.py".format(addonName=buildVars.addon_info["addon-name"])
-	docPath = os.path.join(plugindir, docFilename)
-	docFileTarget = env.Command(docPath, "docHandler.py", Copy("$TARGET", "$SOURCE"))
-	env.Depends(addon, docFileTarget)
 	docsDir = os.path.join(dir, "doc")
 	if os.path.isfile("style.css"):
 		cssPath = os.path.join(docsDir, "style.css")
@@ -139,7 +115,7 @@ def generateManifest(source, dest):
 def generateTranslatedManifest(source, language, out):
 	_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
 	vars = {}
-	for var in ("addon-summary", "addon-description"):
+	for var in ("addon_summary", "addon_description"):
 		vars[var] = _(buildVars.addon_info[var])
 	with codecs.open(source, "r", "utf-8") as f:
 		manifest_template = f.read()
@@ -176,10 +152,16 @@ for mdFile in env.Glob(os.path.join('addon', 'doc', '*', '*.md')):
 
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
-pot = env.gettextPotFile("%s.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
+gettextvars={
+		'gettext_package_bugs_address' : 'nvda-translations@freelists.org',
+		'gettext_package_name' : buildVars.addon_info['addon_name'],
+		'gettext_package_version' : buildVars.addon_info['addon_version']
+	}
+
+pot = env.gettextPotFile("${addon_name}.pot", i18nFiles, **gettextvars)
 env.Alias('pot', pot)
 env.Depends(pot, i18nFiles)
-mergePot = env.gettextMergePotFile("%s-merge.pot" % "{addon-name}".format(**buildVars.addon_info), i18nFiles)
+mergePot = env.gettextMergePotFile("${addon_name}-merge.pot", i18nFiles, **gettextvars)
 env.Alias('mergePot', mergePot)
 env.Depends(mergePot, i18nFiles)
 

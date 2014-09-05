@@ -1,6 +1,7 @@
-name = {addon-name}
-summary = "{addon-summary}"
-description = """{addon-description}"""
-author = "{addon-author}"
-url = {addon-url}
-version = {addon-version}
+name = {addon_name}
+summary = "{addon_summary}"
+description = """{addon_description}"""
+author = "{addon_author}"
+url = {addon_url}
+version = {addon_version}
+docFileName = {addon_docFileName}

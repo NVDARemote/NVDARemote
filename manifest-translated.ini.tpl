@@ -1,2 +1,2 @@
-summary = "{addon-summary}"
-description = """{addon-description}"""
+summary = "{addon_summary}"
+description = """{addon_description}"""
