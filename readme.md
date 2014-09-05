@@ -4,7 +4,7 @@ This package contains a basic template structure for NVDA add-on development, bu
 For details about NVDA add-on development please see the [NVDA Developer Guide](http://www.nvda-project.org/documentation/developerGuide.html).
 The NVDA addon development/discussion list [is here](http://www.freelists.org/list/nvda-addons)
 
-Copyright (C) 2012-2013 nvda addon team contributors.
+Copyright (C) 2012-2014 nvda addon team contributors.
 
 This package is distributed under the terms of the GNU General Public License, version 2 or later. Please see the file COPYING.txt for further details.
 
@@ -26,8 +26,7 @@ You need the following software to use this code for your NVDA add-ons developme
 - a Python distribution (2.7 or greater is recommended). Check the [Python Website](http://www.python.org) for Windows Installers.
 - Scons - [Website](http://www.scons.org/) - version 2.1.0 or greater. Install it using **easy_install** or grab an windows installer from the website.
 - GNU Gettext tools, if you want to have localization support for your add-on - Recommended. Any Linux distro or cygwin have those installed. You can find windows builds [here](http://gnuwin32.sourceforge.net/downlinks/gettext.php).
-- Markdown-2.0.1 or greater, if you want to convert documentation files to HTML documents. You can [Download Markdown-2.0.1 installer for Windows](https://pypi.python.org/pypi/Markdown/2.0.1).
-- ConfigObj 4.6.2 or later to store add-on settings. You can grab the latest version here: [ConfigObj latest download](https://pypi.python.org/pypi/configobj/).
+- Markdown-2.0.1 or greater, if you want to convert documentation files to HTML documents. You can [Download Markdown-2.0.1 installer for Windows](https://pypi.python.org/pypi/Markdown/2.0.1) or get it using `easy_install markdown`.
 
 
 ## Usage
@@ -45,7 +44,6 @@ You need the following software to use this code for your NVDA add-ons developme
 
 - Copy the **readme.md** file for your addon, and the **docHandler.py** file, contained into addonTemplate, to the first created folder, where you copied **buildVars.py**. You can also copy **style.css** to improve the presentation of HTML documents.
 - Documentation files (named **readme.md**) must be placed into addon\doc\<lang>/.
-- Don't use **yourAddonName_docHandler.py** as a name for any file contained in **globalPlugins**; it will be removed to create a menu item for opening your addon documentation, under NVDA's help menu.
 
 ### To package the add-on for distribution: ###
 
