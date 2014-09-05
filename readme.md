@@ -42,7 +42,7 @@ You need the following software to use this code for your NVDA add-ons developme
 
 ### To manage documentation files for your addon: ###
 
-- Copy the **readme.md** file for your addon, and the **docHandler.py** file, contained into addonTemplate, to the first created folder, where you copied **buildVars.py**. You can also copy **style.css** to improve the presentation of HTML documents.
+- Copy the **readme.md** file for your add-on to the first created folder, where you copied **buildVars.py**. You can also copy **style.css** to improve the presentation of HTML documents.
 - Documentation files (named **readme.md**) must be placed into addon\doc\<lang>/.
 
 ### To package the add-on for distribution: ###
@@ -52,4 +52,4 @@ You need the following software to use this code for your NVDA add-ons developme
 
 Note that this template only provides a basic add-on structure and build infrastructure. You may need to adapt it for your specific needs.
 
-If you have any issues please use the NVDA addon list mensioned above.
+If you have any issues please use the NVDA addon list mentioned above.
