@@ -35,7 +35,7 @@ You need the following software to use this code for your NVDA add-ons developme
 
 - Create an empty folder to hold the files for your add-on.
 - Create an **addon** folder inside this new folder. Inside **addon* folder, create needed folders for the add-on modules (e.g. appModules, synthDrivers, etc.). An add-on may have one or more module folders.
-- Copy the **buildVars.py** file, the manifest.ini.tpl file, the manifest-translated.ini.tpl, **SCONSTRUCT**, .gitignore and .gitattributes files to the created folder.
+- Copy the **buildVars.py** file, the manifest.ini.tpl file, the manifest-translated.ini.tpl, **SCONSTRUCT**, site_scons, .gitignore and .gitattributes files to the created folder.
 - In the **buildVars.py** file, change variable **addon_info** with your add-on's information (name, summary, description, version, author and url).
 - Put your code in the usual folders for NVDA extension, under the **addon** folder. For instance: globalPlugins, synthDrivers, etc.
 - Gettext translations must be placed into addon\locale\<lang>/LC_MESSAGES\nvda.po. 
