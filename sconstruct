@@ -144,7 +144,7 @@ for file in pythonFiles:
 	env.Depends(addon, file)
 
 #Convert markdown files to html
-createAddonHelp("addon") # We need at least doc in English and should append an item to Help menu
+createAddonHelp("addon") # We need at least doc in English and should enable the Help button for the add-on in Add-ons Manager
 for mdFile in env.Glob(os.path.join('addon', 'doc', '*', '*.md')):
 	htmlFile = env.markdown(mdFile)
 	env.Depends(htmlFile, mdFile)
