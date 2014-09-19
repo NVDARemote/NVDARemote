@@ -20,6 +20,13 @@ from SCons.Action import Action
 def exists(env):
 	return True
 
+XGETTEXT_COMMON_ARGS = (
+	"--msgid-bugs-address='$gettext_package_bugs_address' "
+	"--package-name='$gettext_package_name' "
+	"--package-version='$gettext_package_version' "
+	"-c -o $TARGET $SOURCES"
+)
+
 def generate(env):
 	env.SetDefault(gettext_package_bugs_address="example@example.com")
 	env.SetDefault(gettext_package_name="")
@@ -32,12 +39,11 @@ def generate(env):
 	)
 
 	env['BUILDERS']['gettextPotFile']=env.Builder(
-		action=Action("xgettext --msgid-bugs-address='$gettext_package_bugs_address' --package-name='$gettext_package_name' --package-version='$gettext_package_version' -c -o $TARGET $SOURCE",
-		"Generating pot file $TARGET"),
+		action=Action("xgettext " + XGETTEXT_COMMON_ARGS, "Generating pot file $TARGET"),
 		suffix=".pot")
 
 	env['BUILDERS']['gettextMergePotFile']=env.Builder(
-		action=Action("xgettext --msgid-bugs-address='$gettext_package_bugs_address' --package-name='$gettext_package_name' --package-ve rsion='$gettext_package_version' --omit-header --no-location -c -o $TARGET $SOURCES",
-		"Generating pot file $TARGET"),
+		action=Action("xgettext " + "--omit-header --no-location " + XGETTEXT_COMMON_ARGS,
+			"Generating pot file $TARGET"),
 		suffix=".pot")
 
