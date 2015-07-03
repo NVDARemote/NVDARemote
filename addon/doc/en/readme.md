@@ -91,3 +91,17 @@ In order for NVDA Remote to work on the secure desktop, the addon must be instal
 
 Once NVDA Remote is installed on the secure desktop, if you are currently being controlled in a remote session,
 the secure desktop will read when switched to.
+
+##Contributions
+We would like to acknowledge the following contributors, among others, who helped make the NVDA Remote project a reality.
+
+* Hai Nguyen Ly
+* Chris Westbrook
+* Thomas Huebner
+* John F Crosotn III
+* Darrell Shandrow
+* D Williams
+* Matthew McCubbin
+* Jason Meddaugh
+* Tyler W Kavanaugh
+* Casey Mathews
