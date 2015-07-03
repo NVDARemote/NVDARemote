@@ -4,6 +4,7 @@ import threading
 import urllib
 import wx
 import gui
+import serializer
 import server
 import transport
 import socket_utils
@@ -27,7 +28,7 @@ class ClientPanel(wx.Panel):
 	def on_generate_key(self, evt):
 		evt.Skip()
 		address = socket_utils.address_to_hostport(self.host.GetValue())
-		self.key_connector = transport.RelayTransport(address=address)
+		self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer())
 		self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
 		t = threading.Thread(target=self.key_connector.run)
 		t.start()
