@@ -1,0 +1,30 @@
+﻿@charset "utf-8";
+body { 
+font-family : Verdana, Arial, Helvetica, Sans-serif;
+color : #FFFFFF;
+background-color : #000000;
+line-height: 1.2em;
+} 
+h1, h2 {text-align: center}
+dt { 
+font-weight : bold; 
+float : left; 
+width: 10%;
+clear: left
+} 
+dd { 
+margin : 0 0 0.4em 0; 
+float : left;
+width: 90%;
+display: block;
+} 
+p { clear : both; 
+} 
+a { text-decoration : underline; 
+} 
+:active { 
+text-decoration : none; 
+}
+a:focus, a:hover {outline: solid}
+:link {color: #0000FF;
+background-color: #FFFFFF}
