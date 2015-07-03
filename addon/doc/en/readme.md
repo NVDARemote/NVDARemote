@@ -103,5 +103,6 @@ We would like to acknowledge the following contributors, among others, who helpe
 * D Williams
 * Matthew McCubbin
 * Jason Meddaugh
+* ABDULAZIZ ALSHMASI.
 * Tyler W Kavanaugh
 * Casey Mathews
