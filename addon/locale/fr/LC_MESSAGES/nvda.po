@@ -1,0 +1,192 @@
+# NVDARemote French translation
+# Copyright (C) 2015 Yannick PLASSIARD
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: NVDARemote\n"
+"Report-Msgid-Bugs-To: y.plassiard@accessolutions.fr\n"
+"POT-Creation-Date: 2015-07-04 20:04+0200\n"
+"PO-Revision-Date: 2015-07-04 21:04+0200\n"
+"Last-Translator: Yannick PPASSIARD <y.plassiard@accessolutions.fr\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: globalPlugins/remoteClient/dialogs.py:17
+#: globalPlugins/remoteClient/dialogs.py:155
+msgid "&Host:"
+msgstr "Adresse du &serveur: "
+
+#: globalPlugins/remoteClient/dialogs.py:20
+#: globalPlugins/remoteClient/dialogs.py:53
+#: globalPlugins/remoteClient/dialogs.py:159
+msgid "&Key:"
+msgstr "&Clé: "
+
+#: globalPlugins/remoteClient/dialogs.py:23
+#: globalPlugins/remoteClient/dialogs.py:56
+msgid "&Generate Key"
+msgstr "&Générer la clé"
+
+#: globalPlugins/remoteClient/dialogs.py:47
+msgid "Get External &IP"
+msgstr "Obtenir l'&adresse IP publique"
+
+#: globalPlugins/remoteClient/dialogs.py:50
+msgid "&External IP:"
+msgstr "&IP Publique: "
+
+#: globalPlugins/remoteClient/dialogs.py:95
+msgid "Successfully retrieved IP address. Your port is open."
+msgstr "Adresse IP publique récupérée avec succès. Votre serveur est lancé."
+
+#: globalPlugins/remoteClient/dialogs.py:95
+msgid "Success"
+msgstr "Succès"
+
+#: globalPlugins/remoteClient/dialogs.py:97
+msgid "Retrieved external IP, but your port is not currently forwarded."
+msgstr "Adresse IP publique récupérée, mais votre port n'est pas redirigé."
+
+#: globalPlugins/remoteClient/dialogs.py:97
+msgid "Warning"
+msgstr "Avertissement"
+
+#: globalPlugins/remoteClient/dialogs.py:104
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Impossible de contacter le service portCheck, veuillez récupérer votre adresse IP publique manuellement."
+#: globalPlugins/remoteClient/dialogs.py:104
+#: globalPlugins/remoteClient/dialogs.py:140
+#: globalPlugins/remoteClient/dialogs.py:142
+#: globalPlugins/remoteClient/dialogs.py:188
+msgid "Error"
+msgstr "Erreur"
+
+#: globalPlugins/remoteClient/dialogs.py:111
+msgid "Client"
+msgstr "Client"
+
+#: globalPlugins/remoteClient/dialogs.py:111
+msgid "Server"
+msgstr "Serveur"
+
+#: globalPlugins/remoteClient/dialogs.py:115
+msgid "Control another machine"
+msgstr "Contrôler un autre PC"
+
+#: globalPlugins/remoteClient/dialogs.py:115
+msgid "Allow this machine to be controlled"
+msgstr "Permettre à ce PC d'être contrôlé par quelqu'un"
+
+#: globalPlugins/remoteClient/dialogs.py:140
+#: globalPlugins/remoteClient/dialogs.py:188
+msgid "Both host and key must be set."
+msgstr "Le nom d'hôte et la clé doivent être tous deux renseignés."
+
+#: globalPlugins/remoteClient/dialogs.py:142
+msgid "Key must be set."
+msgstr "La clé doit être renseignée."
+
+#: globalPlugins/remoteClient/dialogs.py:152
+msgid "Auto-connect to control server on startup"
+msgstr "Se connecter automatiquement au serveur au démarrage"
+
+#: globalPlugins/remoteClient/__init__.py:75
+msgid "Connect..."
+msgstr "Se connecter"
+
+#: globalPlugins/remoteClient/__init__.py:75
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr "Se connecter à une autre machine exécutant NVDA Accès Distant"
+
+#: globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect"
+msgstr "Se déconnecter"
+
+#: globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr "Terminer la session NVDA Accès Distant"
+
+#: globalPlugins/remoteClient/__init__.py:80
+msgid "Mute remote speech"
+msgstr "Couper la synthèse vocale distante"
+
+#: globalPlugins/remoteClient/__init__.py:80
+msgid "Mute speech from the remote computer"
+msgstr "Couper la synthèse vocale sur l'ordinateur distant"
+
+#: globalPlugins/remoteClient/__init__.py:84
+msgid "&Push clipboard"
+msgstr "Envoyer le presse-papier"
+
+#: globalPlugins/remoteClient/__init__.py:84
+msgid "Push the clipboard to the other machine"
+msgstr "Envoyer le contenu du presse-papier vers la machine distante"
+
+#: globalPlugins/remoteClient/__init__.py:87
+msgid "&Options..."
+msgstr "&Options..."
+
+#: globalPlugins/remoteClient/__init__.py:87
+#: globalPlugins/remoteClient/__init__.py:113
+msgid "Options"
+msgstr "Options"
+
+#: globalPlugins/remoteClient/__init__.py:89
+msgid "Send Ctrl+Alt+Del"
+msgstr "Envoyer Ctrl+Alt+Suppr"
+
+#: globalPlugins/remoteClient/__init__.py:92
+msgid "R&emote"
+msgstr "&Distant"
+
+#: globalPlugins/remoteClient/__init__.py:92
+msgid "NVDA Remote Access"
+msgstr "NVDA Accès Distant"
+
+#: globalPlugins/remoteClient/__init__.py:127
+msgid "Not connected."
+msgstr "Non connecté."
+
+#: globalPlugins/remoteClient/__init__.py:167
+msgid "Error Connecting"
+msgstr "Erreur à la connexion"
+
+#: globalPlugins/remoteClient/__init__.py:167
+msgid "Unable to connect to the remote computer"
+msgstr "Impossible de se connecter à l'ordinateur distant"
+
+#: globalPlugins/remoteClient/__init__.py:178
+msgid "Connect"
+msgstr "Connecter"
+
+#: globalPlugins/remoteClient/__init__.py:214
+msgid "Connected!"
+msgstr "Connecté!"
+
+#: globalPlugins/remoteClient/__init__.py:218
+msgid "Connection interrupted"
+msgstr "Connexion interrompue"
+
+#: globalPlugins/remoteClient/__init__.py:250
+msgid "Connected to control server"
+msgstr "Connecté au serveur de contrôle"
+
+#: globalPlugins/remoteClient/__init__.py:270
+msgid "Sending keys."
+msgstr "Transmission des touches activé."
+
+#: globalPlugins/remoteClient/__init__.py:272
+msgid "Not sending keys."
+msgstr "Transmission des touches désactivé."
+
+#: globalPlugins/remoteClient/session.py:107
+msgid "Remote NVDA not connected."
+msgstr "NVDA Distant non connecté."
