@@ -173,7 +173,10 @@ class GlobalPlugin(GlobalPlugin):
 	def on_slave_connection_failed(self):
 		if self.connector.successful_connects == 0:
 			self.disconnect_from_slave()
-			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"), message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
+			# Translators: Title of the connection error dialog.
+			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"),
+			# Translators: Message shown when cannot connect to the remote computer.
+			message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
 	def script_disconnect(self, gesture):
 		self.do_disconnect_from_slave()
@@ -184,6 +187,7 @@ class GlobalPlugin(GlobalPlugin):
 		last = ''
 		if last_cons:
 			last = last_cons[-1]
+		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
 		dlg.panel.host.SetValue(last)
 		dlg.panel.host.SelectAll()
@@ -220,10 +224,12 @@ class GlobalPlugin(GlobalPlugin):
 		self.hook_thread = threading.Thread(target=self.hook)
 		self.hook_thread.daemon = True
 		self.hook_thread.start()
+		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
 		beep_sequence.beep_sequence((440, 60), (660, 60))
 
 	def on_disconnected_from_slave(self):
+		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 #		self.do_disconnect_from_slave(quiet=True)
 
@@ -256,6 +262,7 @@ class GlobalPlugin(GlobalPlugin):
 	def connected_to_relay(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
+		# Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.control_connector.address)
@@ -276,8 +283,10 @@ class GlobalPlugin(GlobalPlugin):
 		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
 			self.sending_keys = not self.sending_keys
 			if self.sending_keys:
+				# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
 				ui.message(_("Sending keys."))
 			else:
+				# Translators: Presented when keyboard control is back to the controlling computer.
 				ui.message(_("Not sending keys."))
 			return True #Don't pass it on
 		if not self.sending_keys:
