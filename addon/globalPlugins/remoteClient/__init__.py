@@ -231,7 +231,6 @@ class GlobalPlugin(GlobalPlugin):
 	def on_disconnected_from_slave(self):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
-#		self.do_disconnect_from_slave(quiet=True)
 
 	def connect_slave(self, address, channel):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
