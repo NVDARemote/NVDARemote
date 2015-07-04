@@ -72,23 +72,30 @@ class GlobalPlugin(GlobalPlugin):
 	def create_menu(self):
 		self.menu = wx.Menu()
 		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
+		# Translators: Item in NVDA Remote submenu to connect to a remote computer.
 		self.connect_item = self.menu.Append(wx.ID_ANY, _("Connect..."), _("Remotely connect to another computer running NVDA Remote Access"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.do_connect, self.connect_item)
+		# Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
 		self.disconnect_item = self.menu.Append(wx.ID_ANY, _("Disconnect"), _("Disconnect from another computer running NVDA Remote Access"))
 		self.disconnect_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_disconnect_item, self.disconnect_item)
+		# Translators: Menu item in NvDA Remote submenu to mute speech from the remote computer.
 		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote speech"), _("Mute speech from the remote computer"))
 		self.mute_item.SetCheckable(True)
 		self.mute_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_mute_item, self.mute_item)
+		# Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
 		self.push_clipboard_item = self.menu.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
 		self.push_clipboard_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_push_clipboard_item, self.push_clipboard_item)
+		# Translators: Menu item in NvDA Remote submenu to open add-on options.
 		self.options_item = self.menu.Append(wx.ID_ANY, _("&Options..."), _("Options"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.options_item)
+		# Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
 		self.send_ctrl_alt_del_item = self.menu.Append(wx.ID_ANY, _("Send Ctrl+Alt+Del"), _("Send Ctrl+Alt+Del"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_send_ctrl_alt_del, self.send_ctrl_alt_del_item)
 		self.send_ctrl_alt_del_item.Enable(False)
+		# Translators: Label of menu in NVDA tools menu.
 		tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 
@@ -105,11 +112,13 @@ class GlobalPlugin(GlobalPlugin):
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
 		except TypeError:
+			# JL: It might be helpful to provide a log.debug output for this.
 			pass
 
 	def on_options_item(self, evt):
 		evt.Skip()
 		config = get_config()
+		# Translators: The title of the add-on options dialog.
 		dlg = dialogs.OptionsDialog(gui.mainFrame, wx.ID_ANY, title=_("Options"))
 		dlg.set_from_config(config)
 		def handle_dlg_complete(dlg_result):
