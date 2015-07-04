@@ -8,6 +8,8 @@ import serializer
 import server
 import transport
 import socket_utils
+import addonHandler
+addonHandler.initTranslation()
 
 class ClientPanel(wx.Panel):
 
