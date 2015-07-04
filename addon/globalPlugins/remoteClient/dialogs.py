@@ -56,6 +56,7 @@ class ServerPanel(wx.Panel):
 		self.generate_key = wx.Button(parent=self, label=_("&Generate Key"))
 		self.generate_key.Bind(wx.EVT_BUTTON, self.on_generate_key)
 		sizer.Add(self.generate_key)
+		self.SetSizerAndFit(sizer)
 
 	def on_generate_key(self, evt):
 		evt.Skip()
