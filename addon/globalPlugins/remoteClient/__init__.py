@@ -162,7 +162,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.control_connector = None
 
 	def on_slave_connection_failed(self):
-		if self.connector.successfull_connects == 0:
+		if self.connector.successful_connects == 0:
 			self.disconnect_from_slave()
 			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"), message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
