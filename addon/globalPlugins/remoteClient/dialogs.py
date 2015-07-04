@@ -15,7 +15,7 @@ class ClientPanel(wx.Panel):
 		super(ClientPanel, self).__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
-		self.host = wx.TextCtrl(self, wx.ID_ANY, value="remote.accessolutions.fr")
+		self.host = wx.TextCtrl(self, wx.ID_ANY)
 		sizer.Add(self.host)
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
