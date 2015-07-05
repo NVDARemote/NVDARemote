@@ -8,18 +8,23 @@ import serializer
 import server
 import transport
 import socket_utils
+import addonHandler
+addonHandler.initTranslation()
 
 class ClientPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
 		super(ClientPanel, self).__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
+		# Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
 		self.host = wx.TextCtrl(self, wx.ID_ANY)
 		sizer.Add(self.host)
+		# Translators: Label of the edit field to enter key (password) to secure the remote connection.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		sizer.Add(self.key)
+		# Translators: The button used to generate a random key/password.
 		self.generate_key = wx.Button(parent=self, label=_("&Generate Key"))
 		self.generate_key.Bind(wx.EVT_BUTTON, self.on_generate_key)
 		sizer.Add(self.generate_key)
@@ -44,9 +49,11 @@ class ServerPanel(wx.Panel):
 	def __init__(self, parent=None, id=wx.ID_ANY):
 		super(ServerPanel, self).__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
+		# Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
 		self.get_IP = wx.Button(parent=self, label=_("Get External &IP"))
 		self.get_IP.Bind(wx.EVT_BUTTON, self.on_get_IP)
 		sizer.Add(self.get_IP)
+		# Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&External IP:")))
 		self.external_IP = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_MULTILINE)
 		sizer.Add(self.external_IP)
@@ -149,6 +156,7 @@ class OptionsDialog(wx.Dialog):
 	def __init__(self, parent, id, title):
 		super(OptionsDialog, self).__init__(parent, id, title=title)
 		main_sizer = wx.BoxSizer(wx.VERTICAL)
+		# Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
 		self.autoconnect = wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup"))
 		self.autoconnect.Bind(wx.EVT_CHECKBOX, self.on_autoconnect)
 		main_sizer.Add(self.autoconnect)

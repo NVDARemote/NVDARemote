@@ -1,0 +1,197 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: nvdaremote 1.0\n"
+"POT-Creation-Date: 2015-07-04 09:05+0200\n"
+"PO-Revision-Date: 2015-07-04 09:22+0200\n"
+"Last-Translator: \n"
+"Language-Team: David Parduhn <xkill85@gmx.net>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.2\n"
+"X-Poedit-Basepath: rechner/nvda-git/nvdaremote\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: addon/globalPlugins/remoteClient/__init__.py:75
+msgid "Connect..."
+msgstr "verbinden..."
+
+#: addon/globalPlugins/remoteClient/__init__.py:75
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr "Stellt eine Verbindung zu einem anderen Computer her, auf dem nvdaremote ausgeführt wird."
+
+#: addon/globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect"
+msgstr "Verbindung trennen"
+
+#: addon/globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr "trennt die Verbindung zu einem anderen Computer, auf dem nvdaremote ausgeführt wird"
+
+#: addon/globalPlugins/remoteClient/__init__.py:80
+msgid "Mute remote speech"
+msgstr "entfernte Sprache stumm schalten"
+
+#: addon/globalPlugins/remoteClient/__init__.py:80
+msgid "Mute speech from the remote computer"
+msgstr "Schaltet die Sprache des entfernten Computers stumm"
+
+#: addon/globalPlugins/remoteClient/__init__.py:84
+msgid "&Push clipboard"
+msgstr "Zwischenablage über&tragen"
+
+#: addon/globalPlugins/remoteClient/__init__.py:84
+msgid "Push the clipboard to the other machine"
+msgstr "überträgt den Inhalt der Zwischenablage an den anderen Rechner"
+
+#: addon/globalPlugins/remoteClient/__init__.py:87
+msgid "&Options..."
+msgstr "&Optionen..."
+
+#: addon/globalPlugins/remoteClient/__init__.py:87
+#: addon/globalPlugins/remoteClient/__init__.py:113
+msgid "Options"
+msgstr "Optionen"
+
+#: addon/globalPlugins/remoteClient/__init__.py:89
+msgid "Send Ctrl+Alt+Del"
+msgstr "strg+alt+entf senden"
+
+#: addon/globalPlugins/remoteClient/__init__.py:92
+msgid "R&emote"
+msgstr "R&emote"
+
+#: addon/globalPlugins/remoteClient/__init__.py:92
+msgid "NVDA Remote Access"
+msgstr "NVDA Remote Access"
+
+#: addon/globalPlugins/remoteClient/__init__.py:127
+msgid "Not connected."
+msgstr "nicht verbunden"
+
+#: addon/globalPlugins/remoteClient/__init__.py:167
+msgid "Error Connecting"
+msgstr "Fehler beim Verbindungsaufbau"
+
+#: addon/globalPlugins/remoteClient/__init__.py:167
+msgid "Unable to connect to the remote computer"
+msgstr "Die Verbindung zum entfernten Rechner konnte nicht hergestellt werden."
+
+#: addon/globalPlugins/remoteClient/__init__.py:178
+msgid "Connect"
+msgstr "verbinden"
+
+#: addon/globalPlugins/remoteClient/__init__.py:214
+msgid "Connected!"
+msgstr "verbunden!"
+
+#: addon/globalPlugins/remoteClient/__init__.py:218
+msgid "Connection interrupted"
+msgstr "Verbindung abgerissen"
+
+#: addon/globalPlugins/remoteClient/__init__.py:250
+msgid "Connected to control server"
+msgstr "Verbindung mit Server hergestellt"
+
+#: addon/globalPlugins/remoteClient/__init__.py:270
+msgid "Sending keys."
+msgstr "Tasten werden gesendet"
+
+#: addon/globalPlugins/remoteClient/__init__.py:272
+msgid "Not sending keys."
+msgstr "Tasten werden nicht gesendet"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:17
+#: addon/globalPlugins/remoteClient/dialogs.py:155
+msgid "&Host:"
+msgstr "%Rechner:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:20
+#: addon/globalPlugins/remoteClient/dialogs.py:53
+#: addon/globalPlugins/remoteClient/dialogs.py:159
+msgid "&Key:"
+msgstr "&Schlüssel:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:23
+#: addon/globalPlugins/remoteClient/dialogs.py:56
+msgid "&Generate Key"
+msgstr "Schlüssel er&zeugen"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:47
+msgid "Get External &IP"
+msgstr "externe Ip-Adresse er&mitteln"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:50
+msgid "&External IP:"
+msgstr "&externe Ip-Adresse:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:95
+msgid "Successfully retrieved IP address. Your port is open."
+msgstr "Die Ip-Adresse wurde erfolgreich ermittelt. Der benötigte Anschluss ist verfügbar."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:95
+msgid "Success"
+msgstr "Erfolg"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+msgid "Retrieved external IP, but your port is not currently forwarded."
+msgstr "Die externe Ip-Adresse wurde zwar ermittelt, aber der erforderliche Anschluss wird nicht weitergeleitet"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+msgid "Warning"
+msgstr "Warnung"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:104
+msgid "Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr "Der Server zum Ermitteln der externen Ip-Adresse konnte nicht kontaktiert werden, ermitteln Sie die externe Ip manuell"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:104
+#: addon/globalPlugins/remoteClient/dialogs.py:140
+#: addon/globalPlugins/remoteClient/dialogs.py:142
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+msgid "Error"
+msgstr "Fehler"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:111
+msgid "Client"
+msgstr "Client"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:111
+msgid "Server"
+msgstr "Server"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:115
+msgid "Control another machine"
+msgstr "einen anderen Computer steuern"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:115
+msgid "Allow this machine to be controlled"
+msgstr "Zulassen, dass dieser Computer gesteert wird"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:140
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+msgid "Both host and key must be set."
+msgstr "Sie müssen sowohl einen Rechnernamen als auch einen Schlüssel angeben"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:142
+msgid "Key must be set."
+msgstr "Sie müssen einen Schlüssel angeben."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:152
+msgid "Auto-connect to control server on startup"
+msgstr "beim Start automatisch mit Server verbinden"
+
+#: addon/globalPlugins/remoteClient/session.py:107
+msgid "Remote NVDA not connected."
+msgstr "entfernter NVDA nicht verbunden"
+
+#: buildVars.py:17
+msgid "Remote Support"
+msgstr "Remote Support"
+
+#: buildVars.py:20
+msgid "Allows remote control of and remote access to another machine."
+msgstr "Erlaub den Zugriff auf und die Steuerung von anderen Rechnern"

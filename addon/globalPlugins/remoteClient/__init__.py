@@ -45,6 +45,7 @@ from socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
 
 class GlobalPlugin(GlobalPlugin):
+	scriptCategory = _("NVDA Remote")
 
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
@@ -72,23 +73,30 @@ class GlobalPlugin(GlobalPlugin):
 	def create_menu(self):
 		self.menu = wx.Menu()
 		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
+		# Translators: Item in NVDA Remote submenu to connect to a remote computer.
 		self.connect_item = self.menu.Append(wx.ID_ANY, _("Connect..."), _("Remotely connect to another computer running NVDA Remote Access"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.do_connect, self.connect_item)
+		# Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
 		self.disconnect_item = self.menu.Append(wx.ID_ANY, _("Disconnect"), _("Disconnect from another computer running NVDA Remote Access"))
 		self.disconnect_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_disconnect_item, self.disconnect_item)
+		# Translators: Menu item in NvDA Remote submenu to mute speech from the remote computer.
 		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote speech"), _("Mute speech from the remote computer"))
 		self.mute_item.SetCheckable(True)
 		self.mute_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_mute_item, self.mute_item)
+		# Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
 		self.push_clipboard_item = self.menu.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
 		self.push_clipboard_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_push_clipboard_item, self.push_clipboard_item)
+		# Translators: Menu item in NvDA Remote submenu to open add-on options.
 		self.options_item = self.menu.Append(wx.ID_ANY, _("&Options..."), _("Options"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.options_item)
+		# Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
 		self.send_ctrl_alt_del_item = self.menu.Append(wx.ID_ANY, _("Send Ctrl+Alt+Del"), _("Send Ctrl+Alt+Del"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_send_ctrl_alt_del, self.send_ctrl_alt_del_item)
 		self.send_ctrl_alt_del_item.Enable(False)
+		# Translators: Label of menu in NVDA tools menu.
 		tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 
@@ -100,16 +108,23 @@ class GlobalPlugin(GlobalPlugin):
 		evt.Skip()
 		self.local_machine.is_muted = self.mute_item.IsChecked()
 
+	def script_toggle_remote_mute(self, gesture):
+		self.local_machine.is_muted = not self.local_machine.is_muted
+		self.mute_item.Check(self.local_machine.is_muted)
+	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
+
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
 		except TypeError:
+			# JL: It might be helpful to provide a log.debug output for this.
 			pass
 
 	def on_options_item(self, evt):
 		evt.Skip()
 		config = get_config()
+		# Translators: The title of the add-on options dialog.
 		dlg = dialogs.OptionsDialog(gui.mainFrame, wx.ID_ANY, title=_("Options"))
 		dlg.set_from_config(config)
 		def handle_dlg_complete(dlg_result):
@@ -164,7 +179,10 @@ class GlobalPlugin(GlobalPlugin):
 	def on_slave_connection_failed(self):
 		if self.connector.successful_connects == 0:
 			self.disconnect_from_slave()
-			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"), message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
+			# Translators: Title of the connection error dialog.
+			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"),
+			# Translators: Message shown when cannot connect to the remote computer.
+			message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
 	def script_disconnect(self, gesture):
 		self.do_disconnect_from_slave()
@@ -175,6 +193,7 @@ class GlobalPlugin(GlobalPlugin):
 		last = ''
 		if last_cons:
 			last = last_cons[-1]
+		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
 		dlg.panel.host.SetValue(last)
 		dlg.panel.host.SelectAll()
@@ -211,12 +230,13 @@ class GlobalPlugin(GlobalPlugin):
 		self.hook_thread = threading.Thread(target=self.hook)
 		self.hook_thread.daemon = True
 		self.hook_thread.start()
+		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
 		beep_sequence.beep_sequence((440, 60), (660, 60))
 
 	def on_disconnected_from_slave(self):
+		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
-#		self.do_disconnect_from_slave(quiet=True)
 
 	def connect_slave(self, address, channel):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
@@ -247,6 +267,7 @@ class GlobalPlugin(GlobalPlugin):
 	def connected_to_relay(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
+		# Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.control_connector.address)
@@ -267,8 +288,10 @@ class GlobalPlugin(GlobalPlugin):
 		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
 			self.sending_keys = not self.sending_keys
 			if self.sending_keys:
+				# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
 				ui.message(_("Sending keys."))
 			else:
+				# Translators: Presented when keyboard control is back to the controlling computer.
 				ui.message(_("Not sending keys."))
 			return True #Don't pass it on
 		if not self.sending_keys:

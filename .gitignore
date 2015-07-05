@@ -1,0 +1,9 @@
+*_docHandler.py
+*.html
+*.ini
+*.mo
+*.pot
+*.pyc
+*.nvda-addon
+.sconsign.dblite
+addon/doc/style.css
