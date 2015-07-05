@@ -45,6 +45,7 @@ from socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
 
 class GlobalPlugin(GlobalPlugin):
+	scriptCategory = _("NVDA Remote")
 
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
@@ -106,6 +107,11 @@ class GlobalPlugin(GlobalPlugin):
 	def on_mute_item(self, evt):
 		evt.Skip()
 		self.local_machine.is_muted = self.mute_item.IsChecked()
+
+	def script_toggle_remote_mute(self, gesture):
+		self.local_machine.is_muted = not self.local_machine.is_muted
+		self.mute_item.Check(self.local_machine.is_muted)
+	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
