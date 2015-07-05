@@ -1,0 +1,199 @@
+ymsgid ""
+msgstr ""
+"Project-Id-Version: nvdaremote 1.0\n"
+"POT-Creation-Date: 2015-07-04 09:05+0200\n"
+"PO-Revision-Date: 2015-07-06 11:03+0900\n"
+"Last-Translator: Takuya Nishimoto <nishimotz@gmail.com>\n"
+"Language-Team: Takuya Nishimoto <nishimotz@gmail.com>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: addon/globalPlugins/remoteClient/__init__.py:75
+msgid "Connect..."
+msgstr "接続(&C)..."
+
+#: addon/globalPlugins/remoteClient/__init__.py:75
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr "リモートが実行されている他のコンピューターに接続"
+
+#: addon/globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect"
+msgstr "切断(&D)"
+
+#: addon/globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr "リモートが実行されている他のコンピューターから切断"
+
+#: addon/globalPlugins/remoteClient/__init__.py:80
+msgid "Mute remote speech"
+msgstr "相手の音声をミュート(&M)"
+
+#: addon/globalPlugins/remoteClient/__init__.py:80
+msgid "Mute speech from the remote computer"
+msgstr "相手のコンピューターからの音声をミュート"
+
+#: addon/globalPlugins/remoteClient/__init__.py:84
+msgid "&Push clipboard"
+msgstr "クリップボードを送信(&P)"
+
+#: addon/globalPlugins/remoteClient/__init__.py:84
+msgid "Push the clipboard to the other machine"
+msgstr "クリップボードの内容を相手のコンピューターに送信"
+
+#: addon/globalPlugins/remoteClient/__init__.py:87
+msgid "&Options..."
+msgstr "オプション(&O)..."
+
+#: addon/globalPlugins/remoteClient/__init__.py:87
+#: addon/globalPlugins/remoteClient/__init__.py:113
+msgid "Options"
+msgstr "オプション"
+
+#: addon/globalPlugins/remoteClient/__init__.py:89
+msgid "Send Ctrl+Alt+Del"
+msgstr "Ctrl+Alt+Del を送信(&S)"
+
+#: addon/globalPlugins/remoteClient/__init__.py:92
+msgid "R&emote"
+msgstr "リモート(&E)"
+
+#: addon/globalPlugins/remoteClient/__init__.py:92
+msgid "NVDA Remote Access"
+msgstr "NVDA リモート"
+
+#: addon/globalPlugins/remoteClient/__init__.py:127
+msgid "Not connected."
+msgstr "接続されていません"
+
+#: addon/globalPlugins/remoteClient/__init__.py:167
+msgid "Error Connecting"
+msgstr "接続エラー"
+
+#: addon/globalPlugins/remoteClient/__init__.py:167
+msgid "Unable to connect to the remote computer"
+msgstr "相手のコンピューターに接続できません"
+
+#: addon/globalPlugins/remoteClient/__init__.py:178
+msgid "Connect"
+msgstr "接続"
+
+#: addon/globalPlugins/remoteClient/__init__.py:214
+msgid "Connected!"
+msgstr "接続しました"
+
+#: addon/globalPlugins/remoteClient/__init__.py:218
+msgid "Connection interrupted"
+msgstr "接続中断"
+
+#: addon/globalPlugins/remoteClient/__init__.py:250
+msgid "Connected to control server"
+msgstr "サーバーに接続しました"
+
+#: addon/globalPlugins/remoteClient/__init__.py:270
+msgid "Sending keys."
+msgstr "キー入力を送信"
+
+#: addon/globalPlugins/remoteClient/__init__.py:272
+msgid "Not sending keys."
+msgstr "送信停止"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:17
+#: addon/globalPlugins/remoteClient/dialogs.py:155
+msgid "&Host:"
+msgstr "ホスト(&H)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:20
+#: addon/globalPlugins/remoteClient/dialogs.py:53
+#: addon/globalPlugins/remoteClient/dialogs.py:159
+msgid "&Key:"
+msgstr "鍵(&K)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:23
+#: addon/globalPlugins/remoteClient/dialogs.py:56
+msgid "&Generate Key"
+msgstr "鍵を作成(&G)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:47
+msgid "Get External &IP"
+msgstr "IPアドレスを調べる(&I)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:50
+msgid "&External IP:"
+msgstr "IPアドレス(&E)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:95
+msgid "Successfully retrieved IP address. Your port is open."
+msgstr "IPアドレスを取得できました。ポートは利用できます"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:95
+msgid "Success"
+msgstr "成功"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+msgid "Retrieved external IP, but your port is not currently forwarded."
+msgstr "IPアドレスを取得できましたが、ポートは利用できません"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+msgid "Warning"
+msgstr "警告"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:104
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"ポートチェックのサーバーに接続できません。IPアドレスを自分で確認してください"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:104
+#: addon/globalPlugins/remoteClient/dialogs.py:140
+#: addon/globalPlugins/remoteClient/dialogs.py:142
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+msgid "Error"
+msgstr "エラー"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:111
+msgid "Client"
+msgstr "クライアント(&C)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:111
+msgid "Server"
+msgstr "サーバー(&S)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:115
+msgid "Control another machine"
+msgstr "相手のコンピューターを操作(&C)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:115
+msgid "Allow this machine to be controlled"
+msgstr "このコンピューターの操作を許可(&A)"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:140
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+msgid "Both host and key must be set."
+msgstr "ホストと鍵を入力してください"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:142
+msgid "Key must be set."
+msgstr "鍵を入力してください"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:152
+msgid "Auto-connect to control server on startup"
+msgstr "起動時にサーバーに自動的に接続"
+
+#: addon/globalPlugins/remoteClient/session.py:107
+msgid "Remote NVDA not connected."
+msgstr "相手が接続されていません"
+
+#: buildVars.py:17
+msgid "Remote Support"
+msgstr "リモート"
+
+#: buildVars.py:20
+msgid "Allows remote control of and remote access to another machine."
+msgstr ""
+"遠隔地からの操作を許可したり、遠隔地のコンピューターを操作したりできます"
