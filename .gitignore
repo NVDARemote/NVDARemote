@@ -6,3 +6,4 @@
 *.pyc
 *.nvda-addon
 .sconsign.dblite
+addon/doc/style.css
