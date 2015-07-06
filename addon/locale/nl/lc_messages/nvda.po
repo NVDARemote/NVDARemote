@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "POT-Creation-Date: 2015-07-04 09:05+0200\n"
-"PO-Revision-Date: 2015-07-06 09:08+0100\n"
+"PO-Revision-Date: 2015-07-06 13:19+0100\n"
 "Last-Translator: Leonard de Ruijter <alderuijter@gmail.com>\n"
 "Language-Team: NVDA Nederlandstalig vertaalteam <nvda-nl@googlegroups.com>\n"
 "Language: nl\n"
@@ -122,7 +122,7 @@ msgstr "Sleutel &genereren"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:47
 msgid "Get External &IP"
-msgstr "extern &Ip opvragen"
+msgstr "Extern &Ip opvragen"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:50
 msgid "&External IP:"
