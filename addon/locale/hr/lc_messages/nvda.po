@@ -2,196 +2,200 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "POT-Creation-Date: 2015-07-04 09:05+0200\n"
-"PO-Revision-Date: 2015-07-06 13:19+0100\n"
-"Last-Translator: Leonard de Ruijter <alderuijter@gmail.com>\n"
-"Language-Team: NVDA Nederlandstalig vertaalteam <nvda-nl@googlegroups.com>\n"
-"Language: nl\n"
+"PO-Revision-Date: 2015-07-05 14:47+0100\n"
+"Last-Translator: zvonimir stanečić <zvonimirek222@yandex.com>\n"
+"Language-Team: zvonimir stanecic <zvonimirek222@yandex.com>\n"
+"Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.1\n"
+"X-Generator: Poedit 1.6.10\n"
 "X-Poedit-Basepath: rechner/nvda-git/nvdaremote\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: addon/globalPlugins/remoteClient/__init__.py:75
 msgid "Connect..."
-msgstr "Verbinden..."
+msgstr "Spoji se..."
 
 #: addon/globalPlugins/remoteClient/__init__.py:75
 msgid "Remotely connect to another computer running NVDA Remote Access"
-msgstr "Verbinding maken met een andere computer op afstand waarop NVDA Externe Toegang gebruikt wordt"
+msgstr "spoji se na udaljeno računalo koje koristi NVDA Remote Access."
 
 #: addon/globalPlugins/remoteClient/__init__.py:77
 msgid "Disconnect"
-msgstr "Verbinding ver&breken"
+msgstr "Odspoji se"
 
 #: addon/globalPlugins/remoteClient/__init__.py:77
 msgid "Disconnect from another computer running NVDA Remote Access"
-msgstr "De verbinding verbreken met een andere computer op afstand waarop NVDA Externe Toegang gebruikt wordt"
+msgstr "Odspoji se sa drugog računala koje koristi NVDA Remote access"
 
 #: addon/globalPlugins/remoteClient/__init__.py:80
 msgid "Mute remote speech"
-msgstr "Externe spraak &dempen"
+msgstr "Utišaj govor udaljenog računala"
 
 #: addon/globalPlugins/remoteClient/__init__.py:80
 msgid "Mute speech from the remote computer"
-msgstr "Schakelt de spraak van de computer op afstand uit"
+msgstr "Utišava govor na udaljenom računalu"
 
 #: addon/globalPlugins/remoteClient/__init__.py:84
 msgid "&Push clipboard"
-msgstr "&Klembord doorsturen"
+msgstr "Po&vuci iz međuspremnika"
 
 #: addon/globalPlugins/remoteClient/__init__.py:84
 msgid "Push the clipboard to the other machine"
-msgstr "Stuurt de inhoud van het klembord door naar de andere machine"
+msgstr "Prenaša sadržaj međuspremnika na drugo računalo"
 
 #: addon/globalPlugins/remoteClient/__init__.py:87
 msgid "&Options..."
-msgstr "&Opties..."
+msgstr "&Postavke..."
 
 #: addon/globalPlugins/remoteClient/__init__.py:87
 #: addon/globalPlugins/remoteClient/__init__.py:113
 msgid "Options"
-msgstr "Opties"
+msgstr "Postavke"
 
 #: addon/globalPlugins/remoteClient/__init__.py:89
 msgid "Send Ctrl+Alt+Del"
-msgstr "&Ctrl+Alt+Del sturen"
+msgstr "pritisni Ctrl+Alt+Delete"
 
 #: addon/globalPlugins/remoteClient/__init__.py:92
 msgid "R&emote"
-msgstr "&Externe toegang"
+msgstr "U&daljeno"
 
 #: addon/globalPlugins/remoteClient/__init__.py:92
 msgid "NVDA Remote Access"
-msgstr "NVDA Externe Toegang"
+msgstr "NVDA Remote Access"
 
 #: addon/globalPlugins/remoteClient/__init__.py:127
 msgid "Not connected."
-msgstr "niet verbonden."
+msgstr "Nije spojeno."
 
 #: addon/globalPlugins/remoteClient/__init__.py:167
 msgid "Error Connecting"
-msgstr "Fout bij verbinden"
+msgstr "Greška pri spajanju"
 
 #: addon/globalPlugins/remoteClient/__init__.py:167
 msgid "Unable to connect to the remote computer"
-msgstr "Kan geen verbinding maken met externe computer"
+msgstr "Nemoguće se spojiti na udaljeno računalo"
 
 #: addon/globalPlugins/remoteClient/__init__.py:178
 msgid "Connect"
-msgstr "Verbinden"
+msgstr "Spoji se"
 
 #: addon/globalPlugins/remoteClient/__init__.py:214
 msgid "Connected!"
-msgstr "Verbonden"
+msgstr "Povezan!"
 
 #: addon/globalPlugins/remoteClient/__init__.py:218
 msgid "Connection interrupted"
-msgstr "Verbinding onderbroken"
+msgstr "Veza je prekinuta"
 
 #: addon/globalPlugins/remoteClient/__init__.py:250
 msgid "Connected to control server"
-msgstr "Verbonden met controleserver"
+msgstr "Spojen na kontrolni server"
 
 #: addon/globalPlugins/remoteClient/__init__.py:270
 msgid "Sending keys."
-msgstr "Toetsen doorsturen."
+msgstr "Šaljem tipkovničke prečace."
 
 #: addon/globalPlugins/remoteClient/__init__.py:272
 msgid "Not sending keys."
-msgstr "Toetsen niet doorsturen."
+msgstr "Ne šaljem tipkovničke prečace."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:17
 #: addon/globalPlugins/remoteClient/dialogs.py:155
 msgid "&Host:"
-msgstr "&Adres:"
+msgstr "&Host:"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:20
 #: addon/globalPlugins/remoteClient/dialogs.py:53
 #: addon/globalPlugins/remoteClient/dialogs.py:159
 msgid "&Key:"
-msgstr "&Sleutel:"
+msgstr "&Ključ"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:23
 #: addon/globalPlugins/remoteClient/dialogs.py:56
 msgid "&Generate Key"
-msgstr "Sleutel &genereren"
+msgstr "&Generiraj Ključ"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:47
 msgid "Get External &IP"
-msgstr "Extern &Ip opvragen"
+msgstr "Doznaj Vanjsku &IP adresu"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:50
 msgid "&External IP:"
-msgstr "&Extern IP:"
+msgstr "&Vanjska IP adresa:"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:95
 msgid "Successfully retrieved IP address. Your port is open."
-msgstr "IP-adres succesvol opgevraagd. Uw poort is open."
+msgstr "Uspješno dohvaćena vaša IP adresa. Vaš port je otvoren."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:95
 msgid "Success"
-msgstr "Succes"
+msgstr "Uspjeh"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:97
 msgid "Retrieved external IP, but your port is not currently forwarded."
-msgstr "IP-adres opgevraagd, maar uw poort is op dit moment nog niet geopend."
+msgstr "Dohvaćena vaša vanjska IP adresa, ali vaš port trenutno nije otvoren."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:97
 msgid "Warning"
-msgstr "Waarschuwing"
+msgstr "Upozorenje"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:104
-msgid "Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr "Kan geen verbinding maken met de portcheck server, vraag uw ip-adres handmatig op"
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Nemoguće kontaktirati portcheck poslužitelja, molim ručno dohvatite vašu IP "
+"adresu"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:104
 #: addon/globalPlugins/remoteClient/dialogs.py:140
 #: addon/globalPlugins/remoteClient/dialogs.py:142
 #: addon/globalPlugins/remoteClient/dialogs.py:188
 msgid "Error"
-msgstr "Fout"
+msgstr "Greška"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:111
 msgid "Client"
-msgstr "Client"
+msgstr "Klijent"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:111
 msgid "Server"
-msgstr "Server"
+msgstr "Poslužitelj"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:115
 msgid "Control another machine"
-msgstr "Beheer een andere machine"
+msgstr "Kontroliraj drugo računalo"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:115
 msgid "Allow this machine to be controlled"
-msgstr "Laat deze machine beheerd worden"
+msgstr "Dopusti da ovo računalo bude kontrolirano"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:140
 #: addon/globalPlugins/remoteClient/dialogs.py:188
 msgid "Both host and key must be set."
-msgstr "Zowel adres als sleutel moeten worden ingevoerd."
+msgstr "Host i ključ moraju biti upisani."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:142
 msgid "Key must be set."
-msgstr "Sleutel moet worden ingevoerd."
+msgstr "Ključ mora biti upisan"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:152
 msgid "Auto-connect to control server on startup"
-msgstr "Automatisch met controleserver verbinden bij opstarten"
+msgstr "Automatsko spajanje na kontrolni poslužitelj pri pokretanju"
 
 #: addon/globalPlugins/remoteClient/session.py:107
 msgid "Remote NVDA not connected."
-msgstr "Externe NVDA niet verbonden."
+msgstr "Remote NVDA nije spojen"
 
 #: buildVars.py:17
 msgid "Remote Support"
-msgstr "Externe ondersteuning"
+msgstr "Udaljena podrška"
 
 #: buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
-msgstr "Faciliteert het beheren op afstand van een andere machine."
+msgstr "Omogućava udaljeni nadzor računala."

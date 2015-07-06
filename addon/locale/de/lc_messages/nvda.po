@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "POT-Creation-Date: 2015-07-04 09:05+0200\n"
-"PO-Revision-Date: 2015-07-04 09:22+0200\n"
+"PO-Revision-Date: 2015-07-06 08:18+0200\n"
 "Last-Translator: \n"
 "Language-Team: David Parduhn <xkill85@gmx.net>\n"
 "Language: de\n"
@@ -10,10 +10,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.2\n"
-"X-Poedit-Basepath: rechner/nvda-git/nvdaremote\n"
+"X-Poedit-Basepath: ../../../../../../../../../../rechner/nvda-git/nvdaremote\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-0: addon/.\n"
+"X-Poedit-SearchPath-1: /rechner/nvda-git/nvdaremote\n"
 
 #: addon/globalPlugins/remoteClient/__init__.py:75
 msgid "Connect..."
@@ -107,7 +108,7 @@ msgstr "Tasten werden nicht gesendet"
 #: addon/globalPlugins/remoteClient/dialogs.py:17
 #: addon/globalPlugins/remoteClient/dialogs.py:155
 msgid "&Host:"
-msgstr "%Rechner:"
+msgstr "&Rechner:"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:20
 #: addon/globalPlugins/remoteClient/dialogs.py:53
@@ -130,7 +131,7 @@ msgstr "&externe Ip-Adresse:"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:95
 msgid "Successfully retrieved IP address. Your port is open."
-msgstr "Die Ip-Adresse wurde erfolgreich ermittelt. Der benötigte Anschluss ist verfügbar."
+msgstr "Die Ip-Adresse wurde erfolgreich ermittelt. Der benötigte Port ist verfügbar."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:95
 msgid "Success"
@@ -138,7 +139,7 @@ msgstr "Erfolg"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:97
 msgid "Retrieved external IP, but your port is not currently forwarded."
-msgstr "Die externe Ip-Adresse wurde zwar ermittelt, aber der erforderliche Anschluss wird nicht weitergeleitet"
+msgstr "Die externe Ip-Adresse wurde zwar ermittelt, aber der erforderliche Port wird nicht weitergeleitet"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:97
 msgid "Warning"
@@ -169,7 +170,7 @@ msgstr "einen anderen Computer steuern"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:115
 msgid "Allow this machine to be controlled"
-msgstr "Zulassen, dass dieser Computer gesteert wird"
+msgstr "Zulassen, dass dieser Computer gesteuert wird"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:140
 #: addon/globalPlugins/remoteClient/dialogs.py:188
@@ -194,4 +195,4 @@ msgstr "Remote Support"
 
 #: buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
-msgstr "Erlaub den Zugriff auf und die Steuerung von anderen Rechnern"
+msgstr "Erlaubt den Zugriff auf und die Steuerung von anderen Rechnern"
