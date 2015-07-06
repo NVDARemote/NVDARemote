@@ -1,4 +1,4 @@
-ymsgid ""
+msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "POT-Creation-Date: 2015-07-04 09:05+0200\n"
