@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "POT-Creation-Date: 2015-07-04 09:05+0200\n"
-"PO-Revision-Date: 2015-07-04 23:34+0100\n"
+"PO-Revision-Date: 2015-07-06 13:19+0100\n"
 "Last-Translator: Leonard de Ruijter <alderuijter@gmail.com>\n"
 "Language-Team: NVDA Nederlandstalig vertaalteam <nvda-nl@googlegroups.com>\n"
 "Language: nl\n"
@@ -25,7 +25,7 @@ msgstr "Verbinding maken met een andere computer op afstand waarop NVDA Externe 
 
 #: addon/globalPlugins/remoteClient/__init__.py:77
 msgid "Disconnect"
-msgstr "Verbinding verbreken"
+msgstr "Verbinding ver&breken"
 
 #: addon/globalPlugins/remoteClient/__init__.py:77
 msgid "Disconnect from another computer running NVDA Remote Access"
@@ -33,7 +33,7 @@ msgstr "De verbinding verbreken met een andere computer op afstand waarop NVDA E
 
 #: addon/globalPlugins/remoteClient/__init__.py:80
 msgid "Mute remote speech"
-msgstr "Externe spraak dempenentfernte Sprache stumm schalten"
+msgstr "Externe spraak &dempen"
 
 #: addon/globalPlugins/remoteClient/__init__.py:80
 msgid "Mute speech from the remote computer"
@@ -58,7 +58,7 @@ msgstr "Opties"
 
 #: addon/globalPlugins/remoteClient/__init__.py:89
 msgid "Send Ctrl+Alt+Del"
-msgstr "Ctrl+Alt+Del sturen"
+msgstr "&Ctrl+Alt+Del sturen"
 
 #: addon/globalPlugins/remoteClient/__init__.py:92
 msgid "R&emote"
@@ -122,7 +122,7 @@ msgstr "Sleutel &genereren"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:47
 msgid "Get External &IP"
-msgstr "extern &Ip opvragen"
+msgstr "Extern &Ip opvragen"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:50
 msgid "&External IP:"
@@ -130,7 +130,7 @@ msgstr "&Extern IP:"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:95
 msgid "Successfully retrieved IP address. Your port is open."
-msgstr "IP-adres succesvol opgevraagd. Je poort is open."
+msgstr "IP-adres succesvol opgevraagd. Uw poort is open."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:95
 msgid "Success"
@@ -138,7 +138,7 @@ msgstr "Succes"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:97
 msgid "Retrieved external IP, but your port is not currently forwarded."
-msgstr "IP-adres opgevraagd, maar je poort is op dit moment nog niet geopend."
+msgstr "IP-adres opgevraagd, maar uw poort is op dit moment nog niet geopend."
 
 #: addon/globalPlugins/remoteClient/dialogs.py:97
 msgid "Warning"
@@ -146,7 +146,7 @@ msgstr "Waarschuwing"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:104
 msgid "Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr "Kan geen verbinding maken met de portcheck server, vraag ip-adres handmatig op"
+msgstr "Kan geen verbinding maken met de portcheck server, vraag uw ip-adres handmatig op"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:104
 #: addon/globalPlugins/remoteClient/dialogs.py:140
