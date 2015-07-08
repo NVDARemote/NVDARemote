@@ -1,0 +1,212 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 'remote' '1.0'\n"
+"Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
+"POT-Creation-Date: 2015-07-04 10:32+0200\n"
+"PO-Revision-Date: 2015-07-07 22:27+0430\n"
+"Last-Translator: José Manuel Delicado Alcolea <jmdaweb@hotmail.com>\n"
+"Language-Team: hosein heidari and mohamadjavad jamshidian <heidari9213@gmail."
+"com>\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.2\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-SourceCharset: iso-8859-1\n"
+
+#: addon\globalPlugins\remoteClient\__init__.py:75
+msgid "Connect..."
+msgstr "اتصال..."
+
+#: addon\globalPlugins\remoteClient\__init__.py:75
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr ""
+"اتصال به یک رایانه ی دیگر از راهِ دور که NVDA Remote Access روی آن اجرا است"
+
+#: addon\globalPlugins\remoteClient\__init__.py:77
+msgid "Disconnect"
+msgstr "قطعِ اتصال"
+
+#: addon\globalPlugins\remoteClient\__init__.py:77
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr "قطعِ اتصال از یک رایانه ی دیگر که NVDA Remote Access روی آن اجرا است"
+
+#: addon\globalPlugins\remoteClient\__init__.py:80
+msgid "Mute remote speech"
+msgstr "قطعِ صدای کامپیوترِ کنترل شونده"
+
+#: addon\globalPlugins\remoteClient\__init__.py:80
+msgid "Mute speech from the remote computer"
+msgstr "قطعِ صدا از رایانه ی کنترل شونده"
+
+#: addon\globalPlugins\remoteClient\__init__.py:84
+msgid "&Push clipboard"
+msgstr "&به اشتراک گذاریِ کِلیپ بُرد"
+
+#: addon\globalPlugins\remoteClient\__init__.py:84
+msgid "Push the clipboard to the other machine"
+msgstr "فِرِستادنِ کِلیپ بُرد به رایانه ی دیگر"
+
+#: addon\globalPlugins\remoteClient\__init__.py:87
+msgid "&Options..."
+msgstr "&گزینه ها..."
+
+#: addon\globalPlugins\remoteClient\__init__.py:87
+#: addon\globalPlugins\remoteClient\__init__.py:113
+msgid "Options"
+msgstr "گزینه ها"
+
+#: addon\globalPlugins\remoteClient\__init__.py:89
+msgid "Send Ctrl+Alt+Del"
+msgstr "فِرِستادنِ کلیدهای Ctrl+Alt+Delete"
+
+#: addon\globalPlugins\remoteClient\__init__.py:92
+msgid "R&emote"
+msgstr "&کنترل از راه دور"
+
+#: addon\globalPlugins\remoteClient\__init__.py:92
+msgid "NVDA Remote Access"
+msgstr "NVDA Remote Access"
+
+#: addon\globalPlugins\remoteClient\__init__.py:127
+msgid "Not connected."
+msgstr "متصل نیست."
+
+#: addon\globalPlugins\remoteClient\__init__.py:167
+msgid "Error Connecting"
+msgstr "خطا در اتصال"
+
+#: addon\globalPlugins\remoteClient\__init__.py:167
+msgid "Unable to connect to the remote computer"
+msgstr "خطا در اتصال به رایانه ی کنترل شونده"
+
+#: addon\globalPlugins\remoteClient\__init__.py:178
+msgid "Connect"
+msgstr "اتصال"
+
+#: addon\globalPlugins\remoteClient\__init__.py:214
+msgid "Connected!"
+msgstr "متصل است!"
+
+#: addon\globalPlugins\remoteClient\__init__.py:218
+msgid "Connection interrupted"
+msgstr "اتصال قطع شد"
+
+#: addon\globalPlugins\remoteClient\__init__.py:250
+msgid "Connected to control server"
+msgstr "اتصال با سرویس دهنده برقرار شد"
+
+#: addon\globalPlugins\remoteClient\__init__.py:270
+msgid "Sending keys."
+msgstr "کلیدهای فشرده شده به رایانه ی کنترل شونده ارسال میشوند."
+
+#: addon\globalPlugins\remoteClient\__init__.py:272
+msgid "Not sending keys."
+msgstr "کلیدهای فشرده شده به رایانه ی کنترل شونده ارسال نمی شوند."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:17
+#: addon\globalPlugins\remoteClient\dialogs.py:155
+msgid "&Host:"
+msgstr "&میزبان:"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:20
+#: addon\globalPlugins\remoteClient\dialogs.py:53
+#: addon\globalPlugins\remoteClient\dialogs.py:159
+msgid "&Key:"
+msgstr "&کلیدِ امنیتی:"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:23
+#: addon\globalPlugins\remoteClient\dialogs.py:56
+msgid "&Generate Key"
+msgstr "&تولیدِ کلیدِ امنیتی"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:47
+msgid "Get External &IP"
+msgstr "گرفتنِ &آی پییِ بیرونی"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:50
+msgid "&External IP:"
+msgstr "&آی پییِ بیرونی:"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:95
+msgid "Successfully retrieved IP address. Your port is open."
+msgstr "آی پییِ شما با موفقیت به دست آمد. پُرتِ مربوطه باز می باشد."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:95
+msgid "Success"
+msgstr "موفق"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:97
+msgid "Retrieved external IP, but your port is not currently forwarded."
+msgstr "آی پییِ بیرونیِ شما به دست آمد، اما پُرتِ مربوطه در رُتِرِ شما باز نمی باشد."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:97
+msgid "Warning"
+msgstr "هشدار"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:104
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"خطا در برقراریِ اتصال با سرورِ بررسی کننده ی درگاه، لطفاً آی پییِتان را دستی "
+"پیدا کنید"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:104
+#: addon\globalPlugins\remoteClient\dialogs.py:140
+#: addon\globalPlugins\remoteClient\dialogs.py:142
+#: addon\globalPlugins\remoteClient\dialogs.py:188
+msgid "Error"
+msgstr "خطا"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:111
+msgid "Client"
+msgstr "سرویس گیرنده"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:111
+msgid "Server"
+msgstr "سرویس دهنده"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:115
+msgid "Control another machine"
+msgstr "کنترلِ یک رایانه ی دیگر"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:115
+msgid "Allow this machine to be controlled"
+msgstr "اجازه دادن به این رایانه برای کنترل شدن"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:140
+#: addon\globalPlugins\remoteClient\dialogs.py:188
+msgid "Both host and key must be set."
+msgstr "هم آدرسِ میزبان و هم کلیدِ امنیتی باید تعیین شوند."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:142
+msgid "Key must be set."
+msgstr "کلیدِ امنیتی باید تعیین شود."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:152
+msgid "Auto-connect to control server on startup"
+msgstr "اتصالِ خودکار به سرویس دهنده پس از شروعِ NVDA"
+
+#: addon\globalPlugins\remoteClient\session.py:107
+msgid "Remote NVDA not connected."
+msgstr "رایانه ی کنترل شونده متصل نیست."
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+#: buildVars.py:17
+msgid "Remote Support"
+msgstr "پشتیبانی از راهِ دور"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+#: buildVars.py:20
+msgid "Allows remote control of and remote access to another machine."
+msgstr ""
+"اجازه میدهد تا یک رایانه بتواند یک رایانه ی دیگر را کنترل کند یا به آن "
+"دسترسی پیدا کند."
