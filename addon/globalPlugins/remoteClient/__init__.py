@@ -97,8 +97,35 @@ class GlobalPlugin(GlobalPlugin):
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_send_ctrl_alt_del, self.send_ctrl_alt_del_item)
 		self.send_ctrl_alt_del_item.Enable(False)
 		# Translators: Label of menu in NVDA tools menu.
-		tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
+		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
+	def terminate(self):
+		self.do_disconnect_from_slave(True)
+		self.local_machine = None
+		self.menu.RemoveItem(self.connect_item)
+		self.connect_item.Destroy()
+		self.connect_item=None
+		self.menu.RemoveItem(self.disconnect_item)
+		self.disconnect_item.Destroy()
+		self.disconnect_item=None
+		self.menu.RemoveItem(self.mute_item)
+		self.mute_item.Destroy()
+		self.mute_item=None
+		self.menu.RemoveItem(self.push_clipboard_item)
+		self.push_clipboard_item.Destroy()
+		self.push_clipboard_item=None
+		self.menu.RemoveItem(self.options_item)
+		self.options_item.Destroy()
+		self.options_item=None
+		self.menu.RemoveItem(self.send_ctrl_alt_del_item)
+		self.send_ctrl_alt_del_item.Destroy()
+		self.send_ctrl_alt_del_item=None
+		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
+		tools_menu.RemoveItem(self.remote_item)
+		self.remote_item.Destroy()
+		self.remote_item=None
+		self.menu.Destroy()
+		self.menu=None
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
