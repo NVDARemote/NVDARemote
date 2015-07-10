@@ -1,4 +1,8 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import json
+sys.path.remove(sys.path[-1])
 import random
 import threading
 import urllib
