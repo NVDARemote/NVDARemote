@@ -2,7 +2,10 @@ import os
 import select
 import socket
 import ssl
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import json
+sys.path.remove(sys.path[-1])
 import time
 
 class Server(object):
@@ -77,7 +80,11 @@ class Client(object):
 		Client.id += 1
 
 	def handle_data(self):
-		data = self.buffer + self.socket.recv(8192)
+		try:
+			data = self.buffer + self.socket.recv(8192)
+		except:
+			self.close()
+			return
 		if data == '': #Disconnect
 			self.close()
 			return
@@ -123,7 +130,10 @@ class Client(object):
 	def send(self, type, **kwargs):
 		msg = dict(type=type, **kwargs)
 		msgstr = json.dumps(msg)+"\n"
-		self.socket.sendall(msgstr)
+		try:
+			self.socket.sendall(msgstr)
+		except:
+			self.close()
 
 	def send_to_others(self, **obj):
 		for c in self.server.clients.itervalues():
