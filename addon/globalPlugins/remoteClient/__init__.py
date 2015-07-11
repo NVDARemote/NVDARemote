@@ -4,11 +4,12 @@ from cStringIO import StringIO
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+import json
+sys.path.remove(sys.path[-1])
 import threading
 import time
 import socket
 from globalPluginHandler import GlobalPlugin
-import json
 import logging
 logger = logging.getLogger(__name__)
 import Queue
