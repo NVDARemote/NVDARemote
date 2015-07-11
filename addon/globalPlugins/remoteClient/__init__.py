@@ -390,7 +390,7 @@ key = string(default="")
 def get_config():
 	global _config
 	if not _config:
-		path = os.path.join(config.getUserDefaultConfigPath(), CONFIG_FILE_NAME)
+		path = os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME)
 		_config = configobj.ConfigObj(path, configspec=configspec)
 		val = validate.Validator()
 		_config.validate(val, copy=True)
