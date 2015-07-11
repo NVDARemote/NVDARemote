@@ -1,7 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
+﻿# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FIRST AUTHOR <heidari9213@gmail.com>, YEAR.
 #
 msgid ""
 msgstr ""
@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
 "POT-Creation-Date: 2015-07-04 10:32+0200\n"
 "PO-Revision-Date: 2015-07-07 22:27+0430\n"
-"Last-Translator: José Manuel Delicado Alcolea <jmdaweb@hotmail.com>\n"
+"Last-Translator: hosein heidari <heidari9213@gmail.com>\n"
 "Language-Team: hosein heidari and mohamadjavad jamshidian <heidari9213@gmail."
 "com>\n"
 "Language: fa\n"
