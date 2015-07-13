@@ -1,7 +1,7 @@
 #NVDA Remote Access
 Versión 1.0
 
-Bienvenido al complemento de acceso remoto de NVDA, que te permitirá conectarte a otro equipo que ejecute el lector de pantalla gratuito NVDA. Da igual que estés al otro lado de la habitación o al otro lado del mundo. Conectarse es simple, y hay muy pocos comandos que aprenderse. Puedes conectarte al equipo de otra persona, o permitir a una persona de confianza que se conecte a tu sistema para realizar un mantenimiento rutinario, diagnosticar un problema, o enseñarte algo.
+Bienvenido al complemento de acceso remoto de NVDA, que te permitirá conectarte a otro equipo que ejecute el lector de pantalla gratuito NVDA. Da igual que estés al otro lado de la habitación o al otro lado del mundo. Conectarse es simple, y hay muy pocas órdenes que aprenderse. Puedes conectarte al equipo de otra persona, o permitir a una persona de confianza que se conecte a tu sistema para realizar un mantenimiento rutinario, diagnosticar un problema, o enseñarte algo.
 
 ##Antes de empezar
 
@@ -13,7 +13,7 @@ La instalación de NVDA y del complemento no varía con respecto a otras. Si nec
 1. Abre el menú de NVDA, herramientas, remoto, conectar.
 2. Elige cliente en el primer grupo de botones de opción.
 3. Elige permitir que controlen este equipo en el segundo grupo de botones de opción.
-4. En el campo equipo, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com.
+4. En el campo equipo o servidor, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com.
 5. Introduce una clave en el campo clave, o pulsa el botón generar clave.
 La clave es lo que otros usarán para controlar tu equipo.
 La máquina controlada y todos sus clientes deben usar la misma clave.
@@ -23,9 +23,8 @@ La máquina controlada y todos sus clientes deben usar la misma clave.
 1. Abre el menú de NVDA, herramientas, remoto, conectar.
 2. Elige cliente en el primer grupo de botones de opción.
 3. Selecciona controlar otro equipo en el segundo grupo de botones de opción.
-4. En el campo equipo, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com.
+4. En el campo equipo o servidor, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com.
 5. Introduce una clave en el campo clave, o pulsa el botón generar clave.
-La clave es lo que otros usarán para controlar tu equipo.
 La máquina controlada y todos sus clientes deben usar la misma clave.
 6. Pulsa aceptar. Hecho esto, escucharás un pitido y conectado.
 
@@ -50,8 +49,8 @@ Cuando NVDA diga envío de teclas activado, las teclas que pulses irán al equip
 Para mayor compatibilidad, asegúrate de que las distribuciones de teclado de ambas máquinas coinciden.
 
 ##Enviar ctrl+alt+supr
-A pesar de que el envío de teclas esté activado, la combinación ctrl+alt+supr no se puede enviar como el resto.
-Si necesitas enviar ctrl+alt+supr, y el sistema remoto se encuentra en el escritorio seguro, usa este comando.
+Aunque el envío de teclas esté activado, la combinación ctrl+alt+supr no se puede enviar como el resto.
+Si necesitas enviar ctrl+alt+supr, y el sistema remoto se encuentra en el escritorio seguro, elige esta opción.
 
 ##Control remoto de un equipo desatendido
 
@@ -59,7 +58,7 @@ A veces puedes querer controlar uno de tus propios equipos remotamente. Esto es 
 
 1. Entra en el menú de NVDA, elige herramientas y a continuación remoto. Finalmente, pulsa intro en opciones.
 2. Marca la casilla que dice "Conectar automáticamente al servidor de control al arrancar".
-3. Rellena los campos equipo y clave, pulsa tabulador hasta aceptar, y pulsa intro.
+3. Rellena los campos equipo o servidor y clave, pulsa tabulador hasta aceptar, y pulsa intro.
 4. Ten en cuenta que la opción generar clave no se encuentra disponible en esta situación. Es mejor escribir una clave que se pueda recordar para que puedas usarla fácilmente desde cualquier lugar remoto.
 
 ##Silenciar la voz en el equipo remoto
