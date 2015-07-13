@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'remote' '1.0'\n"
+"Project-Id-Version: remote 1.0\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
 "POT-Creation-Date: 2015-07-08 17:13+0200\n"
-"PO-Revision-Date: 2015-07-08 17:14+0200\n"
+"PO-Revision-Date: 2015-07-13 21:41+0200\n"
 "Last-Translator: José Manuel Delicado Alcolea <jmdaweb@hotmail.com>\n"
 "Language-Team: Technow <info@technow.es>\n"
 "Language: es\n"
@@ -57,7 +57,7 @@ msgstr "Enviar &portapapeles"
 
 #: addon\globalPlugins\remoteClient\__init__.py:89
 msgid "Push the clipboard to the other machine"
-msgstr "Enviar el portapapeles a la otra máquina"
+msgstr "Enviar el portapapeles al otro equipo"
 
 #. Translators: Menu item in NvDA Remote submenu to open add-on options.
 #: addon\globalPlugins\remoteClient\__init__.py:93
@@ -136,7 +136,7 @@ msgstr "Envío de teclas desactivado."
 #: addon\globalPlugins\remoteClient\dialogs.py:20
 #: addon\globalPlugins\remoteClient\dialogs.py:163
 msgid "&Host:"
-msgstr "&Equipo:"
+msgstr "&Equipo o servidor:"
 
 #. Translators: Label of the edit field to enter key (password) to secure the remote connection.
 #: addon\globalPlugins\remoteClient\dialogs.py:24
