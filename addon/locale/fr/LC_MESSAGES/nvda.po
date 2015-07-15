@@ -3,190 +3,235 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: NVDARemote\n"
-"Report-Msgid-Bugs-To: y.plassiard@accessolutions.fr\n"
-"POT-Creation-Date: 2015-07-04 20:04+0200\n"
-"PO-Revision-Date: 2015-07-06 21:04+0200\n"
-"Last-Translator: Yannick PPASSIARD <y.plassiard@accessolutions.fr\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
+"POT-Creation-Date: 2015-07-09 11:47+0200\n"
+"PO-Revision-Date: 2015-07-09 14:20+0200\n"
+"Last-Translator: Patrick ZAJDA <patrick@zajda.fr>\n"
+"Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.2\n"
 
-#: globalPlugins/remoteClient/dialogs.py:17
-#: globalPlugins/remoteClient/dialogs.py:155
-msgid "&Host:"
-msgstr "Adresse du &serveur: "
+#: addon\globalPlugins\remoteClient\__init__.py:48
+msgid "NVDA Remote"
+msgstr "Accès distant NVDA"
 
-#: globalPlugins/remoteClient/dialogs.py:20
-#: globalPlugins/remoteClient/dialogs.py:53
-#: globalPlugins/remoteClient/dialogs.py:159
-msgid "&Key:"
-msgstr "&Clé: "
-
-#: globalPlugins/remoteClient/dialogs.py:23
-#: globalPlugins/remoteClient/dialogs.py:56
-msgid "&Generate Key"
-msgstr "&Générer la clé"
-
-#: globalPlugins/remoteClient/dialogs.py:47
-msgid "Get External &IP"
-msgstr "Obtenir l'&adresse IP publique"
-
-#: globalPlugins/remoteClient/dialogs.py:50
-msgid "&External IP:"
-msgstr "&IP Publique: "
-
-#: globalPlugins/remoteClient/dialogs.py:95
-msgid "Successfully retrieved IP address. Your port is open."
-msgstr "Adresse IP publique récupérée avec succès. Votre serveur est lancé."
-
-#: globalPlugins/remoteClient/dialogs.py:95
-msgid "Success"
-msgstr "Succès"
-
-#: globalPlugins/remoteClient/dialogs.py:97
-msgid "Retrieved external IP, but your port is not currently forwarded."
-msgstr "Adresse IP publique récupérée, mais votre port n'est pas redirigé."
-
-#: globalPlugins/remoteClient/dialogs.py:97
-msgid "Warning"
-msgstr "Avertissement"
-
-#: globalPlugins/remoteClient/dialogs.py:104
-msgid ""
-"Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr ""
-"Impossible de contacter le service portCheck, veuillez récupérer votre adresse IP publique manuellement."
-#: globalPlugins/remoteClient/dialogs.py:104
-#: globalPlugins/remoteClient/dialogs.py:140
-#: globalPlugins/remoteClient/dialogs.py:142
-#: globalPlugins/remoteClient/dialogs.py:188
-msgid "Error"
-msgstr "Erreur"
-
-#: globalPlugins/remoteClient/dialogs.py:111
-msgid "Client"
-msgstr "Client"
-
-#: globalPlugins/remoteClient/dialogs.py:111
-msgid "Server"
-msgstr "Serveur"
-
-#: globalPlugins/remoteClient/dialogs.py:115
-msgid "Control another machine"
-msgstr "Contrôler un autre PC"
-
-#: globalPlugins/remoteClient/dialogs.py:115
-msgid "Allow this machine to be controlled"
-msgstr "Permettre à ce PC d'être contrôlé par quelqu'un"
-
-#: globalPlugins/remoteClient/dialogs.py:140
-#: globalPlugins/remoteClient/dialogs.py:188
-msgid "Both host and key must be set."
-msgstr "Le nom d'hôte et la clé doivent être tous deux renseignés."
-
-#: globalPlugins/remoteClient/dialogs.py:142
-msgid "Key must be set."
-msgstr "La clé doit être renseignée."
-
-#: globalPlugins/remoteClient/dialogs.py:152
-msgid "Auto-connect to control server on startup"
-msgstr "Se connecter automatiquement au serveur au démarrage"
-
-#: globalPlugins/remoteClient/__init__.py:75
+#. Translators: Item in NVDA Remote submenu to connect to a remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:77
 msgid "Connect..."
-msgstr "Se connecter"
+msgstr "Se &connecter"
 
-#: globalPlugins/remoteClient/__init__.py:75
+#: addon\globalPlugins\remoteClient\__init__.py:77
 msgid "Remotely connect to another computer running NVDA Remote Access"
-msgstr "Se connecter à une autre machine exécutant NVDA Accès Distant"
+msgstr "Se connecter à un autre ordinateur exécutant l'Accès Distant NVDA"
 
-#: globalPlugins/remoteClient/__init__.py:77
+#. Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:80
 msgid "Disconnect"
-msgstr "Se déconnecter"
+msgstr "Se &déconnecter"
 
-#: globalPlugins/remoteClient/__init__.py:77
+#: addon\globalPlugins\remoteClient\__init__.py:80
 msgid "Disconnect from another computer running NVDA Remote Access"
-msgstr "Terminer la session NVDA Accès Distant"
+msgstr "Terminer la session d'Accès Distant NVDA"
 
-#: globalPlugins/remoteClient/__init__.py:80
+#. Translators: Menu item in NvDA Remote submenu to mute speech from the remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:84
 msgid "Mute remote speech"
-msgstr "Couper la synthèse vocale distante"
+msgstr "Couper le son de la &synthèse vocale distante"
 
-#: globalPlugins/remoteClient/__init__.py:80
+#: addon\globalPlugins\remoteClient\__init__.py:84
 msgid "Mute speech from the remote computer"
-msgstr "Couper la synthèse vocale sur l'ordinateur distant"
+msgstr "Couper le son de la synthèse vocale de l'ordinateur distant"
 
-#: globalPlugins/remoteClient/__init__.py:84
+#. Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:89
 msgid "&Push clipboard"
-msgstr "Envoyer le presse-papier"
+msgstr "Envoyer le &presse-papier"
 
-#: globalPlugins/remoteClient/__init__.py:84
+#: addon\globalPlugins\remoteClient\__init__.py:89
 msgid "Push the clipboard to the other machine"
 msgstr "Envoyer le contenu du presse-papier vers la machine distante"
 
-#: globalPlugins/remoteClient/__init__.py:87
+#. Translators: Menu item in NvDA Remote submenu to open add-on options.
+#: addon\globalPlugins\remoteClient\__init__.py:93
 msgid "&Options..."
 msgstr "&Options..."
 
-#: globalPlugins/remoteClient/__init__.py:87
-#: globalPlugins/remoteClient/__init__.py:113
+#. Translators: The title of the add-on options dialog.
+#: addon\globalPlugins\remoteClient\__init__.py:93
+#: addon\globalPlugins\remoteClient\__init__.py:128
 msgid "Options"
 msgstr "Options"
 
-#: globalPlugins/remoteClient/__init__.py:89
+#. Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:96
 msgid "Send Ctrl+Alt+Del"
-msgstr "Envo&yer Ctrl+Alt+Suppr"
+msgstr "&Envoyer Ctrl+Alt+Suppr"
 
-#: globalPlugins/remoteClient/__init__.py:92
+#. Translators: Label of menu in NVDA tools menu.
+#: addon\globalPlugins\remoteClient\__init__.py:100
 msgid "R&emote"
-msgstr "Accès &Distant"
+msgstr "&Accès distant"
 
-#: globalPlugins/remoteClient/__init__.py:92
+#: addon\globalPlugins\remoteClient\__init__.py:100
 msgid "NVDA Remote Access"
 msgstr "NVDA Accès Distant"
 
-#: globalPlugins/remoteClient/__init__.py:127
+#: addon\globalPlugins\remoteClient\__init__.py:114
+msgid "Mute or unmute the speech coming from the remote computer"
+msgstr "Couper ou activer le son de la synthèse vocale distante"
+
+#: addon\globalPlugins\remoteClient\__init__.py:142
 msgid "Not connected."
 msgstr "Non connecté."
 
-#: globalPlugins/remoteClient/__init__.py:167
+#. Translators: Title of the connection error dialog.
+#: addon\globalPlugins\remoteClient\__init__.py:183
 msgid "Error Connecting"
-msgstr "Erreur à la connexion"
+msgstr "Erreur de connexion"
 
-#: globalPlugins/remoteClient/__init__.py:167
+#. Translators: Message shown when cannot connect to the remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:185
 msgid "Unable to connect to the remote computer"
 msgstr "Impossible de se connecter à l'ordinateur distant"
 
-#: globalPlugins/remoteClient/__init__.py:178
+#. Translators: Title of the connect dialog.
+#: addon\globalPlugins\remoteClient\__init__.py:197
 msgid "Connect"
-msgstr "Connecter"
+msgstr "Se connecter"
 
-#: globalPlugins/remoteClient/__init__.py:214
+#. Translators: Presented when connected to the remote computer.
+#: addon\globalPlugins\remoteClient\__init__.py:234
 msgid "Connected!"
-msgstr "Connecté!"
+msgstr "Connecté !"
 
-#: globalPlugins/remoteClient/__init__.py:218
+#. Translators: Presented when connection to a remote computer was interupted.
+#: addon\globalPlugins\remoteClient\__init__.py:239
 msgid "Connection interrupted"
 msgstr "Connexion interrompue"
 
-#: globalPlugins/remoteClient/__init__.py:250
+#. Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
+#: addon\globalPlugins\remoteClient\__init__.py:271
 msgid "Connected to control server"
 msgstr "Connecté au serveur de contrôle"
 
-#: globalPlugins/remoteClient/__init__.py:270
+#. Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
+#: addon\globalPlugins\remoteClient\__init__.py:292
 msgid "Sending keys."
-msgstr "Transmission des touches activé."
+msgstr "Transmission des touches activée."
 
-#: globalPlugins/remoteClient/__init__.py:272
+#. Translators: Presented when keyboard control is back to the controlling computer.
+#: addon\globalPlugins\remoteClient\__init__.py:295
 msgid "Not sending keys."
-msgstr "Transmission des touches désactivé."
+msgstr "Transmission des touches désactivée."
 
-#: globalPlugins/remoteClient/session.py:107
+#. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
+#: addon\globalPlugins\remoteClient\dialogs.py:20
+#: addon\globalPlugins\remoteClient\dialogs.py:163
+msgid "&Host:"
+msgstr "&Adresse du serveur :"
+
+#. Translators: Label of the edit field to enter key (password) to secure the remote connection.
+#: addon\globalPlugins\remoteClient\dialogs.py:24
+#: addon\globalPlugins\remoteClient\dialogs.py:60
+#: addon\globalPlugins\remoteClient\dialogs.py:167
+msgid "&Key:"
+msgstr "&Clé :"
+
+#. Translators: The button used to generate a random key/password.
+#: addon\globalPlugins\remoteClient\dialogs.py:28
+#: addon\globalPlugins\remoteClient\dialogs.py:63
+msgid "&Generate Key"
+msgstr "&Générer la clé"
+
+#. Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
+#: addon\globalPlugins\remoteClient\dialogs.py:53
+msgid "Get External &IP"
+msgstr "&Obtenir l'adresse IP publique"
+
+#. Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
+#: addon\globalPlugins\remoteClient\dialogs.py:57
+msgid "&External IP:"
+msgstr "&IP Publique :"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:102
+msgid "Successfully retrieved IP address. Your port is open."
+msgstr "Adresse IP publique récupérée avec succès. Votre port est ouvert."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:102
+msgid "Success"
+msgstr "Succès"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:104
+msgid "Retrieved external IP, but your port is not currently forwarded."
+msgstr "Adresse IP publique récupérée, mais votre port n'est pas redirigé."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:104
+msgid "Warning"
+msgstr "Avertissement"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:111
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Impossible de contacter le service portCheck, veuillez récupérer votre "
+"adresse IP publique manuellement."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:111
+#: addon\globalPlugins\remoteClient\dialogs.py:147
+#: addon\globalPlugins\remoteClient\dialogs.py:149
+#: addon\globalPlugins\remoteClient\dialogs.py:196
+msgid "Error"
+msgstr "Erreur"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:118
+msgid "Client"
+msgstr "Client"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:118
+msgid "Server"
+msgstr "Serveur"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:122
+msgid "Control another machine"
+msgstr "Contrôler un autre ordinateur"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:122
+msgid "Allow this machine to be controlled"
+msgstr "Permettre le contrôle de cet ordinateur"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:147
+#: addon\globalPlugins\remoteClient\dialogs.py:196
+msgid "Both host and key must be set."
+msgstr "Le nom d'hôte et la clé doivent être tous deux renseignés."
+
+#: addon\globalPlugins\remoteClient\dialogs.py:149
+msgid "Key must be set."
+msgstr "La clé doit être renseignée."
+
+#. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
+#: addon\globalPlugins\remoteClient\dialogs.py:160
+msgid "Auto-connect to control server on startup"
+msgstr "Se connecter automatiquement au serveur de contrôle au démarrage"
+
+#: addon\globalPlugins\remoteClient\session.py:107
 msgid "Remote NVDA not connected."
 msgstr "NVDA Distant non connecté."
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+#: buildVars.py:17
+msgid "Remote Support"
+msgstr "Support à distance"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+#: buildVars.py:20
+msgid "Allows remote control of and remote access to another machine."
+msgstr ""
+"Permet le contrôle à distance et l'accès à distance à un autre ordinateur."
