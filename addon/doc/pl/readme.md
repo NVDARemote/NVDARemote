@@ -1,100 +1,100 @@
 #Zdalne NVDA / NVDA Remote Access
 Wersja 1.0
 
-Dodatek Zdalne NVDA (oryginalnie NVDA Remote Access) pozwala po³¹czyæ siê z innym komputerem, na którym uruchomiony jest czytnik ekranu NVDA. Nie ma znaczenia, czy znajdujesz siê po drugiej stronie pokoju, czy po drugiej stronie œwiata. Po³¹czenie jest proste i jest tylko kilka poleceñ do zapamiêtania. Mo¿esz pod³¹czyæ siê do komputera innej osoby, lub pozwoliæ komuœ zaufanemu pod³¹czyæ siê do twojego systemu dla wykonania rutynowej konserwacji, diagnostyki problemu, albo przeprowadzenia szkolenia.
+Dodatek Zdalne NVDA (oryginalnie NVDA Remote Access) pozwala połączyć się z innym komputerem, na którym uruchomiony jest czytnik ekranu NVDA. Nie ma znaczenia, czy znajdujesz się po drugiej stronie pokoju, czy po drugiej stronie świata. Połączenie jest proste i jest tylko kilka poleceń do zapamiętania. Możesz podłączyć się do komputera innej osoby, lub pozwolić komuś zaufanemu podłączyć się do twojego systemu dla wykonania rutynowej konserwacji, diagnostyki problemu, albo przeprowadzenia szkolenia.
 
 ##Zanim zaczniesz
 
-Musisz zainstalowaæ NVDA na obu komputerach, oraz pobraæ dodatek Zdalne NVDA.
-Instalacja NVDA i tego dodatku s¹ standardowe. Jeœli potrzebujesz wiêcej informacji, mo¿esz je znaleŸæ w podrêczniku NVDA.
+Musisz zainstalować NVDA na obu komputerach, oraz pobrać dodatek Zdalne NVDA.
+Instalacja NVDA i tego dodatku są standardowe. Jeśli potrzebujesz więcej informacji, możesz je znaleźć w podręczniku NVDA.
 
-##Rozpoczynanie zdalnej sesji przez serwer poœrednicz¹cy
+##Rozpoczynanie zdalnej sesji przez serwer pośredniczący
 ###Kontrolowany	 komputer
-1. Otwórz menu NVDA, Narzêdzia, Zdalne, Po³¹cz.
+1. Otwórz menu NVDA, Narzędzia, Zdalne, Połącz.
 2. Wybierz klient w pierwszej grupie  przycisków opcji.
-3. Wybierz Zezwól na kontrolê tego komputera w drugiej grupie przycisków opcji.
-4. W polu Host, wprowadŸ adres serwera, do którego siê ³¹czysz, np. nvdaremote.com.
-5. WprowadŸ klucz w polu klucza, albo u¿yj przycisku Generuj klucz.
-Klucz jest niezbêdny osobie, która bêdzie kontrolowaæ twój komputer.
-Kontrolowana maszyna i inne do niej pod³¹czone, musz¹ u¿ywaæ tego samego klucza.
-6. Naciœnij OK. Us³yszysz dŸwiêk i po³¹czone.
+3. Wybierz Zezwól na kontrolę tego komputera w drugiej grupie przycisków opcji.
+4. W polu Host, wprowadź adres serwera, do którego się łączysz, np. nvdaremote.com.
+5. Wprowadź klucz w polu klucza, albo użyj przycisku Generuj klucz.
+Klucz jest niezbędny osobie, która będzie kontrolować twój komputer.
+Kontrolowana maszyna i inne do niej podłączone, muszą używać tego samego klucza.
+6. Naciśnij OK. Usłyszysz dźwięk i połączone.
 
-###Komputer kontroluj¹cy
-1. Otwórz menu NVDA, Narzêdzia, Zdalne, Po³¹cz.
+###Komputer kontrolujący
+1. Otwórz menu NVDA, Narzędzia, Zdalne, Połącz.
 2. Wybierz klient w pierwszej grupie  przycisków opcji.
 3. Wybierz Kontroluj inny komputer w drugiej grupie przycisków opcji.
-4. W polu Host, wprowadŸ adres serwera, do którego siê ³¹czysz, np. nvdaremote.com.
-5. WprowadŸ klucz w polu klucza, albo u¿yj przycisku Generuj klucz.
-Klucz jest niezbêdny osobie, która bêdzie kontrolowaæ twój komputer.
-Kontrolowana maszyna i inne do niej pod³¹czone, musz¹ u¿ywaæ tego samego klucza.
-6. Naciœnij OK. Us³yszysz dŸwiêk i po³¹czone.
+4. W polu Host, wprowadź adres serwera, do którego się łączysz, np. nvdaremote.com.
+5. Wprowadź klucz w polu klucza, albo użyj przycisku Generuj klucz.
+Klucz jest niezbędny osobie, która będzie kontrolować twój komputer.
+Kontrolowana maszyna i inne do niej podłączone, muszą używać tego samego klucza.
+6. Naciśnij OK. Usłyszysz dźwięk i połączone.
 
 
-##Bezpoœrednie po³¹czenia
-Opcja Serwer w oknie po³¹czenia pozwala ustanowiæ bezpoœrednie po³¹czenie.
-Po wybraniu tego, okreœl, jak¹ rolê bêdzie pe³ni³ twój komputer.
-Inna osoba po³¹czy siê z tob¹ u¿ywaj¹c roli przeciwnej.
+##Bezpośrednie połączenia
+Opcja Serwer w oknie połączenia pozwala ustanowić bezpośrednie połączenie.
+Po wybraniu tego, określ, jaką rolę będzie pełnił twój komputer.
+Inna osoba połączy się z tobą używając roli przeciwnej.
 
-Po wybraniu roli, mo¿esz uzyskaæ adres IP przyciskiem Pobierz zewnêtrzne IP, oraz upewniæ siê, ¿e port jest prawid³owo przekazywany.
-Jeœli sprawdzenie wykryje, ¿e twój port (6837) jest nieosi¹galny, pojawi siê okienko powiadomienia.
-W³¹cz przekazywanie portów i spróbuj ponownie.
-Uwaga: proces ustawiania przekazywania portów wykracza poza zakres tego dokumentu. SprawdŸ instrukcjê obs³ugi swojego routera.
+Po wybraniu roli, możesz uzyskać adres IP przyciskiem Pobierz zewnętrzne IP, oraz upewnić się, że port jest prawidłowo przekazywany.
+Jeśli sprawdzenie wykryje, że twój port (6837) jest nieosiągalny, pojawi się okienko powiadomienia.
+Włącz przekazywanie portów i spróbuj ponownie.
+Uwaga: proces ustawiania przekazywania portów wykracza poza zakres tego dokumentu. Sprawdź instrukcję obsługi swojego routera.
 
-WprowadŸ klucz w polu klucza, lub wybierz przycisk Generuj. Inna osoba bêdzie potrzebowaæ twojego zewnêtrznego IP oraz klucza, aby siê po³¹czyæ.
+Wprowadź klucz w polu klucza, lub wybierz przycisk Generuj. Inna osoba będzie potrzebować twojego zewnętrznego IP oraz klucza, aby się połączyć.
 
-Po naciœniêciu przycisku OK, zostaniesz po³¹czony.
-Gdy pod³¹czy siê druga osoba, mo¿na bêdzie normalnie u¿ywaæ zdalnego NVDA.
+Po naciśnięciu przycisku OK, zostaniesz połączony.
+Gdy podłączy się druga osoba, można będzie normalnie używać zdalnego NVDA.
 
-##Wysy³anie klawiszy
-Po ustanowieniu po³¹czenia, na maszynie kontroluj¹cej mo¿na nacisn¹æ f11 aby rozpocz¹æ przesy³anie klawiszy.
-Gdy NVDA wypowie Klawisze wysy³ane, naciskane klawisze bêd¹ trafiaæ do kontrolowanego komputera. Naciœnij f11 aby zakoñczyæ wysy³anie klawiszy i powróciæ do kontroluj¹cej maszyny.
-Dla najlepszej kompatybilnoœci proszê siê upewniæ, ¿e uk³ad klawiatury jest taki sam na obu maszynach.
+##Wysyłanie klawiszy
+Po ustanowieniu połączenia, na maszynie kontrolującej można nacisnąć f11 aby rozpocząć przesyłanie klawiszy.
+Gdy NVDA wypowie Klawisze wysyłane, naciskane klawisze będą trafiać do kontrolowanego komputera. Naciśnij f11 aby zakończyć wysyłanie klawiszy i powrócić do kontrolującej maszyny.
+Dla najlepszej kompatybilności proszę się upewnić, że układ klawiatury jest taki sam na obu maszynach.
 
-##Wyœlij Ctrl+Alt+Del
-Podczas wysy³ania klawiszy, nie jest mo¿liwe wys³anie kombinacji CTRL+Alt+del w zwyk³y sposób.
-Jeœli musisz wys³aæ CTRL+Alt+del, a zdalny komputer jest w trybie bezpiecznego pulpitu, u¿yj tego polecenia.
+##Wyślij Ctrl+Alt+Del
+Podczas wysyłania klawiszy, nie jest możliwe wysłanie kombinacji CTRL+Alt+del w zwykły sposób.
+Jeśli musisz wysłać CTRL+Alt+del, a zdalny komputer jest w trybie bezpiecznego pulpitu, użyj tego polecenia.
 
 ##Zdalna kontrola nienadzorowanego komputera
 
-Czasem mo¿esz chcieæ kontrolowaæ zdalnie jakiœ w³asny komputer. Jest to szczególnie przydatne jeœli podró¿ujesz i chcesz kontrolowaæ swój domowy PC z laptopa. Podobnie, dla kontroli komputera znajduj¹cego siê w innym pokoju. Drobne przygotowania czyni¹ to wygodne i mo¿liwe.
+Czasem możesz chcieć kontrolować zdalnie jakiś własny komputer. Jest to szczególnie przydatne jeśli podróżujesz i chcesz kontrolować swój domowy PC z laptopa. Podobnie, dla kontroli komputera znajdującego się w innym pokoju. Drobne przygotowania czynią to wygodne i możliwe.
 
-1. WejdŸ do menu NVDA, Narzêdzia, Zdalne, Opcje.
-2. Zaznacz pole wyboru , "£¹cz automatycznie z serwerem kontroli przy starcie".
-3. Wype³nij pola Host i klucz i naciœnij OK.
-4. Opcja generowania klucza nie jest dostêpna w tej sytuacji. Najlepiej jest u¿yæ klucza, który ³atwo zapamiêtasz i bêdziesz móg³ go u¿yæ ze zdalnej lokalizacji .
+1. Wejdź do menu NVDA, Narzędzia, Zdalne, Opcje.
+2. Zaznacz pole wyboru , "Łącz automatycznie z serwerem kontroli przy starcie".
+3. Wypełnij pola Host i klucz i naciśnij OK.
+4. Opcja generowania klucza nie jest dostępna w tej sytuacji. Najlepiej jest użyć klucza, który łatwo zapamiętasz i będziesz mógł go użyć ze zdalnej lokalizacji .
 
 ##Wyciszanie mowy na zdalnym komputerze
-Jeœli nie chcesz s³yszeæ mowy zdalnego komputera, uruchom menu NVDA, Narzêdzia, Zdalne. PrzejdŸ do polecenia "Wycisz zdaln¹ mowê" i naciœnij Enter.
+Jeśli nie chcesz słyszeć mowy zdalnego komputera, uruchom menu NVDA, Narzędzia, Zdalne. Przejdź do polecenia "Wycisz zdalną mowę" i naciśnij Enter.
 
 
-##Koñczenie sesji zdalnej
+##Kończenie sesji zdalnej
 
-Aby zakoñczyæ zdaln¹ sesjê, wykonaj nastêpuj¹ce dzia³ania:
+Aby zakończyć zdalną sesję, wykonaj następujące działania:
 
-1. Na kontroluj¹cym komputerze, naciœnij F11 aby zakoñczyæ wysy³anie klawiszy. Powinieneœ us³yszeæ komunikat: "Klawisze nie wysy³ane." Jeœli zamiast tego us³yszysz, ¿e klawisze wysy³ane,  naciœnij F11 jeszcze raz.
+1. Na kontrolującym komputerze, naciśnij F11 aby zakończyć wysyłanie klawiszy. Powinieneś usłyszeć komunikat: "Klawisze nie wysyłane." Jeśli zamiast tego usłyszysz, że klawisze wysyłane,  naciśnij F11 jeszcze raz.
 
-2. Otwórz menu NVDA, Narzêdzia, Zdalne, i naciœnij Enter na poleceniu Roz³¹cz.
+2. Otwórz menu NVDA, Narzędzia, Zdalne, i naciśnij Enter na poleceniu Rozłącz.
 
-##Wyœlij schowek
-Opcja Wyœlij schowek w menu Zdalne, pozwala przes³aæ tekst z twojego schowka.
-Po jej aktywowaniu tekst w schowku zostanie przes³any do schowka innych maszyn.
+##Wyślij schowek
+Opcja Wyślij schowek w menu Zdalne, pozwala przesłać tekst z twojego schowka.
+Po jej aktywowaniu tekst w schowku zostanie przesłany do schowka innych maszyn.
 
 ##Konfigurowanie zdalnego NVDA do pracy na bezpiecznym pulpicie
 
-Aby Zdalne NVDA mog³o pracowaæ na bezpiecznym pulpicie, dodatek musi byæ zainstalowany w NVDA dzia³aj¹cym na bezpiecznym pulpicie.
+Aby Zdalne NVDA mogło pracować na bezpiecznym pulpicie, dodatek musi być zainstalowany w NVDA działającym na bezpiecznym pulpicie.
 
 1. Z menu NVDA wybierz Ustawienia, Ogólne.
 
-2. PrzejdŸ klawiszem Tab do przycisku U¿ywaj zapisanych ustawieñ NVDA na ekranie logowania i innych zabezpieczonych ekranach (wymaga uprawnieñ administratora) i naciœnij Enter.
+2. Przejdź klawiszem Tab do przycisku Używaj zapisanych ustawień NVDA na ekranie logowania i innych zabezpieczonych ekranach (wymaga uprawnień administratora) i naciśnij Enter.
 
-3. Odpowiedz twierdz¹co na pytania dotycz¹ce kopiowania twoich ustawieñ i kopiowania dodatków, ewentualnie potwierdŸ komunikat kontroli konta u¿ytkownika, który siê mo¿e pojawiæ.
-4. Po skopiowaniu ustawieñ zamknij powiadomienie przyciskiem OK. PrzejdŸ klawiszem Tab do OK i naciœnij Enter, aby opuœciæ okno ustawieñ.
+3. Odpowiedz twierdząco na pytania dotyczące kopiowania twoich ustawień i kopiowania dodatków, ewentualnie potwierdź komunikat kontroli konta użytkownika, który się może pojawić.
+4. Po skopiowaniu ustawień zamknij powiadomienie przyciskiem OK. Przejdź klawiszem Tab do OK i naciśnij Enter, aby opuścić okno ustawień.
 
-Gdy Zdalne NVDA jest zainstalowane na bezpiecznym pulpicie, jeœli aktualnie jesteœ kontrolowany w zdalnej sesji,
-bezpieczny pulpit bêdzie odczytywany, jeœli siê pojawi.
+Gdy Zdalne NVDA jest zainstalowane na bezpiecznym pulpicie, jeśli aktualnie jesteś kontrolowany w zdalnej sesji,
+bezpieczny pulpit będzie odczytywany, jeśli się pojawi.
 
-##Wspó³praca
-Chcielibyœmy podziêkowaæ m.in. nastêpuj¹cym osobom, które pomog³y urzeczywistniæ projekt Zdalnego NVDA.
+##Współpraca
+Chcielibyśmy podziękować m.in. następującym osobom, które pomogły urzeczywistnić projekt Zdalnego NVDA.
 
 * Hai Nguyen Ly
 * Chris Westbrook
