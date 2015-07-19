@@ -125,7 +125,10 @@ class GlobalPlugin(GlobalPlugin):
 		tools_menu.RemoveItem(self.remote_item)
 		self.remote_item.Destroy()
 		self.remote_item=None
-		self.menu.Destroy()
+		try:
+			self.menu.Destroy()
+		except wx.PyDeadObjectError:
+			pass
 		self.menu=None
 
 	def on_disconnect_item(self, evt):
