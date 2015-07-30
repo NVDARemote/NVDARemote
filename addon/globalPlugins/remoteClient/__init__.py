@@ -132,8 +132,13 @@ class GlobalPlugin(GlobalPlugin):
 		self.menu=None
 
 	def on_disconnect_item(self, evt):
-		evt.Skip()
+		if evt != 'gesture':
+			evt.Skip()
 		self.do_disconnect_from_slave()
+
+	def script_disconnect(self, gesture):
+		self.do_disconnect_from_slave()
+	script_disconnect.__doc__ = _("""Disconnect from a remote computer""")
 
 	def on_mute_item(self, evt):
 		evt.Skip()
@@ -143,6 +148,15 @@ class GlobalPlugin(GlobalPlugin):
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
+
+	def script_connect(self, gesture):
+		if self.connector or self.control_connector : # a connection is already established
+			speech.speakMessage(_("You can't open that dialog, a connection is already established"))
+		elif self.connector is None and self.control_connector is None: # A connection doesn't yet exist, open the dialog
+			self.do_connect('gesture')
+		else:
+			speech.speakMessage(_("Error, connection state can't be determined!"))
+	script_connect.__doc__ = _("""Open the NVDA Remote connect dialog if a connection isn't already established""")
 
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
@@ -215,11 +229,10 @@ class GlobalPlugin(GlobalPlugin):
 			# Translators: Message shown when cannot connect to the remote computer.
 			message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
-	def script_disconnect(self, gesture):
-		self.do_disconnect_from_slave()
 
 	def do_connect(self, evt):
-		evt.Skip()
+		if evt != 'gesture':
+			evt.Skip()
 		last_cons = get_config()['connections']['last_connected']
 		last = ''
 		if last_cons:
@@ -298,7 +311,7 @@ class GlobalPlugin(GlobalPlugin):
 	def connected_to_relay(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
-		# Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
+		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.control_connector.address)
@@ -378,7 +391,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.connect_control(('127.0.0.1', port), channel)
 
 	__gestures = {
-		"kb:alt+NVDA+pageDown": "disconnect",
+		"kb:alt+NVDA+shift+d": "disconnect",
+		"kb:NVDA+shift+c": "connect",
 	}
 
 
