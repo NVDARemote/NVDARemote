@@ -144,6 +144,10 @@ class GlobalPlugin(GlobalPlugin):
 		self.mute_item.Check(self.local_machine.is_muted)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
+	def script_on_connect(self, gesture):
+		self.do_connect('gesture')
+	script_on_connect.__doc__ = _("""Open the NVDA Remote connect dialog""")
+
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
 		try:
@@ -219,7 +223,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.do_disconnect_from_slave()
 
 	def do_connect(self, evt):
-		evt.Skip()
+		if evt != 'gesture':
+			evt.Skip()
 		last_cons = get_config()['connections']['last_connected']
 		last = ''
 		if last_cons:
