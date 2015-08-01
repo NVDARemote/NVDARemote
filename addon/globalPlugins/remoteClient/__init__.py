@@ -64,7 +64,17 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		cs = get_config()['controlserver']
 		if cs['autoconnect']:
-			address = address_to_hostport(cs['host'])
+			if cs['autoconnect'] == '1': # self-hosted server
+				self.server = server.Server(SERVER_PORT, cs['key'])
+				server_thread = threading.Thread(target=self.server.run)
+				server_thread.daemon = True
+				server_thread.start()
+				address = address_to_hostport('localhost')
+			elif cs['autoconnect'] == 2:
+				address = address_to_hostport(cs['host'])
+			elif cs['autoconnect'] == True: # Previous version config, change value to 2 for external control server
+				cs['autoconnect'] = 2
+				config.write()
 			self.connect_control(address, cs['key'])
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
