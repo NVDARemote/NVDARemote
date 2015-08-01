@@ -161,10 +161,7 @@ class OptionsDialog(wx.Dialog):
 		super(OptionsDialog, self).__init__(parent, id, title=title)
 		main_sizer = wx.BoxSizer(wx.VERTICAL)
 		# Translators: A radiobutton group in add-on options dialog to choose if autoconnecting is disabled, connects to a self-hosted server, or to an external control server, in that order.
-		self.autoconnect= wx.RadioBox(self, wx.ID_ANY, choices=(_("Don't autoconnect"), _("Autoconnect to a self-hosted server"), _("Autoconnect to an external control server")), style=wx.RA_VERTICAL)
-#		self.autoconnect.SetSelection(0)
-
-#		self.autoconnect = wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup"))
+		self.autoconnect = wx.RadioBox(self, wx.ID_ANY, choices=(_("Don't autoconnect"), _("Autoconnect to a self-hosted server"), _("Autoconnect to an external control server")), style=wx.RA_VERTICAL)
 		self.autoconnect.Bind(wx.EVT_RADIOBOX, self.on_autoconnect)
 		main_sizer.Add(self.autoconnect)
 		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
@@ -187,7 +184,7 @@ class OptionsDialog(wx.Dialog):
 		self.set_controls()
 
 	def set_controls(self):
-		state = self.autoconnect.GetValue()
+		state = self.autoconnect.GetSelection()
 		if state == 0: # if autoconnect is disabled
 			self.host.Enable(False)
 			self.key.Enable(False)
@@ -202,20 +199,24 @@ class OptionsDialog(wx.Dialog):
 
 	def set_from_config(self, config):
 		cs = config['controlserver']
-		self.autoconnect.SetValue(cs['autoconnect'])
+		if cs['autoconnect'] == True:
+			cs['autoconnect'] = int(2)
+		elif cs['autoconnect'] == False:
+			cs['autoconnect'] = int(0)
+		self.autoconnect.SetSelection(cs['autoconnect'])
 		self.host.SetValue(cs['host'])
 		self.key.SetValue(cs['key'])
 		self.set_controls()
 
 	def on_ok(self, evt):
-		if self.autoconnect.GetValue() and (self.autoconnect not 1 and not self.host.GetValue() or not self.key.GetValue()):
+		if self.autoconnect.GetSelection() and (self.autoconnect !=1 and not self.host.GetValue() or not self.key.GetValue()):
 			gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
 		else:
 			evt.Skip()
 
 	def write_to_config(self, config):
 		cs = config['controlserver']
-		cs['autoconnect'] = self.autoconnect.GetValue()
+		cs['autoconnect'] = self.autoconnect.GetSelection()
 		cs['host'] = self.host.GetValue()
 		cs['key'] = self.key.GetValue()
 		config.write()

@@ -73,7 +73,8 @@ class GlobalPlugin(GlobalPlugin):
 			elif cs['autoconnect'] == 2:
 				address = address_to_hostport(cs['host'])
 			elif cs['autoconnect'] == True: # Previous version config, change value to 2 for external control server
-				cs['autoconnect'] = 2
+				config = get_config()
+				config['controlserver']['autoconnect'] = 2
 				config.write()
 			self.connect_control(address, cs['key'])
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
