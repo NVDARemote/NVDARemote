@@ -64,8 +64,20 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		cs = get_config()['controlserver']
 		if cs['autoconnect']:
-			address = address_to_hostport(cs['host'])
-			self.connect_control(address, cs['key'])
+			if cs['autoconnect'] == 1: # self-hosted server
+				self.server = server.Server(SERVER_PORT, cs['key'])
+				server_thread = threading.Thread(target=self.server.run)
+				server_thread.daemon = True
+				server_thread.start()
+				address = address_to_hostport('localhost')
+			elif cs['autoconnect'] == '2':
+				address = address_to_hostport(cs['host'])
+			elif cs['autoconnect'] == True: # Previous version config, change value to 2 for external control server
+				config = get_config()
+				config['controlserver']['autoconnect'] = 2
+				config.write()
+				address = address_to_hostport(cs['host'])
+			self.connect_control(address, cs['key']) # Connect to the server
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
 		self.sd_focused = False
@@ -135,6 +147,10 @@ class GlobalPlugin(GlobalPlugin):
 		evt.Skip()
 		self.do_disconnect_from_slave()
 
+	def script_disconnect(self, gesture):
+		self.do_disconnect_from_slave()
+	script_disconnect.__doc__ = _("""Disconnect from a remote computer""")
+
 	def on_mute_item(self, evt):
 		evt.Skip()
 		self.local_machine.is_muted = self.mute_item.IsChecked()
@@ -143,6 +159,32 @@ class GlobalPlugin(GlobalPlugin):
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
+
+	def script_connect(self, gesture):
+		if self.connector or self.control_connector : # a connection is already established
+			speech.speakMessage(_("You can't open that dialog, a connection is already established"))
+		elif self.connector is None and self.control_connector is None: # A connection doesn't yet exist, open the dialog
+			self.do_connect('gesture')
+		else:
+			speech.speakMessage(_("Error, connection state can't be determined!"))
+	script_connect.__doc__ = _("""Open the NVDA Remote connect dialog if a connection isn't already established""")
+
+	def script_status(self, gesture):
+		statusmessage = "NVDA Remote "
+		if self.connector is None and self.control_connector is None and self.server is None: 
+			statusmessage = statusmessage + "isn't currently connected to a server or any clients."
+		elif self.connector is not None and self.server is None:
+			statusmessage = statusmessage+"is currently connected to the relay server '%s', and can be controlled by anyone who knows this relay and your key" %(self.serveraddress,)
+		elif self.control_connector is not None and self.server is None:
+			statusmessage = statusmessage+"is currently connected to the relay server '%s', and can control another computer using the same server and key" %(self.serveraddress,)
+		elif self.server is not None and self.connector is not None:
+			statusmessage = statusmessage + "is currently connected to your local server and can be controlled by anyone who knows this IP address and your key"
+		elif self.server is not None and self.control_connector is not None:
+			statusmessage = statusmessage+"is currently connected to your local server and can control another computer using your IP address and key"
+		if self.local_machine.is_muted == True:
+			statusmessage = statusmessage + ", and has remote speech muted"
+		speech.speakMessage(statusmessage)
+	script_status.__doc__= _("""Announce the status of NVDA remote, including connection state, if a local server is running, and if remote speech is muted""")
 
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
@@ -215,11 +257,10 @@ class GlobalPlugin(GlobalPlugin):
 			# Translators: Message shown when cannot connect to the remote computer.
 			message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
-	def script_disconnect(self, gesture):
-		self.do_disconnect_from_slave()
 
 	def do_connect(self, evt):
-		evt.Skip()
+		if evt != 'gesture':
+			evt.Skip()
 		last_cons = get_config()['connections']['last_connected']
 		last = ''
 		if last_cons:
@@ -278,6 +319,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.connector = transport
 		self.connector_thread = ConnectorThread(connector=transport)
 		self.connector_thread.start()
+		self.serveraddress = address
+
 
 	def connect_control(self, address=SERVER_ADDR, key=None):
 		if self.control_connector_thread is not None:
@@ -292,13 +335,14 @@ class GlobalPlugin(GlobalPlugin):
 		self.control_connector.callback_manager.register_callback('transport_connected', self.connected_to_relay)
 		self.control_connector_thread = ConnectorThread(connector=self.control_connector)
 		self.control_connector_thread.start()
+		self.serveraddress = address
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 
 	def connected_to_relay(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
-		# Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
+		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.control_connector.address)
@@ -378,7 +422,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.connect_control(('127.0.0.1', port), channel)
 
 	__gestures = {
-		"kb:alt+NVDA+pageDown": "disconnect",
+		"kb:alt+NVDA+shift+d": "disconnect",
+		"kb:NVDA+shift+c": "connect",
 	}
 
 
