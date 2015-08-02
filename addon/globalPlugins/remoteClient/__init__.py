@@ -64,19 +64,20 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		cs = get_config()['controlserver']
 		if cs['autoconnect']:
-			if cs['autoconnect'] == '1': # self-hosted server
+			if cs['autoconnect'] == 1: # self-hosted server
 				self.server = server.Server(SERVER_PORT, cs['key'])
 				server_thread = threading.Thread(target=self.server.run)
 				server_thread.daemon = True
 				server_thread.start()
 				address = address_to_hostport('localhost')
-			elif cs['autoconnect'] == 2:
+			elif cs['autoconnect'] == '2':
 				address = address_to_hostport(cs['host'])
 			elif cs['autoconnect'] == True: # Previous version config, change value to 2 for external control server
 				config = get_config()
 				config['controlserver']['autoconnect'] = 2
 				config.write()
-			self.connect_control(address, cs['key'])
+				address = address_to_hostport(cs['host'])
+			self.connect_control(address, cs['key']) # Connect to the server
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
 		self.sd_focused = False
@@ -167,6 +168,23 @@ class GlobalPlugin(GlobalPlugin):
 		else:
 			speech.speakMessage(_("Error, connection state can't be determined!"))
 	script_connect.__doc__ = _("""Open the NVDA Remote connect dialog if a connection isn't already established""")
+
+	def script_status(self, gesture):
+		statusmessage = "NVDA Remote "
+		if self.connector is None and self.control_connector is None and self.server is None: 
+			statusmessage = statusmessage + "isn't currently connected to a server or any clients."
+		elif self.connector is not None and self.server is None:
+			statusmessage = statusmessage+"is currently connected to the relay server '%s', and can be controlled by anyone who knows this relay and your key" %(self.serveraddress,)
+		elif self.control_connector is not None and self.server is None:
+			statusmessage = statusmessage+"is currently connected to the relay server '%s', and can control another computer using the same server and key" %(self.serveraddress,)
+		elif self.server is not None and self.connector is not None:
+			statusmessage = statusmessage + "is currently connected to your local server and can be controlled by anyone who knows this IP address and your key"
+		elif self.server is not None and self.control_connector is not None:
+			statusmessage = statusmessage+"is currently connected to your local server and can control another computer using your IP address and key"
+		if self.local_machine.is_muted == True:
+			statusmessage = statusmessage + ", and has remote speech muted"
+		speech.speakMessage(statusmessage)
+	script_status.__doc__= _("""Announce the status of NVDA remote, including connection state, if a local server is running, and if remote speech is muted""")
 
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
@@ -301,6 +319,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.connector = transport
 		self.connector_thread = ConnectorThread(connector=transport)
 		self.connector_thread.start()
+		self.serveraddress = address
+
 
 	def connect_control(self, address=SERVER_ADDR, key=None):
 		if self.control_connector_thread is not None:
@@ -315,6 +335,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.control_connector.callback_manager.register_callback('transport_connected', self.connected_to_relay)
 		self.control_connector_thread = ConnectorThread(connector=self.control_connector)
 		self.control_connector_thread.start()
+		self.serveraddress = address
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 

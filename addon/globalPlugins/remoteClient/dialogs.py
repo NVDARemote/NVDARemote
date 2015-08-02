@@ -203,7 +203,7 @@ class OptionsDialog(wx.Dialog):
 			cs['autoconnect'] = int(2)
 		elif cs['autoconnect'] == False:
 			cs['autoconnect'] = int(0)
-		self.autoconnect.SetSelection(cs['autoconnect'])
+		self.autoconnect.SetSelection(int(cs['autoconnect']))
 		self.host.SetValue(cs['host'])
 		self.key.SetValue(cs['key'])
 		self.set_controls()
