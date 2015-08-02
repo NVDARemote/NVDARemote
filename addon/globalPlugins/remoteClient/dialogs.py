@@ -199,10 +199,6 @@ class OptionsDialog(wx.Dialog):
 
 	def set_from_config(self, config):
 		cs = config['controlserver']
-		if cs['autoconnect'] == True:
-			cs['autoconnect'] = int(2)
-		elif cs['autoconnect'] == False:
-			cs['autoconnect'] = int(0)
 		self.autoconnect.SetSelection(int(cs['autoconnect']))
 		self.host.SetValue(cs['host'])
 		self.key.SetValue(cs['key'])
