@@ -390,11 +390,6 @@ class GlobalPlugin(GlobalPlugin):
 		port, channel = data
 		self.connect_control(('127.0.0.1', port), channel)
 
-	__gestures = {
-		"kb:alt+NVDA+shift+d": "disconnect",
-		"kb:NVDA+shift+c": "connect",
-	}
-
 
 _config = None
 configspec = StringIO("""[connections]
