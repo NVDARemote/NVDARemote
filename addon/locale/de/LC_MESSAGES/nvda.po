@@ -2,19 +2,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "POT-Creation-Date: 2015-07-04 09:05+0200\n"
-"PO-Revision-Date: 2015-07-06 08:18+0200\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2015-10-04 19:04+0200\n"
+"Last-Translator: Bernd Dorer <bdorer@mailbox.org>\n"
 "Language-Team: David Parduhn <xkill85@gmx.net>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.2\n"
-"X-Poedit-Basepath: ../../../../../../../../../../rechner/nvda-git/nvdaremote\n"
+"X-Generator: Poedit 1.8.5\n"
+"X-Poedit-Basepath: ../../../globalPlugins/remoteClient\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-SearchPath-0: addon/.\n"
-"X-Poedit-SearchPath-1: /rechner/nvda-git/nvdaremote\n"
+"X-Poedit-SearchPath-0: __init__.py\n"
+"X-Poedit-SearchPath-1: beep_sequence.py\n"
+"X-Poedit-SearchPath-2: bridge.py\n"
+"X-Poedit-SearchPath-3: callback_manager.py\n"
+"X-Poedit-SearchPath-4: dialogs.py\n"
+"X-Poedit-SearchPath-5: input.py\n"
+"X-Poedit-SearchPath-6: keyboard_hook.py\n"
+"X-Poedit-SearchPath-7: local_machine.py\n"
+"X-Poedit-SearchPath-8: nvda_patcher.py\n"
+"X-Poedit-SearchPath-9: serializer.py\n"
+"X-Poedit-SearchPath-10: server.pem\n"
+"X-Poedit-SearchPath-11: server.py\n"
+"X-Poedit-SearchPath-12: session.py\n"
+"X-Poedit-SearchPath-13: socket_utils.py\n"
+"X-Poedit-SearchPath-14: transport.py\n"
 
 #: addon/globalPlugins/remoteClient/__init__.py:75
 msgid "Connect..."
@@ -22,7 +35,7 @@ msgstr "verbinden..."
 
 #: addon/globalPlugins/remoteClient/__init__.py:75
 msgid "Remotely connect to another computer running NVDA Remote Access"
-msgstr "Stellt eine Verbindung zu einem anderen Computer her, auf dem nvdaremote ausgeführt wird."
+msgstr "Stellt eine Verbindung zu einem anderen Computer her, auf dem Fernsteuerung für NVDA  ausgeführt wird."
 
 #: addon/globalPlugins/remoteClient/__init__.py:77
 msgid "Disconnect"
@@ -30,7 +43,7 @@ msgstr "Verbindung trennen"
 
 #: addon/globalPlugins/remoteClient/__init__.py:77
 msgid "Disconnect from another computer running NVDA Remote Access"
-msgstr "trennt die Verbindung zu einem anderen Computer, auf dem nvdaremote ausgeführt wird"
+msgstr "trennt die Verbindung zu einem anderen Computer, auf dem Fernsteuerung für NVDA ausgeführt wird"
 
 #: addon/globalPlugins/remoteClient/__init__.py:80
 msgid "Mute remote speech"
@@ -63,11 +76,11 @@ msgstr "strg+alt+entf senden"
 
 #: addon/globalPlugins/remoteClient/__init__.py:92
 msgid "R&emote"
-msgstr "R&emote"
+msgstr "&Fernsteuerung"
 
 #: addon/globalPlugins/remoteClient/__init__.py:92
 msgid "NVDA Remote Access"
-msgstr "NVDA Remote Access"
+msgstr "Fernsteuerung für NVDA"
 
 #: addon/globalPlugins/remoteClient/__init__.py:127
 msgid "Not connected."
@@ -99,7 +112,7 @@ msgstr "Verbindung mit Server hergestellt"
 
 #: addon/globalPlugins/remoteClient/__init__.py:270
 msgid "Sending keys."
-msgstr "Tasten werden gesendet"
+msgstr "sende Tasten."
 
 #: addon/globalPlugins/remoteClient/__init__.py:272
 msgid "Not sending keys."
@@ -147,7 +160,7 @@ msgstr "Warnung"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:104
 msgid "Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr "Der Server zum Ermitteln der externen Ip-Adresse konnte nicht kontaktiert werden, ermitteln Sie die externe Ip manuell"
+msgstr "Der Server zum Ermitteln der externen IP-Adresse konnte nicht kontaktiert werden, ermitteln Sie die externe IP manuell"
 
 #: addon/globalPlugins/remoteClient/dialogs.py:104
 #: addon/globalPlugins/remoteClient/dialogs.py:140
@@ -187,11 +200,11 @@ msgstr "beim Start automatisch mit Server verbinden"
 
 #: addon/globalPlugins/remoteClient/session.py:107
 msgid "Remote NVDA not connected."
-msgstr "entfernter NVDA nicht verbunden"
+msgstr "entferntes NVDA nicht verbunden"
 
 #: buildVars.py:17
 msgid "Remote Support"
-msgstr "Remote Support"
+msgstr "Unterstützung von Fernsteuerung"
 
 #: buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
