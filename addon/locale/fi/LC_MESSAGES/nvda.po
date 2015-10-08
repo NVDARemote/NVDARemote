@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: NVDARemote\n"
 "POT-Creation-Date: 2015-07-20 10:55+0200\n"
-"PO-Revision-Date: 2015-08-29 16:07+0200\n"
+"PO-Revision-Date: 2015-12-09 15:21+0200\n"
 "Last-Translator: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language-Team: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language: fi\n"
@@ -70,7 +70,7 @@ msgstr "&Etäkäyttö"
 
 #: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:101
 msgid "NVDA Remote Access"
-msgstr "NVDA:n etäkäyttö"
+msgstr "NVDA-etäkäyttö"
 
 #: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:145
 msgid "Mute or unmute the speech coming from the remote computer"
@@ -130,7 +130,7 @@ msgstr "&Luo avain"
 
 #: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/dialogs.py:57
 msgid "Get External &IP"
-msgstr "Hanki ulkoinen &IP"
+msgstr "Hae ulkoinen &IP"
 
 #: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/dialogs.py:61
 msgid "&External IP:"
@@ -156,7 +156,7 @@ msgstr "Varoitus"
 msgid ""
 "Unable to contact portcheck server, please manually retrieve your IP address"
 msgstr ""
-"Portintarkistuspalvelimeen ei saada yhteyttä. Hae IP-osoitteesi "
+"Portcheck-portintarkistuspalvelimeen ei saada yhteyttä. Hae IP-osoite "
 "manuaalisesti."
 
 #: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/dialogs.py:115
