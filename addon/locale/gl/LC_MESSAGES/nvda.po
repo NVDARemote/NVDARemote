@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'remote' '1.1'\n"
+"Project-Id-Version: 'remote' '1.2'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
 "POT-Creation-Date: 2015-07-08 17:13+0200\n"
-"PO-Revision-Date: 2015-07-13 22:53+0200\n"
+"PO-Revision-Date: 2015-11-25 11:27+0100\n"
 "Last-Translator: Iván Novegil Cancelas <info@inovegil.site40.net>\n"
 "Language-Team: Iván Novegil Cancelas (powered by Technow) <info@inovegil.site40."
 "net>\n"
@@ -136,7 +136,7 @@ msgstr "Envío de teclas desactivado."
 #: addon\globalPlugins\remoteClient\dialogs.py:20
 #: addon\globalPlugins\remoteClient\dialogs.py:163
 msgid "&Host:"
-msgstr "&Equipo:"
+msgstr "&Equipo ou servidor:"
 
 #. Translators: Label of the edit field to enter key (password) to secure the remote connection.
 #: addon\globalPlugins\remoteClient\dialogs.py:24
