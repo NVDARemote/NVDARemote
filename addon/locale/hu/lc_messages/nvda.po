@@ -1,0 +1,204 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: nvdaremote 1.0\n"
+"POT-Creation-Date: 2015-07-04 09:05+0200\n"
+"PO-Revision-Date: 2015-08-11 09:49+0100\n"
+"Last-Translator: \n"
+"Language-Team: Ócsvári Áron <oaron@nvda.hu>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-Basepath: ../../../../../../../../../../rechner/nvda-git/"
+"nvdaremote\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: addon/.\n"
+"X-Poedit-SearchPath-1: /rechner/nvda-git/nvdaremote\n"
+
+#: addon/globalPlugins/remoteClient/__init__.py:75
+msgid "Connect..."
+msgstr "Kapcsolódás..."
+
+#: addon/globalPlugins/remoteClient/__init__.py:75
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr ""
+"Kapcsolódik egy másik számítógéphez az NVDA távelérés kiegészítő "
+"használatával."
+
+#: addon/globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect"
+msgstr "Szétkapcsol"
+
+#: addon/globalPlugins/remoteClient/__init__.py:77
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr "Lekapcsolódik a másik számítógépről az NVDA távelérés használatával."
+
+#: addon/globalPlugins/remoteClient/__init__.py:80
+msgid "Mute remote speech"
+msgstr "Távoli beszéd némítása"
+
+#: addon/globalPlugins/remoteClient/__init__.py:80
+msgid "Mute speech from the remote computer"
+msgstr "Némítja a távoli számítógép beszédjét."
+
+#: addon/globalPlugins/remoteClient/__init__.py:84
+msgid "&Push clipboard"
+msgstr "&Vágólap-tartalom küldése"
+
+#: addon/globalPlugins/remoteClient/__init__.py:84
+msgid "Push the clipboard to the other machine"
+msgstr "Vágólap-tartalom átküldése a másik számítógépnek"
+
+#: addon/globalPlugins/remoteClient/__init__.py:87
+msgid "&Options..."
+msgstr "&Beállítások"
+
+#: addon/globalPlugins/remoteClient/__init__.py:87
+#: addon/globalPlugins/remoteClient/__init__.py:113
+msgid "Options"
+msgstr "Beállítások"
+
+#: addon/globalPlugins/remoteClient/__init__.py:89
+msgid "Send Ctrl+Alt+Del"
+msgstr "A ctrl+alt+del átküldése"
+
+#: addon/globalPlugins/remoteClient/__init__.py:92
+msgid "R&emote"
+msgstr "&Távelérés"
+
+#: addon/globalPlugins/remoteClient/__init__.py:92
+msgid "NVDA Remote Access"
+msgstr "NVDA távelérés"
+
+#: addon/globalPlugins/remoteClient/__init__.py:127
+msgid "Not connected."
+msgstr "Nincs kapcsolódva"
+
+#: addon/globalPlugins/remoteClient/__init__.py:167
+msgid "Error Connecting"
+msgstr "Hiba a kapcsolódás közben"
+
+#: addon/globalPlugins/remoteClient/__init__.py:167
+msgid "Unable to connect to the remote computer"
+msgstr "Nem lehetséges a távoli számítógéphez kapcsolódni"
+
+#: addon/globalPlugins/remoteClient/__init__.py:178
+msgid "Connect"
+msgstr "Kapcsolódás"
+
+#: addon/globalPlugins/remoteClient/__init__.py:214
+msgid "Connected!"
+msgstr "Kapcsolódva"
+
+#: addon/globalPlugins/remoteClient/__init__.py:218
+msgid "Connection interrupted"
+msgstr "kapcsolat megszakadt"
+
+#: addon/globalPlugins/remoteClient/__init__.py:250
+msgid "Connected to control server"
+msgstr "Kapcsolódva a vezérlő szerverhez"
+
+#: addon/globalPlugins/remoteClient/__init__.py:270
+msgid "Sending keys."
+msgstr "Leütések küldése."
+
+#: addon/globalPlugins/remoteClient/__init__.py:272
+msgid "Not sending keys."
+msgstr "Nincs leütés küldés"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:17
+#: addon/globalPlugins/remoteClient/dialogs.py:155
+msgid "&Host:"
+msgstr "&Szerver:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:20
+#: addon/globalPlugins/remoteClient/dialogs.py:53
+#: addon/globalPlugins/remoteClient/dialogs.py:159
+msgid "&Key:"
+msgstr "&Azonosító:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:23
+#: addon/globalPlugins/remoteClient/dialogs.py:56
+msgid "&Generate Key"
+msgstr "Azonosító &generálása"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:47
+msgid "Get External &IP"
+msgstr "Külső IP-cím &lekérdezése"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:50
+msgid "&External IP:"
+msgstr "&Külső IP-cím:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:95
+msgid "Successfully retrieved IP address. Your port is open."
+msgstr "Az IP-cím sikeresen ellenőrizve, a megfelelő port nyitva van."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:95
+msgid "Success"
+msgstr "Siker"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+msgid "Retrieved external IP, but your port is not currently forwarded."
+msgstr "Az IP-cím sikeresen ellenőrizve, de nincs kinyitva a megfelelő port."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+msgid "Warning"
+msgstr "Figyelem"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:104
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Nem lehet a port-ellenőrző szerverhez csatlakozni, kérjük ellenőrizze "
+"manuálisan az ip-címét."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:104
+#: addon/globalPlugins/remoteClient/dialogs.py:140
+#: addon/globalPlugins/remoteClient/dialogs.py:142
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+msgid "Error"
+msgstr "Hiba"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:111
+msgid "Client"
+msgstr "Kliens"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:111
+msgid "Server"
+msgstr "Szerver"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:115
+msgid "Control another machine"
+msgstr "Másik számítógép irányítása"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:115
+msgid "Allow this machine to be controlled"
+msgstr "Számítógépem irányítása"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:140
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+msgid "Both host and key must be set."
+msgstr "Meg kell adni a címet és az azonosítót is."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:142
+msgid "Key must be set."
+msgstr "Meg kell adni egy azonosítót."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:152
+msgid "Auto-connect to control server on startup"
+msgstr "Automatikus kapcsolódás a vezérlő szerverhez indítás után"
+
+#: addon/globalPlugins/remoteClient/session.py:107
+msgid "Remote NVDA not connected."
+msgstr "Távoli NVDA nincs csatlakozva."
+
+#: buildVars.py:17
+msgid "Remote Support"
+msgstr "Távelérés támogatása"
+
+#: buildVars.py:20
+msgid "Allows remote control of and remote access to another machine."
+msgstr "Egy másik gép távvezérlését teszi lehetővé."

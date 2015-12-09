@@ -13,7 +13,7 @@ A instalación de NVDA e do complemento non varía con respecto a outras. Se nec
 1. Abre o menú de NVDA, ferramentas, remoto, conectar.
 2. Elixe cliente no primeiro grupo de botóns de opción.
 3. Elixe permitir que controlen este equipo no segundo grupo de botóns de opción.
-4. No campo equipo, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com.
+4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com.
 5. Introduce unha clave no campo clave, ou preme o botón xerar clave.
 A clave é o que outros utilizarán para controlar o teu equipo.
 A máquina controlada e todos os seus clientes deben usar a mesma clave.
@@ -23,7 +23,7 @@ A máquina controlada e todos os seus clientes deben usar a mesma clave.
 1. Abre o menú de NVDA, ferramentas, remoto, conectar.
 2. Elixe cliente no primeiro grupo de botóns de opción.
 3. Elixe controlar outro equipo no segundo grupo de botóns de opción.
-4. No campo equipo, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com.
+4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com.
 5. Introduce unha clave no campo clave, ou preme o botón xerar clave.
 A clave é o que outros utilizarán para controlar o teu equipo.
 A máquina controlada e todos os seus clientes deben usar a mesma clave.
