@@ -76,7 +76,7 @@ class TCPTransport(Transport):
 		return server_sock
 
 	def handle_server_data(self):
-		data = self.buffer + self.server_sock.recv(8192)
+		data = self.buffer + self.server_sock.recv(16384)
 		self.buffer = ""
 		if data == '':
 			self.close()
