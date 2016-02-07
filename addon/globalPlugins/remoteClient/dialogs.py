@@ -190,7 +190,9 @@ class OptionsDialog(wx.Dialog):
 
 	def set_from_config(self, config):
 		cs = config['controlserver']
+
 		self.autoconnect.SetValue(cs['autoconnect'])
+
 		self.host.SetValue(cs['host'])
 		self.key.SetValue(cs['key'])
 		self.set_controls()

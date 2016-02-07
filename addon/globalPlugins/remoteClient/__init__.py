@@ -64,8 +64,10 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		cs = get_config()['controlserver']
 		if cs['autoconnect']:
+
 			address = address_to_hostport(cs['host'])
 			self.connect_control(address, cs['key'])
+
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
 		self.sd_focused = False
@@ -143,6 +145,24 @@ class GlobalPlugin(GlobalPlugin):
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
+
+	def script_status(self, gesture):
+		statusmessage = "NVDA Remote "
+		if self.connector is None and self.control_connector is None and self.server is None: 
+			statusmessage = statusmessage + "isn't currently connected to a server or any clients."
+		elif self.connector is not None and self.server is None:
+			statusmessage = statusmessage+"is currently connected to the relay server '%s, port %d', and can control another computer using the same server and key" %(self.serveraddress, self.serverport)
+		elif self.control_connector is not None and self.server is None:
+			statusmessage = statusmessage+"is currently connected to the relay server '%s, port %d', and can be controlled by anyone who knows this relay and your key" %(self.serveraddress, self.serverport)
+		elif self.server is not None and self.connector is not None:
+			statusmessage = statusmessage+"is currently connected to your local server and can control another computer using your IP address and key"
+		elif self.server is not None and self.control_connector is not None:
+			statusmessage = statusmessage + "is currently connected to your local server and can be controlled by anyone who knows this IP address and your key"
+		if self.local_machine.is_muted == True:
+			statusmessage = statusmessage + ", and has remote speech muted"
+		speech.speakMessage(statusmessage)
+	script_status.__doc__= _("""Announce the status of NVDA remote, including connection state, if a local server is running, and if remote speech is muted""")
+
 
 	def on_push_clipboard_item(self, evt):
 		connector = self.control_connector or self.connector
@@ -278,6 +298,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.connector = transport
 		self.connector_thread = ConnectorThread(connector=transport)
 		self.connector_thread.start()
+		self.serveraddress, self.serverport = address
+
 
 	def connect_control(self, address=SERVER_ADDR, key=None):
 		if self.control_connector_thread is not None:
@@ -292,6 +314,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.control_connector.callback_manager.register_callback('transport_connected', self.connected_to_relay)
 		self.control_connector_thread = ConnectorThread(connector=self.control_connector)
 		self.control_connector_thread.start()
+		self.serveraddress, self.serverport= address
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 
