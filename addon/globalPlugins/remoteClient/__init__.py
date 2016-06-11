@@ -44,6 +44,7 @@ import server
 import bridge
 from socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
+import ssl
 
 class GlobalPlugin(GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
@@ -63,13 +64,13 @@ class GlobalPlugin(GlobalPlugin):
 		self.key_modified = False
 		self.sd_server = None
 		cs = get_config()['controlserver']
-		if cs['autoconnect']:
-			address = address_to_hostport(cs['host'])
-			self.connect_control(address, cs['key'])
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
+		if not self.check_secure_desktop():
+			if cs['autoconnect']:
+				address = address_to_hostport(cs['host'])
+				self.connect_control(address, cs['key'])
 		self.sd_focused = False
-		self.check_secure_desktop()
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -128,6 +129,10 @@ class GlobalPlugin(GlobalPlugin):
 		try:
 			self.menu.Destroy()
 		except wx.PyDeadObjectError:
+			pass
+		try:
+			os.unlink(self.ipc_file)
+		except:
 			pass
 		self.menu=None
 
@@ -370,12 +375,20 @@ class GlobalPlugin(GlobalPlugin):
 
 	def check_secure_desktop(self):
 		if not globalVars.appArgs.secure:
-			return
-		with open(self.ipc_file) as fp:
-			data = json.load(fp)
-		os.unlink(self.ipc_file)
-		port, channel = data
-		self.connect_control(('127.0.0.1', port), channel)
+			return False
+		try:
+			with open(self.ipc_file) as fp:
+				data = json.load(fp)
+			os.unlink(self.ipc_file)
+			port, channel = data
+			test_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			test_socket=ssl.wrap_socket(test_socket)
+			test_socket.connect(('127.0.0.1', port))
+			test_socket.close()
+			self.connect_control(('127.0.0.1', port), channel)
+			return True
+		except:
+			return False
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
