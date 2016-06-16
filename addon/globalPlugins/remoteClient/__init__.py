@@ -222,6 +222,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def script_disconnect(self, gesture):
 		self.do_disconnect_from_slave()
+	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
 	def do_connect(self, evt):
 		evt.Skip()
