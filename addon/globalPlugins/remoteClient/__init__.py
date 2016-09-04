@@ -66,11 +66,19 @@ class GlobalPlugin(GlobalPlugin):
 		cs = get_config()['controlserver']
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
-		if not self.check_secure_desktop():
-			if cs['autoconnect']:
-				address = address_to_hostport(cs['host'])
-				self.connect_control(address, cs['key'])
+		if not self.check_secure_desktop() and cs['autoconnect']:
+			self.perform_autoconnect()
 		self.sd_focused = False
+
+	def perform_autoconnect(self):
+		cs = get_config()['controlserver']
+		channel = cs['key']
+		if cs['self_hosted']:
+			address = address_to_hostport('localhost')
+			self.start_control_server(address[1], channel)
+		else:
+			address = address_to_hostport(cs['host'])
+		self.connect_control(address, channel)
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -247,10 +255,7 @@ class GlobalPlugin(GlobalPlugin):
 					self.connect_control((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
-				self.server = server.Server(SERVER_PORT, channel)
-				server_thread = threading.Thread(target=self.server.run)
-				server_thread.daemon = True
-				server_thread.start()
+				self.start_control_server(SERVER_PORT, channel)
 				if dlg.connection_type.GetSelection() == 0:
 					self.connect_slave(('127.0.0.1', SERVER_PORT), channel)
 				else:
@@ -308,6 +313,12 @@ class GlobalPlugin(GlobalPlugin):
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.control_connector.address)
+
+	def start_control_server(self, server_port, channel):
+		self.server = server.Server(server_port, channel)
+		server_thread = threading.Thread(target=self.server.run)
+		server_thread.daemon = True
+		server_thread.start()
 
 	def hook(self):
 		log.debug("Hook thread start")
@@ -401,6 +412,7 @@ configspec = StringIO("""[connections]
 last_connected = list(default=list())
 [controlserver]
 autoconnect = boolean(default=False)
+self_hosted = boolean(default=False)
 host = string(default="")
 key = string(default="")
 """)
