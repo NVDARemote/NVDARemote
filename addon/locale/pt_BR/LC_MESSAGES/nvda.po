@@ -35,7 +35,7 @@ msgstr "Se conectar remotamente de outro computador que esteja executando o Aces
 #. Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:80
 msgid "Disconnect"
-msgstr "Disconectar"
+msgstr "Desconectar"
 
 #: addon\globalPlugins\remoteClient\__init__.py:80
 msgid "Disconnect from another computer running NVDA Remote Access"
@@ -57,7 +57,7 @@ msgstr "&Enviar da área de transferência"
 
 #: addon\globalPlugins\remoteClient\__init__.py:89
 msgid "Push the clipboard to the other machine"
-msgstr "Emviar da área de transferência para outra máquina"
+msgstr "Enviar da área de transferência para outra máquina"
 
 #. Translators: Menu item in NvDA Remote submenu to open add-on options.
 #: addon\globalPlugins\remoteClient\__init__.py:93
