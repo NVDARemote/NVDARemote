@@ -1,5 +1,6 @@
 SERVER_ADDR = ('127.0.0.1', 5000)
 CONFIG_FILE_NAME = 'remote.ini'
+REMOTE_KEY = "kb:f11"
 from cStringIO import StringIO
 import os
 import sys
@@ -66,11 +67,19 @@ class GlobalPlugin(GlobalPlugin):
 		cs = get_config()['controlserver']
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
-		if not self.check_secure_desktop():
-			if cs['autoconnect']:
-				address = address_to_hostport(cs['host'])
-				self.connect_control(address, cs['key'])
+		if not self.check_secure_desktop() and cs['autoconnect']:
+			self.perform_autoconnect()
 		self.sd_focused = False
+
+	def perform_autoconnect(self):
+		cs = get_config()['controlserver']
+		channel = cs['key']
+		if cs['self_hosted']:
+			address = address_to_hostport('localhost')
+			self.start_control_server(address[1], channel)
+		else:
+			address = address_to_hostport(cs['host'])
+		self.connect_control(address, channel)
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -82,8 +91,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.disconnect_item = self.menu.Append(wx.ID_ANY, _("Disconnect"), _("Disconnect from another computer running NVDA Remote Access"))
 		self.disconnect_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_disconnect_item, self.disconnect_item)
-		# Translators: Menu item in NvDA Remote submenu to mute speech from the remote computer.
-		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote speech"), _("Mute speech from the remote computer"))
+		# Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
+		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote"), _("Mute speech and sounds from the remote computer"))
 		self.mute_item.SetCheckable(True)
 		self.mute_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_mute_item, self.mute_item)
@@ -206,6 +215,7 @@ class GlobalPlugin(GlobalPlugin):
 			self.hook_thread.join()
 			self.hook_thread = None
 		self.key_modified = False
+		self.removeGestureBinding(REMOTE_KEY)
 
 	def disconnect_control(self):
 		self.control_connector_thread.running = False
@@ -247,10 +257,7 @@ class GlobalPlugin(GlobalPlugin):
 					self.connect_control((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
-				self.server = server.Server(SERVER_PORT, channel)
-				server_thread = threading.Thread(target=self.server.run)
-				server_thread.daemon = True
-				server_thread.start()
+				self.start_control_server(SERVER_PORT, channel)
 				if dlg.connection_type.GetSelection() == 0:
 					self.connect_slave(('127.0.0.1', SERVER_PORT), channel)
 				else:
@@ -267,6 +274,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.hook_thread = threading.Thread(target=self.hook)
 		self.hook_thread.daemon = True
 		self.hook_thread.start()
+		self.bindGesture(REMOTE_KEY, "sendKeys")
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
 		beep_sequence.beep_sequence((440, 60), (660, 60))
@@ -309,6 +317,12 @@ class GlobalPlugin(GlobalPlugin):
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.control_connector.address)
 
+	def start_control_server(self, server_port, channel):
+		self.server = server.Server(server_port, channel)
+		server_thread = threading.Thread(target=self.server.run)
+		server_thread.daemon = True
+		server_thread.start()
+
 	def hook(self):
 		log.debug("Hook thread start")
 		keyhook = keyboard_hook.KeyboardHook()
@@ -320,21 +334,23 @@ class GlobalPlugin(GlobalPlugin):
 		keyhook.free()
 
 	def hook_callback(self, **kwargs):
+		#Prevent disabling sending keys if another key is held down
+		if not self.sending_keys:
+			return False
 		if kwargs['vk_code'] != win32con.VK_F11:
 			self.key_modified = kwargs['pressed']
 		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
-			self.sending_keys = not self.sending_keys
-			if self.sending_keys:
-				# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-				ui.message(_("Sending keys."))
-			else:
-				# Translators: Presented when keyboard control is back to the controlling computer.
-				ui.message(_("Not sending keys."))
+			self.sending_keys = False
+			# Translators: Presented when keyboard control is back to the controlling computer.
+			ui.message(_("Not sending keys."))
 			return True #Don't pass it on
-		if not self.sending_keys:
-			return False #Let the host have it
 		self.connector.send(type="key", **kwargs)
 		return True #Don't pass it on
+
+	def script_sendKeys(self, gesture):
+		# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
+		ui.message(_("Sending keys."))
+		self.sending_keys = True
 
 	def event_gainFocus(self, obj, nextHandler):
 		if isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
@@ -401,6 +417,7 @@ configspec = StringIO("""[connections]
 last_connected = list(default=list())
 [controlserver]
 autoconnect = boolean(default=False)
+self_hosted = boolean(default=False)
 host = string(default="")
 key = string(default="")
 """)

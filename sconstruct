@@ -167,6 +167,8 @@ env.Depends(mergePot, i18nFiles)
 
 # Generate Manifest path
 manifest = env.NVDAManifest(os.path.join("addon", "manifest.ini"), os.path.join("manifest.ini.tpl"))
+# Ensure manifest is rebuilt if buildVars is updated.
+env.Depends(manifest, "buildVars.py")
 
 env.Depends(addon, manifest)
 env.Default(addon)
