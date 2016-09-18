@@ -207,6 +207,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.disconnect_item.Enable(False)
 		self.mute_item.Check(False)
 		self.mute_item.Enable(False)
+		self.local_machine.is_muted = False
 		self.push_clipboard_item.Enable(False)
 		self.send_ctrl_alt_del_item.Enable(False)
 		self.sending_keys = False
