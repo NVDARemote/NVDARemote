@@ -18,14 +18,11 @@ class LocalMachine(object):
 		self.patcher = nvda_patcher.NVDAPatcher()
 
 	def play_wave(self, fileName, async):
-		if self.is_muted:
-			return
 		if os.path.exists(fileName):
 			nvwave.playWaveFile(fileName=fileName, async=async)
 
+
 	def beep(self, hz, length, left, right):
-		if self.is_muted:
-			return
 		tones.beep(hz, length, left, right)
 
 	def cancel_speech(self):
