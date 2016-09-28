@@ -216,8 +216,8 @@ class GlobalPlugin(GlobalPlugin):
 			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, win32con.WM_QUIT, 0, 0)
 			self.hook_thread.join()
 			self.hook_thread = None
+			self.removeGestureBinding(REMOTE_KEY)
 		self.key_modified = False
-		self.removeGestureBinding(REMOTE_KEY)
 
 	def disconnect_control(self):
 		self.control_connector_thread.running = False
