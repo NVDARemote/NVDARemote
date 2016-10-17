@@ -75,8 +75,9 @@ class GlobalPlugin(GlobalPlugin):
 		cs = get_config()['controlserver']
 		channel = cs['key']
 		if cs['self_hosted']:
-			address = address_to_hostport('localhost')
-			self.start_control_server(address[1], channel)
+			port = cs['port']
+			address = ('localhost',port)
+			self.start_control_server(port, channel)
 		else:
 			address = address_to_hostport(cs['host'])
 		self.connect_control(address, channel)
@@ -215,8 +216,8 @@ class GlobalPlugin(GlobalPlugin):
 			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, win32con.WM_QUIT, 0, 0)
 			self.hook_thread.join()
 			self.hook_thread = None
+			self.removeGestureBinding(REMOTE_KEY)
 		self.key_modified = False
-		self.removeGestureBinding(REMOTE_KEY)
 
 	def disconnect_control(self):
 		self.control_connector_thread.running = False
@@ -258,11 +259,11 @@ class GlobalPlugin(GlobalPlugin):
 					self.connect_control((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
-				self.start_control_server(SERVER_PORT, channel)
+				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_slave(('127.0.0.1', SERVER_PORT), channel)
+					self.connect_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 				else:
-					self.connect_control(('127.0.0.1', SERVER_PORT), channel)
+					self.connect_control(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_to_slave(self):
@@ -420,6 +421,7 @@ last_connected = list(default=list())
 autoconnect = boolean(default=False)
 self_hosted = boolean(default=False)
 host = string(default="")
+port = integer(default=6837)
 key = string(default="")
 """)
 def get_config():

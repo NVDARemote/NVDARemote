@@ -13,7 +13,7 @@ The installation of both NVDA and the Remote Access addon are standard. If you n
 1. Open the NVDA menu, Tools, Remote, Connect.
 2. Choose client in the first radio button.
 3. Select Allow this machine to be controlled in the second set of radio buttons.
-4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com.
+4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com. When the particular server uses an alternative port, you can enter the host in the form <host>:<port>, for example nvdaremote.com:1234.
 5. Enter a key into the key field, or press the generate key button.
 The key is what others will use to control your computer.
 The machine being controlled and all its clients need to use the same key.
@@ -23,7 +23,7 @@ The machine being controlled and all its clients need to use the same key.
 1. Open the NVDA menu, Tools, Remote, Connect.
 2. Choose client in the first radio button.
 3. Select Control another machine in the second set of radio buttons.
-4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com.
+4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com. When the particular server uses an alternative port, you can enter the host in the form <host>:<port>, for example nvdaremote.com:1234.
 5. Enter a key into the key field, or press the generate key button.
 The machine being controlled and all its clients need to use the same key.
 6. Press ok. Once done, you will hear a tone and connected.
@@ -34,12 +34,12 @@ Once selecting this, select which mode your end of the connection wwill be in.
 The other pperson will connect to you using the opposite.
 
 Once the mode is selected, you can use the Get External IP button to get your external IP address and
-make sure the port is forwarded correctly.
-If portcheck detects that your port (6837) is not reachable, a warning will appear.
+make sure the port which is entered in the port field is forwarded correctly.
+If portcheck detects that your port (6837 by default) is not reachable, a warning will appear.
 Forward your port and try again.
 Note: The process for forwarding ports is outside of the scope of this document. Please consult the information provided with your router for further instruction.
 
-Enter a key into the key field, or press generate. The other person will need your external IP along with the key to connect.
+Enter a key into the key field, or press generate. The other person will need your external IP along with the key to connect. If you entered a port other than the default (6837) in the port field, make sure that the other person appends the alternative port to the host address in the form <external ip>:<port>.
 
 Once ok is pressed, you will be connected.
 When the other person connects, you can use NVDA Remote normally.
@@ -59,8 +59,9 @@ Sometimes, you may wish to control one of your own computers remotely. This is e
 
 1. Enter the NVDA menu, and choose Tools, then Remote. Finally, press Enter on Options.
 2. Check the box that says, "Auto connect to control server on startup".
-3. Select whether to use a remote relay server or to locally host the connection. If you host the connection yourself, you will need to ensure that port 6837 on the controlled machine can be accessed from the controlling machines.
-4. If you wish to use a relay server, Fill in both the Host and Key fields, tab to OK, and press Enter. The Generate Key option is not available in this situation. It is best to come up with a key you will remember so you can easily use it from any remote location.
+3. Select whether to use a remote relay server or to locally host the connection. 
+4. If you host the connection yourself, you will need to ensure that the port entered in the port field (6837 by default) on the controlled machine can be accessed from the controlling machines.
+5. If you wish to use a relay server, Fill in both the Host and Key fields, tab to OK, and press Enter. The Generate Key option is not available in this situation. It is best to come up with a key you will remember so you can easily use it from any remote location.
 
 Note: The autoconnect at startup-related options in the options dialog do not apply until NVDA is restarted.
 
