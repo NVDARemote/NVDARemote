@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: nvdaremote 1.2\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
 "POT-Creation-Date: 2016-09-29 16:02+0200\n"
-"PO-Revision-Date: 2016-09-29 16:07+0200\n"
+"PO-Revision-Date: 2016-10-19 16:08+0200\n"
 "Last-Translator: Leonard de Ruijter <dev@systeemdenker.nl>\n"
 "Language-Team: Babbage B.V. <info@babbage.com>\n"
 "Language: nl\n"
@@ -45,7 +45,7 @@ msgstr ""
 #. Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:96
 msgid "Mute remote"
-msgstr "Extern geluid dempen"
+msgstr "Extern geluid &dempen"
 
 #: addon\globalPlugins\remoteClient\__init__.py:96
 msgid "Mute speech and sounds from the remote computer"
@@ -87,7 +87,8 @@ msgstr "NVDA Externe Toegang"
 
 #: addon\globalPlugins\remoteClient\__init__.py:160
 msgid "Mute or unmute the speech coming from the remote computer"
-msgstr "Dempt de spraak van de computer op afstand of heft het dempen op"
+msgstr ""
+"Dempt de spraak die komt van de computer op afstand of heft het dempen op"
 
 #: addon\globalPlugins\remoteClient\__init__.py:188
 msgid "Not connected."
@@ -105,7 +106,7 @@ msgstr "Kan geen verbinding maken met externe computer"
 
 #: addon\globalPlugins\remoteClient\__init__.py:237
 msgid "Disconnect a remote session"
-msgstr "Verbinding verbreken met externe sessie"
+msgstr "Verbinding met externe sessie verbreken"
 
 #. Translators: Title of the connect dialog.
 #: addon\globalPlugins\remoteClient\__init__.py:246
@@ -125,7 +126,7 @@ msgstr "Verbinding onderbroken"
 #. Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
 #: addon\globalPlugins\remoteClient\__init__.py:318
 msgid "Connected to control server"
-msgstr "Verbonden met controleserver"
+msgstr "Verbonden met beheerserver"
 
 #. Translators: Presented when keyboard control is back to the controlling computer.
 #: addon\globalPlugins\remoteClient\__init__.py:347
@@ -233,16 +234,16 @@ msgstr "Zowel poort als sleutel moeten worden ingevoerd."
 #. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
 #: addon\globalPlugins\remoteClient\dialogs.py:169
 msgid "Auto-connect to control server on startup"
-msgstr "Automatisch met controleserver verbinden bij opstarten"
+msgstr "Automatisch met beheerserver verbinden bij opstarten"
 
 #. Translators: Whether or not to use a relay server when autoconnecting
 #: addon\globalPlugins\remoteClient\dialogs.py:173
 msgid "Use Remote Control Server"
-msgstr "Gebruik externe controleserver"
+msgstr "Gebruik externe beheerserver"
 
 #: addon\globalPlugins\remoteClient\dialogs.py:173
 msgid "Host Control Server"
-msgstr "Controleserver hosten"
+msgstr "Beheerserver hosten"
 
 #: addon\globalPlugins\remoteClient\session.py:107
 msgid "Remote NVDA not connected."
@@ -258,7 +259,8 @@ msgstr "Externe ondersteuning"
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 #: buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
-msgstr "Faciliteert het beheren op afstand van een andere machine."
+msgstr ""
+"Faciliteert beheer op afstand van en externe toegang tot een andere machine."
 
 #~ msgid "Successfully retrieved IP address. Your port is open."
 #~ msgstr "IP-adres succesvol opgevraagd. Uw poort is open."
