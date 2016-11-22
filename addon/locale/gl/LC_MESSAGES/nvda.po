@@ -6,131 +6,131 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'remote' '1.2'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
-"POT-Creation-Date: 2016-06-17 19:39+0200\n"
-"PO-Revision-Date: 2016-06-17 19:40+0200\n"
+"POT-Creation-Date: 2016-11-22 16:18+0100\n"
+"PO-Revision-Date: 2016-11-22 16:21+0100\n"
 "Last-Translator: Iván Novegil Cancelas <info@inovegil.site40.net>\n"
-"Language-Team: Iván Novegil Cancelas (powered by Technow) <info@inovegil.site40."
-"net>\n"
+"Language-Team: Iván Novegil Cancelas (powered by Technow) <info@inovegil."
+"site40.net>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.2\n"
+"X-Generator: Poedit 1.8.8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
 "X-Poedit-Basepath: ../../../globalPlugins\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: remoteClient/__init__.py:50
+#: remoteClient/__init__.py:51
 msgid "NVDA Remote"
 msgstr "NVDA Remote"
 
-#: remoteClient/__init__.py:79
+#: remoteClient/__init__.py:89
 msgid "Connect..."
 msgstr "Conectar..."
 
-#: remoteClient/__init__.py:79
+#: remoteClient/__init__.py:89
 msgid "Remotely connect to another computer running NVDA Remote Access"
 msgstr "Conectar remotamente a outro equipo que execute NVDA Remote Access"
 
-#: remoteClient/__init__.py:82
+#: remoteClient/__init__.py:92
 msgid "Disconnect"
 msgstr "Desconectar"
 
-#: remoteClient/__init__.py:82
+#: remoteClient/__init__.py:92
 msgid "Disconnect from another computer running NVDA Remote Access"
 msgstr "Desconectar doutro equipo que executa NVDA Remote Access"
 
-#: remoteClient/__init__.py:86
-msgid "Mute remote speech"
-msgstr "Silenciar voz remota"
+#: remoteClient/__init__.py:96
+msgid "Mute remote"
+msgstr "Silenciar equipo remoto"
 
-#: remoteClient/__init__.py:86
-msgid "Mute speech from the remote computer"
-msgstr "Silenciar voz do equipo remoto"
+#: remoteClient/__init__.py:96
+msgid "Mute speech and sounds from the remote computer"
+msgstr "Silenciar fala e sons do equipo remoto"
 
-#: remoteClient/__init__.py:91
+#: remoteClient/__init__.py:101
 msgid "&Push clipboard"
 msgstr "Enviar &portapapeis"
 
-#: remoteClient/__init__.py:91
+#: remoteClient/__init__.py:101
 msgid "Push the clipboard to the other machine"
 msgstr "Enviar o portapapeis á outra máquina"
 
-#: remoteClient/__init__.py:95
+#: remoteClient/__init__.py:105
 msgid "&Options..."
 msgstr "&Opcións..."
 
-#: remoteClient/__init__.py:95 remoteClient/__init__.py:164
+#: remoteClient/__init__.py:105 remoteClient/__init__.py:174
 msgid "Options"
 msgstr "Opcións"
 
-#: remoteClient/__init__.py:98
+#: remoteClient/__init__.py:108
 msgid "Send Ctrl+Alt+Del"
 msgstr "Enviar ctrl+alt+supr"
 
-#: remoteClient/__init__.py:102
+#: remoteClient/__init__.py:112
 msgid "R&emote"
 msgstr "&Remoto"
 
-#: remoteClient/__init__.py:102
+#: remoteClient/__init__.py:112
 msgid "NVDA Remote Access"
 msgstr "NVDA Remote Access"
 
-#: remoteClient/__init__.py:150
+#: remoteClient/__init__.py:160
 msgid "Mute or unmute the speech coming from the remote computer"
 msgstr "Silenciar ou activar a voz recibida do outro equipo"
 
-#: remoteClient/__init__.py:178
+#: remoteClient/__init__.py:188
 msgid "Not connected."
 msgstr "Sen conexión."
 
-#: remoteClient/__init__.py:219
+#: remoteClient/__init__.py:231
 msgid "Error Connecting"
 msgstr "Erro durante a conexión"
 
-#: remoteClient/__init__.py:221
+#: remoteClient/__init__.py:233
 msgid "Unable to connect to the remote computer"
 msgstr "Non se puido conectar ao equipo remoto"
 
-#: remoteClient/__init__.py:225
+#: remoteClient/__init__.py:237
 msgid "Disconnect a remote session"
 msgstr "desconectar unha sesión remota"
 
-#: remoteClient/__init__.py:234
+#: remoteClient/__init__.py:246
 msgid "Connect"
 msgstr "Conectar"
 
-#: remoteClient/__init__.py:271
+#: remoteClient/__init__.py:281
 msgid "Connected!"
 msgstr "¡Conectado!"
 
-#: remoteClient/__init__.py:276
+#: remoteClient/__init__.py:286
 msgid "Connection interrupted"
 msgstr "Conexión interrompida"
 
-#: remoteClient/__init__.py:308
+#: remoteClient/__init__.py:318
 msgid "Connected to control server"
 msgstr "Conectouse ao servidor de control"
 
-#: remoteClient/__init__.py:329
-msgid "Sending keys."
-msgstr "Envío de teclas activado."
-
-#: remoteClient/__init__.py:332
+#: remoteClient/__init__.py:347
 msgid "Not sending keys."
 msgstr "Envío de teclas desactivado."
 
-#: remoteClient/dialogs.py:24 remoteClient/dialogs.py:167
+#: remoteClient/__init__.py:354
+msgid "Sending keys."
+msgstr "Envío de teclas activado."
+
+#: remoteClient/dialogs.py:24 remoteClient/dialogs.py:178
 msgid "&Host:"
 msgstr "&Equipo ou servidor:"
 
-#: remoteClient/dialogs.py:28 remoteClient/dialogs.py:64
-#: remoteClient/dialogs.py:171
+#: remoteClient/dialogs.py:28 remoteClient/dialogs.py:68
+#: remoteClient/dialogs.py:186
 msgid "&Key:"
 msgstr "&Clave:"
 
-#: remoteClient/dialogs.py:32 remoteClient/dialogs.py:67
+#: remoteClient/dialogs.py:32 remoteClient/dialogs.py:71
 msgid "&Generate Key"
 msgstr "&Xerar clave"
 
@@ -142,64 +142,96 @@ msgstr "Obter enderezo &IP externo"
 msgid "&External IP:"
 msgstr "Enderezo &IP externo:"
 
-#: remoteClient/dialogs.py:106
-msgid "Successfully retrieved IP address. Your port is open."
-msgstr "O enderezo IP obtívose con éxito. O porto está aberto."
+#: remoteClient/dialogs.py:65 remoteClient/dialogs.py:182
+msgid "&Port:"
+msgstr "&Porto:"
 
-#: remoteClient/dialogs.py:106
+#: remoteClient/dialogs.py:110
+#, python-brace-format
+msgid "Successfully retrieved IP address. Port {PORT} is open."
+msgstr "O enderezo IP foi obtido con éxito. O porto {PORT} está aberto."
+
+#: remoteClient/dialogs.py:110
 msgid "Success"
 msgstr "Éxito"
 
-#: remoteClient/dialogs.py:108
-msgid "Retrieved external IP, but your port is not currently forwarded."
-msgstr "Obtido o enderezo IP externo, pero o porto non está aberto."
+#: remoteClient/dialogs.py:112
+#, python-brace-format
+msgid "Retrieved external IP, but port {PORT} is not currently forwarded."
+msgstr ""
+"O enderezo IP externo foi obtido, pero o porto {PORT} non está reenviado"
 
-#: remoteClient/dialogs.py:108
+#: remoteClient/dialogs.py:112
 msgid "Warning"
 msgstr "Advertencia"
 
-#: remoteClient/dialogs.py:115
-msgid "Unable to contact portcheck server, please manually retrieve your IP address"
+#: remoteClient/dialogs.py:119
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
 msgstr ""
 "Non se puido contactar co servidor de portcheck, obtén o teu enderezo IP "
 "manualmente."
 
-#: remoteClient/dialogs.py:115 remoteClient/dialogs.py:151
-#: remoteClient/dialogs.py:153 remoteClient/dialogs.py:200
+#: remoteClient/dialogs.py:119 remoteClient/dialogs.py:155
+#: remoteClient/dialogs.py:158 remoteClient/dialogs.py:225
+#: remoteClient/dialogs.py:227
 msgid "Error"
 msgstr "Error"
 
-#: remoteClient/dialogs.py:122
+#: remoteClient/dialogs.py:126
 msgid "Client"
 msgstr "Cliente"
 
-#: remoteClient/dialogs.py:122
+#: remoteClient/dialogs.py:126
 msgid "Server"
 msgstr "Servidor"
 
-#: remoteClient/dialogs.py:126
+#: remoteClient/dialogs.py:130
 msgid "Control another machine"
 msgstr "Controlar outro equipo"
 
-#: remoteClient/dialogs.py:126
+#: remoteClient/dialogs.py:130
 msgid "Allow this machine to be controlled"
 msgstr "Permitir que controlen este equipo"
 
-#: remoteClient/dialogs.py:151 remoteClient/dialogs.py:200
+#: remoteClient/dialogs.py:155 remoteClient/dialogs.py:225
 msgid "Both host and key must be set."
 msgstr "Tanto o equipo como a clave deben estar configurados."
 
-#: remoteClient/dialogs.py:153
-msgid "Key must be set."
-msgstr "Débese establecer unha clave."
+#: remoteClient/dialogs.py:158 remoteClient/dialogs.py:227
+msgid "Both port and key must be set."
+msgstr "Tanto porto coma clave deben estar establecidos."
 
-#: remoteClient/dialogs.py:164
+#: remoteClient/dialogs.py:169
 msgid "Auto-connect to control server on startup"
 msgstr "Conectar automaticamente ao servidor de control ao arrancar"
+
+#: remoteClient/dialogs.py:173
+msgid "Use Remote Control Server"
+msgstr "Usar un servidor de control remoto"
+
+#: remoteClient/dialogs.py:173
+msgid "Host Control Server"
+msgstr "Hospedar servidor de control"
 
 #: remoteClient/session.py:107
 msgid "Remote NVDA not connected."
 msgstr "O NVDA remoto non está conectado."
+
+#~ msgid "Mute remote speech"
+#~ msgstr "Silenciar voz remota"
+
+#~ msgid "Mute speech from the remote computer"
+#~ msgstr "Silenciar voz do equipo remoto"
+
+#~ msgid "Successfully retrieved IP address. Your port is open."
+#~ msgstr "O enderezo IP obtívose con éxito. O porto está aberto."
+
+#~ msgid "Retrieved external IP, but your port is not currently forwarded."
+#~ msgstr "Obtido o enderezo IP externo, pero o porto non está aberto."
+
+#~ msgid "Key must be set."
+#~ msgstr "Débese establecer unha clave."
 
 #~ msgid "Remote Support"
 #~ msgstr "Soporte remoto"
