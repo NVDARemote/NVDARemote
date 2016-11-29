@@ -61,6 +61,10 @@ class ServerPanel(wx.Panel):
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&External IP:")))
 		self.external_IP = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_MULTILINE)
 		sizer.Add(self.external_IP)
+		# Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
+		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
+		self.port = wx.TextCtrl(self, wx.ID_ANY, value=str(socket_utils.SERVER_PORT))
+		sizer.Add(self.port)
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		sizer.Add(self.key)
@@ -80,7 +84,7 @@ class ServerPanel(wx.Panel):
 	def on_get_IP(self, evt):
 		evt.Skip()
 		self.get_IP.Enable(False)
-		t = threading.Thread(target=self.do_portcheck, args=[6837])
+		t = threading.Thread(target=self.do_portcheck, args=[int(self.port.GetValue())])
 		t.daemon = True
 		t.start()
 
@@ -103,9 +107,9 @@ class ServerPanel(wx.Panel):
 		port = data['port']
 		is_open = data['open']
 		if is_open:
-			wx.MessageBox(message=_("Successfully retrieved IP address. Your port is open."), caption=_("Success"), style=wx.OK)
+			wx.MessageBox(message=_("Successfully retrieved IP address. Port {PORT} is open.".FORMAT(PORT=PORT)), caption=_("Success"), style=wx.OK)
 		else:
-			wx.MessageBox(message=_("Retrieved external IP, but your port is not currently forwarded."), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
+			wx.MessageBox(message=_("Retrieved external IP, but port {PORT} is not currently forwarded.".FORMAT(PORT=PORT)), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
 		self.external_IP.SetValue(ip)
 		self.external_IP.SetSelection(0, len(ip))
 		self.external_IP.SetFocus()
@@ -149,9 +153,10 @@ class DirectConnectDialog(wx.Dialog):
 	def on_ok(self, evt):
 		if self.client_or_server.GetSelection() == 0 and (not self.panel.host.GetValue() or not self.panel.key.GetValue()):
 			gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
-		elif self.client_or_server.GetSelection() == 1 and not self.panel.key.GetValue():
-			gui.messageBox(_("Key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
-			self.panel.key.SetFocus()
+			self.panel.host.SetFocus()
+		elif self.client_or_server.GetSelection() == 1 and not self.panel.port.GetValue() or not self.panel.key.GetValue():
+			gui.messageBox(_("Both port and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			self.panel.port.SetFocus()
 		else:
 			evt.Skip()
 
@@ -174,6 +179,10 @@ class OptionsDialog(wx.Dialog):
 		self.host = wx.TextCtrl(self, wx.ID_ANY)
 		self.host.Enable(False)
 		main_sizer.Add(self.host)
+		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
+		self.port = wx.TextCtrl(self, wx.ID_ANY)
+		self.port.Enable(False)
+		main_sizer.Add(self.port)
 		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		self.key.Enable(False)
@@ -193,8 +202,8 @@ class OptionsDialog(wx.Dialog):
 		state = bool(self.autoconnect.GetValue())
 		self.client_or_server.Enable(state)
 		self.key.Enable(state)
-		state = not bool(self.client_or_server.GetSelection()) and state
-		self.host.Enable(state)
+		self.host.Enable(not bool(self.client_or_server.GetSelection()) and state)
+		self.port.Enable(bool(self.client_or_server.GetSelection()) and state)
 
 	def on_client_or_server(self, evt):
 		evt.Skip()
@@ -206,6 +215,7 @@ class OptionsDialog(wx.Dialog):
 		self.autoconnect.SetValue(cs['autoconnect'])
 		self.client_or_server.SetSelection(int(self_hosted))
 		self.host.SetValue(cs['host'])
+		self.port.SetValue(str(cs['port']))
 		self.key.SetValue(cs['key'])
 		self.set_controls()
 
@@ -213,8 +223,8 @@ class OptionsDialog(wx.Dialog):
 		if self.autoconnect.GetValue():
 			if not self.client_or_server.GetSelection() and (not self.host.GetValue() or not self.key.GetValue()):
 				gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
-			elif self.client_or_server.GetSelection() and not self.key.GetValue():
-				gui.messageBox(_("Key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			elif self.client_or_server.GetSelection() and not self.port.GetValue() or not self.key.GetValue():
+				gui.messageBox(_("Both port and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
 			else:
 				evt.Skip()
 		else:
@@ -227,5 +237,7 @@ class OptionsDialog(wx.Dialog):
 		cs['self_hosted'] = self_hosted
 		if not self_hosted:
 			cs['host'] = self.host.GetValue()
+		else:
+			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
 		config.write()
