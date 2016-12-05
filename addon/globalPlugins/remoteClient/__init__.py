@@ -80,7 +80,10 @@ class GlobalPlugin(GlobalPlugin):
 			self.start_control_server(port, channel)
 		else:
 			address = address_to_hostport(cs['host'])
-		self.connect_control(address, channel)
+		if cs['connection_type']==0:
+			self.connect_control(address, channel)
+		else:
+			self.connect_slave(address, channel)
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -420,6 +423,7 @@ last_connected = list(default=list())
 [controlserver]
 autoconnect = boolean(default=False)
 self_hosted = boolean(default=False)
+connection_type = integer(default=0)
 host = string(default="")
 port = integer(default=6837)
 key = string(default="")
