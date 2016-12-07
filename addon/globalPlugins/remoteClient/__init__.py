@@ -349,10 +349,14 @@ class GlobalPlugin(GlobalPlugin):
 		return True #Don't pass it on
 
 	def script_sendKeys(self, gesture):
-		# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-		ui.message(_("Controlling remote machine."))
-		self.sending_keys = True
-		self.set_receiving_braille(True)
+		if not self.master_session.patch_callbacks_added:
+			# Translators: Presented when no keyboard keys will be sent since there is no controlled computer.
+			ui.message(_("No remote machine connected."))
+		else:
+			# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
+			ui.message(_("Controlling remote machine."))
+			self.sending_keys = True
+			self.set_receiving_braille(True)
 
 	def set_receiving_braille(self, state):
 		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
