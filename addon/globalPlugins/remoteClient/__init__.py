@@ -64,6 +64,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.sending_keys = False
 		self.key_modified = False
 		self.sd_server = None
+		self.sd_relay = None
+		self.sd_bridge = None
 		cs = get_config()['controlserver']
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
@@ -389,8 +391,11 @@ class GlobalPlugin(GlobalPlugin):
 		if self.sd_server is None:
 			return #Nothing to do
 		self.sd_bridge.disconnect()
+		self.sd_bridge = None
 		self.sd_server.close()
+		self.sd_server = None
 		self.sd_relay.close()
+		self.sd_relay = None
 
 	def check_secure_desktop(self):
 		if not globalVars.appArgs.secure:
