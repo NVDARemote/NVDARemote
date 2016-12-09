@@ -44,8 +44,8 @@ class LocalMachine(object):
 	def send_key(self, vk_code=None, extended=None, pressed=None, **kwargs):
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
-	def set_clipboard_text(self, text):
+	def set_clipboard_text(self, text, **kwargs):
 		api.copyToClip(text=text)
 
-	def send_SAS(self):
+	def send_SAS(self, **kwargs):
 		ctypes.windll.sas.SendSAS(0)
