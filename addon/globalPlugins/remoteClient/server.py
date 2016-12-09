@@ -77,6 +77,7 @@ class Client(object):
 		self.buffer = ""
 		self.authenticated = False
 		self.id = Client.id + 1
+		self.protocol_version = 1
 		Client.id += 1
 
 	def handle_data(self):
@@ -123,12 +124,20 @@ class Client(object):
 		self.send(type='channel_joined', channel=self.server.password, user_ids=clients)
 		self.send_to_others(type='client_joined', user_id=self.id)
 
+	def do_protocol_version(self, obj):
+		version = obj.get('version')
+		if not version:
+			return
+		self.protocol_version = version
+
 	def close(self):
 		self.socket.close()
 		self.server.client_disconnected(self)
 
-	def send(self, type, **kwargs):
+	def send(self, type, origin=None, **kwargs):
 		msg = dict(type=type, **kwargs)
+		if self.protocol_version > 1 and origin:
+			msg['origin'] = origin
 		msgstr = json.dumps(msg)+"\n"
 		try:
 			self.socket.sendall(msgstr)
@@ -138,4 +147,4 @@ class Client(object):
 	def send_to_others(self, **obj):
 		for c in self.server.clients.itervalues():
 			if c is not self and c.authenticated:
-				c.send(**obj)
+				c.send(origin=self.id, **obj)
