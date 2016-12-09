@@ -35,7 +35,7 @@ class SlaveSession(RemoteSession):
 		self.local_machine.patcher.orig_beep(1000, 300)
 		self.masters[user_id] = True
 
-	def handle_channel_joined(self, channel=None, user_ids=None, origin=None):
+	def handle_channel_joined(self, channel=None, user_ids=None, origin=None, **kwargs):
 		for user in user_ids:
 			self.handle_client_connected(user_id=user)
 
@@ -81,7 +81,7 @@ class SlaveSession(RemoteSession):
 	def playWaveFile(self, fileName, async=True):
 		self.transport.send(type='wave', fileName=fileName, async=async)
 
-	def update_index(self, index=None, **msg):
+	def update_index(self, index=None, **kwargs):
 		self.last_client_index = index
 
 class MasterSession(RemoteSession):
