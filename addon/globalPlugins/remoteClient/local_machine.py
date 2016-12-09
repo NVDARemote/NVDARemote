@@ -17,24 +17,24 @@ class LocalMachine(object):
 		self.is_muted = False
 		self.patcher = nvda_patcher.NVDAPatcher()
 
-	def play_wave(self, fileName, async):
+	def play_wave(self, fileName, async, **kwargs):
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):
 			nvwave.playWaveFile(fileName=fileName, async=async)
 
-	def beep(self, hz, length, left, right):
+	def beep(self, hz, length, left, right, **kwargs):
 		if self.is_muted:
 			return
 		tones.beep(hz, length, left, right)
 
-	def cancel_speech(self):
+	def cancel_speech(self, **kwargs):
 		if self.is_muted:
 			return
 		synth = speech.getSynth()
 		wx.CallAfter(synth.cancel)
 
-	def speak(self, sequence):
+	def speak(self, sequence, **kwargs):
 		if self.is_muted:
 			return
 		synth = speech.getSynth()
