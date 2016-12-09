@@ -129,17 +129,18 @@ class TCPTransport(Transport):
 
 class RelayTransport(TCPTransport):
 
-	def __init__(self, serializer, address, timeout=0, channel=None, protocol_version=PROTOCOL_VERSION):
+	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION):
 		super(RelayTransport, self).__init__(address=address, serializer=serializer, timeout=timeout)
 		log.info("Connecting to %s channel %s" % (address, channel))
 		self.channel = channel
+		self.connection_type = connection_type
 		self.protocol_version = protocol_version
 		self.callback_manager.register_callback('transport_connected', self.on_connected)
 
 	def on_connected(self):
 		self.send('protocol_version', version=self.protocol_version)
 		if self.channel is not None:
-			self.send('join', channel=self.channel)
+			self.send('join', channel=self.channel, connection_type=self.connection_type)
 		else:
 			self.send('generate_key')
 
