@@ -144,7 +144,9 @@ class Client(object):
 		except:
 			self.close()
 
-	def send_to_others(self, **obj):
+	def send_to_others(self, origin=None, **obj):
+		if origin is None:
+			origin = self.id
 		for c in self.server.clients.itervalues():
 			if c is not self and c.authenticated:
-				c.send(origin=self.id, **obj)
+				c.send(origin=origin, **obj)
