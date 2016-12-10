@@ -27,17 +27,20 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
 		self.transport.callback_manager.register_callback('msg_send_SAS', self.local_machine.send_SAS)
 
-	def handle_client_connected(self, user_id=None):
+	def handle_client_connected(self, client=None, **kwargs):
 		self.local_machine.patcher.patch()
 		if not self.patch_callbacks_added:
 			self.add_patch_callbacks()
 			self.patch_callbacks_added = True
 		self.local_machine.patcher.orig_beep(1000, 300)
-		self.masters[user_id] = True
+		if client['connection_type'] == 'master':
+			self.masters[client['id']] = True
 
-	def handle_channel_joined(self, channel=None, user_ids=None, origin=None, **kwargs):
-		for user in user_ids:
-			self.handle_client_connected(user_id=user)
+	def handle_channel_joined(self, channel=None, clients=None, origin=None, **kwargs):
+		if clients is None:
+			clients = []
+		for client in clients:
+			self.handle_client_connected(client)
 
 	def handle_transport_closing(self):
 		self.local_machine.patcher.unpatch()
@@ -49,9 +52,9 @@ class SlaveSession(RemoteSession):
 		self.local_machine.patcher.orig_beep(1000, 300)
 		self.local_machine.patcher.unpatch()
 
-	def handle_client_disconnected(self, user_id=None):
+	def handle_client_disconnected(self, client=None, **kwargs):
 		self.local_machine.patcher.orig_beep(108, 300)
-		del self.masters[user_id]
+		del self.masters[client['id']]
 		if not self.masters:
 			self.local_machine.patcher.unpatch()
 
@@ -116,14 +119,14 @@ class MasterSession(RemoteSession):
 	def handle_disconnected(self):
 		self.index_thread = None
 
-	def handle_channel_joined(self, channel=None, user_ids=None, origin=None, **kwargs):
-		for user in user_ids:
-			self.handle_client_connected(user_id=user)
+	def handle_channel_joined(self, channel=None, clients=None, origin=None, **kwargs):
+		for client in clients:
+			self.handle_client_connected(client)
 
-	def handle_client_connected(self, user_id=None, **kwargs):
+	def handle_client_connected(self, client=None, **kwargs):
 		tones.beep(1000, 300)
 
-	def handle_client_disconnected(self, user_id=None, **kwargs):
+	def handle_client_disconnected(self, client=None, **kwargs):
 		tones.beep(108, 300)
 
 	def send_indexes(self):
