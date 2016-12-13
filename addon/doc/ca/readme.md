@@ -38,7 +38,7 @@ Si portcheck detecta que el teu port (per defecte 6837) no està obert, apareixe
 Obre el port i torna-ho a provar de nou.
 Nota: el procés d'obrir ports està fora del propòsit d'aquest document. Consulta la documentació que acompanya al teu router per a més informació.
 
-Introdueix una clau en el camp clau, o prem generar. L'altra persona necessitarà la teva IP externa juntament amb la clau per connectar. Si has introduït un port diferent al que es fa servir per defecte (6837) al camp port, assegura't de que l'altra persona afegeix el port alternatiu a la direcció de l'equip fent servir el format &lt;ip externa>:&lt;puerto>.
+Introdueix una clau en el camp clau, o prem generar. L'altra persona necessitarà la teva IP externa juntament amb la clau per connectar. Si has introduït un port diferent al que es fa servir per defecte (6837) al camp port, assegura't de que l'altra persona afegeix el port alternatiu a la direcció de l'equip fent servir el format &lt;ip externa&gt;:&lt;puerto&gt;.
 
 Un cop premis acceptar, estaràs connectat.
 Quan l'altra persona es connecti, podràs fer servir NVDA Remote amb normalitat.

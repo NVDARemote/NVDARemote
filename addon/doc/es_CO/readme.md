@@ -24,7 +24,7 @@ El equipo que está siendo controlado y todos sus clientes necesitan utilizar la
 1. Abrir el menú de NVDA, herramientas, remoto, conectar. 
 2. Seleccionar cliente en el primer grupo de botones radiales. 
 3. Seleccionar "controlar otra máquina" en el segundo conjunto de botones radiales.
-4. en el campo host, ingresa el host del servidor al que te estás conectando, por ejemplo, nvdaremote.com. Cuando el servidor particular utilice un puerto alternativo, puedes ingresar el host en el formato &lt;host>:&lt;puerto>, por ejemplo nvdaremote.com:1234.
+4. en el campo host, ingresa el host del servidor al que te estás conectando, por ejemplo, nvdaremote.com. Cuando el servidor particular utilice un puerto alternativo, puedes ingresar el host en el formato &lt;host&gt;:&lt;puerto&gt;, por ejemplo nvdaremote.com:1234.
 5. Ingresa una clave en el campo clave, o presiona el botón generar clave.
 La clave es lo que otros utilizarán para controlar tu equipo.
 El equipo que está siendo controlado y todos sus clientes necesitan utilizar la misma clave.
@@ -41,7 +41,7 @@ Si portChec detecta que tu puerto (6837 por defecto) no se puede alcanzar, apare
 Abre el puerto y vuelve a intentarlo.
 Nota: el proceso para abrir puertos va más allá del alcance  de este documento. Por favor, consulta la información suministrada con tu router para más instrucciones.
 
-Ingresa una clave en el campo clave, o presiona generar. La otra persona necesitará tanto tu IP externa como la clave para conectarse. Si ingresaste un puerto diferente del predeterminado (6837) en el campo "puerto", aseguúrate de que la otra persona agregue el puerto alternativo a la dirección del host en el formato &lt;ip externa>:&lt;puerto>.
+Ingresa una clave en el campo clave, o presiona generar. La otra persona necesitará tanto tu IP externa como la clave para conectarse. Si ingresaste un puerto diferente del predeterminado (6837) en el campo "puerto", aseguúrate de que la otra persona agregue el puerto alternativo a la dirección del host en el formato &lt;ip externa&gt;:&lt;puerto&gt;.
 
 Una vez que se presione aceptar, estarás conectado.
 Cuando la otra persona se conecte, puedes usar NVDA Remote normalmente.

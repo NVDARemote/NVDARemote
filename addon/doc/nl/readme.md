@@ -12,7 +12,7 @@ Het is nodig dat u NVDA geïnstalleerd hebt op beide computers, waarbij u tevens
 1. Open het NVDA-menu, Extra's, Externe toegang, Verbinden.
 2. Kies voor client bij de eerste reeks met keuzerondjes.
 3. In de tweede reeks keuzerondjes kiest u voor de optie Laat deze machine beheerd worden.
-4. In het veld Adres vult u het adres van de server in waarnaar u gaat verbinden, bijvoorbeeld nvdaremote.com. Wanneer de betreffende server een alternatieve poort gebruikt, voert u het adres in in de vorm &lt;host>:&lt;port>, bijvoorbeeld nvdaremote.com:1234.
+4. In het veld Adres vult u het adres van de server in waarnaar u gaat verbinden, bijvoorbeeld nvdaremote.com. Wanneer de betreffende server een alternatieve poort gebruikt, voert u het adres in in de vorm &lt;host&gt;:&lt;port&gt;, bijvoorbeeld nvdaremote.com:1234.
 5. Vul in het veld sleutel een toegangssleutel in, of kies voor de knop Sleutel genereren.
 Deze toegangssleutel wordt door anderen gebruikt om uw computer te beheren.
 De machine die beheert wordt en de bijbehorende clients dienen gebruik te maken van de zelfde sleutel.
@@ -22,7 +22,7 @@ De machine die beheert wordt en de bijbehorende clients dienen gebruik te maken 
 1. Open het NVDA-menu, Extra's, Externe toegang, Verbinden.
 2. Kies voor client bij de eerste reeks met keuzerondjes.
 3. In de tweede reeks keuzerondjes kiest u voor de optie Beheer een andere machine.
-4. In het veld Adres vult u het adres van de server in waarnaar u gaat verbinden, bijvoorbeeld nvdaremote.com. Wanneer de betreffende server een alternatieve poort gebruikt, voert u het adres in in de vorm &lt;host>:&lt;port>, bijvoorbeeld nvdaremote.com:1234.
+4. In het veld Adres vult u het adres van de server in waarnaar u gaat verbinden, bijvoorbeeld nvdaremote.com. Wanneer de betreffende server een alternatieve poort gebruikt, voert u het adres in in de vorm &lt;host&gt;:&lt;port&gt;, bijvoorbeeld nvdaremote.com:1234.
 5. Vul in het veld sleutel een toegangssleutel in, of kies voor de knop Sleutel genereren.
 De machine die beheert wordt en de bijbehorende clients dienen gebruik te maken van de zelfde sleutel.
 6. Druk op Ok. Wanneer de verbinding tot stand gebracht is hoort u een toon, evenals de melding Verbonden.
@@ -37,7 +37,7 @@ Wanneer portcheck detecteert dat uw poort (standaard 6837) niet bereikbaar is, z
 Open in dat geval uw poort in uw router of firewall en probeer het nogmaals.
 Let op: Het proces van het openen van poorten valt buiten het bestek van dit document. Raadpleeg de informatie bij uw router voor verdere instructies.
 
-Voer in het veld Sleutel een toegangssleutel in, of laat een sleutel genereren. De andere persoon heeft zowel uw externe IP als de toegangssleutel nodig om verbinding te maken. Wanneer u in het poort invoerveld een poort hebt ingevoerd die afwijkt van de standaard (6837), dient u er zeker van te zijn dat de andere persoon de alternatieve poort toevoegt aan het serveradres in de vorm &lt;extern ip>:&lt;poort>.
+Voer in het veld Sleutel een toegangssleutel in, of laat een sleutel genereren. De andere persoon heeft zowel uw externe IP als de toegangssleutel nodig om verbinding te maken. Wanneer u in het poort invoerveld een poort hebt ingevoerd die afwijkt van de standaard (6837), dient u er zeker van te zijn dat de andere persoon de alternatieve poort toevoegt aan het serveradres in de vorm &lt;extern ip&gt;:&lt;poort&gt;.
 
 Zodra er voor Ok gekozen wordt, zal de verbinding met uw eigen server tot stand worden gebracht. Zodra de andere persoon verbinding maakt, kunt u NVDA Externe Toegang op de normale manier gebruiken.
 
