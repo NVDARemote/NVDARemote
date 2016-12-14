@@ -115,7 +115,7 @@ class Client(object):
 			getattr(self, fn)(parsed)
 
 	def as_dict(self):
-		return dict(id=self.id, type=self.connection_type)
+		return dict(id=self.id, connection_type=self.connection_type)
 
 	def do_join(self, obj):
 		password = obj.get('channel', None)
