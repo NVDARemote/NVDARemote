@@ -54,9 +54,10 @@ class SlaveSession(RemoteSession):
 
 	def handle_client_disconnected(self, client=None, **kwargs):
 		self.local_machine.patcher.orig_beep(108, 300)
-		del self.masters[client['id']]
 		if not self.masters:
 			self.local_machine.patcher.unpatch()
+		if client['connection_type'] == 'master':
+			del self.masters[client['id']]
 
 	def add_patch_callbacks(self):
 		patcher_callbacks = (('speak', self.speak), ('beep', self.beep), ('wave', self.playWaveFile), ('cancel_speech', self.cancel_speech))
