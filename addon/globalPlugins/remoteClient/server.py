@@ -123,6 +123,7 @@ class Client(object):
 			self.send(type='error', message='incorrect_password')
 			self.close()
 			return
+		self.connection_type = obj.get('connection_type')
 		self.authenticated = True
 		clients = []
 		client_ids = []
