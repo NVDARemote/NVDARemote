@@ -1,4 +1,10 @@
 import ctypes.wintypes as ctypes
+import braille
+import brailleInput
+import globalPluginHandler
+import scriptHandler
+import inputCore
+import api
 
 INPUT_MOUSE = 0
 INPUT_KEYBOARD = 1
@@ -46,6 +52,67 @@ class INPUT(ctypes.Structure):
 	_fields_ = (
 		('type', ctypes.DWORD),
 		('union', INPUTUnion))
+
+class BrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
+
+	def __init__(self, **kwargs):
+		super(BrailleInputGesture, self).__init__()
+		for key, value in kwargs.iteritems():
+			setattr(self, key, value)
+		self.source="remote{}{}".format(self.source[0].upper(),self.source[1:])
+		self.scriptPath=getattr(self,"scriptPath",None)
+		self.script=self.findScript() if self.scriptPath else None
+
+	def findScript(self):
+		if not (isinstance(self.scriptPath,list) and len(self.scriptPath)==3):
+			return None
+		module,cls,scriptName=self.scriptPath
+		focus = api.getFocusObject()
+		if not focus:
+			return None
+		if scriptName.startswith("kb:"):
+			# Emulate a key press.
+			return scriptHandler._makeKbEmulateScript(scriptName)
+
+		import globalCommands
+
+		# Global plugin level.
+		if cls=='GlobalPlugin':
+			for plugin in globalPluginHandler.runningPlugins:
+				if module==plugin.__module__:
+					func = getattr(plugin, "script_%s" % scriptName, None)
+					if func:
+						return func
+
+		# App module level.
+		app = focus.appModule
+		if app and cls=='AppModule' and module==app.__module__:
+			func = getattr(app, "script_%s" % scriptName, None)
+			if func:
+				return func
+
+		# Tree interceptor level.
+		treeInterceptor = focus.treeInterceptor
+		if treeInterceptor and treeInterceptor.isReady:
+			func = getattr(treeInterceptor , "script_%s" % scriptName, None)
+			# We are no keyboard input
+			return func
+
+		# NVDAObject level.
+		func = getattr(focus, "script_%s" % scriptName, None)
+		if func:
+			return func
+		for obj in reversed(api.getFocusAncestors()):
+			func = getattr(obj, "script_%s" % scriptName, None)
+			if func and getattr(func, 'canPropagate', False):
+				return func
+
+		# Global commands.
+		func = getattr(globalCommands.commands, "script_%s" % scriptName, None)
+		if func:
+			return func
+
+		return None
 
 def send_key(vk=None, scan=None, extended=False, pressed=True):
 	i = INPUT()

@@ -46,7 +46,7 @@ When the other person connects, you can use NVDA Remote normally.
 
 ##Sending keys
 Once the session is connected, the controlling machine can then press f11 to start sending keys.
-When NVDA says sending keys, the keys you press will go to the remote machine. Press f11 again to stop sending keys and switch back to the controlling machine.
+When NVDA says sending keys, the keyboard and braille display keys you press will go to the remote machine. Furthermore, when the controlling machine is using a braille display, information from the remote machine will be displayed on it. Press f11 again to stop sending keys and switch back to the controlling machine.
 For best compatibility, please ensure that the keyboard layouts on both machines match.
 
 ##Send Ctrl+Alt+Del
@@ -70,14 +70,14 @@ Note: The autoconnect at startup-related options in the options dialog do not ap
 
 
 ##Muting Speech on the Remote Computer
-If you do not wish to hear the remote computer's speech, simply access the NVDA menu, Tools, and Remote. Arrow down to Mute Remote Speech, and press Enter.
+If you do not wish to hear the remote computer's speech or NVDA specific sounds, simply access the NVDA menu, Tools, and Remote. Arrow down to Mute Remote, and press Enter. Please note that this option will not disable remote braille output to the controlling display when the controlling machine is sending keys.
 
 
 ##Ending a remote Session
 
 To end a remote session, do the following:
 
-1. On the controlling computer, press F11 to stop sending keys. You should hear the message: "Not sending keys." If you instead hear a message that you are sending keys, press F11 once more.
+1. On the controlling computer, press F11 to stop sending keys. You should hear or read the message: "Not sending keys." If you instead hear or read a message that you are sending keys, press F11 once more.
 
 2. Access the NVDA menu, then Tools, Remote, and press Enter on Disconnect.
 
@@ -97,7 +97,7 @@ In order for NVDA Remote to work on the secure desktop, the addon must be instal
 4. When settings are copied, press Enter to dismiss the OK button. Tab to OK and Enter once more to exit the dialog.
 
 Once NVDA Remote is installed on the secure desktop, if you are currently being controlled in a remote session,
-the secure desktop will read when switched to.
+you will have speech and braille access to the secure desktop when switched to.
 
 ##Contributions
 We would like to acknowledge the following contributors, among others, who helped make the NVDA Remote project a reality.
@@ -113,3 +113,5 @@ We would like to acknowledge the following contributors, among others, who helpe
 * ABDULAZIZ ALSHMASI.
 * Tyler W Kavanaugh
 * Casey Mathews
+* Babbage B.V.
+* Leonard de Ruijter
