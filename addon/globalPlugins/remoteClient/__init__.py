@@ -343,14 +343,14 @@ class GlobalPlugin(GlobalPlugin):
 			self.sending_keys = False
 			self.set_receiving_braille(False)
 			# Translators: Presented when keyboard control is back to the controlling computer.
-			ui.message(_("Not sending keys."))
+			ui.message(_("Controlling local machine."))
 			return True #Don't pass it on
 		self.master_transport.send(type="key", **kwargs)
 		return True #Don't pass it on
 
 	def script_sendKeys(self, gesture):
 		# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-		ui.message(_("Sending keys."))
+		ui.message(_("Controlling remote machine."))
 		self.sending_keys = True
 		self.set_receiving_braille(True)
 
