@@ -302,7 +302,7 @@ class GlobalPlugin(GlobalPlugin):
 	def connected_to_relay(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
-		# Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
+		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.slave_transport.address)
