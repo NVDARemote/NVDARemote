@@ -186,7 +186,7 @@ class GlobalPlugin(GlobalPlugin):
 				ui.message(_("Not connected."))
 			return
 		if self.master_transport is not None:
-			self.disconnect_from_slave()
+			self.disconnect_as_master()
 		if self.slave_transport is not None:
 			self.disconnect_as_slave()
 		if self.server is not None:
@@ -197,7 +197,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
 
-	def disconnect_from_slave(self):
+	def disconnect_as_master(self):
 		self.master_transport.close()
 		self.master_transport = None
 		self.connect_item.Enable(True)
@@ -221,7 +221,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_slave_connection_failed(self):
 		if self.master_transport.successful_connects == 0:
-			self.disconnect_from_slave()
+			self.disconnect_as_master()
 			# Translators: Title of the connection error dialog.
 			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"),
 			# Translators: Message shown when cannot connect to the remote computer.
