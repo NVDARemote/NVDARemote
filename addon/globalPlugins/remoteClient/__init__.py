@@ -216,7 +216,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.slave_transport.close()
 		self.slave_transport = None
 
-	def on_slave_connection_failed(self):
+	def on_connected_as_master_failed(self):
 		if self.master_transport.successful_connects == 0:
 			self.disconnect_as_master()
 			# Translators: Title of the connection error dialog.
@@ -284,7 +284,7 @@ class GlobalPlugin(GlobalPlugin):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
-		transport.callback_manager.register_callback('transport_connection_failed', self.on_slave_connection_failed)
+		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
 		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_from_slave)
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
