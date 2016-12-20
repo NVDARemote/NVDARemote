@@ -1,4 +1,3 @@
-SERVER_ADDR = ('127.0.0.1', 5000)
 CONFIG_FILE_NAME = 'remote.ini'
 REMOTE_KEY = "kb:f11"
 from cStringIO import StringIO
@@ -295,7 +294,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.connector_thread = ConnectorThread(connector=transport)
 		self.connector_thread.start()
 
-	def connect_control(self, address=SERVER_ADDR, key=None):
+	def connect_control(self, address, key=None):
 		if self.control_connector_thread is not None:
 			self.control_connector_thread.running = False
 			if self.control_connector is not None:
