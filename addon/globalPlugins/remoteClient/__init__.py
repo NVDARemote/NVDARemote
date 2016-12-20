@@ -197,6 +197,8 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect_as_master(self):
 		self.master_transport.close()
 		self.master_transport = None
+
+	def disconnecting_as_master(self):
 		self.connect_item.Enable(True)
 		self.disconnect_item.Enable(False)
 		self.mute_item.Check(False)
@@ -285,6 +287,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
+		transport.callback_manager.register_callback('transport_closing', self.disconnecting_as_master)
 		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_from_slave)
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
