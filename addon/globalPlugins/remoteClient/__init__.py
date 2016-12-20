@@ -261,7 +261,7 @@ class GlobalPlugin(GlobalPlugin):
 					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
-	def on_connected_to_slave(self):
+	def on_connected_as_master(self):
 		write_connection_to_config(self.master_transport.address)
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
@@ -283,7 +283,7 @@ class GlobalPlugin(GlobalPlugin):
 	def connect_as_master(self, address, channel):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
-		transport.callback_manager.register_callback('transport_connected', self.on_connected_to_slave)
+		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_slave_connection_failed)
 		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_from_slave)
 		self.master_transport = transport
