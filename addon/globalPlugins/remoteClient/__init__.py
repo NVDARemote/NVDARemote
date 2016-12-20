@@ -249,14 +249,14 @@ class GlobalPlugin(GlobalPlugin):
 				server_addr, port = address_to_hostport(server_addr)
 				channel = dlg.panel.key.GetValue()
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_slave((server_addr, port), channel)
+					self.connect_as_master((server_addr, port), channel)
 				else:
 					self.connect_as_slave((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 				else:
 					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
@@ -280,7 +280,7 @@ class GlobalPlugin(GlobalPlugin):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_slave(self, address, channel):
+	def connect_as_master(self, address, channel):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_to_slave)
