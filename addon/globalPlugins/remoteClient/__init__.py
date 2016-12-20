@@ -278,7 +278,7 @@ class GlobalPlugin(GlobalPlugin):
 		ui.message(_("Connected!"))
 		beep_sequence.beep_sequence((440, 60), (660, 60))
 
-	def on_disconnected_from_slave(self):
+	def on_disconnected_as_master(self):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
@@ -288,7 +288,7 @@ class GlobalPlugin(GlobalPlugin):
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
 		transport.callback_manager.register_callback('transport_closing', self.disconnecting_as_master)
-		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_from_slave)
+		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_as_master)
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
