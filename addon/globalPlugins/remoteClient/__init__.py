@@ -78,7 +78,7 @@ class GlobalPlugin(GlobalPlugin):
 			self.start_control_server(port, channel)
 		else:
 			address = address_to_hostport(cs['host'])
-		self.connect_control(address, channel)
+		self.connect_as_slave(address, channel)
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -251,14 +251,14 @@ class GlobalPlugin(GlobalPlugin):
 				if dlg.connection_type.GetSelection() == 0:
 					self.connect_slave((server_addr, port), channel)
 				else:
-					self.connect_control((server_addr, port), channel)
+					self.connect_as_slave((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
 					self.connect_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 				else:
-					self.connect_control(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_to_slave(self):
@@ -289,7 +289,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_control(self, address, key=None):
+	def connect_as_slave(self, address, key=None):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
@@ -391,7 +391,7 @@ class GlobalPlugin(GlobalPlugin):
 			test_socket=ssl.wrap_socket(test_socket)
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
-			self.connect_control(('127.0.0.1', port), channel)
+			self.connect_as_slave(('127.0.0.1', port), channel)
 			return True
 		except:
 			return False
