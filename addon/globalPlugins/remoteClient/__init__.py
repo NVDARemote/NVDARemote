@@ -296,12 +296,12 @@ class GlobalPlugin(GlobalPlugin):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
-		self.slave_transport.callback_manager.register_callback('transport_connected', self.connected_to_relay)
+		self.slave_transport.callback_manager.register_callback('transport_connected', self.on_connected_as_slave)
 		self.slave_transport.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 
-	def connected_to_relay(self):
+	def on_connected_as_slave(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
