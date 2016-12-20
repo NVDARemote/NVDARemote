@@ -21,7 +21,7 @@ import wx
 import gui
 import beep_sequence
 import speech
-from transport import RelayTransport, ConnectorThread
+from transport import RelayTransport
 import local_machine
 import serializer
 from session import MasterSession, SlaveSession
