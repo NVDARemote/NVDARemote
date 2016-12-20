@@ -162,8 +162,7 @@ class GlobalPlugin(GlobalPlugin):
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
 		except TypeError:
-			# JL: It might be helpful to provide a log.debug output for this.
-			pass
+			log.exception("Unable to push clipboard")
 
 	def on_options_item(self, evt):
 		evt.Skip()
