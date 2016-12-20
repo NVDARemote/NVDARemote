@@ -34,6 +34,7 @@ class TCPTransport(Transport):
 		self.server_sock = None
 		self.queue_thread = None
 		self.timeout = timeout
+		self.reconnector_thread = ConnectorThread(self)
 
 	def run(self):
 		self.closed = False
@@ -125,8 +126,10 @@ class TCPTransport(Transport):
 
 	def close(self):
 		self.callback_manager.call_callbacks('transport_closing')
+		self.reconnector_thread.running = False
 		self._disconnect()
 		self.closed = True
+		self.reconnector_thread = ConnectorThread(self)
 
 class RelayTransport(TCPTransport):
 

@@ -56,7 +56,6 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_session = None
 		self.create_menu()
 		self.connector = None
-		self.control_connector_thread = None
 		self.control_connector = None
 		self.server = None
 		self.hook_thread = None
@@ -201,8 +200,6 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect_from_slave(self):
 		self.connector.close()
 		self.connector = None
-		if self.connector_thread is not None:
-			self.connector_thread.running = False
 		self.connect_item.Enable(True)
 		self.disconnect_item.Enable(False)
 		self.mute_item.Check(False)
@@ -219,7 +216,6 @@ class GlobalPlugin(GlobalPlugin):
 		self.key_modified = False
 
 	def disconnect_control(self):
-		self.control_connector_thread.running = False
 		self.control_connector.close()
 		self.control_connector = None
 
@@ -291,22 +287,14 @@ class GlobalPlugin(GlobalPlugin):
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_slave_connection_failed)
 		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_from_slave)
 		self.connector = transport
-		self.connector_thread = ConnectorThread(connector=transport)
-		self.connector_thread.start()
+		self.connector.reconnector_thread.start()
 
 	def connect_control(self, address, key=None):
-		if self.control_connector_thread is not None:
-			self.control_connector_thread.running = False
-			if self.control_connector is not None:
-				self.control_connector.close()
-			self.control_connector_thread = None
-
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.control_connector = transport
 		self.control_connector.callback_manager.register_callback('transport_connected', self.connected_to_relay)
-		self.control_connector_thread = ConnectorThread(connector=self.control_connector)
-		self.control_connector_thread.start()
+		self.control_connector.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 
