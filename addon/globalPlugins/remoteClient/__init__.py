@@ -110,7 +110,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
-		self.do_disconnect_from_slave()
+		self.disconnect()
 		self.local_machine = None
 		self.menu.RemoveItem(self.connect_item)
 		self.connect_item.Destroy()
@@ -146,7 +146,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
-		self.do_disconnect_from_slave()
+		self.disconnect()
 
 	def on_mute_item(self, evt):
 		evt.Skip()
@@ -180,7 +180,7 @@ class GlobalPlugin(GlobalPlugin):
 	def on_send_ctrl_alt_del(self, evt):
 		self.master_transport.send('send_SAS')
 
-	def do_disconnect_from_slave(self):
+	def disconnect(self):
 		if self.master_transport is None and self.slave_transport is None:
 			return
 		if self.master_transport is not None:
@@ -229,7 +229,7 @@ class GlobalPlugin(GlobalPlugin):
 		if self.master_transport is None and self.slave_transport is None:
 			ui.message(_("Not connected."))
 			return
-		self.do_disconnect_from_slave()
+		self.disconnect()
 	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
 	def do_connect(self, evt):
