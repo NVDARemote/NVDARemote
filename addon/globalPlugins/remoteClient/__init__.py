@@ -188,7 +188,7 @@ class GlobalPlugin(GlobalPlugin):
 		if self.master_transport is not None:
 			self.disconnect_from_slave()
 		if self.slave_transport is not None:
-			self.disconnect_control()
+			self.disconnect_as_slave()
 		if self.server is not None:
 			self.server.close()
 			self.server = None
@@ -215,7 +215,7 @@ class GlobalPlugin(GlobalPlugin):
 			self.removeGestureBinding(REMOTE_KEY)
 		self.key_modified = False
 
-	def disconnect_control(self):
+	def disconnect_as_slave(self):
 		self.slave_transport.close()
 		self.slave_transport = None
 
