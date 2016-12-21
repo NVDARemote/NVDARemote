@@ -13,7 +13,7 @@ A instalación de NVDA e do complemento non varía con respecto a outras. Se nec
 1. Abre o menú de NVDA, ferramentas, remoto, conectar.
 2. Elixe cliente no primeiro grupo de botóns de opción.
 3. Elixe permitir que controlen este equipo no segundo grupo de botóns de opción.
-4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com. Cando o servidor remoto utiliza un porto diferente (ao 6837), pode introducir o nome na forma <servidor>:<porto>, por exemplo nvdaremote.com:1234.
+4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com. Cando o servidor remoto utiliza un porto diferente (ao 6837), pode introducir o nome na forma &lt;servidor&gt;:&lt;porto&gt;, por exemplo nvdaremote.com:1234.
 5. Introduce unha clave no campo clave, ou preme o botón xerar clave.
 A clave é o que outros utilizarán para controlar o teu equipo.
 A máquina controlada e todos os seus clientes deben usar a mesma clave.
@@ -23,7 +23,7 @@ A máquina controlada e todos os seus clientes deben usar a mesma clave.
 1. Abre o menú de NVDA, ferramentas, remoto, conectar.
 2. Elixe cliente no primeiro grupo de botóns de opción.
 3. Elixe controlar outro equipo no segundo grupo de botóns de opción.
-4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com. Cando o servidor remoto utiliza un porto diferente (ao 6837), pode introducir o nome na forma <servidor>:<porto>, por exemplo nvdaremote.com:1234.
+4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com. Cando o servidor remoto utiliza un porto diferente (ao 6837), pode introducir o nome na forma &lt;servidor&gt;:&lt;porto&gt;, por exemplo nvdaremote.com:1234.
 5. Introduce unha clave no campo clave, ou preme o botón xerar clave.
 A clave é o que outros utilizarán para controlar o teu equipo.
 A máquina controlada e todos os seus clientes deben usar a mesma clave.
@@ -39,7 +39,7 @@ Se portcheck detecta que o porto (por defecto 6837) non se pode alcanzar dende I
 Reenvía(abre) o porto e inténtao de novo.
 Nota: o proceso de reenviar portos está fóra do propósito deste documento. Consulta a documentación que acompaña ao teu router para máis información.
 
-Introduce unha clave no campo clave, ou preme xerar. A outra persoa necesitará o teu IP externo xunto coa clave para conectar. Se se introduciu un porto diferente ao predeterminado (6837) no campo "porto", asegúrate de que a outra persoa engade o porto ó enderezo do equipo na forma <IP externo>:<porto>.
+Introduce unha clave no campo clave, ou preme xerar. A outra persoa necesitará o teu IP externo xunto coa clave para conectar. Se se introduciu un porto diferente ao predeterminado (6837) no campo "porto", asegúrate de que a outra persoa engade o porto ó enderezo do equipo na forma &lt;IP externo&gt;:&lt;porto&gt;.
 
 Unha vez premas aceptar, estarás conectado.
 Cando a outra persoa se conecte, poderás usar NVDA Remote con normalidade.
@@ -110,4 +110,4 @@ Gustaríanos dar o noso recoñecemento aos seguintes contribuíntes que, entre o
 * Tyler W Kavanaugh
 * Casey Mathews
 
-Traducido ao galego por Iván Novegil <info@inovegil.site40.net>
+Traducido ao galego por Iván Novegil &lt;info@inovegil.site40.net&gt;

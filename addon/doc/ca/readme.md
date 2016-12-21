@@ -1,4 +1,4 @@
-#NVDA Remote Access
+﻿#NVDA Remote Access
 Versió 1.3
 
 Benvingut al complement d'accés remot de NVDA, que et permetrà connectar-te a un altre equip que executi el lector de pantalla gratuït NVDA. És igual que siguis a l'altra banda de l'habitació o a l'altra banda del món. Connectar-se és simple, i hi ha molt poques ordres per aprendre. Pots connectar-te a l'equip d'una altra persona, o permetre a una persona de confiança que es connecti al teu sistema per realitzar un manteniment rutinari, diagnosticar un problema, o ensenyar-te alguna cosa.
@@ -38,7 +38,7 @@ Si portcheck detecta que el teu port (per defecte 6837) no està obert, apareixe
 Obre el port i torna-ho a provar de nou.
 Nota: el procés d'obrir ports està fora del propòsit d'aquest document. Consulta la documentació que acompanya al teu router per a més informació.
 
-Introdueix una clau en el camp clau, o prem generar. L'altra persona necessitarà la teva IP externa juntament amb la clau per connectar. Si has introduït un port diferent al que es fa servir per defecte (6837) al camp port, assegura't de que l'altra persona afegeix el port alternatiu a la direcció de l'equip fent servir el format <ip externa>:<puerto>.
+Introdueix una clau en el camp clau, o prem generar. L'altra persona necessitarà la teva IP externa juntament amb la clau per connectar. Si has introduït un port diferent al que es fa servir per defecte (6837) al camp port, assegura't de que l'altra persona afegeix el port alternatiu a la direcció de l'equip fent servir el format &lt;ip externa&gt;:&lt;puerto&gt;.
 
 Un cop premis acceptar, estaràs connectat.
 Quan l'altra persona es connecti, podràs fer servir NVDA Remote amb normalitat.
