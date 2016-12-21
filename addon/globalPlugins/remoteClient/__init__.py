@@ -69,7 +69,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
 		if globalVars.appArgs.secure:
 			self.handle_secure_desktop()
-		elif cs['autoconnect']:
+		if cs['autoconnect'] and not self.master_session and not self.slave_session:
 			self.perform_autoconnect()
 		self.sd_focused = False
 
