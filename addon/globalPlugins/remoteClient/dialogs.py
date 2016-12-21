@@ -19,20 +19,15 @@ class ClientPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
 		super(ClientPanel, self).__init__(parent, id)
-		sizer = wx.BoxSizer(wx.HORIZONTAL)
+		sizer = gui.guiHelper.BoxSizerHelper(self, orientation=wx.VERTICAL)
 		# Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
-		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
-		self.host = wx.TextCtrl(self, wx.ID_ANY)
-		sizer.Add(self.host)
+		self.host = sizer.addLabeledControl(_("&Host:"), wx.TextCtrl)
 		# Translators: Label of the edit field to enter key (password) to secure the remote connection.
-		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
-		self.key = wx.TextCtrl(self, wx.ID_ANY)
-		sizer.Add(self.key)
+		self.key = sizer.addLabeledControl(_("&Key:"), wx.TextCtrl)
 		# Translators: The button used to generate a random key/password.
-		self.generate_key = wx.Button(parent=self, label=_("&Generate Key"))
+		self.generate_key = sizer.addItem(wx.Button(parent=self, label=_("&Generate Key")))
 		self.generate_key.Bind(wx.EVT_BUTTON, self.on_generate_key)
-		sizer.Add(self.generate_key)
-		self.SetSizerAndFit(sizer)
+		self.SetSizerAndFit(sizer.sizer)
 
 	def on_generate_key(self, evt):
 		evt.Skip()
@@ -52,26 +47,18 @@ class ServerPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
 		super(ServerPanel, self).__init__(parent, id)
-		sizer = wx.BoxSizer(wx.HORIZONTAL)
+		sizer = gui.guiHelper.BoxSizerHelper(self, orientation=wx.VERTICAL)
 		# Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
-		self.get_IP = wx.Button(parent=self, label=_("Get External &IP"))
+		self.get_IP = sizer.addItem(wx.Button(parent=self, label=_("Get External &IP")))
 		self.get_IP.Bind(wx.EVT_BUTTON, self.on_get_IP)
-		sizer.Add(self.get_IP)
 		# Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
-		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&External IP:")))
-		self.external_IP = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_MULTILINE)
-		sizer.Add(self.external_IP)
+		self.external_IP = sizer.addLabeledControl(_("&External IP:"), wx.TextCtrl, style=wx.TE_READONLY|wx.TE_MULTILINE)
 		# Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
-		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
-		self.port = wx.TextCtrl(self, wx.ID_ANY, value=str(socket_utils.SERVER_PORT))
-		sizer.Add(self.port)
-		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
-		self.key = wx.TextCtrl(self, wx.ID_ANY)
-		sizer.Add(self.key)
-		self.generate_key = wx.Button(parent=self, label=_("&Generate Key"))
+		self.port = sizer.addLabeledControl(_("&Port:"), wx.TextCtrl, value=str(socket_utils.SERVER_PORT))
+		self.key = sizer.addLabeledControl(_("&Key:"), wx.TextCtrl)
+		self.generate_key = sizer.addItem(wx.Button(parent=self, label=_("&Generate Key")))
 		self.generate_key.Bind(wx.EVT_BUTTON, self.on_generate_key)
-		sizer.Add(self.generate_key)
-		self.SetSizerAndFit(sizer)
+		self.SetSizerAndFit(sizer.sizer)
 
 	def on_generate_key(self, evt):
 		evt.Skip()
@@ -123,23 +110,21 @@ class DirectConnectDialog(wx.Dialog):
 	def __init__(self, parent, id, title):
 		super(DirectConnectDialog, self).__init__(parent, id, title=title)
 		main_sizer = self.main_sizer = wx.BoxSizer(wx.VERTICAL)
-		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL)
+		main_sizer_helper = gui.guiHelper.BoxSizerHelper(self, orientation=wx.VERTICAL)
+		self.client_or_server = main_sizer_helper.addItem(wx.RadioBox(self, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL))
 		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
 		self.client_or_server.SetSelection(0)
-		main_sizer.Add(self.client_or_server)
 		choices = [_("Control another machine"), _("Allow this machine to be controlled")]
-		self.connection_type = wx.RadioBox(self, wx.ID_ANY, choices=choices, style=wx.RA_VERTICAL)
+		self.connection_type = main_sizer_helper.addItem(wx.RadioBox(self, choices=choices, style=wx.RA_VERTICAL))
 		self.connection_type.SetSelection(0)
-		main_sizer.Add(self.connection_type)
 		self.container = wx.Panel(parent=self)
 		self.panel = ClientPanel(parent=self.container)
-		main_sizer.Add(self.container)
-		buttons = self.CreateButtonSizer(wx.OK | wx.CANCEL)
-		main_sizer.Add(buttons, flag=wx.BOTTOM)
+		main_sizer_helper.addItem(self.container)
+		main_sizer_helper.addDialogDismissButtons(self.CreateButtonSizer(wx.OK | wx.CANCEL))
+		self.Bind(wx.EVT_BUTTON, self.on_ok, id=wx.ID_OK)
+		main_sizer.Add(main_sizer_helper.sizer, border = gui.guiHelper.BORDER_FOR_DIALOGS, flag=wx.ALL)
 		main_sizer.Fit(self)
 		self.SetSizer(main_sizer)
-		ok = wx.FindWindowById(wx.ID_OK, self)
-		ok.Bind(wx.EVT_BUTTON, self.on_ok)
 
 	def on_client_or_server(self, evt):
 		evt.Skip()
@@ -165,34 +150,26 @@ class OptionsDialog(wx.Dialog):
 	def __init__(self, parent, id, title):
 		super(OptionsDialog, self).__init__(parent, id, title=title)
 		main_sizer = wx.BoxSizer(wx.VERTICAL)
+		main_sizer_helper = gui.guiHelper.BoxSizerHelper(self, orientation=wx.VERTICAL)
 		# Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
-		self.autoconnect = wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup"))
+		self.autoconnect = main_sizer_helper.addItem(wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup")))
 		self.autoconnect.Bind(wx.EVT_CHECKBOX, self.on_autoconnect)
-		main_sizer.Add(self.autoconnect)
 		#Translators: Whether or not to use a relay server when autoconnecting
-		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Use Remote Control Server"), _("Host Control Server")), style=wx.RA_VERTICAL)
+		self.client_or_server = main_sizer_helper.addItem(wx.RadioBox(self, wx.ID_ANY, choices=(_("Use Remote Control Server"), _("Host Control Server")), style=wx.RA_VERTICAL))
 		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
 		self.client_or_server.SetSelection(0)
 		self.client_or_server.Enable(False)
-		main_sizer.Add(self.client_or_server)
-		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
-		self.host = wx.TextCtrl(self, wx.ID_ANY)
+		self.host = main_sizer_helper.addLabeledControl(_("&Host:"), wx.TextCtrl)
 		self.host.Enable(False)
-		main_sizer.Add(self.host)
-		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
-		self.port = wx.TextCtrl(self, wx.ID_ANY)
+		self.port = main_sizer_helper.addLabeledControl(_("&Port:"), wx.TextCtrl)
 		self.port.Enable(False)
-		main_sizer.Add(self.port)
-		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
-		self.key = wx.TextCtrl(self, wx.ID_ANY)
+		self.key = main_sizer_helper.addLabeledControl(_("&Key:"), wx.TextCtrl)
 		self.key.Enable(False)
-		main_sizer.Add(self.key)
-		buttons = self.CreateButtonSizer(wx.OK | wx.CANCEL)
-		main_sizer.Add(buttons, flag=wx.BOTTOM)
+		main_sizer_helper.addDialogDismissButtons(self.CreateButtonSizer(wx.OK | wx.CANCEL))
+		self.Bind(wx.EVT_BUTTON, self.on_ok, id=wx.ID_OK)
+		main_sizer.Add(main_sizer_helper.sizer, border = gui.guiHelper.BORDER_FOR_DIALOGS, flag=wx.ALL)
 		main_sizer.Fit(self)
 		self.SetSizer(main_sizer)
-		ok = wx.FindWindowById(wx.ID_OK, self)
-		ok.Bind(wx.EVT_BUTTON, self.on_ok)
 		self.autoconnect.SetFocus()
 
 	def on_autoconnect(self, evt):
