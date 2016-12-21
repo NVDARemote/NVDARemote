@@ -9,6 +9,14 @@ class RemoteSession(object):
 	def __init__(self, local_machine, transport):
 		self.local_machine = local_machine
 		self.transport = transport
+		self.transport.callback_manager.register_callback('msg_version_mismatch', self.handle_version_mismatch)
+
+	def handle_version_mismatch(self, **kwargs):
+		#translators: Message for version mismatch
+		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
+Please either use a different server or upgrade your version of the addon.""")
+		ui.message(message)
+		self.transport.close()
 
 class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
