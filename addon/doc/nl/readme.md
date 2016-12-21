@@ -57,8 +57,11 @@ Het zou kunnen zijn dat u soms de wens hebt om één van uw eigen computers exte
 1. Open het NVDA-menu en kies voor Extra's, waarna u kiest voor Externe toegang. Kies vervolgens voor Opties en druk op enter.
 2. Plaats een aankruisvakje bij de optie met het opschrift: "Automatisch met beheerserver verbinden bij opstarten".
 3. Maak een keuze voor een externe server, of kies ervoor om de server lokaal, op de zelfde computer, te hosten.
-4. Wanneer u de server zelf host, dient u er zeker van te zijn dat de poort zoals ingevoerd in het invoerveld poort (standaard 6837) op de te beheren machine bereikbaar is vanaf de beherende machines.
-5. Wanneer u een externe server wilt gebruiken, vul de velden Adres en Sleutel in, tab naar Ok en druk op enter. De optie Sleutel genereren is niet beschikbaar in deze situatie. Het is hierbij het beste om te kiezen voor een sleutel die u kunt onthouden, zodat u deze sleutel vanaf iedere willekeurige locatie kunt gebruiken.
+4. In de tweede reeks keuzerondjes kiest u voor de optie Laat deze machine beheerd worden.
+5. Wanneer u de server zelf host, dient u er zeker van te zijn dat de poort zoals ingevoerd in het invoerveld poort (standaard 6837) op de te beheren machine bereikbaar is vanaf de beherende machines.
+6. Wanneer u een externe server wilt gebruiken, vul de velden Adres en Sleutel in, tab naar Ok en druk op enter. De optie Sleutel genereren is niet beschikbaar in deze situatie. Het is hierbij het beste om te kiezen voor een sleutel die u kunt onthouden, zodat u deze sleutel vanaf iedere willekeurige locatie kunt gebruiken.
+
+Voor geavanceerd gebruik kunt u NVDA Remote zo instellen dat er automatisch verbinding wordt gemaakt met een lokale of externe server in beheermodus. Wanneer u dit wilt, kiest u voor de optie Beheer een andere machine in de tweede reeks keuzerondjes.
 
 Let op: De opties rondom het automatisch verbinden in het dialoogvenster opties zijn pas van kracht na het opnieuw opstarten van NVDA.
 

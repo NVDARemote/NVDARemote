@@ -60,8 +60,11 @@ Sometimes, you may wish to control one of your own computers remotely. This is e
 1. Enter the NVDA menu, and choose Tools, then Remote. Finally, press Enter on Options.
 2. Check the box that says, "Auto connect to control server on startup".
 3. Select whether to use a remote relay server or to locally host the connection. 
-4. If you host the connection yourself, you will need to ensure that the port entered in the port field (6837 by default) on the controlled machine can be accessed from the controlling machines.
-5. If you wish to use a relay server, Fill in both the Host and Key fields, tab to OK, and press Enter. The Generate Key option is not available in this situation. It is best to come up with a key you will remember so you can easily use it from any remote location.
+4. Select Allow this machine to be controlled in the second set of radio buttons.
+5. If you host the connection yourself, you will need to ensure that the port entered in the port field (6837 by default) on the controlled machine can be accessed from the controlling machines.
+6. If you wish to use a relay server, Fill in both the Host and Key fields, tab to OK, and press Enter. The Generate Key option is not available in this situation. It is best to come up with a key you will remember so you can easily use it from any remote location.
+
+For advanced use, you can also configure NVDA Remote to automatically connect to a local or remote relay server in controlling mode. If you want this, select Control another machine in the second set of radio buttons.
 
 Note: The autoconnect at startup-related options in the options dialog do not apply until NVDA is restarted.
 
