@@ -91,7 +91,7 @@ class ServerPanel(wx.Panel):
 	def do_portcheck(self, port):
 		temp_server = server.Server(port=port, password=None)
 		try:
-			req = urllib.urlopen('https://portcheck.net/port/%s' % port)
+			req = urllib.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
 			data = req.read()
 			result = json.loads(data)
 			wx.CallAfter(self.on_get_IP_success, result)
@@ -107,9 +107,9 @@ class ServerPanel(wx.Panel):
 		port = data['port']
 		is_open = data['open']
 		if is_open:
-			wx.MessageBox(message=_("Successfully retrieved IP address. Port {PORT} is open.".FORMAT(PORT=PORT)), caption=_("Success"), style=wx.OK)
+			wx.MessageBox(message=_("Successfully retrieved IP address. Port {port} is open.".format(port=port)), caption=_("Success"), style=wx.OK)
 		else:
-			wx.MessageBox(message=_("Retrieved external IP, but port {PORT} is not currently forwarded.".FORMAT(PORT=PORT)), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
+			wx.MessageBox(message=_("Retrieved external IP, but port {port} is not currently forwarded.".format(port=port)), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
 		self.external_IP.SetValue(ip)
 		self.external_IP.SetSelection(0, len(ip))
 		self.external_IP.SetFocus()
