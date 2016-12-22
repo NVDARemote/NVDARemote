@@ -1,4 +1,4 @@
-#NVDA Remote Access
+﻿#NVDA Remote Access
 Versión 1.3
 
 Bienvenido al complemento de acceso remoto de NVDA, que te permitirá conectarte a otro equipo que ejecute el lector de pantalla gratuito NVDA. Da igual que estés al otro lado de la habitación o al otro lado del mundo. Conectarse es simple, y hay muy pocas órdenes que aprenderse. Puedes conectarte al equipo de otra persona, o permitir a una persona de confianza que se conecte a tu sistema para realizar un mantenimiento rutinario, diagnosticar un problema, o enseñarte algo.
@@ -13,7 +13,7 @@ La instalación de NVDA y del complemento no varía con respecto a otras. Si nec
 1. Abre el menú de NVDA, herramientas, remoto, conectar.
 2. Elige cliente en el primer grupo de botones de opción.
 3. Elige permitir que controlen este equipo en el segundo grupo de botones de opción.
-4. En el campo equipo o servidor, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com. Si el servidor usa un puerto distinto al que este complemento utiliza por defecto, puedes introducir su dirección en formato <equipo>:<puerto>, por ejemplo nvdaremote.com:1234.
+4. En el campo equipo o servidor, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com. Si el servidor usa un puerto distinto al que este complemento utiliza por defecto, puedes introducir su dirección en formato &lt;equipo&gt;:&lt;puerto&gt;, por ejemplo nvdaremote.com:1234.
 5. Introduce una clave en el campo clave, o pulsa el botón generar clave.
 La clave es lo que otros usarán para controlar tu equipo.
 La máquina controlada y todos sus clientes deben usar la misma clave.
@@ -23,7 +23,7 @@ La máquina controlada y todos sus clientes deben usar la misma clave.
 1. Abre el menú de NVDA, herramientas, remoto, conectar.
 2. Elige cliente en el primer grupo de botones de opción.
 3. Selecciona controlar otro equipo en el segundo grupo de botones de opción.
-4. En el campo equipo o servidor, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com. Si el servidor usa un puerto distinto al que este complemento utiliza por defecto, puedes introducir su dirección en formato <equipo>:<puerto>, por ejemplo nvdaremote.com:1234.
+4. En el campo equipo o servidor, introduce el servidor al que te vas a conectar, por ejemplo nvdaremote.com. Si el servidor usa un puerto distinto al que este complemento utiliza por defecto, puedes introducir su dirección en formato &lt;equipo&gt;:&lt;puerto&gt;, por ejemplo nvdaremote.com:1234.
 5. Introduce una clave en el campo clave, o pulsa el botón generar clave.
 La máquina controlada y todos sus clientes deben usar la misma clave.
 6. Pulsa aceptar. Hecho esto, escucharás un pitido y conectado.
@@ -38,7 +38,7 @@ Si portcheck detecta que tu puerto (por defecto 6837) no está abierto, aparecer
 Abre el puerto e inténtalo de nuevo.
 Nota: el proceso de abrir puertos está fuera del propósito de este documento. Consulta la documentación que acompaña a tu router para más información.
 
-Introduce una clave en el campo clave, o pulsa generar. La otra persona necesitará tu IP externa junto con la clave para conectar. Si has introducido un puerto distinto al que se usa por defecto (6837) en el campo puerto, asegúrate de que la otra persona añade el puerto alternativo a la dirección del equipo usando el formato <ip externa>:<puerto>.
+Introduce una clave en el campo clave, o pulsa generar. La otra persona necesitará tu IP externa junto con la clave para conectar. Si has introducido un puerto distinto al que se usa por defecto (6837) en el campo puerto, asegúrate de que la otra persona añade el puerto alternativo a la dirección del equipo usando el formato &lt;ip externa&gt;:&lt;puerto&gt;.
 
 Una vez pulses aceptar, estarás conectado.
 Cuando la otra persona se conecte, podrás usar NVDA Remote con normalidad.

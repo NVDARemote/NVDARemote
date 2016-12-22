@@ -65,7 +65,9 @@ class GlobalPlugin(GlobalPlugin):
 		cs = get_config()['controlserver']
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
-		if not self.check_secure_desktop() and cs['autoconnect']:
+		if globalVars.appArgs.secure:
+			self.handle_secure_desktop()
+		if cs['autoconnect'] and not self.master_session and not self.slave_session:
 			self.perform_autoconnect()
 		self.sd_focused = False
 
@@ -78,7 +80,10 @@ class GlobalPlugin(GlobalPlugin):
 			self.start_control_server(port, channel)
 		else:
 			address = address_to_hostport(cs['host'])
-		self.connect_as_slave(address, channel)
+		if cs['connection_type']==0:
+			self.connect_as_slave(address, channel)
+		else:
+			self.connect_as_master(address, channel)
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -382,9 +387,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server.close()
 		self.sd_relay.close()
 
-	def check_secure_desktop(self):
-		if not globalVars.appArgs.secure:
-			return False
+	def handle_secure_desktop(self):
 		try:
 			with open(self.ipc_file) as fp:
 				data = json.load(fp)
@@ -395,9 +398,8 @@ class GlobalPlugin(GlobalPlugin):
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
 			self.connect_as_slave(('127.0.0.1', port), channel)
-			return True
 		except:
-			return False
+			pass
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
@@ -410,6 +412,7 @@ last_connected = list(default=list())
 [controlserver]
 autoconnect = boolean(default=False)
 self_hosted = boolean(default=False)
+connection_type = integer(default=0)
 host = string(default="")
 port = integer(default=6837)
 key = string(default="")

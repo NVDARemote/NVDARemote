@@ -175,6 +175,11 @@ class OptionsDialog(wx.Dialog):
 		self.client_or_server.SetSelection(0)
 		self.client_or_server.Enable(False)
 		main_sizer.Add(self.client_or_server)
+		choices = [_("Allow this machine to be controlled"), _("Control another machine")]
+		self.connection_type = wx.RadioBox(self, wx.ID_ANY, choices=choices, style=wx.RA_VERTICAL)
+		self.connection_type.SetSelection(0)
+		self.connection_type.Enable(False)
+		main_sizer.Add(self.connection_type)
 		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
 		self.host = wx.TextCtrl(self, wx.ID_ANY)
 		self.host.Enable(False)
@@ -201,6 +206,7 @@ class OptionsDialog(wx.Dialog):
 	def set_controls(self):
 		state = bool(self.autoconnect.GetValue())
 		self.client_or_server.Enable(state)
+		self.connection_type.Enable(state)
 		self.key.Enable(state)
 		self.host.Enable(not bool(self.client_or_server.GetSelection()) and state)
 		self.port.Enable(bool(self.client_or_server.GetSelection()) and state)
@@ -212,8 +218,10 @@ class OptionsDialog(wx.Dialog):
 	def set_from_config(self, config):
 		cs = config['controlserver']
 		self_hosted = cs['self_hosted']
+		connection_type = cs['connection_type']
 		self.autoconnect.SetValue(cs['autoconnect'])
 		self.client_or_server.SetSelection(int(self_hosted))
+		self.connection_type.SetSelection(connection_type)
 		self.host.SetValue(cs['host'])
 		self.port.SetValue(str(cs['port']))
 		self.key.SetValue(cs['key'])
@@ -234,7 +242,9 @@ class OptionsDialog(wx.Dialog):
 		cs = config['controlserver']
 		cs['autoconnect'] = self.autoconnect.GetValue()
 		self_hosted = bool(self.client_or_server.GetSelection())
+		connection_type = self.connection_type.GetSelection()
 		cs['self_hosted'] = self_hosted
+		cs['connection_type'] = connection_type
 		if not self_hosted:
 			cs['host'] = self.host.GetValue()
 		else:
