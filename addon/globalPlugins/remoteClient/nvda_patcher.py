@@ -19,9 +19,15 @@ class NVDAPatcher(callback_manager.CallbackManager):
 		self.orig_playWaveFile = None
 
 	def patch_synth(self):
-		if self.orig_speak is not None:
+		if self.orig_setSynth  is not None:
 			return
 		synth = speech.getSynth()
+		self.orig_setSynth = synthDriverHandler.setSynth
+		synthDriverHandler.setSynth = self.setSynth
+		speech.setSynth = self.setSynth
+		gui.settingsDialogs.setSynth = self.setSynth
+		if synth is None:
+			return
 		self.orig_speak = synth.speak
 		synth.speak = self.speak
 		self.orig_cancel = synth.cancel
@@ -34,10 +40,6 @@ class NVDAPatcher(callback_manager.CallbackManager):
 		else:
 			self.orig_get_lastIndex = synth.__class__.lastIndex.fget
 			synth.__class__.lastIndex.fget = self._get_lastIndex
-		self.orig_setSynth = synthDriverHandler.setSynth
-		synthDriverHandler.setSynth = self.setSynth
-		speech.setSynth = self.setSynth
-		gui.settingsDialogs.setSynth = self.setSynth
 
 	def patch_tones(self):
 		if self.orig_beep is not None:
@@ -52,9 +54,15 @@ class NVDAPatcher(callback_manager.CallbackManager):
 		nvwave.playWaveFile = self.playWaveFile
 
 	def unpatch_synth(self):
-		if self.orig_speak is None:
+		if self.orig_setSynth  is None:
 			return
 		synth = speech.getSynth()
+		synthDriverHandler.setSynth = self.orig_setSynth
+		speech.setSynth = self.orig_setSynth
+		gui.settingsDialogs.setSynth = self.orig_setSynth
+		self.orig_setSynth = None
+		if synth is None:
+			return
 		synth.speak = self.orig_speak
 		self.orig_speak = None
 		synth.cancel = self.orig_cancel
@@ -64,10 +72,6 @@ class NVDAPatcher(callback_manager.CallbackManager):
 		else:
 			synth.__class__.lastIndex.fget = self.orig_get_lastIndex
 			self.orig_get_lastIndex = None
-		synthDriverHandler.setSynth = self.orig_setSynth
-		speech.setSynth = self.orig_setSynth
-		gui.settingsDialogs.setSynth = self.orig_setSynth
-		self.orig_setSynth = None
 
 	def unpatch_tones(self):
 		if self.orig_beep is None:
