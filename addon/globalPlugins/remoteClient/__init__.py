@@ -1,4 +1,3 @@
-SERVER_ADDR = ('127.0.0.1', 5000)
 CONFIG_FILE_NAME = 'remote.ini'
 REMOTE_KEY = "kb:f11"
 from cStringIO import StringIO
@@ -22,7 +21,7 @@ import wx
 import gui
 import beep_sequence
 import speech
-from transport import RelayTransport, ConnectorThread
+from transport import RelayTransport
 import local_machine
 import serializer
 from session import MasterSession, SlaveSession
@@ -56,9 +55,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.slave_session = None
 		self.master_session = None
 		self.create_menu()
-		self.connector = None
-		self.control_connector_thread = None
-		self.control_connector = None
+		self.master_transport = None
+		self.slave_transport = None
 		self.server = None
 		self.hook_thread = None
 		self.sending_keys = False
@@ -83,9 +81,9 @@ class GlobalPlugin(GlobalPlugin):
 		else:
 			address = address_to_hostport(cs['host'])
 		if cs['connection_type']==0:
-			self.connect_control(address, channel)
+			self.connect_as_slave(address, channel)
 		else:
-			self.connect_slave(address, channel)
+			self.connect_as_master(address, channel)
 
 	def create_menu(self):
 		self.menu = wx.Menu()
@@ -117,7 +115,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
-		self.do_disconnect_from_slave(True)
+		self.disconnect()
 		self.local_machine = None
 		self.menu.RemoveItem(self.connect_item)
 		self.connect_item.Destroy()
@@ -153,7 +151,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
-		self.do_disconnect_from_slave()
+		self.disconnect()
 
 	def on_mute_item(self, evt):
 		evt.Skip()
@@ -165,12 +163,11 @@ class GlobalPlugin(GlobalPlugin):
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
 	def on_push_clipboard_item(self, evt):
-		connector = self.control_connector or self.connector
+		connector = self.slave_transport or self.master_transport
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
 		except TypeError:
-			# JL: It might be helpful to provide a log.debug output for this.
-			pass
+			log.exception("Unable to push clipboard")
 
 	def on_options_item(self, evt):
 		evt.Skip()
@@ -185,17 +182,15 @@ class GlobalPlugin(GlobalPlugin):
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_send_ctrl_alt_del(self, evt):
-		self.connector.send('send_SAS')
+		self.master_transport.send('send_SAS')
 
-	def do_disconnect_from_slave(self, quiet=False):
-		if self.connector is None and self.control_connector is None:
-			if not quiet:
-				ui.message(_("Not connected."))
+	def disconnect(self):
+		if self.master_transport is None and self.slave_transport is None:
 			return
-		if self.connector is not None:
-			self.disconnect_from_slave()
-		if self.control_connector is not None:
-			self.disconnect_control()
+		if self.master_transport is not None:
+			self.disconnect_as_master()
+		if self.slave_transport is not None:
+			self.disconnect_as_slave()
 		if self.server is not None:
 			self.server.close()
 			self.server = None
@@ -204,11 +199,11 @@ class GlobalPlugin(GlobalPlugin):
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
 
-	def disconnect_from_slave(self):
-		self.connector.close()
-		self.connector = None
-		if self.connector_thread is not None:
-			self.connector_thread.running = False
+	def disconnect_as_master(self):
+		self.master_transport.close()
+		self.master_transport = None
+
+	def disconnecting_as_master(self):
 		self.connect_item.Enable(True)
 		self.disconnect_item.Enable(False)
 		self.mute_item.Check(False)
@@ -224,21 +219,23 @@ class GlobalPlugin(GlobalPlugin):
 			self.removeGestureBinding(REMOTE_KEY)
 		self.key_modified = False
 
-	def disconnect_control(self):
-		self.control_connector_thread.running = False
-		self.control_connector.close()
-		self.control_connector = None
+	def disconnect_as_slave(self):
+		self.slave_transport.close()
+		self.slave_transport = None
 
-	def on_slave_connection_failed(self):
-		if self.connector.successful_connects == 0:
-			self.disconnect_from_slave()
+	def on_connected_as_master_failed(self):
+		if self.master_transport.successful_connects == 0:
+			self.disconnect_as_master()
 			# Translators: Title of the connection error dialog.
 			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"),
 			# Translators: Message shown when cannot connect to the remote computer.
 			message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
 	def script_disconnect(self, gesture):
-		self.do_disconnect_from_slave()
+		if self.master_transport is None and self.slave_transport is None:
+			ui.message(_("Not connected."))
+			return
+		self.disconnect()
 	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
 	def do_connect(self, evt):
@@ -259,20 +256,20 @@ class GlobalPlugin(GlobalPlugin):
 				server_addr, port = address_to_hostport(server_addr)
 				channel = dlg.panel.key.GetValue()
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_slave((server_addr, port), channel)
+					self.connect_as_master((server_addr, port), channel)
 				else:
-					self.connect_control((server_addr, port), channel)
+					self.connect_as_slave((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 				else:
-					self.connect_control(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
-	def on_connected_to_slave(self):
-		write_connection_to_config(self.connector.address)
+	def on_connected_as_master(self):
+		write_connection_to_config(self.master_transport.address)
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 		self.mute_item.Enable(True)
@@ -286,43 +283,36 @@ class GlobalPlugin(GlobalPlugin):
 		ui.message(_("Connected!"))
 		beep_sequence.beep_sequence((440, 60), (660, 60))
 
-	def on_disconnected_from_slave(self):
+	def on_disconnected_as_master(self):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_slave(self, address, channel):
+	def connect_as_master(self, address, channel):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
-		transport.callback_manager.register_callback('transport_connected', self.on_connected_to_slave)
-		transport.callback_manager.register_callback('transport_connection_failed', self.on_slave_connection_failed)
-		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_from_slave)
-		self.connector = transport
-		self.connector_thread = ConnectorThread(connector=transport)
-		self.connector_thread.start()
+		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
+		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
+		transport.callback_manager.register_callback('transport_closing', self.disconnecting_as_master)
+		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_as_master)
+		self.master_transport = transport
+		self.master_transport.reconnector_thread.start()
 
-	def connect_control(self, address=SERVER_ADDR, key=None):
-		if self.control_connector_thread is not None:
-			self.control_connector_thread.running = False
-			if self.control_connector is not None:
-				self.control_connector.close()
-			self.control_connector_thread = None
-
+	def connect_as_slave(self, address, key=None):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
-		self.control_connector = transport
-		self.control_connector.callback_manager.register_callback('transport_connected', self.connected_to_relay)
-		self.control_connector_thread = ConnectorThread(connector=self.control_connector)
-		self.control_connector_thread.start()
+		self.slave_transport = transport
+		self.slave_transport.callback_manager.register_callback('transport_connected', self.on_connected_as_slave)
+		self.slave_transport.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 
-	def connected_to_relay(self):
+	def on_connected_as_slave(self):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
-		# Transaltors: Presented in direct (client to server) remote connection when the controlled computer is ready.
+		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
-		write_connection_to_config(self.control_connector.address)
+		write_connection_to_config(self.slave_transport.address)
 
 	def start_control_server(self, server_port, channel):
 		self.server = server.Server(server_port, channel)
@@ -351,7 +341,7 @@ class GlobalPlugin(GlobalPlugin):
 			# Translators: Presented when keyboard control is back to the controlling computer.
 			ui.message(_("Not sending keys."))
 			return True #Don't pass it on
-		self.connector.send(type="key", **kwargs)
+		self.master_transport.send(type="key", **kwargs)
 		return True #Don't pass it on
 
 	def script_sendKeys(self, gesture):
@@ -371,7 +361,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def enter_secure_desktop(self):
 		"""function ran when entering a secure desktop."""
-		if self.control_connector is None:
+		if self.slave_transport is None:
 			return
 		if not os.path.exists(self.temp_location):
 			os.makedirs(self.temp_location)
@@ -382,7 +372,7 @@ class GlobalPlugin(GlobalPlugin):
 		server_thread.daemon = True
 		server_thread.start()
 		self.sd_relay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel)
-		self.sd_bridge = bridge.BridgeTransport(self.control_connector, self.sd_relay)
+		self.sd_bridge = bridge.BridgeTransport(self.slave_transport, self.sd_relay)
 		relay_thread = threading.Thread(target=self.sd_relay.run)
 		relay_thread.daemon = True
 		relay_thread.start()
@@ -407,7 +397,7 @@ class GlobalPlugin(GlobalPlugin):
 			test_socket=ssl.wrap_socket(test_socket)
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
-			self.connect_control(('127.0.0.1', port), channel)
+			self.connect_as_slave(('127.0.0.1', port), channel)
 		except:
 			pass
 

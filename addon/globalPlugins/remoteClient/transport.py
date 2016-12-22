@@ -34,6 +34,7 @@ class TCPTransport(Transport):
 		self.server_sock = None
 		self.queue_thread = None
 		self.timeout = timeout
+		self.reconnector_thread = ConnectorThread(self)
 
 	def run(self):
 		self.closed = False
@@ -47,7 +48,7 @@ class TCPTransport(Transport):
 		self.queue_thread = threading.Thread(target=self.send_queue)
 		self.queue_thread.daemon = True
 		self.queue_thread.start()
-		while not self.closed:
+		while self.server_sock is not None:
 			try:
 				readers, writers, error = select.select([self.server_sock], [], [self.server_sock])
 			except socket.error:
@@ -64,7 +65,7 @@ class TCPTransport(Transport):
 					break
 		self.connected = False
 		self.callback_manager.call_callbacks('transport_disconnected')
-		self.close()
+		self._disconnect()
 
 	def create_server_socket(self):
 		server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -79,7 +80,7 @@ class TCPTransport(Transport):
 		data = self.buffer + self.server_sock.recv(16384)
 		self.buffer = ""
 		if data == '':
-			self.close()
+			self._disconnect()
 			return
 		if '\n' not in data:
 			self.buffer += data
@@ -112,17 +113,23 @@ class TCPTransport(Transport):
 		if self.connected:
 			self.queue.put(obj)
 
-	def close(self):
-		if self.closed:
+	def _disconnect(self):
+		"""Disconnect the transport due to an error, without closing the connector thread."""
+		if not self.connected:
 			return
-		self.callback_manager.call_callbacks('transport_closing')
-		self.closed = True
 		if self.queue_thread is not None:
 			self.queue.put(None)
 			self.queue_thread.join()
 		clear_queue(self.queue)
 		self.server_sock.close()
 		self.server_sock = None
+
+	def close(self):
+		self.callback_manager.call_callbacks('transport_closing')
+		self.reconnector_thread.running = False
+		self._disconnect()
+		self.closed = True
+		self.reconnector_thread = ConnectorThread(self)
 
 class RelayTransport(TCPTransport):
 
