@@ -44,9 +44,9 @@ Enter a key into the key field, or press generate. The other person will need yo
 Once ok is pressed, you will be connected.
 When the other person connects, you can use NVDA Remote normally.
 
-##Sending keys
-Once the session is connected, the controlling machine can then press f11 to start sending keys.
-When NVDA says sending keys, the keyboard and braille display keys you press will go to the remote machine. Furthermore, when the controlling machine is using a braille display, information from the remote machine will be displayed on it. Press f11 again to stop sending keys and switch back to the controlling machine.
+##Controlling remote machine
+Once the session is connected, the controlling machine can then press f11 to start controlling the remote machine (e.g. by sending keyboard keys or braille input).
+When NVDA says controlling remote machine, the keyboard and braille display keys you press will go to the remote machine. Furthermore, when the controlling machine is using a braille display, information from the remote machine will be displayed on it. Press f11 again to stop sending keys and switch back to the controlling machine.
 For best compatibility, please ensure that the keyboard layouts on both machines match.
 
 ##Send Ctrl+Alt+Del
@@ -77,7 +77,7 @@ If you do not wish to hear the remote computer's speech or NVDA specific sounds,
 
 To end a remote session, do the following:
 
-1. On the controlling computer, press F11 to stop sending keys. You should hear or read the message: "Not sending keys." If you instead hear or read a message that you are sending keys, press F11 once more.
+1. On the controlling computer, press F11 to stop controlling the remote machine. You should hear or read the message: "Controlling local machine." If you instead hear or read a message that you are controlling the remote machine, press F11 once more.
 
 2. Access the NVDA menu, then Tools, Remote, and press Enter on Disconnect.
 
