@@ -290,7 +290,7 @@ class GlobalPlugin(GlobalPlugin):
 		ui.message(_("Connection interrupted"))
 
 	def connect_as_master(self, address, channel):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel)
+		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel, connection_type='master')
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
@@ -300,7 +300,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_transport.reconnector_thread.start()
 
 	def connect_as_slave(self, address, key=None):
-		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key)
+		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
 		self.slave_transport.callback_manager.register_callback('transport_connected', self.on_connected_as_slave)
