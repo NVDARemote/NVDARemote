@@ -419,7 +419,6 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_master_display_change(self, **kwargs):
 		self.sd_relay.send(type='set_display_size', sizes=self.slave_session.master_display_sizes)
->>>>>>> Braille support for NVDA Remote, based on the new protocol version 2 implmentation. Implemented on behalf of @BabbageCom.
 
 	def handle_secure_desktop(self):
 		try:
