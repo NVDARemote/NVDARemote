@@ -115,8 +115,11 @@ class SlaveSession(RemoteSession):
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
-		if [i for i in self.master_display_sizes if i>0]:
+		if self.has_vraille_masters():
 			self.transport.send(type="display", cells=cells)
+
+	def has_braille_masters(self):
+		return bool([i for i in self.master_display_sizes if i>0])
 
 	def update_index(self, index=None, **kwargs):
 		self.last_client_index = index
