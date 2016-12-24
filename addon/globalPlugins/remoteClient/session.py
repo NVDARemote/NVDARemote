@@ -115,7 +115,7 @@ class SlaveSession(RemoteSession):
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
-		if self.has_vraille_masters():
+		if self.has_braille_masters():
 			self.transport.send(type="display", cells=cells)
 
 	def has_braille_masters(self):
