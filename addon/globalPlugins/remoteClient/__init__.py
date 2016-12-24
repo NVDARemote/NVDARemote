@@ -22,6 +22,7 @@ import gui
 import beep_sequence
 import speech
 from transport import RelayTransport
+import braille
 import local_machine
 import serializer
 from session import MasterSession, SlaveSession
@@ -340,16 +341,36 @@ class GlobalPlugin(GlobalPlugin):
 			self.key_modified = kwargs['pressed']
 		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
 			self.sending_keys = False
+			self.set_receiving_braille(False)
 			# Translators: Presented when keyboard control is back to the controlling computer.
-			ui.message(_("Not sending keys."))
+			ui.message(_("Controlling local machine."))
 			return True #Don't pass it on
 		self.master_transport.send(type="key", **kwargs)
 		return True #Don't pass it on
 
 	def script_sendKeys(self, gesture):
 		# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-		ui.message(_("Sending keys."))
+		ui.message(_("Controlling remote machine."))
 		self.sending_keys = True
+		self.set_receiving_braille(True)
+
+	def set_receiving_braille(self, state):
+		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
+			self.master_session.patcher.patch_braille_input()
+			braille.handler.enabled = False
+			if braille.handler._cursorBlinkTimer:
+				braille.handler._cursorBlinkTimer.Stop()
+				braille.handler._cursorBlinkTimer=None
+			if braille.handler.buffer is braille.handler.messageBuffer:
+				braille.handler.buffer.clear()
+				braille.handler.buffer = braille.handler.mainBuffer
+				braille.handler._messageCallLater.Stop()
+				braille.handler._messageCallLater = None
+			self.local_machine.receiving_braille=True
+		elif not state:
+			self.master_session.patcher.unpatch_braille_input()
+			braille.handler.enabled = bool(braille.handler.displaySize)
+			self.local_machine.receiving_braille=False
 
 	def event_gainFocus(self, obj, nextHandler):
 		if isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
@@ -374,6 +395,8 @@ class GlobalPlugin(GlobalPlugin):
 		server_thread.daemon = True
 		server_thread.start()
 		self.sd_relay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel)
+		self.sd_relay.callback_manager.register_callback('msg_client_joined', self.on_master_display_change)
+		self.slave_transport.callback_manager.register_callback('msg_set_braille_info', self.on_master_display_change)
 		self.sd_bridge = bridge.BridgeTransport(self.slave_transport, self.sd_relay)
 		relay_thread = threading.Thread(target=self.sd_relay.run)
 		relay_thread.daemon = True
@@ -391,6 +414,11 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		self.sd_relay.close()
 		self.sd_relay = None
+		self.slave_transport.callback_manager.unregister_callback('msg_set_braille_info', self.on_master_display_change)
+		self.slave_session.set_display_size()
+
+	def on_master_display_change(self, **kwargs):
+		self.sd_relay.send(type='set_display_size', sizes=self.slave_session.master_display_sizes)
 
 	def handle_secure_desktop(self):
 		try:
