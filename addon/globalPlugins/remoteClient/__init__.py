@@ -170,11 +170,11 @@ class GlobalPlugin(GlobalPlugin):
 
 	def script_connect(self, gesture):
 		if self.connector or self.control_connector : # a connection is already established
-			speech.speakMessage(_("You can't open that dialog, a connection is already established"))
+			ui.message(_("You can't open that dialog, a connection is already established"))
 		elif self.connector is None and self.control_connector is None: # A connection doesn't yet exist, open the dialog
 			self.do_connect('gesture')
 		else:
-			speech.speakMessage(_("Error, connection state can't be determined!"))
+			ui.message(_("Error, connection state can't be determined!"))
 	script_connect.__doc__ = _("""Open the NVDA Remote connect dialog if a connection isn't already established""")
 
 	def on_push_clipboard_item(self, evt):
@@ -326,7 +326,7 @@ class GlobalPlugin(GlobalPlugin):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
-		speech.speakMessage(_("Connected to control server"))
+		ui.message(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.slave_transport.address)
 
