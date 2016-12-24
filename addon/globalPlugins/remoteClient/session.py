@@ -9,6 +9,14 @@ class RemoteSession(object):
 	def __init__(self, local_machine, transport):
 		self.local_machine = local_machine
 		self.transport = transport
+		self.transport.callback_manager.register_callback('msg_version_mismatch', self.handle_version_mismatch)
+
+	def handle_version_mismatch(self, **kwargs):
+		#translators: Message for version mismatch
+		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
+Please either use a different server or upgrade your version of the addon.""")
+		ui.message(message)
+		self.transport.close()
 
 class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
@@ -27,17 +35,20 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
 		self.transport.callback_manager.register_callback('msg_send_SAS', self.local_machine.send_SAS)
 
-	def handle_client_connected(self, user_id=None):
+	def handle_client_connected(self, client=None, **kwargs):
 		self.local_machine.patcher.patch()
 		if not self.patch_callbacks_added:
 			self.add_patch_callbacks()
 			self.patch_callbacks_added = True
 		self.local_machine.patcher.orig_beep(1000, 300)
-		self.masters[user_id] = True
+		if client['connection_type'] == 'master':
+			self.masters[client['id']] = True
 
-	def handle_channel_joined(self, channel=None, user_ids=None):
-		for user in user_ids:
-			self.handle_client_connected(user_id=user)
+	def handle_channel_joined(self, channel=None, clients=None, origin=None, **kwargs):
+		if clients is None:
+			clients = []
+		for client in clients:
+			self.handle_client_connected(client)
 
 	def handle_transport_closing(self):
 		self.local_machine.patcher.unpatch()
@@ -49,11 +60,12 @@ class SlaveSession(RemoteSession):
 		self.local_machine.patcher.orig_beep(1000, 300)
 		self.local_machine.patcher.unpatch()
 
-	def handle_client_disconnected(self, user_id=None):
+	def handle_client_disconnected(self, client=None, **kwargs):
 		self.local_machine.patcher.orig_beep(108, 300)
-		del self.masters[user_id]
 		if not self.masters:
 			self.local_machine.patcher.unpatch()
+		if client['connection_type'] == 'master':
+			del self.masters[client['id']]
 
 	def add_patch_callbacks(self):
 		patcher_callbacks = (('speak', self.speak), ('beep', self.beep), ('wave', self.playWaveFile), ('cancel_speech', self.cancel_speech))
@@ -81,7 +93,7 @@ class SlaveSession(RemoteSession):
 	def playWaveFile(self, fileName, async=True):
 		self.transport.send(type='wave', fileName=fileName, async=async)
 
-	def update_index(self, index=None):
+	def update_index(self, index=None, **kwargs):
 		self.last_client_index = index
 
 class MasterSession(RemoteSession):
@@ -116,14 +128,14 @@ class MasterSession(RemoteSession):
 	def handle_disconnected(self):
 		self.index_thread = None
 
-	def handle_channel_joined(self, channel=None, user_ids=None):
-		for user in user_ids:
-			self.handle_client_connected(user_id=user)
+	def handle_channel_joined(self, channel=None, clients=None, origin=None, **kwargs):
+		for client in clients:
+			self.handle_client_connected(client)
 
-	def handle_client_connected(self, user_id=None):
+	def handle_client_connected(self, client=None, **kwargs):
 		tones.beep(1000, 300)
 
-	def handle_client_disconnected(self, user_id=None):
+	def handle_client_disconnected(self, client=None, **kwargs):
 		tones.beep(108, 300)
 
 	def send_indexes(self):

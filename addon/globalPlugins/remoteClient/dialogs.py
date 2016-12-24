@@ -61,6 +61,10 @@ class ServerPanel(wx.Panel):
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&External IP:")))
 		self.external_IP = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_MULTILINE)
 		sizer.Add(self.external_IP)
+		# Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
+		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
+		self.port = wx.TextCtrl(self, wx.ID_ANY, value=str(socket_utils.SERVER_PORT))
+		sizer.Add(self.port)
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		sizer.Add(self.key)
@@ -80,14 +84,14 @@ class ServerPanel(wx.Panel):
 	def on_get_IP(self, evt):
 		evt.Skip()
 		self.get_IP.Enable(False)
-		t = threading.Thread(target=self.do_portcheck, args=[6837])
+		t = threading.Thread(target=self.do_portcheck, args=[int(self.port.GetValue())])
 		t.daemon = True
 		t.start()
 
 	def do_portcheck(self, port):
 		temp_server = server.Server(port=port, password=None)
 		try:
-			req = urllib.urlopen('https://portcheck.net/port/%s' % port)
+			req = urllib.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
 			data = req.read()
 			result = json.loads(data)
 			wx.CallAfter(self.on_get_IP_success, result)
@@ -103,9 +107,9 @@ class ServerPanel(wx.Panel):
 		port = data['port']
 		is_open = data['open']
 		if is_open:
-			wx.MessageBox(message=_("Successfully retrieved IP address. Your port is open."), caption=_("Success"), style=wx.OK)
+			wx.MessageBox(message=_("Successfully retrieved IP address. Port {port} is open.".format(port=port)), caption=_("Success"), style=wx.OK)
 		else:
-			wx.MessageBox(message=_("Retrieved external IP, but your port is not currently forwarded."), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
+			wx.MessageBox(message=_("Retrieved external IP, but port {port} is not currently forwarded.".format(port=port)), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
 		self.external_IP.SetValue(ip)
 		self.external_IP.SetSelection(0, len(ip))
 		self.external_IP.SetFocus()
@@ -149,9 +153,10 @@ class DirectConnectDialog(wx.Dialog):
 	def on_ok(self, evt):
 		if self.client_or_server.GetSelection() == 0 and (not self.panel.host.GetValue() or not self.panel.key.GetValue()):
 			gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
-		elif self.client_or_server.GetSelection() == 1 and not self.panel.key.GetValue():
-			gui.messageBox(_("Key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
-			self.panel.key.SetFocus()
+			self.panel.host.SetFocus()
+		elif self.client_or_server.GetSelection() == 1 and not self.panel.port.GetValue() or not self.panel.key.GetValue():
+			gui.messageBox(_("Both port and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			self.panel.port.SetFocus()
 		else:
 			evt.Skip()
 
@@ -164,10 +169,25 @@ class OptionsDialog(wx.Dialog):
 		self.autoconnect = wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup"))
 		self.autoconnect.Bind(wx.EVT_CHECKBOX, self.on_autoconnect)
 		main_sizer.Add(self.autoconnect)
+		#Translators: Whether or not to use a relay server when autoconnecting
+		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Use Remote Control Server"), _("Host Control Server")), style=wx.RA_VERTICAL)
+		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
+		self.client_or_server.SetSelection(0)
+		self.client_or_server.Enable(False)
+		main_sizer.Add(self.client_or_server)
+		choices = [_("Allow this machine to be controlled"), _("Control another machine")]
+		self.connection_type = wx.RadioBox(self, wx.ID_ANY, choices=choices, style=wx.RA_VERTICAL)
+		self.connection_type.SetSelection(0)
+		self.connection_type.Enable(False)
+		main_sizer.Add(self.connection_type)
 		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
 		self.host = wx.TextCtrl(self, wx.ID_ANY)
 		self.host.Enable(False)
 		main_sizer.Add(self.host)
+		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
+		self.port = wx.TextCtrl(self, wx.ID_ANY)
+		self.port.Enable(False)
+		main_sizer.Add(self.port)
 		main_sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		self.key.Enable(False)
@@ -184,26 +204,50 @@ class OptionsDialog(wx.Dialog):
 		self.set_controls()
 
 	def set_controls(self):
-		state = self.autoconnect.GetValue()
-		self.host.Enable(state)
+		state = bool(self.autoconnect.GetValue())
+		self.client_or_server.Enable(state)
+		self.connection_type.Enable(state)
 		self.key.Enable(state)
+		self.host.Enable(not bool(self.client_or_server.GetSelection()) and state)
+		self.port.Enable(bool(self.client_or_server.GetSelection()) and state)
+
+	def on_client_or_server(self, evt):
+		evt.Skip()
+		self.set_controls()
 
 	def set_from_config(self, config):
 		cs = config['controlserver']
+		self_hosted = cs['self_hosted']
+		connection_type = cs['connection_type']
 		self.autoconnect.SetValue(cs['autoconnect'])
+		self.client_or_server.SetSelection(int(self_hosted))
+		self.connection_type.SetSelection(connection_type)
 		self.host.SetValue(cs['host'])
+		self.port.SetValue(str(cs['port']))
 		self.key.SetValue(cs['key'])
 		self.set_controls()
 
 	def on_ok(self, evt):
-		if self.autoconnect.GetValue() and (not self.host.GetValue() or not self.key.GetValue()):
-			gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+		if self.autoconnect.GetValue():
+			if not self.client_or_server.GetSelection() and (not self.host.GetValue() or not self.key.GetValue()):
+				gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			elif self.client_or_server.GetSelection() and not self.port.GetValue() or not self.key.GetValue():
+				gui.messageBox(_("Both port and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			else:
+				evt.Skip()
 		else:
 			evt.Skip()
 
 	def write_to_config(self, config):
 		cs = config['controlserver']
 		cs['autoconnect'] = self.autoconnect.GetValue()
-		cs['host'] = self.host.GetValue()
+		self_hosted = bool(self.client_or_server.GetSelection())
+		connection_type = self.connection_type.GetSelection()
+		cs['self_hosted'] = self_hosted
+		cs['connection_type'] = connection_type
+		if not self_hosted:
+			cs['host'] = self.host.GetValue()
+		else:
+			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
 		config.write()

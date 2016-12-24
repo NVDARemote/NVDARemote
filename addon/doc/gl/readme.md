@@ -1,5 +1,5 @@
 ﻿#NVDA Remote Access
-Versión 1.0
+Versión 1.2
 
 Benvido ao complemento de acceso remoto de NVDA, que che permitirá conectarte a outro equipo que execute o lector de pantalla de balde NVDA. Da igual que esteas ó outro lado da habitación ou ó outro lado do mundo. Conectarse é simple, e hai moi poucos comandos que aprenderse. Podes conectarte ao equipo doutra persoa, ou permitir a unha persoa de confianza que se conecte ao teu sistema para realizar un mantemento rutinario, diagnosticar un problema, ou ensinarche algo.
 
@@ -13,7 +13,7 @@ A instalación de NVDA e do complemento non varía con respecto a outras. Se nec
 1. Abre o menú de NVDA, ferramentas, remoto, conectar.
 2. Elixe cliente no primeiro grupo de botóns de opción.
 3. Elixe permitir que controlen este equipo no segundo grupo de botóns de opción.
-4. No campo equipo, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com.
+4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com. Cando o servidor remoto utiliza un porto diferente (ao 6837), pode introducir o nome na forma &lt;servidor&gt;:&lt;porto&gt;, por exemplo nvdaremote.com:1234.
 5. Introduce unha clave no campo clave, ou preme o botón xerar clave.
 A clave é o que outros utilizarán para controlar o teu equipo.
 A máquina controlada e todos os seus clientes deben usar a mesma clave.
@@ -23,7 +23,7 @@ A máquina controlada e todos os seus clientes deben usar a mesma clave.
 1. Abre o menú de NVDA, ferramentas, remoto, conectar.
 2. Elixe cliente no primeiro grupo de botóns de opción.
 3. Elixe controlar outro equipo no segundo grupo de botóns de opción.
-4. No campo equipo, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com.
+4. No campo equipo ou servidor, introduce o servidor ao que te vas a conectar, por exemplo nvdaremote.com. Cando o servidor remoto utiliza un porto diferente (ao 6837), pode introducir o nome na forma &lt;servidor&gt;:&lt;porto&gt;, por exemplo nvdaremote.com:1234.
 5. Introduce unha clave no campo clave, ou preme o botón xerar clave.
 A clave é o que outros utilizarán para controlar o teu equipo.
 A máquina controlada e todos os seus clientes deben usar a mesma clave.
@@ -34,12 +34,12 @@ A opción servidor no diálogo conectar permite establecer una conexión directa
 Unha vez seleccionada, elixe o modo no que se comportará o teu equipo durante a sesión.
 A outra persoa conectarase utilizando o contrario.
 
-Unha vez seleccionado o modo, podes usar o botón obter IP externo para obter o teu enderezo IP externo e asegurarte de que o porto está aberto correctamente.
-Si portcheck detecta que o porto 6837 non está aberto, aparecerá una advertencia.
-Abre o porto e inténtao de novo.
-Nota: o proceso de abrir portos está fóra do propósito deste documento. Consulta a documentación que acompaña ao teu router para máis información.
+Unha vez seleccionado o modo, podes usar o botón obter IP externo para obter o teu enderezo IP externo e asegurarte de que o porto introducido no campo "porto" está reenviado(aberto) correctamente.
+Se portcheck detecta que o porto (por defecto 6837) non se pode alcanzar dende Internet, aparecerá una advertencia.
+Reenvía(abre) o porto e inténtao de novo.
+Nota: o proceso de reenviar portos está fóra do propósito deste documento. Consulta a documentación que acompaña ao teu router para máis información.
 
-Introduce unha clave no campo clave, ou preme xerar. A outra persoa necesitará o teu IP externo xunto coa clave para conectar.
+Introduce unha clave no campo clave, ou preme xerar. A outra persoa necesitará o teu IP externo xunto coa clave para conectar. Se se introduciu un porto diferente ao predeterminado (6837) no campo "porto", asegúrate de que a outra persoa engade o porto ó enderezo do equipo na forma &lt;IP externo&gt;:&lt;porto&gt;.
 
 Unha vez premas aceptar, estarás conectado.
 Cando a outra persoa se conecte, poderás usar NVDA Remote con normalidade.
@@ -55,12 +55,16 @@ Se necesitas enviar ctrl+alt+supr, e o sistema remoto se encontra no escritorio 
 
 ##Control remoto dun equipo desatendido
 
-Ás veces podes querer controlar un dos teus propios equipos remotamente. Isto é especialmente útil se te encontras viaxando, e queres controlar o PC da casa dende o portátil, ou controlar un equipo nunha habitación da túa casa mentres estás fóra con outro PC. Cunha preparación un pouco avanzada isto faise posible.
+Ás veces podes querer controlar un dos teus propios equipos remotamente. Isto é especialmente útil se te encontras viaxando, e queres controlar o ordenador da casa dende o portátil, ou controlar un equipo nunha habitación da túa casa mentres estás fóra con outro equipo. Cunha preparación un pouco avanzada isto faise posible.
 
 1. Entra no menú de NVDA, elixe ferramentas e a continuación remoto. Finalmente, ulsa intro en opcións.
-2. Marca a casilla que di "Conectar automaticamente ao servidor de control ao arrancar".
-3. Enche os campos equipo e clave, preme tabulador ata aceptar, e pulsa intro.
-4. Ten en conta que a opción xerar clave non se atopa dispoñible nesta situación. É mellor escribir unha clave que se poida recordar para que poidas usala facilmente dende calqueira lugar remoto.
+2. Marca a casilla "Conectar automaticamente ao servidor de control ao arrancar".
+3. Selecciona entre utilizar un servidor de control remoto ou hospedar a conexión localmente.
+4. Se hospedas a conexión ti mesmo, necesitarás asegurarte de que o porto introducido no campo homónimo (por defecto 6837) no equipo controlado pode ser alcanzado dende os equipos controladores.
+5. Se desexas utilizar un servidor de control remoto, enche os campos equipo e clave, preme tabulador ata aceptar, e pulsa intro. A opción xerar clave non se atopa dispoñible nesta situación. É mellor escribir unha clave que se poida recordar para que poidas usala facilmente dende calqueira lugar remoto.
+
+Nota: As opcións relacionadas coa autoconexión ao inicio no diálogo de opcións non se aplicarán ata que NVDA se reinicie.
+
 
 ##Silenciar a voz no equipo remoto
 Se non queres escoitar a voz do ordenador remoto, é tan simple coma ir ao menú de NVDA, ferramentas, remoto. Baixa con flecha abaixo hasta oír silenciar voz do equipo remoto, e preme intro.
@@ -92,7 +96,7 @@ En canto NVDA Remote estea instalado no escritorio seguro, se te controlan en un
 o escritorio seguro será leído cando se entre nel.
 
 ##Contribucións
-Gustaríanos dar o noso recoñecemento aos seguintes contribuíntes que, entre outros, axudaron a que o proxecto NVDA Remote sea unha realidade.
+Gustaríanos dar o noso recoñecemento aos seguintes contribuíntes que, entre outros, axudaron a que o proxecto NVDA Remote fora unha realidade.
 
 * Hai Nguyen Ly
 * Chris Westbrook
@@ -102,5 +106,8 @@ Gustaríanos dar o noso recoñecemento aos seguintes contribuíntes que, entre o
 * D Williams
 * Matthew McCubbin
 * Jason Meddaugh
+* ABDULAZIZ ALSHMASI.
 * Tyler W Kavanaugh
 * Casey Mathews
+
+Traducido ao galego por Iván Novegil &lt;info@inovegil.site40.net&gt;

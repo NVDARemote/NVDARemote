@@ -1,5 +1,5 @@
 ﻿#NVDA Remote Access
-Version 1.0
+Version 1.2
 
 Bienvenue à NVDA Remote Access, un module qui vous permettra de vous connecter à un ordinateur distant exécutant le lecteur d'écran libre et gratuit NVDA, que vous soyez dans la même pièce ou au bout du monde. La connexion est simple et ne nécessite de mémoriser que quelques commandes. Vous pouvez vous connecter à l'ordinateur d'une autre personne ou autoriser une personne de confiance à se connecter à votre système, afin d'accomplir des tâches de maintenance, diagnostiquer un problème ou encore dispenser une formation.
 

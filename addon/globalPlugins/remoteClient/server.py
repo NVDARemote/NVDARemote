@@ -62,7 +62,7 @@ class Server(object):
 	def client_disconnected(self, client):
 		self.remove_client(client)
 		if client.authenticated:
-			client.send_to_others(type='client_left', user_id=client.id)
+			client.send_to_others(type='client_left', user_id=client.id, client=client.as_dict())
 
 	def close(self):
 		self.running = False
@@ -77,11 +77,13 @@ class Client(object):
 		self.buffer = ""
 		self.authenticated = False
 		self.id = Client.id + 1
+		self.connection_type = None
+		self.protocol_version = 1
 		Client.id += 1
 
 	def handle_data(self):
 		try:
-			data = self.buffer + self.socket.recv(8192)
+			data = self.buffer + self.socket.recv(16384)
 		except:
 			self.close()
 			return
@@ -89,7 +91,7 @@ class Client(object):
 			self.close()
 			return
 		if '\n' not in data:
-			self.buffer += data
+			self.buffer = data
 			return
 		self.buffer = ""
 		while '\n' in data:
@@ -112,30 +114,55 @@ class Client(object):
 		if hasattr(self, fn):
 			getattr(self, fn)(parsed)
 
+	def as_dict(self):
+		return dict(id=self.id, connection_type=self.connection_type)
+
 	def do_join(self, obj):
 		password = obj.get('channel', None)
 		if password != self.server.password:
 			self.send(type='error', message='incorrect_password')
 			self.close()
 			return
+		self.connection_type = obj.get('connection_type')
 		self.authenticated = True
-		clients = [c.id for c in self.server.clients.values() if c.authenticated and c is not self]
-		self.send(type='channel_joined', channel=self.server.password, user_ids=clients)
-		self.send_to_others(type='client_joined', user_id=self.id)
+		clients = []
+		client_ids = []
+		for c in self.server.clients.values():
+			if c is self or not c.authenticated:
+				continue
+			clients.append(c.as_dict())
+			client_ids.append(c.id)
+		self.send(type='channel_joined', channel=self.server.password, user_ids=client_ids, clients=clients)
+		self.send_to_others(type='client_joined', user_id=self.id, client=self.as_dict())
+
+	def do_protocol_version(self, obj):
+		version = obj.get('version')
+		if not version:
+			return
+		self.protocol_version = version
 
 	def close(self):
 		self.socket.close()
 		self.server.client_disconnected(self)
 
-	def send(self, type, **kwargs):
+	def send(self, type, origin=None, clients=None, client=None, **kwargs):
 		msg = dict(type=type, **kwargs)
+		if self.protocol_version > 1:
+			if origin:
+				msg['origin'] = origin
+			if clients:
+				msg['clients'] = clients
+			if client:
+				msg['client'] = client
 		msgstr = json.dumps(msg)+"\n"
 		try:
 			self.socket.sendall(msgstr)
 		except:
 			self.close()
 
-	def send_to_others(self, **obj):
+	def send_to_others(self, origin=None, **obj):
+		if origin is None:
+			origin = self.id
 		for c in self.server.clients.itervalues():
 			if c is not self and c.authenticated:
-				c.send(**obj)
+				c.send(origin=origin, **obj)
