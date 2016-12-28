@@ -138,6 +138,7 @@ class DirectConnectDialog(wx.Dialog):
 		main_sizer.Add(buttons, flag=wx.BOTTOM)
 		main_sizer.Fit(self)
 		self.SetSizer(main_sizer)
+		self.Center(wx.BOTH | wx.CENTER_ON_SCREEN)
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.on_ok)
 
@@ -196,6 +197,7 @@ class OptionsDialog(wx.Dialog):
 		main_sizer.Add(buttons, flag=wx.BOTTOM)
 		main_sizer.Fit(self)
 		self.SetSizer(main_sizer)
+		self.Center(wx.BOTH | wx.CENTER_ON_SCREEN)
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.on_ok)
 		self.autoconnect.SetFocus()
