@@ -71,10 +71,10 @@ class SlaveSession(RemoteSession):
 
 	def handle_client_disconnected(self, client=None, **kwargs):
 		self.patcher.orig_beep(108, 300)
-		if not self.masters:
-			self.patcher.unpatch()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
+		if not self.masters:
+			self.patcher.unpatch()
 
 	def set_display_size(self, sizes=None, **kwargs):
 		self.master_display_sizes = sizes if sizes else [info.get("braille_numCells", 0) for info in self.masters.itervalues()]
