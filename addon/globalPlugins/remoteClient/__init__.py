@@ -26,6 +26,7 @@ import braille
 import local_machine
 import serializer
 from session import MasterSession, SlaveSession
+import url_handler
 import time
 import ui
 import addonHandler
@@ -56,6 +57,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.slave_session = None
 		self.master_session = None
 		self.create_menu()
+		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verify_connect)
+		url_handler.register_url_handler()
 		self.master_transport = None
 		self.slave_transport = None
 		self.server = None
@@ -433,6 +436,20 @@ class GlobalPlugin(GlobalPlugin):
 			self.connect_as_slave(('127.0.0.1', port), channel)
 		except:
 			pass
+
+	def verify_connect(self, con_info):
+		server_addr = con_info.get_address()
+		channel = con_info.key.encode('UTF-8')
+		if con_info.mode == 'master':
+			message = _("Do you wish to control the machine on server {server} with key {key}").format(server=server_addr, key=channel)
+		elif con_info.mode == 'slave':
+			message = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=server_addr, key=channel)
+		if gui.messageBox(message, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
+			return
+		if con_info.mode == 'master':
+			self.connect_as_master((con_info.hostname, con_info.port), channel=channel)
+		elif con_info.mode == 'slave':
+			self.connect_as_slave((con_info.hostname, con_info.port), channel=channel)
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
