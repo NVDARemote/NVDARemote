@@ -35,6 +35,7 @@ import os.path
 # You can use glob expressions here, they will be expanded.
 pythonSources = [
 	'addon/globalPlugins/*/*.py',
+	'addon/globalPlugins/*/*.exe',
 	'addon/synthDrivers/*/*.py',
 ]
 
