@@ -438,6 +438,9 @@ class GlobalPlugin(GlobalPlugin):
 			pass
 
 	def verify_connect(self, con_info):
+		if self.is_connected():
+			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
+			return
 		server_addr = con_info.get_address()
 		key = con_info.key.encode('UTF-8')
 		if con_info.mode == 'master':
@@ -450,6 +453,12 @@ class GlobalPlugin(GlobalPlugin):
 			self.connect_as_master((con_info.hostname, con_info.port), key=key)
 		elif con_info.mode == 'slave':
 			self.connect_as_slave((con_info.hostname, con_info.port), key=key)
+
+	def is_connected(self):
+		connector = self.slave_transport or self.master_transport
+		if connector is not None:
+			return connector.connected
+		return False
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
