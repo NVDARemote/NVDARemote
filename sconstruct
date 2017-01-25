@@ -52,7 +52,8 @@ def mdTool(env):
 	env['BUILDERS']['markdown']=mdBuilder
 
 
-env = Environment(ENV=os.environ, tools=['gettexttool', mdTool])
+env = Environment(ENV=os.environ, tools=['default', 'gettexttool', mdTool], TARGET_ARCH='x86')
+
 env.Append(**buildVars.addon_info)
 
 addonFile = env.File("${addon_name}-${addon_version}.nvda-addon")
@@ -171,4 +172,8 @@ manifest = env.NVDAManifest(os.path.join("addon", "manifest.ini"), os.path.join(
 env.Depends(manifest, "buildVars.py")
 
 env.Depends(addon, manifest)
+
+url_handler = env.Program('addon/globalPlugins/remoteClient/url_handler.cpp', CCFLAGS='/EHsc', LIBS='user32')
+env.Depends(addon, url_handler)
+
 env.Default(addon)
