@@ -442,9 +442,9 @@ class GlobalPlugin(GlobalPlugin):
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
 			return
 		server_addr = con_info.get_address()
-		key = con_info.key.encode('UTF-8')
+		key = con_info.key
 		if con_info.mode == 'master':
-			message = _("Do you wish to control the machine on server {server} with key {key}").format(server=server_addr, key=key)
+			message = _("Do you wish to control the machine on server {server} with key {key}?").format(server=server_addr, key=key)
 		elif con_info.mode == 'slave':
 			message = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=server_addr, key=key)
 		if gui.messageBox(message, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
