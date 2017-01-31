@@ -32,6 +32,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR     lpC
 		Sleep(100);
 		hwnd = FindWindow(L"NVDARemoteURLHandler", NULL);
 		if (hwnd > 0) {
+			Sleep(100); /* Needed to ensure the window is fully created */
 			SendMessage(hwnd, WM_COPYDATA, 0, (LPARAM)&cds);
 			return 0;
 		};
