@@ -26,6 +26,7 @@ import braille
 import local_machine
 import serializer
 from session import MasterSession, SlaveSession
+import url_handler
 import time
 import ui
 import addonHandler
@@ -56,6 +57,9 @@ class GlobalPlugin(GlobalPlugin):
 		self.slave_session = None
 		self.master_session = None
 		self.create_menu()
+		self.connecting = False
+		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verify_connect)
+		url_handler.register_url_handler()
 		self.master_transport = None
 		self.slave_transport = None
 		self.server = None
@@ -151,6 +155,8 @@ class GlobalPlugin(GlobalPlugin):
 		except:
 			pass
 		self.menu=None
+		if not config.isInstalledCopy():
+			url_handler.unregister_url_handler()
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
@@ -290,8 +296,8 @@ class GlobalPlugin(GlobalPlugin):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_as_master(self, address, channel):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel, connection_type='master')
+	def connect_as_master(self, address, key):
+		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
@@ -300,7 +306,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_as_slave(self, address, key=None):
+	def connect_as_slave(self, address, key):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
@@ -433,6 +439,32 @@ class GlobalPlugin(GlobalPlugin):
 			self.connect_as_slave(('127.0.0.1', port), channel)
 		except:
 			pass
+
+	def verify_connect(self, con_info):
+		if self.is_connected() or self.connecting:
+			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
+			return
+		self.connecting = True
+		server_addr = con_info.get_address()
+		key = con_info.key
+		if con_info.mode == 'master':
+			message = _("Do you wish to control the machine on server {server} with key {key}?").format(server=server_addr, key=key)
+		elif con_info.mode == 'slave':
+			message = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=server_addr, key=key)
+		if gui.messageBox(message, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
+			self.connecting = False
+			return
+		if con_info.mode == 'master':
+			self.connect_as_master((con_info.hostname, con_info.port), key=key)
+		elif con_info.mode == 'slave':
+			self.connect_as_slave((con_info.hostname, con_info.port), key=key)
+		self.connecting = False
+
+	def is_connected(self):
+		connector = self.slave_transport or self.master_transport
+		if connector is not None:
+			return connector.connected
+		return False
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
