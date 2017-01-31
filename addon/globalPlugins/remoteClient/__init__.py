@@ -156,6 +156,10 @@ class GlobalPlugin(GlobalPlugin):
 		evt.Skip()
 		self.disconnect()
 
+	def script_disconnect(self, gesture):
+		self.do_disconnect_from_slave()
+	script_disconnect.__doc__ = _("""Disconnect from a remote computer""")
+
 	def on_mute_item(self, evt):
 		evt.Skip()
 		self.local_machine.is_muted = self.mute_item.IsChecked()
@@ -164,6 +168,15 @@ class GlobalPlugin(GlobalPlugin):
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
+
+	def script_connect(self, gesture):
+		if self.connector or self.control_connector : # a connection is already established
+			ui.message(_("You can't open that dialog, a connection is already established"))
+		elif self.connector is None and self.control_connector is None: # A connection doesn't yet exist, open the dialog
+			self.do_connect('gesture')
+		else:
+			ui.message(_("Error, connection state can't be determined!"))
+	script_connect.__doc__ = _("""Open the NVDA Remote connect dialog if a connection isn't already established""")
 
 	def on_push_clipboard_item(self, evt):
 		connector = self.slave_transport or self.master_transport
@@ -242,7 +255,8 @@ class GlobalPlugin(GlobalPlugin):
 	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
 	def do_connect(self, evt):
-		evt.Skip()
+		if evt != 'gesture':
+			evt.Skip()
 		last_cons = get_config()['connections']['last_connected']
 		last = ''
 		if last_cons:
@@ -313,7 +327,7 @@ class GlobalPlugin(GlobalPlugin):
 		log.info("Control connector connected")
 		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
-		speech.speakMessage(_("Connected to control server"))
+		ui.message(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		write_connection_to_config(self.slave_transport.address)
 
@@ -433,10 +447,6 @@ class GlobalPlugin(GlobalPlugin):
 			self.connect_as_slave(('127.0.0.1', port), channel)
 		except:
 			pass
-
-	__gestures = {
-		"kb:alt+NVDA+pageDown": "disconnect",
-	}
 
 
 _config = None
