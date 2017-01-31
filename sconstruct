@@ -173,7 +173,7 @@ env.Depends(manifest, "buildVars.py")
 
 env.Depends(addon, manifest)
 
-url_handler = env.Program('addon/globalPlugins/remoteClient/url_handler.cpp', CCFLAGS='/EHsc', LIBS='user32')
+url_handler = env.Program('addon/globalPlugins/remoteClient/url_handler.cpp', CCFLAGS='/EHsc', LIBS=['advapi32', 'shell32', 'user32'])
 env.Depends(addon, url_handler)
 
 env.Default(addon)
