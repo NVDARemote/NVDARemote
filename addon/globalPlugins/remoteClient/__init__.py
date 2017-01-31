@@ -155,6 +155,8 @@ class GlobalPlugin(GlobalPlugin):
 		except:
 			pass
 		self.menu=None
+		if not config.isInstalledCopy():
+			url_handler.unregister_url_handler()
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
