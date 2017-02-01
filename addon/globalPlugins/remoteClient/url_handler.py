@@ -22,13 +22,18 @@ class COPYDATASTRUCT(ctypes.Structure):
 
 PCOPYDATASTRUCT = ctypes.POINTER(COPYDATASTRUCT)
 
+MSGFLT_ALLOW = 1
+
 class URLHandlerWindow(windowUtils.CustomWindow):
 	className = u'NVDARemoteURLHandler'
 
 	def __init__(self, callback=None, *args, **kwargs):
 		super(URLHandlerWindow, self).__init__(*args, **kwargs)
 		self.callback = callback
-
+		try:
+			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, win32con.WM_COPYDATA, MSGFLT_ALLOW, None)
+		except AttributeError:
+			pass
 
 	def windowProc(self, hwnd, msg, wParam, lParam):
 		if msg != win32con.WM_COPYDATA:
