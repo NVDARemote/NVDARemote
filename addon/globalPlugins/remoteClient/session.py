@@ -44,6 +44,11 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_braille_input', self.local_machine.braille_input)
 		self.transport.callback_manager.register_callback('msg_send_SAS', self.local_machine.send_SAS)
 
+
+	def get_connection_info(self):
+		hostname, port = self.transport.address
+		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='slave')
+
 	def handle_client_connected(self, client=None, **kwargs):
 		self.patcher.patch()
 		if not self.patch_callbacks_added:
@@ -145,6 +150,11 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_send_braille_info', self.send_braille_info)
 		self.transport.callback_manager.register_callback('transport_connected', self.handle_connected)
 		self.transport.callback_manager.register_callback('transport_disconnected', self.handle_disconnected)
+
+
+	def get_connection_info(self):
+		hostname, port = self.transport.address
+		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='master')
 
 	def handle_nvda_not_connected(self):
 		speech.cancelSpeech()
