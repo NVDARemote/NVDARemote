@@ -1,5 +1,8 @@
+import urllib
 import urlparse
 import socket_utils
+
+URL_PREFIX = 'nvdaremote://'
 
 class URLParsingError(Exception):
 	"""Raised if it's impossible to parse out the URL"""
@@ -35,3 +38,16 @@ class ConnectionInfo(object):
 
 	def get_address(self):
 		return '{hostname}:{port}'.format(hostname=self.hostname, port=self.port)
+
+	def get_url(self):
+		result = URL_PREFIX + self.hostname
+		if self.port != socket_utils.SERVER_PORT:
+			result += ':{port}'.format(port=self.port)
+		result += '?'
+		mode = self.mode
+		if mode == 'master':
+			mode = 'slave'
+		elif mode == 'slave':
+			mode = 'master'
+		result += urllib.urlencode(dict(key=self.key, mode=mode))
+		return result
