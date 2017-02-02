@@ -26,11 +26,11 @@ class ConnectionInfo(object):
 		if not hostname:
 			raise URLParsingError("No hostname provided")
 		if not key:
-			raise URLParsingError("No key provided")
+			raise URLParsingError(_("No key provided"))
 		if not mode:
-			raise URLParsingError("No mode provided")
+			raise URLParsingError(_("No mode provided"))
 		if mode not in ('master', 'slave'):
-			raise URLParsingError("Invalud mode provided: %r" % mode)
+			raise URLParsingError(_("Invalud mode provided: %r" % mode))
 		return cls(hostname=hostname, mode=mode, key=key, port=port)
 
 	def __repr__(self):
