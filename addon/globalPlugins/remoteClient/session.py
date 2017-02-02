@@ -47,6 +47,7 @@ class SlaveSession(RemoteSession):
 
 	def get_connection_info(self):
 		hostname, port = self.transport.address
+		key = self.transport.channel
 		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='slave')
 
 	def handle_client_connected(self, client=None, **kwargs):
@@ -154,6 +155,7 @@ class MasterSession(RemoteSession):
 
 	def get_connection_info(self):
 		hostname, port = self.transport.address
+		key = self.transport.channel
 		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='master')
 
 	def handle_nvda_not_connected(self):
