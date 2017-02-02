@@ -194,7 +194,7 @@ class GlobalPlugin(GlobalPlugin):
 	def script_copy_link(self, gesture):
 		self.on_copy_link_item(None)
 		ui.message(_("Copied link"))
-	script_copy_link.__doc__ = _("Copies a link ")
+	script_copy_link.__doc__ = _("Copies a link to the remote session to the clipboard")
 
 	def on_options_item(self, evt):
 		evt.Skip()
