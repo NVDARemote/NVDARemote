@@ -12,6 +12,7 @@ import connection_info
 
 import windowUtils
 import wx
+import gui
 
 class COPYDATASTRUCT(ctypes.Structure):
 	_fields_ = [
@@ -45,7 +46,10 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 		log.info("Received url: %s" % url)
 		try:
 			con_info = connection_info.ConnectionInfo.from_url(url)
-		except connection_info.URLParsingError:
+		except connection_info.URLParsingError as e:
+			wx.CallLater(50, gui.messageBox, parent=gui.mainFrame, caption=_("Invalid URL"),
+			# Translators: Message shown when an invalid URL has been provided.
+			message=_("Unable to parse url \"%s\": %s")%(url,e.message), style=wx.OK | wx.ICON_ERROR)
 			log.exception("unable to parse nvdaremote:// url %s" % url)
 			raise
 		log.info("Connection info: %r" % con_info)
