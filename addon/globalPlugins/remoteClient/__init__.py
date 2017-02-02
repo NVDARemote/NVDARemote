@@ -211,6 +211,7 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect_as_master(self):
 		self.master_transport.close()
 		self.master_transport = None
+		self.master_session = None
 
 	def disconnecting_as_master(self):
 		self.connect_item.Enable(True)
@@ -231,6 +232,7 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect_as_slave(self):
 		self.slave_transport.close()
 		self.slave_transport = None
+		self.slave_session = None
 
 	def on_connected_as_master_failed(self):
 		if self.master_transport.successful_connects == 0:
