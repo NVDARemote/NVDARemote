@@ -1,5 +1,6 @@
 import threading
 import time
+import connection_info
 import speech
 import ui
 import tones
