@@ -111,6 +111,10 @@ class GlobalPlugin(GlobalPlugin):
 		self.push_clipboard_item = self.menu.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
 		self.push_clipboard_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_push_clipboard_item, self.push_clipboard_item)
+		# Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
+		self.copy_link_item = self.menu.Append(wx.ID_ANY, _("Copy &link"), _("Copy a link to the remote session"))
+		self.copy_link_item.Enable(False)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_copy_link_item, self.copy_link_item)
 		# Translators: Menu item in NvDA Remote submenu to open add-on options.
 		self.options_item = self.menu.Append(wx.ID_ANY, _("&Options..."), _("Options"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.options_item)
@@ -136,6 +140,9 @@ class GlobalPlugin(GlobalPlugin):
 		self.menu.RemoveItem(self.push_clipboard_item)
 		self.push_clipboard_item.Destroy()
 		self.push_clipboard_item=None
+		self.menu.RemoveItem(self.copy_link_item)
+		self.copy_link_item.Destroy()
+		self.copy_link_item = None
 		self.menu.RemoveItem(self.options_item)
 		self.options_item.Destroy()
 		self.options_item=None
@@ -178,6 +185,17 @@ class GlobalPlugin(GlobalPlugin):
 		except TypeError:
 			log.exception("Unable to push clipboard")
 
+	def on_copy_link_item(self, evt):
+		session = self.master_session or self.slave_session
+		url = session.get_connection_info().get_url_to_connect()
+		api.copyToClip(unicode(url))
+
+
+	def script_copy_link(self, gesture):
+		self.on_copy_link_item(None)
+		ui.message(_("Copied link"))
+	script_copy_link.__doc__ = _("Copies a link ")
+
 	def on_options_item(self, evt):
 		evt.Skip()
 		config = get_config()
@@ -207,6 +225,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
+		self.copy_link_item.Enable(False)
 
 	def disconnect_as_master(self):
 		self.master_transport.close()
@@ -220,6 +239,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.mute_item.Enable(False)
 		self.local_machine.is_muted = False
 		self.push_clipboard_item.Enable(False)
+		self.copy_link_item.Enable(False)
 		self.send_ctrl_alt_del_item.Enable(False)
 		self.sending_keys = False
 		if self.hook_thread is not None:
@@ -285,6 +305,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.connect_item.Enable(False)
 		self.mute_item.Enable(True)
 		self.push_clipboard_item.Enable(True)
+		self.copy_link_item.Enable(True)
 		self.send_ctrl_alt_del_item.Enable(True)
 		self.hook_thread = threading.Thread(target=self.hook)
 		self.hook_thread.daemon = True
@@ -323,6 +344,7 @@ class GlobalPlugin(GlobalPlugin):
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
+		self.copy_link_item.Enable(True)
 		write_connection_to_config(self.slave_transport.address)
 
 	def start_control_server(self, server_port, channel):

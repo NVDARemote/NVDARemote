@@ -7,6 +7,7 @@ import tones
 import braille
 import nvda_patcher
 from collections import defaultdict
+import connection_info
 
 class RemoteSession(object):
 
