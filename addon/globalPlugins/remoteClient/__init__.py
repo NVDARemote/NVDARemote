@@ -26,6 +26,7 @@ import braille
 import local_machine
 import serializer
 from session import MasterSession, SlaveSession
+import url_handler
 import time
 import ui
 import addonHandler
@@ -56,6 +57,9 @@ class GlobalPlugin(GlobalPlugin):
 		self.slave_session = None
 		self.master_session = None
 		self.create_menu()
+		self.connecting = False
+		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verify_connect)
+		url_handler.register_url_handler()
 		self.master_transport = None
 		self.slave_transport = None
 		self.server = None
@@ -107,6 +111,10 @@ class GlobalPlugin(GlobalPlugin):
 		self.push_clipboard_item = self.menu.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
 		self.push_clipboard_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_push_clipboard_item, self.push_clipboard_item)
+		# Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
+		self.copy_link_item = self.menu.Append(wx.ID_ANY, _("Copy &link"), _("Copy a link to the remote session"))
+		self.copy_link_item.Enable(False)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_copy_link_item, self.copy_link_item)
 		# Translators: Menu item in NvDA Remote submenu to open add-on options.
 		self.options_item = self.menu.Append(wx.ID_ANY, _("&Options..."), _("Options"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.options_item)
@@ -132,6 +140,9 @@ class GlobalPlugin(GlobalPlugin):
 		self.menu.RemoveItem(self.push_clipboard_item)
 		self.push_clipboard_item.Destroy()
 		self.push_clipboard_item=None
+		self.menu.RemoveItem(self.copy_link_item)
+		self.copy_link_item.Destroy()
+		self.copy_link_item = None
 		self.menu.RemoveItem(self.options_item)
 		self.options_item.Destroy()
 		self.options_item=None
@@ -151,6 +162,8 @@ class GlobalPlugin(GlobalPlugin):
 		except:
 			pass
 		self.menu=None
+		if not config.isInstalledCopy():
+			url_handler.unregister_url_handler()
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
@@ -171,6 +184,17 @@ class GlobalPlugin(GlobalPlugin):
 			connector.send(type='set_clipboard_text', text=api.getClipData())
 		except TypeError:
 			log.exception("Unable to push clipboard")
+
+	def on_copy_link_item(self, evt):
+		session = self.master_session or self.slave_session
+		url = session.get_connection_info().get_url_to_connect()
+		api.copyToClip(unicode(url))
+
+
+	def script_copy_link(self, gesture):
+		self.on_copy_link_item(None)
+		ui.message(_("Copied link"))
+	script_copy_link.__doc__ = _("Copies a link to the remote session to the clipboard")
 
 	def on_options_item(self, evt):
 		evt.Skip()
@@ -201,10 +225,12 @@ class GlobalPlugin(GlobalPlugin):
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
+		self.copy_link_item.Enable(False)
 
 	def disconnect_as_master(self):
 		self.master_transport.close()
 		self.master_transport = None
+		self.master_session = None
 
 	def disconnecting_as_master(self):
 		self.connect_item.Enable(True)
@@ -213,6 +239,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.mute_item.Enable(False)
 		self.local_machine.is_muted = False
 		self.push_clipboard_item.Enable(False)
+		self.copy_link_item.Enable(False)
 		self.send_ctrl_alt_del_item.Enable(False)
 		self.sending_keys = False
 		if self.hook_thread is not None:
@@ -225,6 +252,7 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect_as_slave(self):
 		self.slave_transport.close()
 		self.slave_transport = None
+		self.slave_session = None
 
 	def on_connected_as_master_failed(self):
 		if self.master_transport.successful_connects == 0:
@@ -277,6 +305,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.connect_item.Enable(False)
 		self.mute_item.Enable(True)
 		self.push_clipboard_item.Enable(True)
+		self.copy_link_item.Enable(True)
 		self.send_ctrl_alt_del_item.Enable(True)
 		self.hook_thread = threading.Thread(target=self.hook)
 		self.hook_thread.daemon = True
@@ -290,8 +319,8 @@ class GlobalPlugin(GlobalPlugin):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_as_master(self, address, channel):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=channel, connection_type='master')
+	def connect_as_master(self, address, key):
+		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
@@ -300,7 +329,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_as_slave(self, address, key=None):
+	def connect_as_slave(self, address, key):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
@@ -315,6 +344,7 @@ class GlobalPlugin(GlobalPlugin):
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
+		self.copy_link_item.Enable(True)
 		write_connection_to_config(self.slave_transport.address)
 
 	def start_control_server(self, server_port, channel):
@@ -433,6 +463,32 @@ class GlobalPlugin(GlobalPlugin):
 			self.connect_as_slave(('127.0.0.1', port), channel)
 		except:
 			pass
+
+	def verify_connect(self, con_info):
+		if self.is_connected() or self.connecting:
+			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
+			return
+		self.connecting = True
+		server_addr = con_info.get_address()
+		key = con_info.key
+		if con_info.mode == 'master':
+			message = _("Do you wish to control the machine on server {server} with key {key}?").format(server=server_addr, key=key)
+		elif con_info.mode == 'slave':
+			message = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=server_addr, key=key)
+		if gui.messageBox(message, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
+			self.connecting = False
+			return
+		if con_info.mode == 'master':
+			self.connect_as_master((con_info.hostname, con_info.port), key=key)
+		elif con_info.mode == 'slave':
+			self.connect_as_slave((con_info.hostname, con_info.port), key=key)
+		self.connecting = False
+
+	def is_connected(self):
+		connector = self.slave_transport or self.master_transport
+		if connector is not None:
+			return connector.connected
+		return False
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
