@@ -46,10 +46,10 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 		log.info("Received url: %s" % url)
 		try:
 			con_info = connection_info.ConnectionInfo.from_url(url)
-		except connection_info.URLParsingError as e:
+		except connection_info.URLParsingError:
 			wx.CallLater(50, gui.messageBox, parent=gui.mainFrame, caption=_("Invalid URL"),
 			# Translators: Message shown when an invalid URL has been provided.
-			message=_("Unable to parse url \"%s\": %s")%(url,e.message), style=wx.OK | wx.ICON_ERROR)
+			message=_("Unable to parse url \"%s\"")%url, style=wx.OK | wx.ICON_ERROR)
 			log.exception("unable to parse nvdaremote:// url %s" % url)
 			raise
 		log.info("Connection info: %r" % con_info)
