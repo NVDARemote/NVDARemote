@@ -214,13 +214,13 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect(self):
 		if self.master_transport is None and self.slave_transport is None:
 			return
+		if self.server is not None:
+			self.server.close()
+			self.server = None
 		if self.master_transport is not None:
 			self.disconnect_as_master()
 		if self.slave_transport is not None:
 			self.disconnect_as_slave()
-		if self.server is not None:
-			self.server.close()
-			self.server = None
 		beep_sequence.beep_sequence((660, 60), (440, 60))
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
