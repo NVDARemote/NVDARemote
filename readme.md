@@ -8,6 +8,11 @@ Welcome to the NVDA Remote Access addon, which will allow you to connect to anot
 You will need to have installed NVDA on both computers, and obtain the NVDA Remote Access addon.
 The installation of both NVDA and the Remote Access addon are standard. If you need more information, this can be found in NVDA's User Guide.
 
+##Updating
+
+When updating the addon, if you have installed NVDA Remote on the secure desktop, it is recommended that you also update the copy on the secure desktop.
+To do this, first update your existing addon. Then open the NVDA menu, preferences, General settings, and press the button labeled "Use currently saved settings on the logon and other secure screens (requires administrator privileges)".
+
 ##Starting a remote session through a relay server
 ###Controlled	 computer
 1. Open the NVDA menu, Tools, Remote, Connect.
