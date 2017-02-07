@@ -1,10 +1,12 @@
 import threading
 import time
 import connection_info
+import gui
 import speech
 import ui
 import tones
 import braille
+import configuration
 import nvda_patcher
 from collections import defaultdict
 import connection_info
@@ -16,6 +18,7 @@ class RemoteSession(object):
 		self.patcher = None
 		self.transport = transport
 		self.transport.callback_manager.register_callback('msg_version_mismatch', self.handle_version_mismatch)
+		self.transport.callback_manager.register_callback('msg_motd', self.handle_motd)
 
 	def handle_version_mismatch(self, **kwargs):
 		#translators: Message for version mismatch
@@ -23,6 +26,22 @@ class RemoteSession(object):
 Please either use a different server or upgrade your version of the addon.""")
 		ui.message(message)
 		self.transport.close()
+
+	def handle_motd(self, motd, force_display=False, **kwargs):
+		if force_display or self.should_display_motd(motd):
+			gui.messageBox(parent=gui.mainFrame, caption=_("Message of the Day"), message=motd)
+
+	def should_display_motd(self, motd):
+		conf = configuration.get_config()
+		host, port = self.transport.address
+		address = '{host}:{port}'.format(host=host, port=port)
+		hashed = hash(motd)
+		current = int(conf['seen_motds'].get(address, "0"))
+		if current == hashed:
+			return False
+		conf['seen_motds'][address] = hashed
+		conf.write()
+		return True
 
 class SlaveSession(RemoteSession):	
 	"""Session that runs on the slave and manages state."""
