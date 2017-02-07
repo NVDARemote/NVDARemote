@@ -35,6 +35,7 @@ Please either use a different server or upgrade your version of the addon.""")
 	def should_display_motd(self, motd):
 		conf = configuration.get_config()
 		host, port = self.transport.address
+		host = host.lower()
 		address = '{host}:{port}'.format(host=host, port=port)
 		hashed = hashlib.sha1(motd).hexdigest()
 		current = conf['seen_motds'].get(address, "")
