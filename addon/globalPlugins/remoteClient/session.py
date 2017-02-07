@@ -10,6 +10,7 @@ import configuration
 import nvda_patcher
 from collections import defaultdict
 import connection_info
+import hashlib
 
 class RemoteSession(object):
 
@@ -35,8 +36,8 @@ Please either use a different server or upgrade your version of the addon.""")
 		conf = configuration.get_config()
 		host, port = self.transport.address
 		address = '{host}:{port}'.format(host=host, port=port)
-		hashed = hash(motd)
-		current = int(conf['seen_motds'].get(address, "0"))
+		hashed = hashlib.sha1(motd).hexdigest()
+		current = conf['seen_motds'].get(address, "")
 		if current == hashed:
 			return False
 		conf['seen_motds'][address] = hashed
