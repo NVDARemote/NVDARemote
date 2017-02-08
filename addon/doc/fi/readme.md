@@ -4,9 +4,12 @@ Versio 2.0
 Tervetuloa NVDA-etäkäyttö-lisäosaan, jonka avulla voit yhdistää toiseen ilmaista NVDA-ruudunlukuohjelmaa käyttävään tietokoneeseen. On yhdentekevää, oletko  samassa huoneessa tai toisella puolen maailmaa. Yhdistäminen on yksinkertaista, ja muistettavia komentojakin on vain muutama. Voit yhdistää toisen henkilön tietokoneeseen tai sallia luotetun henkilön yhdistää järjestelmääsi ylläpitorutiinien suorittamista, ongelman diagnosointia tai koulutuksen tarjoamista varten.
 
 ##Ennen kuin aloitat
-
 NVDA ja NVDA-etäkäyttö-lisäosa on oltava asennettuna molemmissa tietokoneissa.
 Molempien asennusvaiheet ovat standardinmukaisia. Katso lisätietoja NVDA:n käyttöoppaasta, mikäli tarvitset apua.
+
+##Päivittäminen
+Mikäli olet asentanut NVDA-etäkäytön suojatulle työpöydälle,  lisäosaa päivitettäessä on suositeltavaa, että päivität myös sen version.
+Tämä tehdään päivittämällä ensin olemassa oleva lisäosa ja valitsemalla sitten NVDA-valikosta Asetukset -> Yleiset ja painamalla "Käytä tallennettuja asetuksia kirjautumisikkunassa ja muissa suojatuissa ruuduissa (edellyttää järjestelmänvalvojan oikeuksia)" -painiketta.
 
 ##Etäistunnon aloittaminen välittäjäpalvelimen kautta
 ###Hallittava tietokone
