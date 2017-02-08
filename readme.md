@@ -14,7 +14,7 @@ When updating the addon, if you have installed NVDA Remote on the secure desktop
 To do this, first update your existing addon. Then open the NVDA menu, preferences, General settings, and press the button labeled "Use currently saved settings on the logon and other secure screens (requires administrator privileges)".
 
 ##Starting a remote session through a relay server
-###Controlled	 computer
+###On the computer to be controlled
 1. Open the NVDA menu, Tools, Remote, Connect.
 2. Choose client in the first radio button.
 3. Select Allow this machine to be controlled in the second set of radio buttons.
@@ -24,7 +24,7 @@ The key is what others will use to control your computer.
 The machine being controlled and all its clients need to use the same key.
 6. Press ok. Once done, you will hear a tone and connected.
 
-###Controlling computer
+###On the machine that is to be the controlling computer
 1. Open the NVDA menu, Tools, Remote, Connect.
 2. Choose client in the first radio button.
 3. Select Control another machine in the second set of radio buttons.
@@ -49,10 +49,19 @@ Enter a key into the key field, or press generate. The other person will need yo
 Once ok is pressed, you will be connected.
 When the other person connects, you can use NVDA Remote normally.
 
-##Controlling remote machine
-Once the session is connected, the controlling machine can then press f11 to start controlling the remote machine (e.g. by sending keyboard keys or braille input).
+##Controlling the remote machine
+
+Once the session is connected, the user of the controlling machine can press f11 to start controlling the remote machine (e.g. by sending keyboard keys or braille input).
 When NVDA says controlling remote machine, the keyboard and braille display keys you press will go to the remote machine. Furthermore, when the controlling machine is using a braille display, information from the remote machine will be displayed on it. Press f11 again to stop sending keys and switch back to the controlling machine.
 For best compatibility, please ensure that the keyboard layouts on both machines match.
+
+##Sharing your session
+
+To share a link so someone else can easily join your NVDA REMOTE session, select Copy Link from the Remote menu.
+IF you are connected as the controlling computer, this link will allow someone else to connect and be controlled.
+If instead you have set up your computer to be controlled, the link will allow people who you share it with to control your machine.
+Many applications will allow users to activate this link automatically, but if it does not run from within a specific app, it can be coppied to the clipboard and run from the run dialog.
+
 
 ##Send Ctrl+Alt+Del
 While sending keys, it is not possible to send the CTRL+Alt+del combination normally.

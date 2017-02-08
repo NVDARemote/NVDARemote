@@ -1,6 +1,4 @@
-CONFIG_FILE_NAME = 'remote.ini'
 REMOTE_KEY = "kb:f11"
-from cStringIO import StringIO
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -14,10 +12,9 @@ import logging
 logger = logging.getLogger(__name__)
 import Queue
 import select
-import config
-import configobj
-import validate
 import wx
+from config import isInstalledCopy
+import configuration
 import gui
 import beep_sequence
 import speech
@@ -69,7 +66,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		self.sd_relay = None
 		self.sd_bridge = None
-		cs = get_config()['controlserver']
+		cs = configuration.get_config()['controlserver']
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
 		if globalVars.appArgs.secure:
@@ -79,7 +76,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_focused = False
 
 	def perform_autoconnect(self):
-		cs = get_config()['controlserver']
+		cs = configuration.get_config()['controlserver']
 		channel = cs['key']
 		if cs['self_hosted']:
 			port = cs['port']
@@ -162,7 +159,7 @@ class GlobalPlugin(GlobalPlugin):
 		except:
 			pass
 		self.menu=None
-		if not config.isInstalledCopy():
+		if not isInstalledCopy():
 			url_handler.unregister_url_handler()
 
 	def on_disconnect_item(self, evt):
@@ -198,14 +195,14 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_options_item(self, evt):
 		evt.Skip()
-		config = get_config()
+		conf = configuration.get_config()
 		# Translators: The title of the add-on options dialog.
 		dlg = dialogs.OptionsDialog(gui.mainFrame, wx.ID_ANY, title=_("Options"))
-		dlg.set_from_config(config)
+		dlg.set_from_config(conf)
 		def handle_dlg_complete(dlg_result):
 			if dlg_result != wx.ID_OK:
 				return
-			dlg.write_to_config(config)
+			dlg.write_to_config(conf)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_send_ctrl_alt_del(self, evt):
@@ -214,13 +211,13 @@ class GlobalPlugin(GlobalPlugin):
 	def disconnect(self):
 		if self.master_transport is None and self.slave_transport is None:
 			return
+		if self.server is not None:
+			self.server.close()
+			self.server = None
 		if self.master_transport is not None:
 			self.disconnect_as_master()
 		if self.slave_transport is not None:
 			self.disconnect_as_slave()
-		if self.server is not None:
-			self.server.close()
-			self.server = None
 		beep_sequence.beep_sequence((660, 60), (440, 60))
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
@@ -271,7 +268,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def do_connect(self, evt):
 		evt.Skip()
-		last_cons = get_config()['connections']['last_connected']
+		last_cons = configuration.get_config()['connections']['last_connected']
 		last = ''
 		if last_cons:
 			last = last_cons[-1]
@@ -300,7 +297,7 @@ class GlobalPlugin(GlobalPlugin):
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_as_master(self):
-		write_connection_to_config(self.master_transport.address)
+		configuration.write_connection_to_config(self.master_transport.address)
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
 		self.mute_item.Enable(True)
@@ -495,33 +492,3 @@ class GlobalPlugin(GlobalPlugin):
 	}
 
 
-_config = None
-configspec = StringIO("""[connections]
-last_connected = list(default=list())
-[controlserver]
-autoconnect = boolean(default=False)
-self_hosted = boolean(default=False)
-connection_type = integer(default=0)
-host = string(default="")
-port = integer(default=6837)
-key = string(default="")
-""")
-def get_config():
-	global _config
-	if not _config:
-		path = os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME)
-		_config = configobj.ConfigObj(path, configspec=configspec)
-		val = validate.Validator()
-		_config.validate(val, copy=True)
-	return _config
-
-def write_connection_to_config(address):
-	"""Writes an address to the last connected section of the config.
-	If the address is already in the config, move it to the end."""
-	conf = get_config()
-	last_cons = conf['connections']['last_connected']
-	address = hostport_to_address(address)
-	if address in last_cons:
-		conf['connections']['last_connected'].remove(address)
-	conf['connections']['last_connected'].append(address)
-	conf.write()
