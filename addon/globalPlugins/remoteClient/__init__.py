@@ -342,7 +342,7 @@ class GlobalPlugin(GlobalPlugin):
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		self.copy_link_item.Enable(True)
-		write_connection_to_config(self.slave_transport.address)
+		configuration.write_connection_to_config(self.slave_transport.address)
 
 	def start_control_server(self, server_port, channel):
 		self.server = server.Server(server_port, channel)
