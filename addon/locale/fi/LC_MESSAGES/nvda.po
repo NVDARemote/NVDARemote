@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: NVDARemote\n"
-"POT-Creation-Date: 2017-02-03 07:33+0200\n"
-"PO-Revision-Date: 2017-02-03 08:25+0200\n"
+"POT-Creation-Date: 2017-02-08 13:16+0200\n"
+"PO-Revision-Date: 2017-02-08 13:17+0200\n"
 "Last-Translator: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language-Team: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language: fi\n"
@@ -15,139 +15,139 @@ msgstr ""
 "X-Poedit-SearchPath-0: D:\\nvda-src\\addons\\NVDARemote\\addon\\globalPlugins"
 "\\remoteClient\n"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:52
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:49
 msgid "NVDA Remote"
 msgstr "NVDA-etäkäyttö"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:99
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:96
 msgid "Connect..."
 msgstr "Yhdistä..."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:99
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:96
 msgid "Remotely connect to another computer running NVDA Remote Access"
 msgstr "Yhdistä toiseen NVDA-etäkäyttöä käyttävään tietokoneeseen"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:102
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:99
 msgid "Disconnect"
 msgstr "Katkaise yhteys"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:102
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:99
 msgid "Disconnect from another computer running NVDA Remote Access"
 msgstr "Katkaise yhteys toiseen NVDA-etäkäyttöä käyttävään tietokoneeseen"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:106
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:103
 msgid "Mute remote"
 msgstr "Mykistä etäkone"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:106
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:103
 msgid "Mute speech and sounds from the remote computer"
 msgstr "Mykistä etäkoneen äänet ja puhe."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:111
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:108
 msgid "&Push clipboard"
 msgstr "&Lähetä leikepöytä"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:111
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:108
 msgid "Push the clipboard to the other machine"
 msgstr "Lähetä leikepöydän sisältö toiseen tietokoneeseen"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:115
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:112
 msgid "Copy &link"
 msgstr "Kopioi &linkki"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:115
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:112
 msgid "Copy a link to the remote session"
 msgstr "Kopioi linkki etäistuntoon"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:119
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:116
 msgid "&Options..."
 msgstr "&Asetukset..."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:119
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:203
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:116
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:200
 msgid "Options"
 msgstr "Asetukset"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:122
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:119
 msgid "Send Ctrl+Alt+Del"
 msgstr "Lähetä Ctrl+Alt+Del"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:126
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:123
 msgid "R&emote"
 msgstr "&Etäkäyttö"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:126
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:123
 msgid "NVDA Remote Access"
 msgstr "NVDA-etäkäyttö"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:179
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:176
 msgid "Mute or unmute the speech coming from the remote computer"
 msgstr "Mykistä tai poista etätietokoneelta tulevan puheen mykistys"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:196
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:193
 msgid "Copied link"
 msgstr "Linkki kopioitu"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:197
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:194
 msgid "Copies a link to the remote session to the clipboard"
 msgstr "Kopioi etäistuntoon viittaavan linkin leikepöydälle"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:261
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:258
 msgid "Error Connecting"
 msgstr "Virhe yhdistettäessä"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:263
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:260
 msgid "Unable to connect to the remote computer"
 msgstr "Etätietokoneeseen ei saada yhteyttä"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:267
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:264
 msgid "Not connected."
 msgstr "Ei yhdistetty."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:270
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:267
 msgid "Disconnect a remote session"
 msgstr "Katkaise etäistunnon yhteys"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:279
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:276
 msgid "Connect"
 msgstr "Yhdistä"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:315
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:312
 msgid "Connected!"
 msgstr "Yhdistetty!"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:320
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:317
 msgid "Connection interrupted"
 msgstr "Yhteys keskeytetty"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:345
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:342
 msgid "Connected to control server"
 msgstr "Yhdistetty hallintapalvelimeen"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:376
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:373
 msgid "Controlling local machine."
 msgstr "Hallitaan paikallista konetta."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:383
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:380
 msgid "Controlling remote machine."
 msgstr "Hallitaan etäkonetta."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:469
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:466
 msgid ""
 "NVDA Remote is already connected. Disconnect before opening a new connection."
 msgstr ""
 "NVDA-etäkäyttö on jo yhdistetty. Katkaise yhteys ennen uuden muodostamista."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:469
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:466
 msgid "NVDA Remote Already Connected"
 msgstr "NVDA-etäkäyttö on jo yhdistetty"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:475
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:472
 #, python-brace-format
 msgid "Do you wish to control the machine on server {server} with key {key}?"
 msgstr "Haluatko hallita konetta palvelimella {server}, jonka avain on {key}?"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:477
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:474
 #, python-brace-format
 msgid ""
 "Do you wish to allow this machine to be controlled on server {server} with "
@@ -156,7 +156,7 @@ msgstr ""
 "Haluatko sallia tämän koneen hallinnan palvelimella {server}, jonka avain on "
 "{key}?"
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:478
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/__init__.py:475
 msgid "NVDA Remote Connection Request"
 msgstr "NVDA-etäkäytön yhteyspyyntö"
 
@@ -263,7 +263,7 @@ msgid "Host Control Server"
 msgstr "Isännöi hallintapalvelinta"
 
 #. translators: Message for version mismatch
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/session.py:22
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/session.py:26
 msgid ""
 "The version of the relay server which you have connected to is not "
 "compatible with this version of the Remote Client.\n"
@@ -273,9 +273,22 @@ msgstr ""
 "etäkäyttöasiakaslisäosan kanssa.\n"
 "Ole hyvä ja käytä eri palvelinta tai päivitä käyttämäsi lisäosa."
 
-#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/session.py:165
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/session.py:33
+msgid "Message of the Day"
+msgstr "Päivän viesti"
+
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/session.py:186
 msgid "Remote NVDA not connected."
 msgstr "Etä-NVDA:ta ei yhdistetty."
+
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/url_handler.py:50
+msgid "Invalid URL"
+msgstr "Virheellinen URL-osoite"
+
+#: D:\nvda-src\addons\NVDARemote\addon\globalPlugins\remoteClient/url_handler.py:52
+#, python-format
+msgid "Unable to parse url \"%s\""
+msgstr "URL-osoitetta \"%s\" ei voi jäsentää"
 
 #~ msgid "Sending keys."
 #~ msgstr "Näppäimet lähetetään."
