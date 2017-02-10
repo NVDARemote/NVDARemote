@@ -218,7 +218,7 @@ class GlobalPlugin(GlobalPlugin):
 			self.disconnect_as_master()
 		if self.slave_transport is not None:
 			self.disconnect_as_slave()
-		beep_sequence.beep_sequence((660, 60), (440, 60))
+		beep_sequence.beep_sequence_async((660, 60), (440, 60))
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
@@ -310,7 +310,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.bindGesture(REMOTE_KEY, "sendKeys")
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
-		beep_sequence.beep_sequence((440, 60), (660, 60))
+		beep_sequence.beep_sequence_async((440, 60), (660, 60))
 
 	def on_disconnected_as_master(self):
 		# Translators: Presented when connection to a remote computer was interupted.
@@ -337,7 +337,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
-		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
+		beep_sequence.beep_sequence_async((720, 100), 50, (720, 100), 50, (720, 100))
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
