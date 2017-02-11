@@ -2,6 +2,7 @@ from __future__ import division
 import collections
 import time
 import tones
+import threading
 
 def beep_sequence(*sequence):
 	"""	Play a simple synchronous monophonic beep sequence
@@ -16,3 +17,10 @@ def beep_sequence(*sequence):
 			tone, duration = element
 			time.sleep(duration / 1000)
 			tones.beep(tone, duration)
+
+def beep_sequence_async(*sequence):
+	"""Play an asynchronous beep sequence.
+	This is the same as beep_sequence, except it runs in a thread."""
+	thread = threading.Thread(target=beep_sequence, args=sequence)
+	thread.daemon = True
+	thread.start()
