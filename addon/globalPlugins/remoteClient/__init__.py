@@ -161,6 +161,8 @@ class GlobalPlugin(GlobalPlugin):
 		self.menu=None
 		if not isInstalledCopy():
 			url_handler.unregister_url_handler()
+		self.url_handler_window.destroy()
+		self.url_handler_window=None
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
