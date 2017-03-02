@@ -5,7 +5,7 @@ Benvido ao complemento de acceso remoto de NVDA, que che permitirá conectarte a
 
 ##Actualización
 
-Cando se actualice o complemento, se instalou NVDA Remote no escritorio seguro, it recoméndase que actualice tamén a copia do escritorio seguro.
+Cando se actualice o complemento, se instalaches NVDA Remote no escritorio seguro, recoméndase que actualices tamén a copia do escritorio seguro.
 Para facer isto, primeiro actualiza o complementeo existente. De seguido abre o menú de NVDA, preferencias, Opcións Xerais, e preme o botón etiquetado coa "Utilizar opcións actualmente gardadas do logon e outras pantallas seguras (require privilexios de administrador)".
 
 ##Antes de comezar
