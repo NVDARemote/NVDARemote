@@ -1,7 +1,12 @@
 ﻿#NVDA Remote Access
-Versión 1.2
+Versión 2.0
 
 Benvido ao complemento de acceso remoto de NVDA, que che permitirá conectarte a outro equipo que execute o lector de pantalla de balde NVDA. Da igual que esteas ó outro lado da habitación ou ó outro lado do mundo. Conectarse é simple, e hai moi poucos comandos que aprenderse. Podes conectarte ao equipo doutra persoa, ou permitir a unha persoa de confianza que se conecte ao teu sistema para realizar un mantemento rutinario, diagnosticar un problema, ou ensinarche algo.
+
+##Actualización
+
+Cando se actualice o complemento, se instalaches NVDA Remote no escritorio seguro, recoméndase que actualices tamén a copia do escritorio seguro.
+Para facer isto, primeiro actualiza o complementeo existente. De seguido abre o menú de NVDA, preferencias, Opcións Xerais, e preme o botón etiquetado coa "Utilizar opcións actualmente gardadas do logon e outras pantallas seguras (require privilexios de administrador)".
 
 ##Antes de comezar
 
@@ -109,5 +114,18 @@ Gustaríanos dar o noso recoñecemento aos seguintes contribuíntes que, entre o
 * ABDULAZIZ ALSHMASI.
 * Tyler W Kavanaugh
 * Casey Mathews
+
+##Rexistro de cambios
+
+###Versión 2.0
+
+* Soporte para braille remoto
+* Soporte para ligas nvdaremote://.
+* Diálogos centrados para estar conforme co resto do NVDA
+* Arranxado portcheck para apuntar a un dominio que nós controlamos, portcheck.nvdaremote.com
+* Soporte para conectarse automaticamente a un servidor de control en modo mestro.
+* Arranxado erro de representación na documentación.
+* Actualización á versión 2 do protocolo, que inclúe un campo orixe para todas as mensaxes remotas
+* Limpeza significativa de código para permitir modificacións máis sinxelas no futuro.
 
 Traducido ao galego por Iván Novegil &lt;info@inovegil.site40.net&gt;
