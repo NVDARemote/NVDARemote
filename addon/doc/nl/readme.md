@@ -1,11 +1,16 @@
 ﻿#NVDA Externe Toegang
-Versie 1.2
+Versie 2.0
 
 Welkom bij de NVDA Externe Toegang add-on, die u in staat stelt om verbinding te maken met een andere computer die gebruikt maakt van de gratis NVDA schermlezer. Het maakt hierbij geen verschil of u zich aan de andere kant van één en de zelfde ruimte, of aan de andere kant van de wereld bevindt. Verbinding maken is eenvoudig en er zijn slechts een aantal commando's om te onthouden. U kunt verbinding maken met de computer van een andere persoon, of een vertrouwd persoon toestaan om verbinding te maken met uw systeem voor het uitvoeren van routine-onderhoud, het vaststellen van een probleem of het geven van training.
 
 ##Voordat u begint
 
 Het is nodig dat u NVDA geïnstalleerd hebt op beide computers, waarbij u tevens de NVDA Externe Toegang add-on dient te installeren. De installatie van zowel NVDA als de Externe Toegang add-on verlopen via de normale weg. Wanneer u hierover meer informatie zoekt, kunt u deze vinden in de gebruikershandleiding van NVDA.
+
+##Updaten
+
+Wanneer u de add-on update en deze ook op het beveiligd bureaublad gebruikt, wordt het aanbevolen om ook de kopie voor het beveiligd bureaublad te updaten.
+Om dit te doen update u eerst de bestaande add-on. Ga daarna naar het NVDA-menu, Opties, Algemeen en activeer de knop "Huidige instellingen van NVDA gebruiken bij windows-aanmelding (administrative rechten vereist)".
 
 ##Het starten van een externe sessie via een relay server
 ###De te beheren computer
@@ -29,7 +34,7 @@ De machine die beheert wordt en de bijbehorende clients dienen gebruik te maken 
 
 ##Directe verbindingen
 De optie Server in het dialoogvenster Verbinden stelt u in staat om een directe verbinding te maken.
-Wanneer u deze optie selecteert, dient u ook te selecteren in welke modus uw kant van de verbinding dient te gebruiken.
+Wanneer u deze optie selecteert, dient u ook te selecteren in welke modus u uw kant van de verbinding dient te gebruiken.
 De andere persoon zal met u verbinden via de tegenovergestelde modus.
 
 Waneer u de juiste modus geselecteerd hebt, kunt u de knop Extern IP opvragen gebruiken om uw externe IP-adres te verkrijgen en er zeker van te zijn dat de in het invoerveld ingevoerde poort op de juiste wijze geopend is.
@@ -41,10 +46,18 @@ Voer in het veld Sleutel een toegangssleutel in, of laat een sleutel genereren. 
 
 Zodra er voor Ok gekozen wordt, zal de verbinding met uw eigen server tot stand worden gebracht. Zodra de andere persoon verbinding maakt, kunt u NVDA Externe Toegang op de normale manier gebruiken.
 
-##Toetsen doorsturen
-Zodra de sessie verbonden is, kan er vanaf de beherende machine op F11 gedrukt worden om toetsen door te sturen.
-Zodra NVDA de melding Toetsen doorsturen geeft, zullen de toetsen die u indrukt doorgestuurd worden naar de externe machine. Druk opnieuw op F11 om het doorsturen van toetsen te stoppen en terug te schakelen naar de beherende machine.
+##De externe machine beheren
+
+Zodra de sessie verbonden is, kan er vanaf de beherende machine op F11 gedrukt worden om de externe machine te beheren (bijv. door het doorsturen van toetsen op het toetsenbord of een brailleleesregel).
+Zodra NVDA de melding Externe machine wordt beheert geeft, zullen de toetsen die u indrukt doorgestuurd worden naar de externe machine. Daarnaast zal, wanneer de beherende machine beschikt over een brailleleesregel, informatie van de externe machine worden weergegeven op de leesregel. Druk opnieuw op F11 om het doorsturen van toetsen te stoppen en terug te schakelen naar de beherende machine.
 zorg ervoor dat de toetsenbordindelingen op beide machines overeenkomen voor de beste compatibiliteit.
+
+##Het delen van een sessie
+
+Om een link te delen zodat iemand anders eenvoudig kan deelnemen aan uw NVDA externe toegang sessie, selecteert u link kopiëren in het menu Externe toegang.
+Wanneer u verbonden bent als de beherende computer, zal deze link de ander in staat stellen om te verbinden en beheert te worden.
+Wanneer u in plaats daarvan uw computer hebt ingesteld om beheerd te worden, zal de link de ander in staat stellen om uw machine te heberen.
+Veel applicaties zullen gebruikers in staat stellen om deze link automatisch te activeren. Mocht het zo zijn dat de link vanuit een specifieke applicatie niet uitgevoerd wordt, is het mogelijk deze naar het klembord te kopiëren en uit te voeren vanuit het dialoogvenster uitvoeren.
 
 ##Ctrl+Alt+Del sturen
 Tijdens het doorsturen van toetsen is het niet mogelijk om de toetscombinatie Ctrl+Alt+Del via de normale weg door te sturen. 
@@ -113,3 +126,17 @@ Verder hebben onderstaande personen hun bijdrage geleverd aan het project NVDA E
 * ABDULAZIZ ALSHMASI.
 * Tyler W Kavanaugh
 * Casey Mathews
+* Leonard de Ruijter
+
+##Wijzigingen
+
+### Versie 2.0
+
+* Ondersteuning voor braille
+* Ondersteuning voor nvdaremote:// links
+* Dialoogvensters zijn nu gecentreerd in overeenkomst met de rest van NVDA
+* Portcheck verwijst nu naar een domein in eigen beheer, portcheck.nvdaremote.com
+* Ondersteuning voor automatisch verbinden met een beheerserver in beherende (master) modus
+* Fout in het renderen van documentatie opgelost
+* Update naar protocol versie 2, dat een origin veld bevat in ieder bericht
+* Significante opruiming van code die gemakkelijkere modificaties mogelijk maakt in de toekomst
