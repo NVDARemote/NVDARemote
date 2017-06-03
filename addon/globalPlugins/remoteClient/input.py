@@ -95,8 +95,8 @@ class BrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInp
 		treeInterceptor = focus.treeInterceptor
 		if treeInterceptor and treeInterceptor.isReady:
 			func = getattr(treeInterceptor , "script_%s" % scriptName, None)
-			# We are no keyboard input
-			return func
+			if func:
+				return func
 
 		# NVDAObject level.
 		func = getattr(focus, "script_%s" % scriptName, None)
