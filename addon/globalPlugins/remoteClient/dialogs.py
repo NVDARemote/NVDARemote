@@ -252,4 +252,3 @@ class OptionsDialog(wx.Dialog):
 		else:
 			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
-		config.write()

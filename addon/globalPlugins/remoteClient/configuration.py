@@ -1,11 +1,5 @@
-from io import BytesIO
-import os
 import config
-import configobj
-import validate
-import globalVars
 import socket_utils
-
 
 CONFIG_FILE_NAME = 'remote.ini'
 
@@ -30,10 +24,8 @@ configspec = {
 def get_config():
 	global _config
 	if not _config:
-		path = os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME)
-		_config = configobj.ConfigObj(path, configspec=configspec)
-		val = validate.Validator()
-		_config.validate(val, copy=True)
+		config.conf.spec['remote']=configspec
+		_config=config.conf['remote']
 	return _config
 
 def write_connection_to_config(address):
@@ -45,4 +37,3 @@ def write_connection_to_config(address):
 	if address in last_cons:
 		conf['connections']['last_connected'].remove(address)
 	conf['connections']['last_connected'].append(address)
-	conf.write()
