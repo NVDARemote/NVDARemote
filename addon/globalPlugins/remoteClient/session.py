@@ -42,7 +42,6 @@ Please either use a different server or upgrade your version of the addon.""")
 		if current == hashed:
 			return False
 		conf['seen_motds'][address] = hashed
-		conf.write()
 		return True
 
 class SlaveSession(RemoteSession):	
