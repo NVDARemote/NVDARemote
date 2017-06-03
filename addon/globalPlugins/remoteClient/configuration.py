@@ -10,20 +10,23 @@ import socket_utils
 CONFIG_FILE_NAME = 'remote.ini'
 
 _config = None
-configspec = BytesIO("""[connections]
-last_connected = list(default=list())
-[controlserver]
-autoconnect = boolean(default=False)
-self_hosted = boolean(default=False)
-connection_type = integer(default=0)
-host = string(default="")
-port = integer(default=6837)
-key = string(default="")
+configspec = {
+	"connections":{
+		"last_connected": "list(default=list())"
+	},
+	"controlserver":{
+		"autoconnect": "boolean(default=False)",
+		"self_hosted": "boolean(default=False)",
+		"connection_type": "integer(default=0)",
+		"host": "string(default=\"\")",
+		"port": "integer(default=6837)",
+		"key": "string(default=\"\")"
+	},
+	"seen_motds":{
+		"__many__": "string(default=\"\")"
+	}
+}
 
-[seen_motds]
-__many__ = string(default="")
-    
-""")
 def get_config():
 	global _config
 	if not _config:
