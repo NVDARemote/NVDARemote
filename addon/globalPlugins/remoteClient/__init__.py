@@ -184,11 +184,22 @@ class GlobalPlugin(GlobalPlugin):
 		except TypeError:
 			log.exception("Unable to push clipboard")
 
+	def script_push_clipboard(self, gesture):
+		connector = self.slave_transport or self.master_transport
+		if not getattr(connector,'connected',False):
+			ui.message(_("Not connected."))
+			return
+		try:
+			connector.send(type='set_clipboard_text', text=api.getClipData())
+			ui.message(_("Clipboard pushed"))
+		except TypeError:
+			ui.message(_("Unable to push clipboard"))
+	script_push_clipboard.__doc__ = _("Sends the contents of the clipboard to the remote machine")
+
 	def on_copy_link_item(self, evt):
 		session = self.master_session or self.slave_session
 		url = session.get_connection_info().get_url_to_connect()
 		api.copyToClip(unicode(url))
-
 
 	def script_copy_link(self, gesture):
 		self.on_copy_link_item(None)
@@ -491,6 +502,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
+		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
 
 
