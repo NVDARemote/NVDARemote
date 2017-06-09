@@ -1,18 +1,18 @@
-﻿#NVDA-etäkäyttö
+﻿# NVDA-etäkäyttö
 Versio 2.0
 
 Tervetuloa NVDA-etäkäyttö-lisäosaan, jonka avulla voit yhdistää toiseen ilmaista NVDA-ruudunlukuohjelmaa käyttävään tietokoneeseen. On yhdentekevää, oletko  samassa huoneessa tai toisella puolen maailmaa. Yhdistäminen on yksinkertaista, ja muistettavia komentojakin on vain muutama. Voit yhdistää toisen henkilön tietokoneeseen tai sallia luotetun henkilön yhdistää järjestelmääsi ylläpitorutiinien suorittamista, ongelman diagnosointia tai koulutuksen tarjoamista varten.
 
-##Ennen kuin aloitat
+## Ennen kuin aloitat
 NVDA ja NVDA-etäkäyttö-lisäosa on oltava asennettuna molemmissa tietokoneissa.
 Molempien asennusvaiheet ovat standardinmukaisia. Katso lisätietoja NVDA:n käyttöoppaasta, mikäli tarvitset apua.
 
-##Päivittäminen
+## Päivittäminen
 Mikäli olet asentanut NVDA-etäkäytön suojatulle työpöydälle,  lisäosaa päivitettäessä on suositeltavaa, että päivität myös sen version.
 Tämä tehdään päivittämällä ensin olemassa oleva lisäosa ja valitsemalla sitten NVDA-valikosta Asetukset -> Yleiset ja painamalla "Käytä tallennettuja asetuksia kirjautumisikkunassa ja muissa suojatuissa ruuduissa (edellyttää järjestelmänvalvojan oikeuksia)" -painiketta.
 
-##Etäistunnon aloittaminen välittäjäpalvelimen kautta
-###Hallittava tietokone
+## Etäistunnon aloittaminen välittäjäpalvelimen kautta
+### Hallittava tietokone
 1. Avaa NVDA-valikko ja valitse Työkalut -> Etäkäyttö -> Yhdistä.
 2. Valitse ensimmäisestä valintapainikeryhmästä Asiakas.
 3. Valitse toisesta valintapainikeryhmästä Salli tämän tietokoneen hallinta.
@@ -22,7 +22,7 @@ Avainta käytetään tietokoneesi hallitsemiseen.
 Hallittavan koneen ja kaikkien siihen yhdistävien asiakaskoneiden on käytettävä samaa avainta.
 6. Paina OK. Kun yhteys on muodostettu, kuulet äänimerkin ja "Yhdistetty"-ilmoituksen.
 
-###Hallitseva tietokone
+### Hallitseva tietokone
 1. Avaa NVDA-valikko ja valitse Työkalut -> Etäkäyttö -> Yhdistä.
 2. Valitse ensimmäisestä valintapainikeryhmästä Asiakas.
 3. Valitse toisesta valintapainikeryhmästä Hallitse toista konetta.
@@ -31,7 +31,7 @@ Hallittavan koneen ja kaikkien siihen yhdistävien asiakaskoneiden on käytettä
 Hallittavan koneen ja kaikkien siihen yhdistävien asiakaskoneiden on käytettävä samaa avainta.
 6. Paina OK. Kun yhteys on muodostettu, kuulet äänimerkin ja "Yhdistetty"-ilmoituksen.
 
-##Suorat yhteydet
+## Suorat yhteydet
 Yhdistä-valintaikkunan Palvelin-vaihtoehdolla voit muodostaa suoran yhteyden.
 Kun se on valittuna, sinun on myös valittava, missä tilassa yhteytesi tulee olemaan.
 Toinen osapuoli yhdistää koneeseesi päinvastaista vaihtoehtoa käyttäen.
@@ -46,16 +46,16 @@ Kirjoita haluamasi avain Avain-muokkauskenttään tai paina Luo avain -painikett
 Yhteys muodostetaan painettuasi OK-painiketta.
 Kun toinen osapuoli yhdistää koneeseesi, voit käyttää NVDA-etäkäyttöä normaalisti.
 
-##Etäkoneen hallinta
+## Etäkoneen hallinta
 Kun yhteys on muodostettu, etäkoneen hallinta (esim. näppäinpainallusten tai pistekirjoitussyötteen lähettäminen) voidaan aloittaa painamalla hallitsevassa koneessa F11.
 Kun NVDA sanoo Hallitaan etäkonetta, painamasi näppäimistön ja pistenäytön näppäimet suoritetaan etäkoneessa. Lisäksi jos hallitsevassa tietokoneessa käytetään pistenäyttöä, kaikki etäkoneen palaute näytetään siinä. Lopeta näppäinpainallusten lähettäminen ja vaihda takaisin hallitsevaan koneeseen painamalla uudestaan F11.
 Varmista parhaan yhteensopivuuden takaamiseksi, että molemmissa koneissa on käytössä sama näppäinasettelu.
 
-##Lähetä Ctrl+Alt+Del
+## Lähetä Ctrl+Alt+Del
 Ctrl+Alt+Del-näppäinyhdistelmän lähettäminen ei ole mahdollista näppäinpainalluksia lähetettäessä.
 Käytä tätä komentoa, mikäli sinun on lähetettävä Ctrl+Alt+Del etäjärjestelmälle, jossa suojattu työpöytä on aktiivisena.
 
-##Valvomattoman tietokoneen etähallinta
+## Valvomattoman tietokoneen etähallinta
 Saatat joskus haluta etähallita omaa konettasi. Tämä on erityisen hyödyllistä, mikäli olet matkoilla ja haluat hallita kotikonetta kannettavallasi, tai kotona sisällä talossa olevaa konetta ollessasi itse ulkona toisen koneen kanssa. Tämä on mahdollista pienellä valmistelulla.
 
 1. Avaa NVDA-valikko ja valitse Työkalut ja sitten Etäkäyttö. Paina lopuksi Enter Asetukset-vaihtoehdon kohdalla.
@@ -68,20 +68,20 @@ Voit  määrittää NVDA-etäkäytön yhdistämään edistynyttä käyttöä var
 
 Huom: Asetukset-valintaikkunan automaattiseen käynnistyksen yhteydessä yhdistämiseen liittyvillä vaihtoehdoilla ei ole vaikutusta ennen NVDA:n uudelleenkäynnistystä.
 
-##Etätietokoneen mykistäminen
-Mikäli et halua kuulla etäkoneen puhetta tai NVDA:n äänimerkkejä, avaa NVDA-valikko ja valitse Työkalut -> Etäkäyttö. Siirry lopuksi alanuolella kohtaan Mykistä etäkone ja paina Enter. Huomaa, että tämä asetus ei poista käytöstä etäpistekirjoituspalautetta hallitsevan koneen pistenäytölle hallitsevan koneen näppäinpainallusten lähettämisen ollessa käytössä.
+## Etätietokoneen mykistäminen
+Jos et halua kuulla etäkoneen puhetta tai NVDA:n äänimerkkejä, avaa NVDA-valikko ja valitse Työkalut -> Etäkäyttö. Siirry lopuksi alanuolella kohtaan Mykistä etäkone ja paina Enter. Huomaa, että tämä asetus ei poista käytöstä etäpistekirjoituspalautetta hallitsevan koneen pistenäytölle, mikäli hallitsevan koneen näppäinpainallusten lähettäminen on käytössä.
 
-##Etäistunnon lopettaminen
+## Etäistunnon lopettaminen
 Lopeta etäistunto seuraavasti:
 
 1. Lopeta etäkoneen hallinta painamalla hallitsevassa koneessa F11. NVDA:n pitäisi nyt sanoa tai pistenäytöllä lukea "Hallitaan paikallista konetta". Jos sen sijaan kuulet tai luet pistenäytöltä ilmoituksen etäkoneen hallitsemisesta, paina vielä kerran F11.
 2. Avaa NVDA-valikko, valitse Työkalut -> Etäkäyttö ja paina Enter Katkaise yhteys -vaihtoehdon kohdalla.
 
-##Leikepöydän lähettäminen
+## Leikepöydän lähettäminen
 Etäkäyttö-valikon Lähetä leikepöytä -vaihtoehdolla voit lähettää leikepöydällä olevan tekstin.
 Kun toiminto on otettu käyttöön, kaikki leikepöydällä oleva teksti lähetetään toisille koneille.
 
-##NVDA-etäkäytön määrittäminen toimimaan suojatulla työpöydällä
+## NVDA-etäkäytön määrittäminen toimimaan suojatulla työpöydällä
 Jotta NVDA-etäkäyttö-lisäosa toimisi suojatulla työpöydällä, se on asennettava suojatulla työpöydällä käynnissä olevaan NVDA:han.
 
 1. Valitse NVDA-valikosta Asetukset -> Yleiset.
@@ -91,7 +91,7 @@ Jotta NVDA-etäkäyttö-lisäosa toimisi suojatulla työpöydällä, se on asenn
 
 Kun NVDA-etäkäyttö on asennettu suojatulle työpöydälle ja konettasi hallitaan etäistunnossa, puhe ja pistenäyttö ovat käytettävissä suojatulle työpöydälle siirryttäessä.
 
-##Avustajat
+## Avustajat
 Haluamme kiittää muiden muassa seuraavia henkilöitä, jotka auttoivat tekemään NVDA Remote -projektista todellisuutta.
 
 * Hai Nguyen Ly
@@ -108,9 +108,9 @@ Haluamme kiittää muiden muassa seuraavia henkilöitä, jotka auttoivat tekemä
 * Babbage B.V.
 * Leonard de Ruijter
 
-##Muutosloki
+## Muutosloki
 
-###Versio 2.0
+### Versio 2.0
 
 * Tuki etäpistekirjoitukselle
 * Tuki nvdaremote://-linkeille
