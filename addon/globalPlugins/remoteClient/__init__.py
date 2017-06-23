@@ -243,14 +243,16 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_session = None
 
 	def disconnecting_as_master(self):
-		self.connect_item.Enable(True)
-		self.disconnect_item.Enable(False)
-		self.mute_item.Check(False)
-		self.mute_item.Enable(False)
-		self.local_machine.is_muted = False
-		self.push_clipboard_item.Enable(False)
-		self.copy_link_item.Enable(False)
-		self.send_ctrl_alt_del_item.Enable(False)
+		if self.menu:
+			self.connect_item.Enable(True)
+			self.disconnect_item.Enable(False)
+			self.mute_item.Check(False)
+			self.mute_item.Enable(False)
+			self.push_clipboard_item.Enable(False)
+			self.copy_link_item.Enable(False)
+			self.send_ctrl_alt_del_item.Enable(False)
+		if self.local_machine:
+			self.local_machine.is_muted = False
 		self.sending_keys = False
 		if self.hook_thread is not None:
 			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, win32con.WM_QUIT, 0, 0)
