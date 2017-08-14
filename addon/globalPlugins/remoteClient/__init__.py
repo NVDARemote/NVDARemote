@@ -161,8 +161,6 @@ class GlobalPlugin(GlobalPlugin):
 		self.menu=None
 		if not isInstalledCopy():
 			url_handler.unregister_url_handler()
-		self.url_handler_window.destroy()
-		self.url_handler_window=None
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
@@ -175,6 +173,12 @@ class GlobalPlugin(GlobalPlugin):
 	def script_toggle_remote_mute(self, gesture):
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
+		if self.mute_item.IsChecked():
+			# Translators: Presented when the remote speech is muted
+			ui.message(_("Remote speech muted"))
+		else:
+			# Translators: Presented when the remote speech is unmuted
+			ui.message(_("Remote speech unmuted"))
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
 	def on_push_clipboard_item(self, evt):
@@ -184,25 +188,15 @@ class GlobalPlugin(GlobalPlugin):
 		except TypeError:
 			log.exception("Unable to push clipboard")
 
-	def script_push_clipboard(self, gesture):
-		connector = self.slave_transport or self.master_transport
-		if not getattr(connector,'connected',False):
-			ui.message(_("Not connected."))
-			return
-		try:
-			connector.send(type='set_clipboard_text', text=api.getClipData())
-			ui.message(_("Clipboard pushed"))
-		except TypeError:
-			ui.message(_("Unable to push clipboard"))
-	script_push_clipboard.__doc__ = _("Sends the contents of the clipboard to the remote machine")
-
 	def on_copy_link_item(self, evt):
 		session = self.master_session or self.slave_session
 		url = session.get_connection_info().get_url_to_connect()
 		api.copyToClip(unicode(url))
 
+
 	def script_copy_link(self, gesture):
 		self.on_copy_link_item(None)
+		# Translators: Presented when copying a link to join the remote session
 		ui.message(_("Copied link"))
 	script_copy_link.__doc__ = _("Copies a link to the remote session to the clipboard")
 
@@ -231,7 +225,7 @@ class GlobalPlugin(GlobalPlugin):
 			self.disconnect_as_master()
 		if self.slave_transport is not None:
 			self.disconnect_as_slave()
-		beep_sequence.beep_sequence_async((660, 60), (440, 60))
+		beep_sequence.beep_sequence((660, 60), (440, 60))
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
@@ -243,16 +237,14 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_session = None
 
 	def disconnecting_as_master(self):
-		if self.menu:
-			self.connect_item.Enable(True)
-			self.disconnect_item.Enable(False)
-			self.mute_item.Check(False)
-			self.mute_item.Enable(False)
-			self.push_clipboard_item.Enable(False)
-			self.copy_link_item.Enable(False)
-			self.send_ctrl_alt_del_item.Enable(False)
-		if self.local_machine:
-			self.local_machine.is_muted = False
+		self.connect_item.Enable(True)
+		self.disconnect_item.Enable(False)
+		self.mute_item.Check(False)
+		self.mute_item.Enable(False)
+		self.local_machine.is_muted = False
+		self.push_clipboard_item.Enable(False)
+		self.copy_link_item.Enable(False)
+		self.send_ctrl_alt_del_item.Enable(False)
 		self.sending_keys = False
 		if self.hook_thread is not None:
 			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, win32con.WM_QUIT, 0, 0)
@@ -276,6 +268,7 @@ class GlobalPlugin(GlobalPlugin):
 
 	def script_disconnect(self, gesture):
 		if self.master_transport is None and self.slave_transport is None:
+			# Translators: Presented when disconnecting from the remote computer
 			ui.message(_("Not connected."))
 			return
 		self.disconnect()
@@ -325,7 +318,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.bindGesture(REMOTE_KEY, "sendKeys")
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
-		beep_sequence.beep_sequence_async((440, 60), (660, 60))
+		beep_sequence.beep_sequence((440, 60), (660, 60))
 
 	def on_disconnected_as_master(self):
 		# Translators: Presented when connection to a remote computer was interupted.
@@ -352,12 +345,12 @@ class GlobalPlugin(GlobalPlugin):
 
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
-		beep_sequence.beep_sequence_async((720, 100), 50, (720, 100), 50, (720, 100))
+		beep_sequence.beep_sequence((720, 100), 50, (720, 100), 50, (720, 100))
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
 		self.copy_link_item.Enable(True)
-		configuration.write_connection_to_config(self.slave_transport.address)
+		write_connection_to_config(self.slave_transport.address)
 
 	def start_control_server(self, server_port, channel):
 		self.server = server.Server(server_port, channel)
@@ -504,7 +497,6 @@ class GlobalPlugin(GlobalPlugin):
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
-		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
 
 
