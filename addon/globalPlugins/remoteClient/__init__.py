@@ -296,12 +296,12 @@ class GlobalPlugin(GlobalPlugin):
 				return
 			if dlg.client_or_server.GetSelection() == 0: #client
 				server_addr = dlg.panel.host.GetValue()
-				server_addr, port = address_to_hostport(server_addr)
+				address = address_to_hostport(server_addr)
 				channel = dlg.panel.key.GetValue()
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_as_master((server_addr, port), channel)
+					self.connect_as_master(address, channel)
 				else:
-					self.connect_as_slave((server_addr, port), channel)
+					self.connect_as_slave(address, channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
