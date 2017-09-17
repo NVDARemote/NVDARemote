@@ -38,6 +38,10 @@ class TCPTransport(Transport):
 		self.queue_thread = None
 		self.timeout = timeout
 		self.reconnector_thread = ConnectorThread(self)
+		if len(address)==4:
+			self.socket_family=socket.AF_INET6
+		else:
+			self.socket_family=socket.AF_INET
 
 	def run(self):
 		self.closed = False
@@ -71,7 +75,7 @@ class TCPTransport(Transport):
 		self._disconnect()
 
 	def create_server_socket(self):
-		server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		server_sock = socket.socket(self.socket_family, socket.SOCK_STREAM)
 		if self.timeout:
 			server_sock.settimeout(self.timeout)
 		server_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
