@@ -7,10 +7,19 @@ def address_to_hostport(addr):
 	If no port is given, use SERVER_PORT."""
 	addr = urlparse.urlparse('//'+addr)
 	port = addr.port or SERVER_PORT
-	return (addr.hostname, port)
+	if addr.hostname.find(":")!=-1 and addr.netloc.startswith("["): # This is an IPV6 address
+		return (addr.hostname, port, 0, 0)
+	else:
+		return (addr.hostname, port)
 
 def hostport_to_address(hostport):
-	host, port = hostport
+	if len(hostport)==4:
+		host, port, flow, scope=hostport
+		if port != SERVER_PORT:
+			return "["+host+"]:"+str(port)
+		return "["+host+"]"
+	else:
+		host, port = hostport
 	if port != SERVER_PORT:
 		return host+':'+str(port)
 	return host
