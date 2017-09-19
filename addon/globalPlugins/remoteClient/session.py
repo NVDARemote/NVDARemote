@@ -69,7 +69,10 @@ class SlaveSession(RemoteSession):
 
 
 	def get_connection_info(self):
-		hostname, port = self.transport.address
+		if len(self.transport.address)==4:
+			hostname, port, flow, scope = self.transport.address
+		else:
+			hostname, port = self.transport.address
 		key = self.transport.channel
 		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='slave')
 
@@ -177,9 +180,14 @@ class MasterSession(RemoteSession):
 
 
 	def get_connection_info(self):
-		hostname, port = self.transport.address
+		if len(self.transport.address)==4:
+			hostname, port, flow, scope = self.transport.address
+			family=6
+		else:
+			hostname, port = self.transport.address
+			family=4
 		key = self.transport.channel
-		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='master')
+		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode='master', family=family)
 
 	def handle_nvda_not_connected(self):
 		speech.cancelSpeech()

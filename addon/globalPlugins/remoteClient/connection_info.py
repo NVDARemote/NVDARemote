@@ -9,11 +9,12 @@ class URLParsingError(Exception):
 
 class ConnectionInfo(object):
 
-	def __init__(self, hostname, mode, key, port=socket_utils.SERVER_PORT):
+	def __init__(self, hostname, mode, key, port=socket_utils.SERVER_PORT, family=4):
 		self.hostname = hostname
 		self.mode = mode
 		self.key = key
 		self.port = port or socket_utils.SERVER_PORT
+		self.family = family
 
 	@classmethod
 	def from_url(cls, url):
@@ -40,7 +41,10 @@ class ConnectionInfo(object):
 		return '{hostname}:{port}'.format(hostname=self.hostname, port=self.port)
 
 	def get_url_to_connect(self):
-		result = URL_PREFIX + self.hostname
+		if self.family==6:
+			result = URL_PREFIX + "[" + self.hostname + "]"
+		else:
+			result = URL_PREFIX + self.hostname
 		if self.port != socket_utils.SERVER_PORT:
 			result += ':{port}'.format(port=self.port)
 		result += '?'
@@ -53,7 +57,10 @@ class ConnectionInfo(object):
 		return result
 
 	def get_url(self):
-		result = URL_PREFIX + self.hostname
+		if self.family==6:
+			result = URL_PREFIX + "[" + self.hostname + "]"
+		else:
+			result = URL_PREFIX + self.hostname
 		if self.port != socket_utils.SERVER_PORT:
 			result += ':{port}'.format(port=self.port)
 		result += '?'
