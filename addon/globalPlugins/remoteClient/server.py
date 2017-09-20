@@ -19,20 +19,25 @@ class Server(object):
 		self.client_sockets = []
 		self.running = False
 		self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.server_socket6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 		certfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'server.pem')
 		self.server_socket = ssl.wrap_socket(self.server_socket, certfile=certfile)
 		self.server_socket.bind((bind_host, self.port))
 		self.server_socket.listen(5)
-		self.server_socket6 = ssl.wrap_socket(self.server_socket6, certfile=certfile)
-		self.server_socket6.bind((bind_host6, self.port, 0, 0))
-		self.server_socket6.listen(5)
+		self.server_socket6=None
+		if socket.has_ipv6:
+			self.server_socket6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+			self.server_socket6 = ssl.wrap_socket(self.server_socket6, certfile=certfile)
+			self.server_socket6.bind((bind_host6, self.port, 0, 0))
+			self.server_socket6.listen(5)
 
 	def run(self):
 		self.running = True
 		self.last_ping_time = time.time()
 		while self.running:
+		if socket.has_ipv6:
 			r, w, e = select.select(self.client_sockets+[self.server_socket, self.server_socket6], [], self.client_sockets, 60)
+		else:
+			r, w, e = select.select(self.client_sockets+[self.server_socket], [], self.client_sockets, 60)
 			if not self.running:
 				break
 			for sock in r:
@@ -71,7 +76,8 @@ class Server(object):
 	def close(self):
 		self.running = False
 		self.server_socket.close()
-		self.server_socket6.close()
+		if socket.has_ipv6:
+			self.server_socket6.close()
 
 class Client(object):
 	id = 0
