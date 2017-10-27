@@ -1,10 +1,10 @@
 ﻿# NVDA-etäkäyttö
-Versio 2.0
+Versio 2.1
 
 Tervetuloa NVDA-etäkäyttö-lisäosaan, jonka avulla voit yhdistää toiseen ilmaista NVDA-ruudunlukuohjelmaa käyttävään tietokoneeseen. On yhdentekevää, oletko  samassa huoneessa tai toisella puolen maailmaa. Yhdistäminen on yksinkertaista, ja muistettavia komentojakin on vain muutama. Voit yhdistää toisen henkilön tietokoneeseen tai sallia luotetun henkilön yhdistää järjestelmääsi ylläpitorutiinien suorittamista, ongelman diagnosointia tai koulutuksen tarjoamista varten.
 
 ## Ennen kuin aloitat
-NVDA ja NVDA-etäkäyttö-lisäosa on oltava asennettuna molemmissa tietokoneissa.
+NVDA ja tämä etäkäyttölisäosa on oltava asennettuna molemmissa tietokoneissa.
 Molempien asennusvaiheet ovat standardinmukaisia. Katso lisätietoja NVDA:n käyttöoppaasta, mikäli tarvitset apua.
 
 ## Päivittäminen
@@ -37,7 +37,7 @@ Kun se on valittuna, sinun on myös valittava, missä tilassa yhteytesi tulee ol
 Toinen osapuoli yhdistää koneeseesi päinvastaista vaihtoehtoa käyttäen.
 
 Kun tila on valittu, voit käyttää Hae ulkoinen IP -painiketta noutaaksesi ulkoisen IP-osoitteesi ja varmistaaksesi, että Portti-muokkauskenttään syötetty portti on uudelleenohjattu asianmukaisesti.
-Jos portintarkistus havaitsee, ettei porttiin 6837 saada yhteyttä, näkyviin tulee varoitus asiasta.
+Jos portintarkistus havaitsee, ettei porttiin 6837 saada yhteyttä, näkyviin tulee siitä kertova varoitus.
 Sinun on tällöin uudelleenohjattava porttisi ja yritettävä sitten uudelleen.
 Huom: Porttien uudelleenohjausta ei käsitellä tässä dokumentissa. Katso lisätietoja reitittimesi mukana toimitetuista ohjeista.
 
@@ -50,6 +50,12 @@ Kun toinen osapuoli yhdistää koneeseesi, voit käyttää NVDA-etäkäyttöä n
 Kun yhteys on muodostettu, etäkoneen hallinta (esim. näppäinpainallusten tai pistekirjoitussyötteen lähettäminen) voidaan aloittaa painamalla hallitsevassa koneessa F11.
 Kun NVDA sanoo Hallitaan etäkonetta, painamasi näppäimistön ja pistenäytön näppäimet suoritetaan etäkoneessa. Lisäksi jos hallitsevassa tietokoneessa käytetään pistenäyttöä, kaikki etäkoneen palaute näytetään siinä. Lopeta näppäinpainallusten lähettäminen ja vaihda takaisin hallitsevaan koneeseen painamalla uudestaan F11.
 Varmista parhaan yhteensopivuuden takaamiseksi, että molemmissa koneissa on käytössä sama näppäinasettelu.
+
+## Istunnon jakaminen
+Jotta muut voivat helposti liittyä NVDA-etäkäyttöistuntoosi, valitse Etäkäyttö-valikosta Kopioi linkki -vaihtoehto.
+Mikäli olet yhteydessä hallitsevana tietokoneena, tämä linkki sallii jonkun muun henkilön yhdistää tietokoneeseesi sekä hänen koneensa hallitsemisen.
+Jos sen sijaan olet määrittänyt tietokoneesi hallittavaksi, linkki sallii henkilöiden, joille sen jaat, hallita konettasi.
+Useat sovellukset mahdollistavat linkin automaattisen avaamisen, mutta mikäli se ei onnistu jossain määrätyssä sovelluksessa, se voidaan kopioida leikepöydälle ja avata Suorita-valintaikkunasta.
 
 ## Lähetä Ctrl+Alt+Del
 Ctrl+Alt+Del-näppäinyhdistelmän lähettäminen ei ole mahdollista näppäinpainalluksia lähetettäessä.
@@ -68,8 +74,8 @@ Voit  määrittää NVDA-etäkäytön yhdistämään edistynyttä käyttöä var
 
 Huom: Asetukset-valintaikkunan automaattiseen käynnistyksen yhteydessä yhdistämiseen liittyvillä vaihtoehdoilla ei ole vaikutusta ennen NVDA:n uudelleenkäynnistystä.
 
-## Etätietokoneen mykistäminen
-Jos et halua kuulla etäkoneen puhetta tai NVDA:n äänimerkkejä, avaa NVDA-valikko ja valitse Työkalut -> Etäkäyttö. Siirry lopuksi alanuolella kohtaan Mykistä etäkone ja paina Enter. Huomaa, että tämä asetus ei poista käytöstä etäpistekirjoituspalautetta hallitsevan koneen pistenäytölle, mikäli hallitsevan koneen näppäinpainallusten lähettäminen on käytössä.
+## Puheen mykistäminen etätietokoneessa
+Jos et halua kuulla etäkoneen puhetta tai NVDA:n äänimerkkejä, avaa NVDA-valikko ja valitse Työkalut -> Etäkäyttö. Siirry lopuksi Nuoli alas -näppäimellä kohtaan Mykistä etäkone ja paina Enter. Huomaa, että tämä asetus ei poista käytöstä hallitsevan koneen pistenäytölle tuotettavaa etäpistekirjoituspalautetta, mikäli hallitsevan koneen näppäinpainallusten lähettäminen on käytössä.
 
 ## Etäistunnon lopettaminen
 Lopeta etäistunto seuraavasti:
@@ -110,8 +116,13 @@ Haluamme kiittää muiden muassa seuraavia henkilöitä, jotka auttoivat tekemä
 
 ## Muutosloki
 
-### Versio 2.0
+### Version 2.1
+* Korjattu tallentumaton yhteys, kun tietokoneen hallinta sallitaan.
+* Lisätty skripti leikepöydän lähettämiseen näppäinkomennolla Ctrl+Shift+NVDA+C.
+* Pistekirjoituksen syöttö toimii nyt selaustilassa.
+* NVDA-etäkäytön tuottamat äänimerkit eivät enää estä NVDA:ta.
 
+### Versio 2.0
 * Tuki etäpistekirjoitukselle
 * Tuki nvdaremote://-linkeille
 * Valintaikkunat keskitetty vastaamaan NVDA:n muita ikkunoita
