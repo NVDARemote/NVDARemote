@@ -236,6 +236,8 @@ class NVDAMasterPatcher(NVDAPatcher):
 					dict["scriptPath"]=[scriptData[0].__module__,scriptData[0].__name__,scriptData[1]]
 			if hasattr(gesture,"source") and "source" not in dict:
 				dict["source"]=gesture.source
+			if hasattr(gesture,"model") and "model" not in dict:
+				dict["model"]=gesture.model
 			if hasattr(gesture,"id") and "id" not in dict:
 				dict["id"]=gesture.id
 			elif hasattr(gesture,"identifiers") and "identifiers" not in dict:
