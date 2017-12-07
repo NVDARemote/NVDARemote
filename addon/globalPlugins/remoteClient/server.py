@@ -82,29 +82,31 @@ class Client(object):
 		Client.id += 1
 
 	def handle_data(self):
+		sock_data = ''
 		try:
-			data = self.buffer + self.socket.recv(16384)
+			sock_data = self.socket.recv(16384)
 		except:
 			self.close()
 			return
-		if data == '': #Disconnect
+		if sock_data == '': #Disconnect
 			self.close()
 			return
+		data = self.buffer + sock_data
 		if '\n' not in data:
 			self.buffer = data
 			return
 		self.buffer = ""
 		while '\n' in data:
 			line, sep, data = data.partition('\n')
-			self.parse(line)
+			try:
+				self.parse(line)
+			except ValueError:
+				self.close()
+				return
 		self.buffer += data
 
 	def parse(self, line):
-		try:
-			parsed = json.loads(line)
-		except ValueError:
-			self.close()
-			return
+		parsed = json.loads(line)
 		if 'type' not in parsed:
 			return
 		if self.authenticated:
