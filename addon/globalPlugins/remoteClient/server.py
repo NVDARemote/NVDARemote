@@ -3,9 +3,12 @@ import select
 import socket
 import ssl
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import json
-sys.path.remove(sys.path[-1])
+try:
+	import json
+except ImportError:
+	sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+	import json
+	sys.path.remove(sys.path[-1])
 import time
 
 class Server(object):
