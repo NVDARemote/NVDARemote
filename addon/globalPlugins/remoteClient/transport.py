@@ -41,8 +41,8 @@ class TCPTransport(Transport):
 
 	def run(self):
 		self.closed = False
-		self.server_sock = self.create_server_socket()
 		try:
+			self.server_sock = self.create_outbound_socket(self.address)
 			self.server_sock.connect(self.address)
 		except Exception as e:
 			self.callback_manager.call_callbacks('transport_connection_failed')
@@ -70,8 +70,9 @@ class TCPTransport(Transport):
 		self.callback_manager.call_callbacks('transport_disconnected')
 		self._disconnect()
 
-	def create_server_socket(self):
-		server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	def create_outbound_socket(self, address):
+		address = socket.getaddrinfo(*address)[0]
+		server_sock = socket.socket(*address[:3])
 		if self.timeout:
 			server_sock.settimeout(self.timeout)
 		server_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
