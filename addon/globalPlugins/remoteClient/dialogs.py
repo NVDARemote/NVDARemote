@@ -16,7 +16,7 @@ import addonHandler
 addonHandler.initTranslation()
 
 WX_VERSION = int(wx.version()[0])
-WX_CENTER = wx.Center if WX_VERSION>=4 else wx.Center_ON_SCREEN
+WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
 
 class ClientPanel(wx.Panel):
 
