@@ -383,8 +383,9 @@ class GlobalPlugin(GlobalPlugin):
 		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
 			self.sending_keys = False
 			self.set_receiving_braille(False)
+			# This is called from the hook thread and should be executed on the main thread.
 			# Translators: Presented when keyboard control is back to the controlling computer.
-			ui.message(_("Controlling local machine."))
+			wx.CallAfter(ui.message, _("Controlling local machine."))
 			return True #Don't pass it on
 		self.master_transport.send(type="key", **kwargs)
 		return True #Don't pass it on
