@@ -11,7 +11,6 @@ import zipfile
 
 import buildVars
 
-
 def md2html(source, dest):
 	import markdown
 	lang = os.path.basename(os.path.dirname(source)).replace('_', '-')
@@ -51,7 +50,6 @@ def mdTool(env):
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
-
 env = Environment(ENV=os.environ, tools=['gettexttool', mdTool])
 env.Append(**buildVars.addon_info)
 
@@ -66,7 +64,6 @@ def manifestGenerator(target, source, env, for_signature):
 	action = env.Action(lambda target, source, env : generateManifest(source[0].abspath, target[0].abspath) and None,
 	lambda target, source, env : "Generating manifest %s" % target[0])
 	return action
-
 
 def translatedManifestGenerator(target, source, env, for_signature):
 	dir = os.path.abspath(os.path.join(os.path.dirname(str(source[0])), ".."))
@@ -89,8 +86,6 @@ def createAddonHelp(dir):
 		readmePath = os.path.join(docsDir, "en", "readme.md")
 		readmeTarget = env.Command(readmePath, "readme.md", Copy("$TARGET", "$SOURCE"))
 		env.Depends(addon, readmeTarget)
-
-
 
 def createAddonBundleFromPath(path, dest):
 	""" Creates a bundle from a directory that contains an addon manifest file."""
