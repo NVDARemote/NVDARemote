@@ -124,29 +124,29 @@ class GlobalPlugin(GlobalPlugin):
 	def terminate(self):
 		self.disconnect()
 		self.local_machine = None
-		self.menu.RemoveItem(self.connect_item)
+		self.menu.Remove(self.connect_item.Id)
 		self.connect_item.Destroy()
 		self.connect_item=None
-		self.menu.RemoveItem(self.disconnect_item)
+		self.menu.Remove(self.disconnect_item.Id)
 		self.disconnect_item.Destroy()
 		self.disconnect_item=None
-		self.menu.RemoveItem(self.mute_item)
+		self.menu.Remove(self.mute_item.Id)
 		self.mute_item.Destroy()
 		self.mute_item=None
-		self.menu.RemoveItem(self.push_clipboard_item)
+		self.menu.Remove(self.push_clipboard_item.Id)
 		self.push_clipboard_item.Destroy()
 		self.push_clipboard_item=None
-		self.menu.RemoveItem(self.copy_link_item)
+		self.menu.Remove(self.copy_link_item.Id)
 		self.copy_link_item.Destroy()
 		self.copy_link_item = None
-		self.menu.RemoveItem(self.options_item)
+		self.menu.Remove(self.options_item.Id)
 		self.options_item.Destroy()
 		self.options_item=None
-		self.menu.RemoveItem(self.send_ctrl_alt_del_item)
+		self.menu.Remove(self.send_ctrl_alt_del_item.Id)
 		self.send_ctrl_alt_del_item.Destroy()
 		self.send_ctrl_alt_del_item=None
 		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
-		tools_menu.RemoveItem(self.remote_item)
+		tools_menu.Remove(self.remote_item.Id)
 		self.remote_item.Destroy()
 		self.remote_item=None
 		try:
