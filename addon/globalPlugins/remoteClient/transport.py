@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 import threading
 import time
 import Queue
@@ -7,7 +10,7 @@ import select
 from collections import defaultdict
 from logging import getLogger
 log = getLogger('transport')
-import callback_manager
+from . import callback_manager
 
 PROTOCOL_VERSION = 2
 

@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 REMOTE_KEY = "kb:f11"
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import json
+from . import json
 sys.path.remove(sys.path[-1])
 import threading
 import time
@@ -14,34 +17,34 @@ import Queue
 import select
 import wx
 from config import isInstalledCopy
-import configuration
+from . import configuration
 import gui
-import beep_sequence
+from . import beep_sequence
 import speech
-from transport import RelayTransport
+from .transport import RelayTransport
 import braille
-import local_machine
-import serializer
-from session import MasterSession, SlaveSession
-import url_handler
+from . import local_machine
+from . import serializer
+from .session import MasterSession, SlaveSession
+from . import url_handler
 import time
 import ui
 import addonHandler
 addonHandler.initTranslation()
-import keyboard_hook
+from . import keyboard_hook
 import ctypes.wintypes as ctypes
 import win32con
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 from logHandler import log
-import dialogs
+from . import dialogs
 import IAccessibleHandler
 import tones
 import globalVars
 import shlobj
 import uuid
-import server
-import bridge
-from socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
+from . import server
+from . import bridge
+from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
 import ssl
 

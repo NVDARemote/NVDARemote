@@ -1,10 +1,13 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 import os
 import select
 import socket
 import ssl
 import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import json
+from . import json
 sys.path.remove(sys.path[-1])
 import time
 
