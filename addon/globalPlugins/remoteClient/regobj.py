@@ -141,6 +141,9 @@ that key (i.e. the value with name ""):
 And that's that - enjoy!
 
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 __ver_major__ = 0
 __ver_minor__ = 2

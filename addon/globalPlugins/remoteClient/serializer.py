@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 from logging import getLogger
 log = getLogger('serializer')
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import json
+from . import json
 sys.path.remove(sys.path[-1])
 import speech
 

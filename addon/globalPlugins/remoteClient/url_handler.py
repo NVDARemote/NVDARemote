@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 try:
 	from logHandler import log
 except ImportError:
@@ -7,8 +10,8 @@ except ImportError:
 import ctypes
 import os
 import win32con
-import regobj
-import connection_info
+from . import regobj
+from . import connection_info
 
 import windowUtils
 import wx

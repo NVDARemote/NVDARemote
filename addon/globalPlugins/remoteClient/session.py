@@ -1,15 +1,18 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 import threading
 import time
-import connection_info
+from . import connection_info
 import gui
 import speech
 import ui
 import tones
 import braille
-import configuration
-import nvda_patcher
+from . import configuration
+from . import nvda_patcher
 from collections import defaultdict
-import connection_info
+from . import connection_info
 import hashlib
 
 class RemoteSession(object):
