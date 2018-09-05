@@ -110,7 +110,7 @@ class ServerPanel(wx.Panel):
 		port = data['port']
 		is_open = data['open']
 		if is_open:
-			wx.MessageBox(message=_("Successfully retrieved IP address. Port {port} is open.".format(port=port)), caption=_("Success"), style=wx.OK)
+			wx.MessageBox(message=_("Successfully retrieved IP address. Port {port} is open.").format(port=port), caption=_("Success"), style=wx.OK)
 		else:
 			wx.MessageBox(message=_("Retrieved external IP, but port {port} is not currently forwarded.".format(port=port)), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
 		self.external_IP.SetValue(ip)
