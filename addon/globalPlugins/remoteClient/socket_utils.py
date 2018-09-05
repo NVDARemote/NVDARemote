@@ -11,6 +11,8 @@ def address_to_hostport(addr):
 
 def hostport_to_address(hostport):
 	host, port = hostport
+	if ':' in host:
+		host = '[' + host + ']'
 	if port != SERVER_PORT:
 		return host+':'+str(port)
 	return host
