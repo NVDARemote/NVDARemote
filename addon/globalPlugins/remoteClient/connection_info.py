@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 import urllib
 import urlparse
-import socket_utils
+from . import socket_utils
 
 URL_PREFIX = 'nvdaremote://'
 

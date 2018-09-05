@@ -1,17 +1,20 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import json
+from . import json
 sys.path.remove(sys.path[-1])
 import random
 import threading
 import urllib
 import wx
 import gui
-import serializer
-import server
-import transport
-import socket_utils
+from . import serializer
+from . import server
+from . import transport
+from . import socket_utils
 import addonHandler
 addonHandler.initTranslation()
 
