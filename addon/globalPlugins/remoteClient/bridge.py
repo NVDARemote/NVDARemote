@@ -7,8 +7,8 @@ class BridgeTransport(object):
 	def __init__(self, t1, t2):
 		self.t1 = t1
 		self.t2 = t2
-		t1.callback_manager.register_callback('*', self.send_to_t2)
-		t2.callback_manager.register_callback('*', self.send_to_t1)
+		t1.register_callback('*', self.send_to_t2)
+		t2.register_callback('*', self.send_to_t1)
 
 	def send(self, transport, callback, *args, **kwargs):
 		if not callback.startswith('msg_'):

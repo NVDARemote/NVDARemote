@@ -41,7 +41,7 @@ class ClientPanel(wx.Panel):
 		evt.Skip()
 		address = socket_utils.address_to_hostport(self.host.GetValue())
 		self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer())
-		self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
+		self.key_connector.register_callback('msg_generate_key', self.handle_key_generated)
 		t = threading.Thread(target=self.key_connector.run)
 		t.start()
 

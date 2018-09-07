@@ -333,10 +333,10 @@ class GlobalPlugin(GlobalPlugin):
 	def connect_as_master(self, address, key):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
-		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
-		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
-		transport.callback_manager.register_callback('transport_closing', self.disconnecting_as_master)
-		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_as_master)
+		transport.register_callback('transport_connected', self.on_connected_as_master)
+		transport.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
+		transport.register_callback('transport_closing', self.disconnecting_as_master)
+		transport.register_callback('transport_disconnected', self.on_disconnected_as_master)
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
@@ -344,7 +344,7 @@ class GlobalPlugin(GlobalPlugin):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
-		self.slave_transport.callback_manager.register_callback('transport_connected', self.on_connected_as_slave)
+		self.slave_transport.register_callback('transport_connected', self.on_connected_as_slave)
 		self.slave_transport.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
@@ -438,8 +438,8 @@ class GlobalPlugin(GlobalPlugin):
 		server_thread.daemon = True
 		server_thread.start()
 		self.sd_relay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel)
-		self.sd_relay.callback_manager.register_callback('msg_client_joined', self.on_master_display_change)
-		self.slave_transport.callback_manager.register_callback('msg_set_braille_info', self.on_master_display_change)
+		self.sd_relay.register_callback('msg_client_joined', self.on_master_display_change)
+		self.slave_transport.register_callback('msg_set_braille_info', self.on_master_display_change)
 		self.sd_bridge = bridge.BridgeTransport(self.slave_transport, self.sd_relay)
 		relay_thread = threading.Thread(target=self.sd_relay.run)
 		relay_thread.daemon = True
@@ -457,7 +457,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.sd_server = None
 		self.sd_relay.close()
 		self.sd_relay = None
-		self.slave_transport.callback_manager.unregister_callback('msg_set_braille_info', self.on_master_display_change)
+		self.slave_transport.unregister_callback('msg_set_braille_info', self.on_master_display_change)
 		self.slave_session.set_display_size()
 
 	def on_master_display_change(self, **kwargs):
