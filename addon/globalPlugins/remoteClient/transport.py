@@ -28,6 +28,9 @@ class Transport(object):
 	def register_callback(self, event_type, callback):
 		return self.callback_manager.register_callback(event_type, callback)
 
+	def unregister_callback(self, event_type, callback):
+		return self.callback_manager.unregister_callback(event_type, callback)
+
 class TCPTransport(Transport):
 
 	def __init__(self, serializer, address, timeout=0):

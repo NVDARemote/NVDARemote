@@ -25,5 +25,5 @@ class BridgeTransport(object):
 		self.send(self.t1, callback, *args, **kwargs)
 
 	def disconnect(self):
-		self.t1.callback_manager.unregister_callback('*', self.send_to_t2)
-		self.t2.callback_manager.unregister_callback('*', self.send_to_t1)
+		self.t1.unregister_callback('*', self.send_to_t2)
+		self.t2.unregister_callback('*', self.send_to_t1)
