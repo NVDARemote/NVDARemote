@@ -18,8 +18,8 @@ class RemoteSession(object):
 		self.local_machine = local_machine
 		self.patcher = None
 		self.transport = transport
-		self.transport.callback_manager.register_callback('msg_version_mismatch', self.handle_version_mismatch)
-		self.transport.callback_manager.register_callback('msg_motd', self.handle_motd)
+		self.transport.register_callback('msg_version_mismatch', self.handle_version_mismatch)
+		self.transport.register_callback('msg_motd', self.handle_motd)
 
 	def handle_version_mismatch(self, **kwargs):
 		#translators: Message for version mismatch
@@ -50,22 +50,22 @@ class SlaveSession(RemoteSession):
 
 	def __init__(self, *args, **kwargs):
 		super(SlaveSession, self).__init__(*args, **kwargs)
-		self.transport.callback_manager.register_callback('msg_client_joined', self.handle_client_connected)
-		self.transport.callback_manager.register_callback('msg_client_left', self.handle_client_disconnected)
-		self.transport.callback_manager.register_callback('msg_key', self.local_machine.send_key)
+		self.transport.register_callback('msg_client_joined', self.handle_client_connected)
+		self.transport.register_callback('msg_client_left', self.handle_client_disconnected)
+		self.transport.register_callback('msg_key', self.local_machine.send_key)
 		self.masters = defaultdict(dict)
 		self.master_display_sizes=[]
 		self.last_client_index = None
-		self.transport.callback_manager.register_callback('msg_index', self.update_index)
-		self.transport.callback_manager.register_callback('transport_closing', self.handle_transport_closing)
+		self.transport.register_callback('msg_index', self.update_index)
+		self.transport.register_callback('transport_closing', self.handle_transport_closing)
 		self.patcher = nvda_patcher.NVDASlavePatcher()
 		self.patch_callbacks_added = False
-		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
-		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
-		self.transport.callback_manager.register_callback('msg_set_braille_info', self.handle_braille_info)
-		self.transport.callback_manager.register_callback('msg_set_display_size', self.set_display_size)
-		self.transport.callback_manager.register_callback('msg_braille_input', self.local_machine.braille_input)
-		self.transport.callback_manager.register_callback('msg_send_SAS', self.local_machine.send_SAS)
+		self.transport.register_callback('msg_channel_joined', self.handle_channel_joined)
+		self.transport.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
+		self.transport.register_callback('msg_set_braille_info', self.handle_braille_info)
+		self.transport.register_callback('msg_set_display_size', self.set_display_size)
+		self.transport.register_callback('msg_braille_input', self.local_machine.braille_input)
+		self.transport.register_callback('msg_send_SAS', self.local_machine.send_SAS)
 
 
 	def get_connection_info(self):
@@ -161,19 +161,19 @@ class MasterSession(RemoteSession):
 		self.index_thread = None
 		self.patcher = nvda_patcher.NVDAMasterPatcher()
 		self.patch_callbacks_added = False
-		self.transport.callback_manager.register_callback('msg_speak', self.local_machine.speak)
-		self.transport.callback_manager.register_callback('msg_cancel', self.local_machine.cancel_speech)
-		self.transport.callback_manager.register_callback('msg_tone', self.local_machine.beep)
-		self.transport.callback_manager.register_callback('msg_wave', self.local_machine.play_wave)
-		self.transport.callback_manager.register_callback('msg_display', self.local_machine.display)
-		self.transport.callback_manager.register_callback('msg_nvda_not_connected', self.handle_nvda_not_connected)
-		self.transport.callback_manager.register_callback('msg_client_joined', self.handle_client_connected)
-		self.transport.callback_manager.register_callback('msg_client_left', self.handle_client_disconnected)
-		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
-		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
-		self.transport.callback_manager.register_callback('msg_send_braille_info', self.send_braille_info)
-		self.transport.callback_manager.register_callback('transport_connected', self.handle_connected)
-		self.transport.callback_manager.register_callback('transport_disconnected', self.handle_disconnected)
+		self.transport.register_callback('msg_speak', self.local_machine.speak)
+		self.transport.register_callback('msg_cancel', self.local_machine.cancel_speech)
+		self.transport.register_callback('msg_tone', self.local_machine.beep)
+		self.transport.register_callback('msg_wave', self.local_machine.play_wave)
+		self.transport.register_callback('msg_display', self.local_machine.display)
+		self.transport.register_callback('msg_nvda_not_connected', self.handle_nvda_not_connected)
+		self.transport.register_callback('msg_client_joined', self.handle_client_connected)
+		self.transport.register_callback('msg_client_left', self.handle_client_disconnected)
+		self.transport.register_callback('msg_channel_joined', self.handle_channel_joined)
+		self.transport.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
+		self.transport.register_callback('msg_send_braille_info', self.send_braille_info)
+		self.transport.register_callback('transport_connected', self.handle_connected)
+		self.transport.register_callback('transport_disconnected', self.handle_disconnected)
 
 
 	def get_connection_info(self):

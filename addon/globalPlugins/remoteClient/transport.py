@@ -25,6 +25,9 @@ class Transport(object):
 		self.connected = True
 		self.callback_manager.call_callbacks('transport_connected')
 
+	def register_callback(self, event_type, callback):
+		return self.callback_manager.register_callback(event_type, callback)
+
 class TCPTransport(Transport):
 
 	def __init__(self, serializer, address, timeout=0):
