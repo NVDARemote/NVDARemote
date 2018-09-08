@@ -97,16 +97,17 @@ class TCPTransport(Transport):
 			return
 		while '\n' in data:
 			line, sep, data = data.partition('\n')
-			self.parse(line)
+			self.parse(line, self.callback_manager)
 		self.buffer += data
 
-	def parse(self, line):
+	def parse(self, line, callback_manager, **kwargs):
 		obj = self.serializer.deserialize(line)
 		if 'type' not in obj:
 			return
+		obj.update(kwargs)
 		callback = "msg_"+obj['type']
 		del obj['type']
-		self.callback_manager.call_callbacks(callback, **obj)
+		callback_manager.call_callbacks(callback, **obj)
 
 	def send_queue(self):
 		while True:
