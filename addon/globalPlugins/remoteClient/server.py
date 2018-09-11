@@ -11,7 +11,7 @@ import time
 class Server(object):
 	PING_TIME = 300
 
-	def __init__(self, port, password, bind_host='', bind_host6='[::]'):
+	def __init__(self, port, password, bind_host='', bind_host6='[::]', suppress_origin=False):
 		self.port = port
 		self.password = password
 		#Maps client sockets to clients
@@ -20,6 +20,8 @@ class Server(object):
 		self.running = False
 		self.server_socket = self.create_server_socket(socket.AF_INET, socket.SOCK_STREAM, bind_addr=(bind_host, self.port))
 		self.server_socket6 = self.create_server_socket(socket.AF_INET6, socket.SOCK_STREAM, bind_addr=(bind_host6, self.port))
+		# Suppress orogin because when using the bridge relay, the remote server already sends it
+		self.suppress_origin = suppress_origin
 
 	def create_server_socket(self, family, type, bind_addr):
 		server_socket = socket.socket(family, type)
@@ -115,7 +117,10 @@ class Client(object):
 		if 'type' not in parsed:
 			return
 		if self.authenticated:
-			self.send_to_others(**parsed)
+			if self.server.suppress_origin:
+				self.send_to_others(**parsed)
+			else:
+				self.send_to_others(origin=self.id, **parsed)
 			return
 		fn = 'do_'+parsed['type']
 		if hasattr(self, fn):
@@ -139,7 +144,10 @@ class Client(object):
 				continue
 			clients.append(c.as_dict())
 			client_ids.append(c.id)
-		self.send(type='channel_joined', channel=self.server.password, user_ids=client_ids, clients=clients)
+		if self.server.suppress_origin:
+			self.send(type='channel_joined', channel=self.server.password, user_ids=client_ids, clients=clients)
+		else:
+			self.send(type='channel_joined', channel=self.server.password, user_ids=client_ids, clients=clients, origin=self.id)
 		self.send_to_others(type='client_joined', user_id=self.id, client=self.as_dict())
 
 	def do_protocol_version(self, obj):

@@ -432,7 +432,7 @@ class GlobalPlugin(GlobalPlugin):
 		if not os.path.exists(self.temp_location):
 			os.makedirs(self.temp_location)
 		channel = str(uuid.uuid4())
-		self.sd_server = server.Server(port=0, password=channel, bind_host='127.0.0.1')
+		self.sd_server = server.Server(port=0, password=channel, bind_host='127.0.0.1', suppress_origin=True)
 		port = self.sd_server.server_socket.getsockname()[1]
 		server_thread = threading.Thread(target=self.sd_server.run)
 		server_thread.daemon = True
