@@ -1,3 +1,7 @@
+import os
+import sys
+import base64
+import hashlib
 import threading
 import time
 import Queue
@@ -7,7 +11,13 @@ import select
 from collections import defaultdict
 from logging import getLogger
 log = getLogger('transport')
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+from spake2 import SPAKE2_A, SPAKE2_B
+sys.path.remove(sys.path[-1])
 import callback_manager
+import pysodium
+if pysodium.sodium_init() < 0:
+	raise RuntimeError("Unable to call sodium_init")
 
 PROTOCOL_VERSION = 2
 
@@ -159,6 +169,218 @@ class RelayTransport(TCPTransport):
 		else:
 			self.send('generate_key')
 
+class EncryptedRelayTransport(RelayTransport):
+
+	PADDING_BLOCKSIZE = 16
+
+	def __init__(self, *args, **kwargs):
+		super(EncryptedRelayTransport, self).__init__(*args, **kwargs)
+		# A map of slave IDs to spake2 instances
+		self.key_map = {}
+		# Map of client IDs to session keys
+		self.session_keys = {}
+		self.my_id = 0
+		self.hashed_channel = e2e_channel_from_key(self.channel)
+		self.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
+		self.callback_manager.register_callback('msg_client_joined', self.handle_client_joined)
+		self.callback_manager.register_callback('msg_client_left', self.handle_client_left)
+		self.callback_manager.register_callback('msg_get_enc_key', self.handle_get_enc_key)
+		self.callback_manager.register_callback('msg_put_enc_key', self.handle_put_enc_key)
+		self.callback_manager.register_callback('msg_e2e_message', self.handle_e2e_message)
+		self.encrypted_callback_manager = callback_manager.CallbackManager()
+		self.clients = {}
+		self.authenticated_clients = {}
+		self.key_sequence = -1
+		self.key_sequence_map = {}
+
+	def on_connected(self):
+		self.send_unencrypted('protocol_version', version=self.protocol_version)
+		if self.channel is not None:
+			self.send_unencrypted('join', channel=self.hashed_channel, connection_type=self.connection_type)
+		else:
+			self.send_unencrypted('generate_key')
+
+	IGNORED_CALLBACKS = ('msg_version_mismatch', 'msg_motd', 'transport_connected', 'transport_connection_failed', 'transport_closing',)
+
+	def register_callback(self, event_type, callback):
+		if event_type in self.IGNORED_CALLBACKS:
+			return self.callback_manager.register_callback(event_type, callback)
+		return self.encrypted_callback_manager.register_callback(event_type, callback)
+
+	def unregister_callback(self, event_type, callback):
+		if event_type in self.IGNORED_CALLBACKS:
+			return self.callback_manager.unregister_callback(event_type, callback)
+		return self.encrypted_callback_manager.unregister_callback(event_type, callback)
+
+	def handle_channel_joined(self, origin=None, clients=None, **kwargs):
+		if clients is None:
+			clients = []
+		self.my_id = origin
+		for client in clients:
+			self.handle_client_joined(client)
+		# Tell the session we joined the channel, but nobody has been authenticated yet.
+		self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=[], **kwargs)
+
+	def handle_client_joined(self, client=None, **kwargs):
+		self.clients[client['id']] = client
+		if self.connection_type == 'master' and client['connection_type'] == 'slave':
+			self.key_map[client['id']] = SPAKE2_A(self.channel.encode('utf-8'))
+			msg = self.key_map[client['id']].start()
+			b64 = base64.b64encode(msg)
+			log.debug("Sending first key exchange message to slave %d", client['id'])
+			self.send_unencrypted(type='get_enc_key', msg=b64, id_to=client['id'])
+		elif (self.connection_type == 'master' and client['connection_type'] == 'master') or (self.connection_type == 'slave' and client['connection_type'] == 'slave'):
+			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=client, **kwargs)
+
+	def handle_client_left(self, client=None, **kwargs):
+		if client['id'] in self.clients:
+			del self.clients[client['id']]
+		if client['id'] in self.key_map:
+			del self.key_map[client['id']]
+		if client['id'] in self.session_keys:
+			del self.session_keys[client['id']]
+		if self.key_sequence in self.key_sequence_map and client['id'] in self.key_sequence_map[self.key_sequence]['expected_nonce_map']:
+			del self.key_sequence_map[self.key_sequence]['expected_nonce_map'][client['id']]
+		if (self.connection_type == 'master' and client['connection_type'] == 'slave') or (self.connection_type == 'slave' and client['connection_type'] == 'master'):
+			if client['id'] in self.authenticated_clients:
+				del self.authenticated_clients[client['id']]
+				self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
+		elif (self.connection_type == 'master' and client['connection_type'] == 'master') or (self.connection_type == 'slave' and client['connection_type'] == 'slave'):
+			self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
+		# Clear encryption key if we're a slave, and all masters have left
+		if self.connection_type == 'slave' and client['connection_type'] == 'master':
+			master_exists = any(c for c in self.authenticated_clients.values() if c['connection_type'] == 'master')
+			if not master_exists:
+				self.k = None
+				log.debug("cleared k")
+
+	def handle_e2e_message(self, origin=None, msg=None, key_sequence=None, iv=None, **kwargs):
+		if key_sequence is None:
+			return
+		if key_sequence not in self.key_sequence_map:
+			return # We don't have the encryption key for this key sequence
+		expected_nonce_map = self.key_sequence_map[key_sequence]['expected_nonce_map']
+		expected_nonce = expected_nonce_map.get(origin)
+		got_iv = False
+		if expected_nonce is None:
+			if iv is None:
+				return # No nonce and none was provided, ignore the message
+			iv = base64.b64decode(iv)
+			if iv in self.key_sequence_map[self.key_sequence]['ivs']:
+				return # Already seen this IV, could be a replay
+			got_iv = True
+			expected_nonce = iv
+
+		try:
+			decoded = base64.b64decode(msg)
+			data = self.decrypt(decoded, expected_nonce, self.key_sequence_map[self.key_sequence]['k'])
+			data = pysodium.unpad(data, self.PADDING_BLOCKSIZE)
+		except ValueError:
+			return # Can't decrypt the message
+		if got_iv:
+			if data[0] != '\x01':
+				return # Not the initial message
+			self.key_sequence_map[self.key_sequence]['ivs'].add(expected_nonce)
+		expected_nonce_map[origin] = pysodium.increment(expected_nonce)
+		super(EncryptedRelayTransport, self).parse(data[1:], self.encrypted_callback_manager, origin=origin)
+
+	def send(self, type, **kwargs):
+		if self.key_sequence not in self.key_sequence_map:
+			return
+		nonce = self.key_sequence_map[self.key_sequence].get('nonce')
+		include_nonce = False
+		if nonce is None:
+			nonce = self.get_random_nonce()
+			include_nonce = True
+		obj = self.serializer.serialize(type=type, **kwargs)
+		initial_byte = ('\x01' if include_nonce else '\x00')
+		obj = pysodium.pad(initial_byte + obj, self.PADDING_BLOCKSIZE)
+		encrypted_obj = self.encrypt(obj, nonce, self.key_sequence_map[self.key_sequence]['k'])
+		d = {}
+		if include_nonce:
+			d['iv'] = base64.b64encode(nonce)
+		self.send_unencrypted(type='e2e_message', msg=base64.b64encode(encrypted_obj), key_sequence=self.key_sequence, **d)
+		self.key_sequence_map[self.key_sequence]['nonce'] = pysodium.increment(nonce)
+
+	def handle_get_enc_key(self, origin=None, msg=None, id_to=None):
+		"""Sent by the master to negotiate a temporary session key with the slave."""
+		if self.my_id != id_to:
+			return
+		# Key negotiation as the slave needs SPAKE2_B
+		s2 = SPAKE2_B(self.channel.encode('utf-8'))
+		our_msg = s2.start()
+		key = s2.finish(base64.b64decode(msg))
+		self.session_keys[origin] = key
+		# Increment our key sequence, and rekey everyone.
+		self.key_sequence += 1
+		log.debug("Generating new key sequence %d", self.key_sequence)
+		self.key_sequence_map[self.key_sequence]= {}
+		self.key_sequence_map[self.key_sequence]['k'] = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
+		self.key_sequence_map[self.key_sequence]['ivs'] = set()
+		# Maps client IDs to expected nonces
+		self.key_sequence_map[self.key_sequence]['expected_nonce_map'] = {}
+		log.debug("Generated new k")
+		# Send the second part of the key negotiation, with the encrypted channel key
+		self.authenticated_clients[origin] = self.clients[origin]
+		# Generate the list of k, encrypted with all the session keys
+		key_list = []
+		k = self.key_sequence_map[self.key_sequence]['k']
+		for session_key in self.session_keys.values():
+			nonce = self.get_random_nonce()
+			encrypted_k = self.encrypt(k, nonce, session_key)
+			key_list.append(base64.b64encode(nonce + encrypted_k))
+		self.send_unencrypted(type='put_enc_key', key_sequence=self.key_sequence, id_to=origin, msg=base64.b64encode(our_msg), enc_keys=key_list)
+		self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[origin])
+		log.debug("Sent put_enc_key to %d, sequence %d", origin, self.key_sequence)
+
+	def handle_put_enc_key(self, origin=None, id_to=None, msg=None, enc_keys=None, key_sequence=None, **kwargs):
+		"""Message received by the master when the slave has finished the key negotiation."""
+		if self.my_id == id_to and origin not in self.session_keys:
+			session_key = self.key_map[origin].finish(base64.b64decode(msg))
+			self.key_sequence_map = {}
+			self.session_keys[origin] = session_key
+		else:
+			session_key = self.session_keys.get(origin)
+		if session_key is None:
+			return
+		k = None
+		for encrypted_k in enc_keys:
+			encrypted_k = base64.b64decode(encrypted_k)
+			nonce = encrypted_k[:pysodium.crypto_secretbox_NONCEBYTES]
+			encrypted_k = encrypted_k[pysodium.crypto_secretbox_NONCEBYTES:]
+			try:
+				k = self.decrypt(encrypted_k, nonce, session_key)
+				break
+			except ValueError:
+				continue
+		if k is None:
+			log.debug("K couldn't be decrypted")
+			return
+		self.key_sequence = key_sequence
+		self.key_sequence_map[self.key_sequence] = {
+			'k': k,
+			'ivs': set(),
+			'expected_nonce_map': {},
+		}
+		log.debug("Negotiated channel key")
+		if id_to == self.my_id:
+			self.authenticated_clients[origin] = self.clients[origin]
+			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[origin])
+
+	def send_unencrypted(self, type, **kwargs):
+		super(EncryptedRelayTransport, self).send(type, **kwargs)
+
+	def get_random_nonce(self):
+		return pysodium.randombytes(pysodium.crypto_secretbox_NONCEBYTES)
+
+	def encrypt(self, message, nonce, key):
+		"""Encrypts a message."""
+		return pysodium.crypto_secretbox(message, nonce, key)
+
+	def decrypt(self, message, nonce, key):
+		"""Decrypts a message."""
+		return pysodium.crypto_secretbox_open(message, nonce, key)
+
 class ConnectorThread(threading.Thread):
 
 	def __init__(self, connector, connect_delay=5):
@@ -186,3 +408,6 @@ def clear_queue(queue):
 			queue.get_nowait()
 	except:
 		pass
+
+def e2e_channel_from_key(key):
+	return "E2E_" + hashlib.pbkdf2_hmac('sha256', key.encode('utf-8'), 'NVDA_REMOTE_SALT', 500000).encode('hex')

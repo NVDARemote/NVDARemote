@@ -36,6 +36,7 @@ import os.path
 pythonSources = [
 	'addon/globalPlugins/*/*.py',
 	'addon/globalPlugins/*/*.exe',
+	'addon/globalPlugins/*/*.dll',
 	'addon/synthDrivers/*/*.py',
 ]
 

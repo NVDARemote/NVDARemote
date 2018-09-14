@@ -18,7 +18,7 @@ import configuration
 import gui
 import beep_sequence
 import speech
-from transport import RelayTransport
+from transport import RelayTransport, EncryptedRelayTransport
 import braille
 import local_machine
 import serializer
@@ -330,8 +330,11 @@ class GlobalPlugin(GlobalPlugin):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_as_master(self, address, key):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
+	def connect_as_master(self, address, key, disable_e2e=False):
+		if disable_e2e:
+			transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
+		else:
+			transport = EncryptedRelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
 		transport.register_callback('transport_connected', self.on_connected_as_master)
 		transport.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
@@ -340,8 +343,11 @@ class GlobalPlugin(GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_as_slave(self, address, key):
-		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
+	def connect_as_slave(self, address, key, disable_e2e=False):
+		if disable_e2e:
+			transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
+		else:
+			transport = EncryptedRelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
 		self.slave_transport.register_callback('transport_connected', self.on_connected_as_slave)
@@ -358,7 +364,9 @@ class GlobalPlugin(GlobalPlugin):
 		self.copy_link_item.Enable(True)
 		configuration.write_connection_to_config(self.slave_transport.address)
 
-	def start_control_server(self, server_port, channel):
+	def start_control_server(self, server_port, channel, disable_e2e=False):
+		if not disable_e2e:
+			channel = transport.e2e_channel_from_key(channel)
 		self.server = server.Server(server_port, channel)
 		server_thread = threading.Thread(target=self.server.run)
 		server_thread.daemon = True
@@ -473,7 +481,7 @@ class GlobalPlugin(GlobalPlugin):
 			test_socket=ssl.wrap_socket(test_socket)
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
-			self.connect_as_slave(('127.0.0.1', port), channel)
+			self.connect_as_slave(('127.0.0.1', port), channel, disable_e2e=True)
 		except:
 			pass
 
