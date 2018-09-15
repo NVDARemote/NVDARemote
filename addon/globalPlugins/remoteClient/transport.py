@@ -200,7 +200,7 @@ class EncryptedRelayTransport(RelayTransport):
 		else:
 			self.send_unencrypted('generate_key')
 
-	IGNORED_CALLBACKS = ('msg_version_mismatch', 'msg_motd', 'transport_connected', 'transport_connection_failed', 'transport_closing',)
+	IGNORED_CALLBACKS = ('msg_version_mismatch', 'msg_motd', 'transport_connected', 'transport_connection_failed', 'transport_closing', 'transport_disconnected')
 
 	def register_callback(self, event_type, callback):
 		if event_type in self.IGNORED_CALLBACKS:
