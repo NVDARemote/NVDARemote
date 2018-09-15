@@ -189,7 +189,6 @@ class EncryptedRelayTransport(RelayTransport):
 		self.callback_manager.register_callback('msg_e2e_message', self.handle_e2e_message)
 		self.encrypted_callback_manager = callback_manager.CallbackManager()
 		self.clients = {}
-		self.authenticated_clients = {}
 		self.key_sequence = -1
 		self.key_sequence_map = {}
 
@@ -216,10 +215,10 @@ class EncryptedRelayTransport(RelayTransport):
 		if clients is None:
 			clients = []
 		self.my_id = origin
+		# Tell the session we joined the channel with an empty client list
+		self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=[], **kwargs)
 		for client in clients:
 			self.handle_client_joined(client)
-		# Tell the session we joined the channel, but nobody has been authenticated yet.
-		self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=[], **kwargs)
 
 	def handle_client_joined(self, client=None, **kwargs):
 		self.clients[client['id']] = client
@@ -229,8 +228,7 @@ class EncryptedRelayTransport(RelayTransport):
 			b64 = base64.b64encode(msg)
 			log.debug("Sending first key exchange message to slave %d", client['id'])
 			self.send_unencrypted(type='get_enc_key', msg=b64, id_to=client['id'])
-		elif (self.connection_type == 'master' and client['connection_type'] == 'master') or (self.connection_type == 'slave' and client['connection_type'] == 'slave'):
-			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=client, **kwargs)
+		self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=client, **kwargs)
 
 	def handle_client_left(self, client=None, **kwargs):
 		if client['id'] in self.clients:
@@ -241,12 +239,7 @@ class EncryptedRelayTransport(RelayTransport):
 			del self.session_keys[client['id']]
 		if self.key_sequence in self.key_sequence_map and client['id'] in self.key_sequence_map[self.key_sequence]['expected_nonce_map']:
 			del self.key_sequence_map[self.key_sequence]['expected_nonce_map'][client['id']]
-		if (self.connection_type == 'master' and client['connection_type'] == 'slave') or (self.connection_type == 'slave' and client['connection_type'] == 'master'):
-			if client['id'] in self.authenticated_clients:
-				del self.authenticated_clients[client['id']]
-				self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
-		elif (self.connection_type == 'master' and client['connection_type'] == 'master') or (self.connection_type == 'slave' and client['connection_type'] == 'slave'):
-			self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
+		self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
 
 	def handle_e2e_message(self, origin=None, msg=None, key_sequence=None, iv=None, **kwargs):
 		if key_sequence is None:
@@ -315,7 +308,6 @@ class EncryptedRelayTransport(RelayTransport):
 		self.key_sequence_map[self.key_sequence]['expected_nonce_map'] = {}
 		log.debug("Generated new k")
 		# Send the second part of the key negotiation, with the encrypted channel key
-		self.authenticated_clients[origin] = self.clients[origin]
 		# Generate the list of k, encrypted with all the session keys
 		key_list = []
 		k = self.key_sequence_map[self.key_sequence]['k']
@@ -324,7 +316,6 @@ class EncryptedRelayTransport(RelayTransport):
 			encrypted_k = self.encrypt(k, nonce, session_key)
 			key_list.append(base64.b64encode(nonce + encrypted_k))
 		self.send_unencrypted(type='put_enc_key', key_sequence=self.key_sequence, id_to=origin, msg=base64.b64encode(our_msg), enc_keys=key_list)
-		self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[origin])
 		log.debug("Sent put_enc_key to %d, sequence %d", origin, self.key_sequence)
 
 	def handle_put_enc_key(self, origin=None, id_to=None, msg=None, enc_keys=None, key_sequence=None, **kwargs):
@@ -357,9 +348,6 @@ class EncryptedRelayTransport(RelayTransport):
 			'expected_nonce_map': {},
 		}
 		log.debug("Negotiated channel key")
-		if id_to == self.my_id:
-			self.authenticated_clients[origin] = self.clients[origin]
-			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[origin])
 
 	def send_unencrypted(self, type, **kwargs):
 		super(EncryptedRelayTransport, self).send(type, **kwargs)
