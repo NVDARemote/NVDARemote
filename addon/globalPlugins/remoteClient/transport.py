@@ -363,6 +363,14 @@ class EncryptedRelayTransport(RelayTransport):
 		"""Decrypts a message."""
 		return pysodium.crypto_secretbox_open(message, nonce, key)
 
+	def run(self):
+		self.key_map = {}
+		self.session_keys = {}
+		self.clients = {}
+		self.key_sequence = -1
+		self.key_sequence_map = {}
+		super(EncryptedRelayTransport, self).run()
+
 class ConnectorThread(threading.Thread):
 
 	def __init__(self, connector, connect_delay=5):
