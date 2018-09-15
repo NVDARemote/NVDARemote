@@ -9,7 +9,7 @@ import Queue
 import ssl
 import socket
 import select
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from logging import getLogger
 log = getLogger('transport')
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -193,7 +193,8 @@ class EncryptedRelayTransport(RelayTransport):
 		self.callback_manager.register_callback('msg_put_enc_key', self.handle_put_enc_key)
 		self.callback_manager.register_callback('msg_e2e_message', self.handle_e2e_message)
 		self.encrypted_callback_manager = callback_manager.CallbackManager()
-		self.clients = {}
+		self.clients = OrderedDict()
+		self.coordinator = None
 		self.key_sequence = -1
 		self.key_sequence_map = {}
 
@@ -223,23 +224,19 @@ class EncryptedRelayTransport(RelayTransport):
 		if clients is None:
 			clients = []
 		self.my_id = origin
-		# Tell the session we joined the channel with an empty client list
-		self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=[], **kwargs)
+		self.coordinator = self.my_id
+		self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=clients, **kwargs)
 		for client in clients:
-			self.handle_client_joined(client)
+			self.clients[client['id']] = client
+		self.clients[self.my_id] = {'id': self.my_id, 'connection_type': self.connection_type}
+		self.update_coordinator()
 
 	def handle_client_joined(self, client=None, **kwargs):
 		self.clients[client['id']] = client
-		if self.connection_type == 'master' and client['connection_type'] == 'slave':
-			self.key_map[client['id']] = SPAKE2_A(self.channel.encode('utf-8'))
-			msg = self.key_map[client['id']].start()
-			b64 = base64.b64encode(msg)
-			log.debug("Sending first key exchange message to slave %d", client['id'])
-			self.send_unencrypted(type='get_enc_key', msg=b64, id_to=client['id'])
-		self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=client, **kwargs)
+		self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=client)
 
 	def handle_client_left(self, client=None, **kwargs):
-		if client['id'] in self.clients:
+		if client['id'] in self.clients and client['id'] != self.my_id:
 			del self.clients[client['id']]
 		if client['id'] in self.key_map:
 			del self.key_map[client['id']]
@@ -248,6 +245,7 @@ class EncryptedRelayTransport(RelayTransport):
 		if self.key_sequence in self.key_sequence_map and client['id'] in self.key_sequence_map[self.key_sequence]['expected_nonce_map']:
 			del self.key_sequence_map[self.key_sequence]['expected_nonce_map'][client['id']]
 		self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
+		self.update_coordinator()
 
 	def handle_e2e_message(self, origin=None, msg=None, key_sequence=None, iv=None, **kwargs):
 		if key_sequence is None:
@@ -277,7 +275,23 @@ class EncryptedRelayTransport(RelayTransport):
 				return # Not the initial message
 			self.key_sequence_map[self.key_sequence]['ivs'].add(expected_nonce)
 		expected_nonce_map[origin] = pysodium.increment(expected_nonce)
+		self.callback_manager.call_callbacks('parsed', line=data[1:])
 		super(EncryptedRelayTransport, self).parse(data[1:], self.encrypted_callback_manager, origin=origin)
+
+	def update_coordinator(self):
+		# The coordinator is the first client to join the channel.
+		coordinator = self.clients.keys()[0]
+		# If we are the coordinator, or the coordinator is unchanged,
+		# We don't need to ask for a new session key.
+		if coordinator == self.coordinator or coordinator == self.my_id:
+			self.coordinator = coordinator
+			return
+		self.coordinator = coordinator
+		self.key_map[coordinator] = SPAKE2_A(self.channel.encode('utf-8'))
+		msg = self.key_map[coordinator].start()
+		b64 = base64.b64encode(msg)
+		log.debug("Sending first key exchange message to coordinator %d", coordinator)
+		self.send_unencrypted(type='get_enc_key', msg=b64, id_to=coordinator)
 
 	def send(self, type, **kwargs):
 		if self.key_sequence not in self.key_sequence_map:
@@ -330,7 +344,6 @@ class EncryptedRelayTransport(RelayTransport):
 		"""Message received by the master when the slave has finished the key negotiation."""
 		if self.my_id == id_to and origin not in self.session_keys:
 			session_key = self.key_map[origin].finish(base64.b64decode(msg))
-			self.key_sequence_map = {}
 			self.session_keys[origin] = session_key
 		else:
 			session_key = self.session_keys.get(origin)
@@ -375,7 +388,8 @@ class EncryptedRelayTransport(RelayTransport):
 	def run(self):
 		self.key_map = {}
 		self.session_keys = {}
-		self.clients = {}
+		self.clients = OrderedDict()
+		self.coordinator = None
 		self.key_sequence = -1
 		self.key_sequence_map = {}
 		super(EncryptedRelayTransport, self).run()
