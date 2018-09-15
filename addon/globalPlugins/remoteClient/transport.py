@@ -247,12 +247,6 @@ class EncryptedRelayTransport(RelayTransport):
 				self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
 		elif (self.connection_type == 'master' and client['connection_type'] == 'master') or (self.connection_type == 'slave' and client['connection_type'] == 'slave'):
 			self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
-		# Clear encryption key if we're a slave, and all masters have left
-		if self.connection_type == 'slave' and client['connection_type'] == 'master':
-			master_exists = any(c for c in self.authenticated_clients.values() if c['connection_type'] == 'master')
-			if not master_exists:
-				self.k = None
-				log.debug("cleared k")
 
 	def handle_e2e_message(self, origin=None, msg=None, key_sequence=None, iv=None, **kwargs):
 		if key_sequence is None:
