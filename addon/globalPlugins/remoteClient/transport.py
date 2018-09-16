@@ -225,17 +225,22 @@ class EncryptedRelayTransport(RelayTransport):
 			clients = []
 		self.my_id = origin
 		self.coordinator = self.my_id
-		self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=clients, **kwargs)
+		# Since noone's in the channel, we're the coordinator and implicitly authenticated
+		if not clients:
+			self.encrypted_callback_manager.call_callbacks('msg_channel_joined', origin=origin, clients=clients, **kwargs)
 		for client in clients:
 			self.clients[client['id']] = client
+			self.clients[client['id']]['status'] = 'joined'
 		self.clients[self.my_id] = {'id': self.my_id, 'connection_type': self.connection_type}
 		self.update_coordinator()
 
 	def handle_client_joined(self, client=None, **kwargs):
+		client['status'] = 'joined'
 		self.clients[client['id']] = client
-		self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=client)
 
 	def handle_client_left(self, client=None, **kwargs):
+		if client['id'] in self.clients and self.clients[client['id']].get('status') == 'authenticated':
+			self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
 		if client['id'] in self.clients and client['id'] != self.my_id:
 			del self.clients[client['id']]
 		if client['id'] in self.key_map:
@@ -244,7 +249,6 @@ class EncryptedRelayTransport(RelayTransport):
 			del self.session_keys[client['id']]
 		if self.key_sequence in self.key_sequence_map and client['id'] in self.key_sequence_map[self.key_sequence]['expected_nonce_map']:
 			del self.key_sequence_map[self.key_sequence]['expected_nonce_map'][client['id']]
-		self.encrypted_callback_manager.call_callbacks('msg_client_left', client=client, **kwargs)
 		self.update_coordinator()
 
 	def handle_e2e_message(self, origin=None, msg=None, key_sequence=None, iv=None, **kwargs):
@@ -337,18 +341,35 @@ class EncryptedRelayTransport(RelayTransport):
 			nonce = self.get_random_nonce()
 			encrypted_k = self.encrypt(k, nonce, session_key)
 			key_list.append(base64.b64encode(nonce + encrypted_k))
-		self.send_unencrypted(type='put_enc_key', key_sequence=self.key_sequence, id_to=origin, msg=base64.b64encode(our_msg), enc_keys=key_list)
+		self.send_unencrypted(type='put_enc_key', key_sequence=self.key_sequence, id_to=origin, msg=base64.b64encode(our_msg), enc_keys=key_list, authenticated_ids=self.session_keys.keys())
 		log.debug("Sent put_enc_key to %d, sequence %d", origin, self.key_sequence)
+		if origin in self.clients and self.clients[origin].get('status') == 'joined':
+			self.clients[origin]['status'] = 'authenticated'
+			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[origin])
 
-	def handle_put_enc_key(self, origin=None, id_to=None, msg=None, enc_keys=None, key_sequence=None, **kwargs):
-		"""Message received by the master when the slave has finished the key negotiation."""
+	def handle_put_enc_key(self, origin=None, id_to=None, msg=None, enc_keys=None, key_sequence=None, authenticated_ids=None, **kwargs):
+		"""Message received by non-coordinators when the coordinator has finished the key negotiation."""
+		# Receiving session key from coordinator for the first time
 		if self.my_id == id_to and origin not in self.session_keys:
 			session_key = self.key_map[origin].finish(base64.b64decode(msg))
 			self.session_keys[origin] = session_key
 		else:
+			# If we have a session key from the coordinator, we need it to decrypt k.
 			session_key = self.session_keys.get(origin)
 		if session_key is None:
+			# No session key received, and this was addressed to someone else.
 			return
+		if self.key_sequence == -1 and id_to == self.my_id:
+			for id in authenticated_ids + [origin]:
+				if id in self.clients:
+					self.clients[id]['status'] = 'authenticated'
+			clients = [self.clients[c] for c in self.clients if c != self.my_id and self.clients[c].get('status') == 'authenticated']
+			self.encrypted_callback_manager.call_callbacks('msg_channel_joined', clients=clients)
+		if id_to != self.my_id and id_to in self.clients and self.clients[id_to].get('status') == 'joined':
+			self.clients[id_to]['status'] = 'authenticated'
+			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[id_to])
+
+
 		k = None
 		for encrypted_k in enc_keys:
 			encrypted_k = base64.b64decode(encrypted_k)
