@@ -119,7 +119,7 @@ class GlobalPlugin(GlobalPlugin):
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_send_ctrl_alt_del, self.send_ctrl_alt_del_item)
 		self.send_ctrl_alt_del_item.Enable(False)
 		# Translators: Label of menu in NVDA tools menu.
-		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
+		self.remote_item=tools_menu.AppendMenu(wx.ID_ANY, "R&emote", self.menu)
 
 	def terminate(self):
 		self.disconnect()
