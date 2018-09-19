@@ -16,6 +16,7 @@ class Server(object):
 		self.password = password
 		#Maps client sockets to clients
 		self.clients = {}
+		self.authenticated_clients = []
 		self.client_sockets = []
 		self.running = False
 		self.server_socket = self.create_server_socket(socket.AF_INET, socket.SOCK_STREAM, bind_addr=(bind_host, self.port))
@@ -64,6 +65,7 @@ class Server(object):
 
 	def remove_client(self, client):
 		del self.clients[client.socket]
+		self.authenticated_clients.remove(client.socket)
 		self.client_sockets.remove(client.socket)
 
 	def client_disconnected(self, client):
@@ -137,9 +139,11 @@ class Client(object):
 			return
 		self.connection_type = obj.get('connection_type')
 		self.authenticated = True
+		self.server.authenticated_clients.append(self.socket)
 		clients = []
 		client_ids = []
-		for c in self.server.clients.values():
+		for client in self.server.authenticated_clients:
+			c = self.server.clients[client]
 			if c is self or not c.authenticated:
 				continue
 			clients.append(c.as_dict())
