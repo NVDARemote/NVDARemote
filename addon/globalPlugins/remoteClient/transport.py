@@ -1,4 +1,3 @@
-from functools import partial # print
 import os
 import sys
 import base64
@@ -134,8 +133,6 @@ class TCPTransport(Transport):
 
 	def send(self, type, **kwargs):
 		obj = self.serializer.serialize(type=type, **kwargs)
-		if type in ('put_enc_key', 'get_enc_key', 'client_joined', 'client_left', 'channel_joined'):
-			print "Sending: %s %s" % (type, kwargs)
 		if self.connected:
 			self.queue.put(obj)
 
@@ -186,8 +183,6 @@ class EncryptedRelayTransport(RelayTransport):
 		self.session_keys = {}
 		self.my_id = 0
 		self.hashed_channel = e2e_channel_from_key(self.channel)
-		for i in ('msg_put_enc_key', 'msg_get_enc_key', 'msg_client_joined', 'msg_client_left', 'msg_channel_joined'):
-			self.callback_manager.register_callback(i, partial(self.print_messages, i))
 		self.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
 		self.callback_manager.register_callback('msg_client_joined', self.handle_client_joined)
 		self.callback_manager.register_callback('msg_client_left', self.handle_client_left)
@@ -199,9 +194,6 @@ class EncryptedRelayTransport(RelayTransport):
 		self.coordinator = None
 		self.key_sequence = -1
 		self.key_sequence_map = {}
-
-	def print_messages(self, type, *args, **kwargs):
-		print "Received: %s %s %s" % (type, args, kwargs)
 
 	def on_connected(self):
 		self.send_unencrypted('protocol_version', version=self.protocol_version)
@@ -386,7 +378,6 @@ class EncryptedRelayTransport(RelayTransport):
 			log.debug("K couldn't be decrypted")
 			return
 		self.key_sequence = key_sequence
-		print "New key sequence: %d" % self.key_sequence
 		self.key_sequence_map[self.key_sequence] = {
 			'k': k,
 			'ivs': set(),
