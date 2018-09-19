@@ -112,6 +112,8 @@ class TCPTransport(Transport):
 		self.buffer += data
 
 	def parse(self, line, callback_manager, **kwargs):
+		if not line:
+			return
 		obj = self.serializer.deserialize(line)
 		if 'type' not in obj:
 			return
