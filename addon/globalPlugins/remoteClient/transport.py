@@ -438,3 +438,16 @@ def clear_queue(queue):
 
 def e2e_channel_from_key(key):
 	return "E2E_" + hashlib.pbkdf2_hmac('sha256', key.encode('utf-8'), 'NVDA_REMOTE_SALT', 500000).encode('hex')
+
+def generate_key(keylen=9, alphabet="abcdefghijklmnopqrstuvwxyz0123456789"):
+	def rand():
+		while True:
+			yield pysodium.randombytes(1)
+
+	key = []
+	for b in rand():
+		if ord(b) >= (256//len(alphabet)) * len(alphabet):
+			continue
+		key.append(alphabet[ord(b) % len(alphabet)])
+		if len(key) >= keylen:
+			return "".join(key)

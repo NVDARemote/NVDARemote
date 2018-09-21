@@ -39,17 +39,8 @@ class ClientPanel(wx.Panel):
 
 	def on_generate_key(self, evt):
 		evt.Skip()
-		address = socket_utils.address_to_hostport(self.host.GetValue())
-		self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer())
-		self.key_connector.register_callback('msg_generate_key', self.handle_key_generated)
-		t = threading.Thread(target=self.key_connector.run)
-		t.start()
-
-	def handle_key_generated(self, key=None):
-		self.key.SetValue(key)
+		self.key.SetValue(transport.generate_key())
 		self.key.SetFocus()
-		self.key_connector.close()
-		self.key_connector = None
 
 class ServerPanel(wx.Panel):
 
