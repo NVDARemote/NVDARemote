@@ -65,7 +65,8 @@ class Server(object):
 
 	def remove_client(self, client):
 		del self.clients[client.socket]
-		self.authenticated_clients.remove(client.socket)
+		if client.socket in self.authenticated_clients:
+			self.authenticated_clients.remove(client.socket)
 		self.client_sockets.remove(client.socket)
 
 	def client_disconnected(self, client):
