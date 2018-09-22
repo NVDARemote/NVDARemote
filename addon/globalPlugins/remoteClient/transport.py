@@ -289,7 +289,7 @@ class EncryptedRelayTransport(RelayTransport):
 		msg = self.key_map[coordinator].start()
 		b64 = base64.b64encode(msg)
 		log.debug("Sending first key exchange message to coordinator %d", coordinator)
-		self.send_unencrypted(type='get_enc_key', msg=b64, id_to=coordinator)
+		self.send_unencrypted(type='get_enc_key', msg=b64)
 
 	def send(self, type, **kwargs):
 		if self.key_sequence not in self.key_sequence_map:
@@ -309,9 +309,9 @@ class EncryptedRelayTransport(RelayTransport):
 		self.send_unencrypted(type='e2e_message', msg=base64.b64encode(encrypted_obj), key_sequence=self.key_sequence, **d)
 		self.key_sequence_map[self.key_sequence]['nonce'] = pysodium.increment(nonce)
 
-	def handle_get_enc_key(self, origin=None, msg=None, id_to=None):
+	def handle_get_enc_key(self, origin=None, msg=None, **kwargs):
 		"""Sent by the master to negotiate a temporary session key with the slave."""
-		if self.my_id != id_to:
+		if self.my_id != self.coordinator:
 			return
 		# Key negotiation as the slave needs SPAKE2_B
 		s2 = SPAKE2_B(self.channel.encode('utf-8'))
@@ -328,20 +328,20 @@ class EncryptedRelayTransport(RelayTransport):
 		self.key_sequence_map[self.key_sequence]['expected_nonce_map'] = {}
 		log.debug("Generated new k")
 		# Send the second part of the key negotiation, with the encrypted channel key
-		# Generate the list of k, encrypted with all the session keys
-		key_list = []
+		# Generate the map of k, encrypted with all the session keys
+		key_map = {}
 		k = self.key_sequence_map[self.key_sequence]['k']
-		for session_key in self.session_keys.values():
+		for id, session_key in self.session_keys.iteritems():
 			nonce = self.get_random_nonce()
 			encrypted_k = self.encrypt(k, nonce, session_key)
-			key_list.append(base64.b64encode(nonce + encrypted_k))
-		self.send_unencrypted(type='put_enc_key', key_sequence=self.key_sequence, id_to=origin, msg=base64.b64encode(our_msg), enc_keys=key_list, authenticated_ids=self.session_keys.keys())
+			key_map[id] = base64.b64encode(nonce + encrypted_k)
+		self.send_unencrypted(type='put_enc_key', key_sequence=self.key_sequence, id_to=origin, msg=base64.b64encode(our_msg), enc_keys=key_map)
 		log.debug("Sent put_enc_key to %d, sequence %d", origin, self.key_sequence)
 		if origin in self.clients and self.clients[origin].get('status') == 'joined':
 			self.clients[origin]['status'] = 'authenticated'
 			self.encrypted_callback_manager.call_callbacks('msg_client_joined', client=self.clients[origin])
 
-	def handle_put_enc_key(self, origin=None, id_to=None, msg=None, enc_keys=None, key_sequence=None, authenticated_ids=None, **kwargs):
+	def handle_put_enc_key(self, origin=None, id_to=None, msg=None, enc_keys=None, key_sequence=None, **kwargs):
 		"""Message received by non-coordinators when the coordinator has finished the key negotiation."""
 		# Receiving session key from coordinator for the first time
 		if self.my_id == id_to and origin not in self.session_keys:
@@ -353,8 +353,10 @@ class EncryptedRelayTransport(RelayTransport):
 		if session_key is None:
 			# No session key received, and this was addressed to someone else.
 			return
+		if enc_keys:
+			enc_keys = {int(k): v for k,v in enc_keys.iteritems()}
 		if self.key_sequence == -1 and id_to == self.my_id:
-			for id in authenticated_ids + [origin]:
+			for id in enc_keys.keys() + [origin]:
 				if id in self.clients:
 					self.clients[id]['status'] = 'authenticated'
 			clients = [self.clients[c] for c in self.clients if c != self.my_id and self.clients[c].get('status') == 'authenticated']
@@ -365,16 +367,13 @@ class EncryptedRelayTransport(RelayTransport):
 
 
 		k = None
-		for encrypted_k in enc_keys:
+		try:
+			encrypted_k = enc_keys[self.my_id]
 			encrypted_k = base64.b64decode(encrypted_k)
 			nonce = encrypted_k[:pysodium.crypto_secretbox_NONCEBYTES]
 			encrypted_k = encrypted_k[pysodium.crypto_secretbox_NONCEBYTES:]
-			try:
-				k = self.decrypt(encrypted_k, nonce, session_key)
-				break
-			except ValueError:
-				continue
-		if k is None:
+			k = self.decrypt(encrypted_k, nonce, session_key)
+		except (KeyError, ValueError):
 			log.debug("K couldn't be decrypted")
 			return
 		self.key_sequence = key_sequence
