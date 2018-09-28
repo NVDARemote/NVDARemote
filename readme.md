@@ -1,5 +1,5 @@
 # NVDA Remote Access
-Version 2.1
+Version 2.2
 
 Welcome to the NVDA Remote Access addon, which will allow you to connect to another computer running the free NVDA screen reader. It makes no difference whether you are across the room or across the world. Connecting is simple, and there are very few commands to remember. You can connect to another person's computer, or allow a trusted person to connect to your system to perform routine maintenance, diagnose a problem, or provide training.
 
@@ -131,6 +131,13 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Leonard de Ruijter
 
 ## Change Log
+
+### Version 2.2
+
+* IPv6 Support
+* Support for new NVDA 2018.3 as well as older versions
+* Support for model-specific Braille display gestures
+
 
 ### Version 2.1
 
