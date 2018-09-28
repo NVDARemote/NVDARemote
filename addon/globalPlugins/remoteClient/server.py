@@ -72,6 +72,7 @@ class Server(object):
 	def close(self):
 		self.running = False
 		self.server_socket.close()
+		self.server_socket6.close()
 
 class Client(object):
 	id = 0
