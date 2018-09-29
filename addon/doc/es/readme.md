@@ -1,5 +1,5 @@
 #NVDA Remote Access
-Versión 2.0
+Versión 2.1
 
 Bienvenido al complemento de acceso remoto de NVDA, que te permitirá conectarte a otro equipo que ejecute el lector de pantalla gratuito NVDA. Da igual que estés al otro lado de la habitación o al otro lado del mundo. Conectarse es simple, y hay muy pocas órdenes que aprenderse. Puedes conectarte al equipo de otra persona, o permitir a una persona de confianza que se conecte a tu sistema para realizar un mantenimiento rutinario, diagnosticar un problema, o enseñarte algo.
 
@@ -49,6 +49,7 @@ Una vez pulses aceptar, estarás conectado.
 Cuando la otra persona se conecte, podrás usar NVDA Remote con normalidad.
 
 ##Control sobre el equipo remoto
+
 Una vez la sesión está conectada, el usuario del equipo controlador puede pulsar f11 para empezar a controlar el equipo remoto (por ejemplo, enviando pulsaciones de teclado o entrada Braille).
 Cuando NVDA diga controlando equipo remoto, las teclas que pulses en tu teclado o pantalla braille irán al equipo remoto. Más aún, si el equipo controlador dispone de una pantalla braille, la información remota se mostrará en ella. Pulsa f11 de nuevo para detener el envío de pulsaciones y volver al equipo controlador.
 Para mayor compatibilidad, asegúrate de que las distribuciones de teclado de ambas máquinas coinciden.
@@ -106,7 +107,6 @@ Para que NVDA Remote funcione en el escritorio seguro, el complemento debe estar
 2. Pulsa tabulador hasta el botón Utilizar opciones actualmente guardadas en la autentificación (logon) y otras pantallas seguras (requiere privilegios de administrador), y pulsa Intro.
 
 3. Responde sí a las advertencias sobre copiar la configuración y los complementos, y responde a la advertencia del control de cuentas de usuario que debería aparecer.
-
 4. Cuando la configuración se haya copiado, pulsa intro para aceptar la confirmación. Pulsa tabulador hasta aceptar y pulsa intro de nuevo para salir del diálogo.
 
 En cuanto NVDA Remote esté instalado en el escritorio seguro, si te controlan en una sesión remota,
@@ -130,6 +130,14 @@ Nos gustaría dar nuestro reconocimiento a los siguientes contribuyentes que, en
 * Leonard de Ruijter
 
 ## Registro de cambios
+
+### Versión 2.1
+
+* Solucionado que la conexión no se guardase al permitir que controlen el equipo
+* Añadido un nuevo script para enviar el portapapeles con ctrl+shift+NVDA+c
+* La entrada braille ya funciona en modo exploración
+* Soporte de gestos de pantallas braille específicos para un modelo
+* Los pitidos generados por NVDA Remote ya no bloquean NVDA
 
 ### Versión 2.0
 

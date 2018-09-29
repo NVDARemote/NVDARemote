@@ -37,12 +37,11 @@ class ConnectionInfo(object):
 		return "{classname} (hostname={hostname}, port={port}, mode={mode}, key={key})".format(classname=self.__class__.__name__, hostname=self.hostname, port=self.port, mode=self.mode, key=self.key)
 
 	def get_address(self):
-		return '{hostname}:{port}'.format(hostname=self.hostname, port=self.port)
+		hostname = (self.hostname if ':' not in self.hostname else '[' + self.hostname + ']')
+		return '{hostname}:{port}'.format(hostname=hostname, port=self.port)
 
 	def get_url_to_connect(self):
-		result = URL_PREFIX + self.hostname
-		if self.port != socket_utils.SERVER_PORT:
-			result += ':{port}'.format(port=self.port)
+		result = URL_PREFIX + socket_utils.hostport_to_address((self.hostname, self.port))
 		result += '?'
 		mode = self.mode
 		if mode == 'master':
@@ -53,9 +52,7 @@ class ConnectionInfo(object):
 		return result
 
 	def get_url(self):
-		result = URL_PREFIX + self.hostname
-		if self.port != socket_utils.SERVER_PORT:
-			result += ':{port}'.format(port=self.port)
+		result = URL_PREFIX + socket_utils.hostport_to_address((self.hostname, self.port))
 		result += '?'
 		mode = self.mode
 		result += urllib.urlencode(dict(key=self.key, mode=mode))

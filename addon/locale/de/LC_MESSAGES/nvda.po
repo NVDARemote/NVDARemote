@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: nvdaremote 1.0\n"
-"POT-Creation-Date: 2015-07-04 09:05+0200\n"
-"PO-Revision-Date: 2015-10-04 19:04+0200\n"
-"Last-Translator: Bernd Dorer <bdorer@mailbox.org>\n"
+"Project-Id-Version: nvdaremote 2.1\n"
+"POT-Creation-Date: 2018-08-29 21:40+0200\n"
+"PO-Revision-Date: 2018-08-29 21:41+0200\n"
+"Last-Translator: Frank Niggemann <fniggemann@gmail.com>\n"
 "Language-Team: David Parduhn <xkill85@gmx.net>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.5\n"
+"X-Generator: Poedit 2.1.1\n"
 "X-Poedit-Basepath: ../../../globalPlugins/remoteClient\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
@@ -17,195 +17,310 @@ msgstr ""
 "X-Poedit-SearchPath-1: beep_sequence.py\n"
 "X-Poedit-SearchPath-2: bridge.py\n"
 "X-Poedit-SearchPath-3: callback_manager.py\n"
-"X-Poedit-SearchPath-4: dialogs.py\n"
-"X-Poedit-SearchPath-5: input.py\n"
-"X-Poedit-SearchPath-6: keyboard_hook.py\n"
-"X-Poedit-SearchPath-7: local_machine.py\n"
-"X-Poedit-SearchPath-8: nvda_patcher.py\n"
-"X-Poedit-SearchPath-9: serializer.py\n"
-"X-Poedit-SearchPath-10: server.pem\n"
-"X-Poedit-SearchPath-11: server.py\n"
-"X-Poedit-SearchPath-12: session.py\n"
-"X-Poedit-SearchPath-13: socket_utils.py\n"
-"X-Poedit-SearchPath-14: transport.py\n"
+"X-Poedit-SearchPath-4: configuration.py\n"
+"X-Poedit-SearchPath-5: connection_info.py\n"
+"X-Poedit-SearchPath-6: dialogs.py\n"
+"X-Poedit-SearchPath-7: input.py\n"
+"X-Poedit-SearchPath-8: keyboard_hook.py\n"
+"X-Poedit-SearchPath-9: local_machine.py\n"
+"X-Poedit-SearchPath-10: nvda_patcher.py\n"
+"X-Poedit-SearchPath-11: regobj.py\n"
+"X-Poedit-SearchPath-12: serializer.py\n"
+"X-Poedit-SearchPath-13: server.py\n"
+"X-Poedit-SearchPath-14: session.py\n"
+"X-Poedit-SearchPath-15: socket_utils.py\n"
+"X-Poedit-SearchPath-16: transport.py\n"
+"X-Poedit-SearchPath-17: url_handler.cpp\n"
+"X-Poedit-SearchPath-18: url_handler.py\n"
+"X-Poedit-SearchPath-19: ../../../buildVars.py\n"
 
-#: addon/globalPlugins/remoteClient/__init__.py:75
-msgid "Connect..."
-msgstr "verbinden..."
-
-#: addon/globalPlugins/remoteClient/__init__.py:75
-msgid "Remotely connect to another computer running NVDA Remote Access"
-msgstr "Stellt eine Verbindung zu einem anderen Computer her, auf dem Fernsteuerung für NVDA  ausgeführt wird."
-
-#: addon/globalPlugins/remoteClient/__init__.py:77
-msgid "Disconnect"
-msgstr "Verbindung trennen"
-
-#: addon/globalPlugins/remoteClient/__init__.py:77
-msgid "Disconnect from another computer running NVDA Remote Access"
-msgstr "trennt die Verbindung zu einem anderen Computer, auf dem Fernsteuerung für NVDA ausgeführt wird"
-
-#: addon/globalPlugins/remoteClient/__init__.py:80
-msgid "Mute remote speech"
-msgstr "entfernte Sprache stumm schalten"
-
-#: addon/globalPlugins/remoteClient/__init__.py:80
-msgid "Mute speech from the remote computer"
-msgstr "Schaltet die Sprache des entfernten Computers stumm"
-
-#: addon/globalPlugins/remoteClient/__init__.py:84
-msgid "&Push clipboard"
-msgstr "Zwischenablage über&tragen"
-
-#: addon/globalPlugins/remoteClient/__init__.py:84
-msgid "Push the clipboard to the other machine"
-msgstr "überträgt den Inhalt der Zwischenablage an den anderen Rechner"
-
-#: addon/globalPlugins/remoteClient/__init__.py:87
-msgid "&Options..."
-msgstr "&Optionen..."
-
-#: addon/globalPlugins/remoteClient/__init__.py:87
-#: addon/globalPlugins/remoteClient/__init__.py:113
-msgid "Options"
-msgstr "Optionen"
-
-#: addon/globalPlugins/remoteClient/__init__.py:89
-msgid "Send Ctrl+Alt+Del"
-msgstr "strg+alt+entf senden"
-
-#: addon/globalPlugins/remoteClient/__init__.py:92
-msgid "R&emote"
-msgstr "&Fernsteuerung"
-
-#: addon/globalPlugins/remoteClient/__init__.py:92
-msgid "NVDA Remote Access"
-msgstr "Fernsteuerung für NVDA"
-
-#: addon/globalPlugins/remoteClient/__init__.py:127
-msgid "Not connected."
-msgstr "nicht verbunden"
-
-#: addon/globalPlugins/remoteClient/__init__.py:167
-msgid "Error Connecting"
-msgstr "Fehler beim Verbindungsaufbau"
-
-#: addon/globalPlugins/remoteClient/__init__.py:167
-msgid "Unable to connect to the remote computer"
-msgstr "Die Verbindung zum entfernten Rechner konnte nicht hergestellt werden."
-
-#: addon/globalPlugins/remoteClient/__init__.py:178
-msgid "Connect"
-msgstr "verbinden"
-
-#: addon/globalPlugins/remoteClient/__init__.py:214
-msgid "Connected!"
-msgstr "verbunden!"
-
-#: addon/globalPlugins/remoteClient/__init__.py:218
-msgid "Connection interrupted"
-msgstr "Verbindung abgerissen"
-
-#: addon/globalPlugins/remoteClient/__init__.py:250
-msgid "Connected to control server"
-msgstr "Verbindung mit Server hergestellt"
-
-#: addon/globalPlugins/remoteClient/__init__.py:270
-msgid "Sending keys."
-msgstr "sende Tasten."
-
-#: addon/globalPlugins/remoteClient/__init__.py:272
-msgid "Not sending keys."
-msgstr "Tasten werden nicht gesendet"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:17
-#: addon/globalPlugins/remoteClient/dialogs.py:155
-msgid "&Host:"
-msgstr "&Rechner:"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:20
-#: addon/globalPlugins/remoteClient/dialogs.py:53
-#: addon/globalPlugins/remoteClient/dialogs.py:159
-msgid "&Key:"
-msgstr "&Schlüssel:"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:23
-#: addon/globalPlugins/remoteClient/dialogs.py:56
-msgid "&Generate Key"
-msgstr "Schlüssel er&zeugen"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:47
-msgid "Get External &IP"
-msgstr "externe Ip-Adresse er&mitteln"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:50
-msgid "&External IP:"
-msgstr "&externe Ip-Adresse:"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:95
-msgid "Successfully retrieved IP address. Your port is open."
-msgstr "Die Ip-Adresse wurde erfolgreich ermittelt. Der benötigte Port ist verfügbar."
-
-#: addon/globalPlugins/remoteClient/dialogs.py:95
-msgid "Success"
-msgstr "Erfolg"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:97
-msgid "Retrieved external IP, but your port is not currently forwarded."
-msgstr "Die externe Ip-Adresse wurde zwar ermittelt, aber der erforderliche Port wird nicht weitergeleitet"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:97
-msgid "Warning"
-msgstr "Warnung"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:104
-msgid "Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr "Der Server zum Ermitteln der externen IP-Adresse konnte nicht kontaktiert werden, ermitteln Sie die externe IP manuell"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:104
-#: addon/globalPlugins/remoteClient/dialogs.py:140
-#: addon/globalPlugins/remoteClient/dialogs.py:142
-#: addon/globalPlugins/remoteClient/dialogs.py:188
-msgid "Error"
-msgstr "Fehler"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:111
-msgid "Client"
-msgstr "Client"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:111
-msgid "Server"
-msgstr "Server"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:115
-msgid "Control another machine"
-msgstr "einen anderen Computer steuern"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:115
-msgid "Allow this machine to be controlled"
-msgstr "Zulassen, dass dieser Computer gesteuert wird"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:140
-#: addon/globalPlugins/remoteClient/dialogs.py:188
-msgid "Both host and key must be set."
-msgstr "Sie müssen sowohl einen Rechnernamen als auch einen Schlüssel angeben"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:142
-msgid "Key must be set."
-msgstr "Sie müssen einen Schlüssel angeben."
-
-#: addon/globalPlugins/remoteClient/dialogs.py:152
-msgid "Auto-connect to control server on startup"
-msgstr "beim Start automatisch mit Server verbinden"
-
-#: addon/globalPlugins/remoteClient/session.py:107
-msgid "Remote NVDA not connected."
-msgstr "entferntes NVDA nicht verbunden"
-
-#: buildVars.py:17
+#: ../../../buildVars.py:17
 msgid "Remote Support"
 msgstr "Unterstützung von Fernsteuerung"
 
-#: buildVars.py:20
+#: ../../../buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
 msgstr "Erlaubt den Zugriff auf und die Steuerung von anderen Rechnern"
+
+#: __init__.py:49
+msgid "NVDA Remote"
+msgstr "Fernsteuerung für NVDA"
+
+#: __init__.py:96
+msgid "Connect..."
+msgstr "verbinden..."
+
+#: __init__.py:96
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr ""
+"Stellt eine Verbindung zu einem anderen Computer her, auf dem Fernsteuerung "
+"für NVDA  ausgeführt wird."
+
+#: __init__.py:99
+msgid "Disconnect"
+msgstr "Verbindung &trennen"
+
+#: __init__.py:99
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr ""
+"trennt die Verbindung zu einem anderen Computer, auf dem Fernsteuerung für "
+"NVDA ausgeführt wird"
+
+#: __init__.py:103
+msgid "Mute remote"
+msgstr "entfernte Sprache stumm schalten"
+
+#: __init__.py:103
+msgid "Mute speech and sounds from the remote computer"
+msgstr "Sprache und Töne des entfernten Computers stummschalten"
+
+#: __init__.py:107
+msgid "&Push clipboard"
+msgstr "Zwischenablage über&tragen"
+
+#: __init__.py:107
+msgid "Push the clipboard to the other machine"
+msgstr "überträgt den Inhalt der Zwischenablage an den anderen Rechner"
+
+#: __init__.py:111
+msgid "Copy &link"
+msgstr "Link kopieren"
+
+#: __init__.py:111
+msgid "Copy a link to the remote session"
+msgstr "Link zur Fernsteuerungssitzung kopieren"
+
+#: __init__.py:115
+msgid "&Options..."
+msgstr "Optionen..."
+
+#: __init__.py:115 __init__.py:212
+msgid "Options"
+msgstr "Optionen"
+
+#: __init__.py:118
+msgid "Send Ctrl+Alt+Del"
+msgstr "strg+alt+entf senden"
+
+#: __init__.py:122
+msgid "R&emote"
+msgstr "&Fernsteuerung"
+
+#: __init__.py:122
+msgid "NVDA Remote Access"
+msgstr "Fernsteuerung für NVDA"
+
+#: __init__.py:177
+msgid "Mute or unmute the speech coming from the remote computer"
+msgstr "Schaltet die Sprache des entfernten Computers ein oder aus."
+
+#: __init__.py:189 __init__.py:278
+msgid "Not connected."
+msgstr "nicht verbunden"
+
+#: __init__.py:193
+msgid "Clipboard pushed"
+msgstr "Zwischenablage übertragen"
+
+#: __init__.py:195
+msgid "Unable to push clipboard"
+msgstr "Übertragen der Zwischenablage nicht möglich"
+
+#: __init__.py:196
+msgid "Sends the contents of the clipboard to the remote machine"
+msgstr "Überträgt den Inhalt der Zwischenablage an den entfernten Rechner"
+
+#: __init__.py:205
+msgid "Copied link"
+msgstr "Link kopiert"
+
+#: __init__.py:206
+msgid "Copies a link to the remote session to the clipboard"
+msgstr "Kopiert einen Link zur Fernsteuerungssitzung in die Zwischenablage"
+
+#: __init__.py:272
+msgid "Error Connecting"
+msgstr "Fehler beim Verbindungsaufbau"
+
+#: __init__.py:274
+msgid "Unable to connect to the remote computer"
+msgstr "Die Verbindung zum entfernten Rechner konnte nicht hergestellt werden."
+
+#: __init__.py:281
+msgid "Disconnect a remote session"
+msgstr "Fernsteuerungssitzung trennen"
+
+#: __init__.py:290
+msgid "Connect"
+msgstr "verbinden"
+
+#: __init__.py:326
+msgid "Connected!"
+msgstr "verbunden!"
+
+#: __init__.py:331
+msgid "Connection interrupted"
+msgstr "Verbindung abgerissen"
+
+#: __init__.py:356
+msgid "Connected to control server"
+msgstr "Verbindung mit Server hergestellt"
+
+#: __init__.py:388
+msgid "Controlling local machine."
+msgstr "Lokalen Rechner steuern."
+
+#: __init__.py:395
+msgid "Controlling remote machine."
+msgstr "Entfernten Rechner steuern."
+
+#: __init__.py:482
+msgid ""
+"NVDA Remote is already connected. Disconnect before opening a new connection."
+msgstr ""
+"Fernsteuerung für NVDA ist bereits verbunden. Bitte trennen Sie die "
+"Verbindung, bevor Sie eine Neue herstellen."
+
+#: __init__.py:482
+msgid "NVDA Remote Already Connected"
+msgstr "Fernsteuerung für NVDA bereits verbunden"
+
+#: __init__.py:488
+#, python-brace-format
+msgid "Do you wish to control the machine on server {server} with key {key}?"
+msgstr ""
+"Möchten Sie den Rechner auf dem Server {server} mit dem Schlüssel {key} "
+"steuern?"
+
+#: __init__.py:490
+#, python-brace-format
+msgid ""
+"Do you wish to allow this machine to be controlled on server {server} with "
+"key {key}?"
+msgstr ""
+"Möchten Sie die Steuerung dieses Rechners über den Server {server} mit dem "
+"Schlüssel {key} erlauben?"
+
+#: __init__.py:491
+msgid "NVDA Remote Connection Request"
+msgstr "Fernsteuerung für NVDA Verbindungsanforderung"
+
+#: dialogs.py:27 dialogs.py:187
+msgid "&Host:"
+msgstr "&Rechner:"
+
+#: dialogs.py:31 dialogs.py:71 dialogs.py:195
+msgid "&Key:"
+msgstr "&Schlüssel:"
+
+#: dialogs.py:35 dialogs.py:74
+msgid "&Generate Key"
+msgstr "Schlüssel er&zeugen"
+
+#: dialogs.py:60
+msgid "Get External &IP"
+msgstr "externe Ip-Adresse er&mitteln"
+
+#: dialogs.py:64
+msgid "&External IP:"
+msgstr "&externe Ip-Adresse:"
+
+#: dialogs.py:68 dialogs.py:191
+msgid "&Port:"
+msgstr "&Port:"
+
+#: dialogs.py:113
+#, python-brace-format
+msgid "Successfully retrieved IP address. Port {port} is open."
+msgstr ""
+"Die IP-Adresse wurde erfolgreich ermittelt und der Port {port} ist geöffnet."
+
+#: dialogs.py:113
+msgid "Success"
+msgstr "Erfolg"
+
+#: dialogs.py:115
+#, python-brace-format
+msgid "Retrieved external IP, but port {port} is not currently forwarded."
+msgstr ""
+"Die externe IP-Adresse wurde ermittelt, der Port {port} wird aber aktuell "
+"nicht weitergeleitet."
+
+#: dialogs.py:115
+msgid "Warning"
+msgstr "Warnung"
+
+#: dialogs.py:122
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Der Server zum Ermitteln der externen IP-Adresse konnte nicht kontaktiert "
+"werden, ermitteln Sie die externe IP manuell"
+
+#: dialogs.py:122 dialogs.py:159 dialogs.py:162 dialogs.py:238 dialogs.py:240
+msgid "Error"
+msgstr "Fehler"
+
+#: dialogs.py:129
+msgid "Client"
+msgstr "Client"
+
+#: dialogs.py:129
+msgid "Server"
+msgstr "Server"
+
+#: dialogs.py:133 dialogs.py:182
+msgid "Control another machine"
+msgstr "einen anderen Computer steuern"
+
+#: dialogs.py:133 dialogs.py:182
+msgid "Allow this machine to be controlled"
+msgstr "Zulassen, dass dieser Computer gesteuert wird"
+
+#: dialogs.py:159 dialogs.py:238
+msgid "Both host and key must be set."
+msgstr "Sie müssen sowohl einen Rechnernamen als auch einen Schlüssel angeben."
+
+#: dialogs.py:162 dialogs.py:240
+msgid "Both port and key must be set."
+msgstr "Sie müssen sowohl einen Port als auch einen Schlüssel angeben."
+
+#: dialogs.py:173
+msgid "Auto-connect to control server on startup"
+msgstr "beim Start automatisch mit Server verbinden"
+
+#: dialogs.py:177
+msgid "Use Remote Control Server"
+msgstr "Entfernten Steuerungs-Server verwenden"
+
+#: dialogs.py:177
+msgid "Host Control Server"
+msgstr "Steuerungs-Server bereitstellen"
+
+#: session.py:26
+msgid ""
+"The version of the relay server which you have connected to is not "
+"compatible with this version of the Remote Client.\n"
+"Please either use a different server or upgrade your version of the addon."
+msgstr ""
+"Die Version des Netzwerkservers, mit dem Sie sich verbunden haben, ist nicht "
+"kompatibel mit dieser Version von Fernsteuerung für NVDA.\n"
+"Bitte verwenden Sie entweder einen anderen Server oder aktualisieren Sie "
+"Ihre Version der Erweiterung."
+
+#: session.py:33
+msgid "Message of the Day"
+msgstr "Meldung des Tages"
+
+#: session.py:186
+msgid "Remote NVDA not connected."
+msgstr "entferntes NVDA nicht verbunden"
+
+#: url_handler.py:50
+msgid "Invalid URL"
+msgstr "Ungültige URL"
+
+#: url_handler.py:52
+#, python-format
+msgid "Unable to parse url \"%s\""
+msgstr "URL \"%s\" kann nicht verarbeitet werden"

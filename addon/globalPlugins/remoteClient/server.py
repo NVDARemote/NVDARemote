@@ -11,29 +11,34 @@ import time
 class Server(object):
 	PING_TIME = 300
 
-	def __init__(self, port, password, bind_host=''):
+	def __init__(self, port, password, bind_host='', bind_host6='[::]'):
 		self.port = port
 		self.password = password
 		#Maps client sockets to clients
 		self.clients = {}
 		self.client_sockets = []
 		self.running = False
-		self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.server_socket = self.create_server_socket(socket.AF_INET, socket.SOCK_STREAM, bind_addr=(bind_host, self.port))
+		self.server_socket6 = self.create_server_socket(socket.AF_INET6, socket.SOCK_STREAM, bind_addr=(bind_host6, self.port))
+
+	def create_server_socket(self, family, type, bind_addr):
+		server_socket = socket.socket(family, type)
 		certfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'server.pem')
-		self.server_socket = ssl.wrap_socket(self.server_socket, certfile=certfile)
-		self.server_socket.bind((bind_host, self.port))
-		self.server_socket.listen(5)
+		server_socket = ssl.wrap_socket(server_socket, certfile=certfile)
+		server_socket.bind(bind_addr)
+		server_socket.listen(5)
+		return server_socket
 
 	def run(self):
 		self.running = True
 		self.last_ping_time = time.time()
 		while self.running:
-			r, w, e = select.select(self.client_sockets+[self.server_socket], [], self.client_sockets, 60)
+			r, w, e = select.select(self.client_sockets+[self.server_socket, self.server_socket6], [], self.client_sockets, 60)
 			if not self.running:
 				break
 			for sock in r:
-				if sock is self.server_socket:
-					self.accept_new_connection()
+				if sock is self.server_socket or sock is self.server_socket6:
+					self.accept_new_connection(sock)
 					continue
 				self.clients[sock].handle_data()
 			if time.time() - self.last_ping_time >= self.PING_TIME:
@@ -42,9 +47,9 @@ class Server(object):
 						client.send(type='ping')
 				self.last_ping_time = time.time()
 
-	def accept_new_connection(self):
+	def accept_new_connection(self, sock):
 		try:
-			client_sock, addr = self.server_socket.accept()
+			client_sock, addr = sock.accept()
 		except (ssl.SSLError, socket.error):
 			return
 		client_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -67,6 +72,7 @@ class Server(object):
 	def close(self):
 		self.running = False
 		self.server_socket.close()
+		self.server_socket6.close()
 
 class Client(object):
 	id = 0

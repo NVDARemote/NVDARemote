@@ -100,8 +100,7 @@ class GlobalPlugin(GlobalPlugin):
 		self.disconnect_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_disconnect_item, self.disconnect_item)
 		# Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
-		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote"), _("Mute speech and sounds from the remote computer"))
-		self.mute_item.SetCheckable(True)
+		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote"), _("Mute speech and sounds from the remote computer"), kind=wx.ITEM_CHECK)
 		self.mute_item.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_mute_item, self.mute_item)
 		# Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
@@ -125,34 +124,34 @@ class GlobalPlugin(GlobalPlugin):
 	def terminate(self):
 		self.disconnect()
 		self.local_machine = None
-		self.menu.RemoveItem(self.connect_item)
+		self.menu.Remove(self.connect_item.Id)
 		self.connect_item.Destroy()
 		self.connect_item=None
-		self.menu.RemoveItem(self.disconnect_item)
+		self.menu.Remove(self.disconnect_item.Id)
 		self.disconnect_item.Destroy()
 		self.disconnect_item=None
-		self.menu.RemoveItem(self.mute_item)
+		self.menu.Remove(self.mute_item.Id)
 		self.mute_item.Destroy()
 		self.mute_item=None
-		self.menu.RemoveItem(self.push_clipboard_item)
+		self.menu.Remove(self.push_clipboard_item.Id)
 		self.push_clipboard_item.Destroy()
 		self.push_clipboard_item=None
-		self.menu.RemoveItem(self.copy_link_item)
+		self.menu.Remove(self.copy_link_item.Id)
 		self.copy_link_item.Destroy()
 		self.copy_link_item = None
-		self.menu.RemoveItem(self.options_item)
+		self.menu.Remove(self.options_item.Id)
 		self.options_item.Destroy()
 		self.options_item=None
-		self.menu.RemoveItem(self.send_ctrl_alt_del_item)
+		self.menu.Remove(self.send_ctrl_alt_del_item.Id)
 		self.send_ctrl_alt_del_item.Destroy()
 		self.send_ctrl_alt_del_item=None
 		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
-		tools_menu.RemoveItem(self.remote_item)
+		tools_menu.Remove(self.remote_item.Id)
 		self.remote_item.Destroy()
 		self.remote_item=None
 		try:
 			self.menu.Destroy()
-		except wx.PyDeadObjectError:
+		except (RuntimeError, AttributeError):
 			pass
 		try:
 			os.unlink(self.ipc_file)
@@ -384,8 +383,9 @@ class GlobalPlugin(GlobalPlugin):
 		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
 			self.sending_keys = False
 			self.set_receiving_braille(False)
+			# This is called from the hook thread and should be executed on the main thread.
 			# Translators: Presented when keyboard control is back to the controlling computer.
-			ui.message(_("Controlling local machine."))
+			wx.CallAfter(ui.message, _("Controlling local machine."))
 			return True #Don't pass it on
 		self.master_transport.send(type="key", **kwargs)
 		return True #Don't pass it on

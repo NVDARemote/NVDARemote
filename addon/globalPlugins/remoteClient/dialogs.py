@@ -15,6 +15,9 @@ import socket_utils
 import addonHandler
 addonHandler.initTranslation()
 
+WX_VERSION = int(wx.version()[0])
+WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
+
 class ClientPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
@@ -107,7 +110,7 @@ class ServerPanel(wx.Panel):
 		port = data['port']
 		is_open = data['open']
 		if is_open:
-			wx.MessageBox(message=_("Successfully retrieved IP address. Port {port} is open.".format(port=port)), caption=_("Success"), style=wx.OK)
+			wx.MessageBox(message=_("Successfully retrieved IP address. Port {port} is open.").format(port=port), caption=_("Success"), style=wx.OK)
 		else:
 			wx.MessageBox(message=_("Retrieved external IP, but port {port} is not currently forwarded.".format(port=port)), caption=_("Warning"), style=wx.ICON_WARNING|wx.OK)
 		self.external_IP.SetValue(ip)
@@ -138,7 +141,7 @@ class DirectConnectDialog(wx.Dialog):
 		main_sizer.Add(buttons, flag=wx.BOTTOM)
 		main_sizer.Fit(self)
 		self.SetSizer(main_sizer)
-		self.Center(wx.BOTH | wx.CENTER_ON_SCREEN)
+		self.Center(wx.BOTH | WX_CENTER)
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.on_ok)
 
@@ -197,7 +200,7 @@ class OptionsDialog(wx.Dialog):
 		main_sizer.Add(buttons, flag=wx.BOTTOM)
 		main_sizer.Fit(self)
 		self.SetSizer(main_sizer)
-		self.Center(wx.BOTH | wx.CENTER_ON_SCREEN)
+		self.Center(wx.BOTH | WX_CENTER)
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.on_ok)
 		self.autoconnect.SetFocus()
