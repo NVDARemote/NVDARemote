@@ -5,3 +5,5 @@ author = "{addon_author}"
 url = {addon_url}
 version = {addon_version}
 docFileName = {addon_docFileName}
+minimumNVDAVersion = {addon_minimumNVDAVersion}
+updateChannel = {addon_updateChannel}
