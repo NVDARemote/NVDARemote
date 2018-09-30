@@ -50,8 +50,24 @@ def mdTool(env):
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
-env = Environment(ENV=os.environ, tools=['gettexttool', mdTool])
+vars = Variables()
+vars.Add("version", "The version of this build", buildVars.addon_info["addon_version"])
+vars.Add(BoolVariable("dev", "Whether this is a daily development version", False))
+vars.Add("channel", "Update channel for this build", buildVars.addon_info["addon_updateChannel"])
+
+env = Environment(variables=vars, ENV=os.environ, tools=['gettexttool', mdTool])
 env.Append(**buildVars.addon_info)
+
+if env["dev"]:
+	import datetime
+	buildDate = datetime.datetime.now()
+	year, month, day = str(buildDate.year), str(buildDate.month), str(buildDate.day)
+	env["addon_version"] = "".join([year, month.zfill(2), day.zfill(2), "-dev"])
+	env["channel"] = "dev"
+elif env["version"] is not None:
+	env["addon_version"] = env["version"]
+if "channel" in env and env["channel"] is not None:
+	env["addon_updateChannel"] = env["channel"]
 
 addonFile = env.File("${addon_name}-${addon_version}.nvda-addon")
 
@@ -101,9 +117,12 @@ def createAddonBundleFromPath(path, dest):
 	return dest
 
 def generateManifest(source, dest):
+	addon_info = buildVars.addon_info
+	addon_info["addon_version"] = env["addon_version"]
+	addon_info["addon_updateChannel"] = env["addon_updateChannel"]
 	with codecs.open(source, "r", "utf-8") as f:
 		manifest_template = f.read()
-	manifest = manifest_template.format(**buildVars.addon_info)
+	manifest = manifest_template.format(**addon_info)
 	with codecs.open(dest, "w", "utf-8") as f:
 		f.write(manifest)
 
