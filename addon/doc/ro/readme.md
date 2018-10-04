@@ -43,7 +43,7 @@ Dacă portcheck detectează că portul dumneavoastră (6837 în mod implicit ) n
 Deschideți-vă portul și încercați din nou.
 Notă: procesul pentru deschiderea porturilor nu face obiectul acestei documentații. Vă rugăm să consultați informațiile furnizate la pachet cu router-ul pentru instrucțiuni suplimentare.
 
-Introduceți o cheie în câmpul cu aceelași nume, sau apăsați butonul generare. Cealaltă persoană va avea nevoie de IP-ul dumneavoastră extern împreună cu cheia pentru a se conecta. Dacă ați introdus alt port decât cel implicit (6837) în câmpul port, asigurați-vă că persoana care se conectează la dumneavoastră introduce exact același port împreună cu adresa gazdă în forma &lt;external ip&gt;:&lt;port&gt;.
+Introduceți o cheie în câmpul cu același nume, sau apăsați butonul generare. Cealaltă persoană va avea nevoie de IP-ul dumneavoastră extern împreună cu cheia pentru a se conecta. Dacă ați introdus alt port decât cel implicit (6837) în câmpul port, asigurați-vă că persoana care se conectează la dumneavoastră introduce exact același port împreună cu adresa gazdă în forma &lt;external ip&gt;:&lt;port&gt;.
 
 Odată ce butonul ok este apăsat, veți fi conectat.
 Când o altă persoană se conectează, puteți folosi NVDA Remote în mod obișnuit.
@@ -51,7 +51,7 @@ Când o altă persoană se conectează, puteți folosi NVDA Remote în mod obiș
 ## Controlare computer aflat la distanță
 
 Odată ce sesiunea este conectată, utilizatorul al cărui computer controlează poate apăsa f11 pentru a începe să controleze calculatorul aflat la distanță.
-Când NVDA spune că se controlează calculatorul aflat la distanță, tastatura și tastele afișajului braille pe care le apăsați îl vor controla. În plus, dacă calculatorul care controlează folosește un afișaj braille, informațiile care vin de la cel controlat vor fi afișate pe el. Apăsați f11 din nou pentru a putea controla din nou calculatorul local.
+Când NVDA spune că se controlează calculatorul aflat la distanță, tastatura și tastele afișajului braille pe care le apăsați îl vor controla. În plus, dacă calculatorul care controlează folosește un afișaj braille, informațiile care vin de la cel controlat vor fi afișate pe el. Apăsați f11 pentru a putea controla din nou calculatorul local.
 Pentru cea mai bună compatibilitate, vă rugăm să vă asigurați că aspectele tastaturii pe ambele calculatoare se potrivesc.
 
 ## Partajarea sesiunii
@@ -77,7 +77,7 @@ Uneori, sunt momente în care doriți să vă controlați calculatoarele proprii
 5. Dacă găzduiți conexiunea, va trebui să vă asigurați că portul introdus în câmpul său specific (6837 în mod implicit) pe calculatorul controlat, poate fi accesat de pe calculatoarele care controlează.
 6. Dacă vreți să utilizați un server de transmisie, completați atât câmpul Gazdă, cât și câmpul Cheie, navigați cu Tab până la OK, apoi apăsați Enter. Opțiunea de generare a cheii nu este disponibilă în această situație. E mai bine să puneți o cheie pe care să o țineți minte, astfel încât să o putteți folosi de la orice computer aflat la distanță.
 
-Pentru o utilizare avanasată, puteți, de asemenea, să configurați NVDA Remote să se conecteze automat la un server local sau la unul de transmisie în modul de controlare. Dacă vreți asta, Controlează un alt computer în al doilea set de butoane rotative.
+Pentru o utilizare avansată, puteți, de asemenea, să configurați NVDA Remote să se conecteze automat la un server local sau la unul de transmisie în modul de controlare. Dacă vreți asta, controlați un alt computer bifând această opțiune în al doilea set de butoane rotative.
 
 Notă: Opțiunile relatate ale autoconectării la pornire din dialogul de opțiuni nu se aplică până când NVDA este repornit.
 
@@ -99,7 +99,7 @@ Când e activată, orice text de pe planșetă va fi trimis la cealaltă.
 
 ## Configurarea NVDA Remote să lucreze pe un spațiu de lucru sigur
 
-Ca NVDA să lucreze pe spațiul de lucru sigur, suplimentul trebuie să fie instalat în NVDA, care rulează pe acest spațiu de lucru.
+Pentru ca NVDA să lucreze pe spațiul de lucru sigur, suplimentul trebuie să fie instalat în NVDA, care rulează pe acest spațiu de lucru.
 
 1. Din meniul NVDA, selectați Preferințe, apoi Setări Generale.
 
@@ -132,25 +132,25 @@ Dorim să menționăm următorii contributori care, împreună cu alții, au fă
 ### Versiunea 2.2
 
 * Suport IPv6
-* Suport pentru NVDA 2018.3, dar și pentru versiunile mai vechi.
-* Suport pentru gesturile modelelor specifice ale afișajelor braille.
+* Suport pentru NVDA 2018.3, dar și pentru versiunile mai vechi
+* Suport pentru gesturile modelelor specifice ale afișajelor braille
 
 
 ### Versiunea 2.1
 
-* S-a rezolvat problema nesalvării conexiunii atunci când se permite ca un computer să fie controlat.
-* S-a adăugat un script pentru trimiterea conținutului la planșetă cu ctrl+shift+NVDA+c.
-* Acum, intrarea braille funcționează în modul de navigare.
-* Suport pentru gesturile modelelor specifice ale afișajelor braille.
-* Bipurile generate de NVDA Remote nu mai blochează NVDA.
+* S-a rezolvat problema nesalvării conexiunii atunci când se permite ca un computer să fie controlat
+* S-a adăugat un script pentru trimiterea conținutului la planșetă cu ctrl+shift+NVDA+c
+* Acum, intrarea braille funcționează în modul de navigare
+* Suport pentru gesturile modelelor specifice ale afișajelor braille
+* Bipurile generate de NVDA Remote nu mai blochează NVDA
 
 ### Versiunea 2.0
 
-* Suport pentru braille la distanță.
-* Suport pentru link-urile nvdaremote://.
-* Centrarea dialogurilor.
-* S-a reparat portcheck pentru a puncta la un domeniu pe care îl controlăm, portcheck.nvdaremote.com.
-* Suport pentru conectarea automată la un server de control în modul master.
-* S-au reparat erori în documentație.
-* Actualizare la protocol versiunea 2, ce include un câmp de origine în fiecare mesaj la distanță.
-* Curățare semnificativă de cod care permite modificări mai facile în viitor.
+* Suport pentru braille la distanță
+* Suport pentru link-urile nvdaremote://
+* Centrarea dialogurilor
+* S-a reparat portcheck pentru a puncta la un domeniu pe care îl controlăm, portcheck.nvdaremote.com
+* Suport pentru conectarea automată la un server de control în modul master
+* S-au reparat erori în documentație
+* Actualizare la protocol versiunea 2, ce include un câmp de origine în fiecare mesaj la distanță
+* Curățare semnificativă de cod, care permite modificări mai facile în viitor
