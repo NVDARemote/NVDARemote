@@ -304,11 +304,12 @@ class GlobalPlugin(GlobalPlugin):
 					self.connect_as_slave((server_addr, port), channel, disable_e2e=not enable_e2e)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
-				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
+				enable_e2e = dlg.panel.enable_e2e.GetValue()
+				self.start_control_server(int(dlg.panel.port.GetValue()), channel, disable_e2e=not enable_e2e)
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, disable_e2e=not enable_e2e)
 				else:
-					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, disable_e2e=not enable_e2e)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_as_master(self):
