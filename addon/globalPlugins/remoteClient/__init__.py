@@ -297,10 +297,11 @@ class GlobalPlugin(GlobalPlugin):
 				server_addr = dlg.panel.host.GetValue()
 				server_addr, port = address_to_hostport(server_addr)
 				channel = dlg.panel.key.GetValue()
+				enable_e2e = dlg.panel.enable_e2e.GetValue()
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_as_master((server_addr, port), channel)
+					self.connect_as_master((server_addr, port), channel, disable_e2e=not enable_e2e)
 				else:
-					self.connect_as_slave((server_addr, port), channel)
+					self.connect_as_slave((server_addr, port), channel, disable_e2e=not enable_e2e)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)

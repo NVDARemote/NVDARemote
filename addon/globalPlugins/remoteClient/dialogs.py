@@ -35,6 +35,10 @@ class ClientPanel(wx.Panel):
 		self.generate_key = wx.Button(parent=self, label=_("&Generate Key"))
 		self.generate_key.Bind(wx.EVT_BUTTON, self.on_generate_key)
 		sizer.Add(self.generate_key)
+		# Translators: The checkbox to enable end-to-end encryption
+		self.enable_e2e = wx.CheckBox(parent=self, label=_("&Enable end-to-end encryption"))
+		self.enable_e2e.SetValue(True)
+		sizer.Add(self.enable_e2e)
 		self.SetSizerAndFit(sizer)
 
 	def on_generate_key(self, evt):
