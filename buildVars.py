@@ -27,7 +27,7 @@ It can span multiple lines."""),
 	"addon_url" : None,
 	# Documentation file name
 	"addon_docFileName" : "readme.html",
-	# Minimum NVDA version supported (e.g. "2018.3.0")
+	# Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
 	"addon_minimumNVDAVersion" : None,
 	# Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
 	"addon_lastTestedNVDAVersion" : None,
