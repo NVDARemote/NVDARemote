@@ -30,23 +30,23 @@ You need the following software to use this code for your NVDA add-ons developme
 
 ## Usage
 
-### To create a new NVDA add-on, taking advantage of this template: ###
+### To create a new NVDA add-on, taking advantage of this template:
 
 1. Create an empty folder to hold the files for your add-on.
-2. Create an **addon** folder inside this new folder. Inside **addon* folder, create needed folders for the add-on modules (e.g. appModules, synthDrivers, etc.). An add-on may have one or more module folders.
-3. Copy the **buildVars.py** file, the manifest.ini.tpl file, the manifest-translated.ini.tpl, **SCONSTRUCT**, site_scons, .gitignore and .gitattributes files to the created folder.
+2. Copy the **site_scons** folder, and the following files, into your new empty folder: **buildVars.py**, **manifest.ini.tpl**, **manifest-translated.ini.tpl**, **sconstruct**, **.gitignore**, and **.gitattributes**
+3. Create an **addon** folder inside your new folder. Inside the **addon* folder, create needed folders for the add-on modules (e.g. appModules, synthDrivers, etc.). An add-on may have one or more module folders.
 4. In the **buildVars.py** file, change variable **addon_info** with your add-on's information (name, summary, description, version, author and url).
 5. Put your code in the usual folders for NVDA extension, under the **addon** folder. For instance: globalPlugins, synthDrivers, etc.
 6. Gettext translations must be placed into addon\locale\<lang>/LC_MESSAGES\nvda.po. 
 
-### To manage documentation files for your addon: ###
+### To manage documentation files for your addon:
 
 1. Copy the **readme.md** file for your add-on to the first created folder, where you copied **buildVars.py**. You can also copy **style.css** to improve the presentation of HTML documents.
 2. Documentation files (named **readme.md**) must be placed into addon\doc\<lang>/.
 
-### To package the add-on for distribution: ###
++### To package the add-on for distribution:
 
-1. Open a command line, change to the folder that has the **SCONSTRUCT** file (usually the root of your add-on development folder) and run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
+1. Open a command line, change to the folder that has the **sconstruct** file (usually the root of your add-on development folder) and run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
 2. You can further customize variables in the **buildVars.py** file.
 
 Note that this template only provides a basic add-on structure and build infrastructure. You may need to adapt it for your specific needs.
