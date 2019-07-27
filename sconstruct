@@ -167,7 +167,7 @@ for mdFile in env.Glob(os.path.join('addon', 'doc', '*', '*.md')):
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
 gettextvars={
-		'gettext_package_bugs_address' : 'nvda-translations@freelists.org',
+		'gettext_package_bugs_address' : 'nvda-translations@groups.io',
 		'gettext_package_name' : buildVars.addon_info['addon_name'],
 		'gettext_package_version' : buildVars.addon_info['addon_version']
 	}
