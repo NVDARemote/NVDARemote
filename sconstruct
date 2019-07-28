@@ -8,6 +8,8 @@ import gettext
 import os
 import os.path
 import zipfile
+import sys
+sys.dont_write_bytecode = True
 
 import buildVars
 
@@ -128,7 +130,6 @@ def generateManifest(source, dest):
 
 def generateTranslatedManifest(source, language, out):
 	# No ugettext in Python 3.
-	import sys
 	if sys.version_info.major == 2:
 		_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
 	else:
@@ -191,3 +192,4 @@ env.Depends(manifest, "buildVars.py")
 
 env.Depends(addon, manifest)
 env.Default(addon)
+env.Clean (addon, ['.sconsign.dblite', 'addon/doc/en/'])
