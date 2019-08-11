@@ -31,7 +31,7 @@ It can span multiple lines."""),
 	"addon_minimumNVDAVersion" : None,
 	# Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
 	"addon_lastTestedNVDAVersion" : None,
-	# Add-on update channel (default is stable or None)
+	# Add-on update channel (default is None, denoting stable releases, and for development releases, use "dev"; do not change unless you know what you are doing)
 	"addon_updateChannel" : None,
 }
 
