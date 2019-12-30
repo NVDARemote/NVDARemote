@@ -8,7 +8,7 @@ from . import json
 sys.path.remove(sys.path[-1])
 import random
 import threading
-import urllib
+from urllib import request
 import wx
 import gui
 from . import serializer
@@ -97,7 +97,7 @@ class ServerPanel(wx.Panel):
 	def do_portcheck(self, port):
 		temp_server = server.Server(port=port, password=None)
 		try:
-			req = urllib.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
+			req = request.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
 			data = req.read()
 			result = json.loads(data)
 			wx.CallAfter(self.on_get_IP_success, result)
