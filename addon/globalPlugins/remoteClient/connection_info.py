@@ -1,8 +1,11 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
-import urllib
-import urlparse
+from urllib.parse import (
+	urlparse,
+	parse_qs,
+	urlencode,
+)
 from . import socket_utils
 
 URL_PREFIX = 'nvdaremote://'
@@ -20,8 +23,8 @@ class ConnectionInfo(object):
 
 	@classmethod
 	def from_url(cls, url):
-		parsed_url = urlparse.urlparse(url)
-		parsed_query = urlparse.parse_qs(parsed_url.query)
+		parsed_url = urlparse(url)
+		parsed_query = parse_qs(parsed_url.query)
 		hostname = parsed_url.hostname
 		port = parsed_url.port
 		key = parsed_query.get('key', [""])[0]
@@ -51,12 +54,12 @@ class ConnectionInfo(object):
 			mode = 'slave'
 		elif mode == 'slave':
 			mode = 'master'
-		result += urllib.urlencode(dict(key=self.key, mode=mode))
+		result += urlencode(dict(key=self.key, mode=mode))
 		return result
 
 	def get_url(self):
 		result = URL_PREFIX + socket_utils.hostport_to_address((self.hostname, self.port))
 		result += '?'
 		mode = self.mode
-		result += urllib.urlencode(dict(key=self.key, mode=mode))
+		result += urlencode(dict(key=self.key, mode=mode))
 		return result
