@@ -82,7 +82,7 @@ class ServerPanel(wx.Panel):
 	def on_generate_key(self, evt):
 		evt.Skip()
 		res = str(random.randrange(1, 9))
-		for n in xrange(6):
+		for n in range(6):
 			res += str(random.randrange(0, 9))
 		self.key.SetValue(res)
 		self.key.SetFocus()
