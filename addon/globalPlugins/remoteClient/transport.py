@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import division
 import threading
 import time
-import Queue
+import queue
 import ssl
 import socket
 import select
@@ -35,7 +35,7 @@ class TCPTransport(Transport):
 		self.closed = False
 		#Buffer to hold partially received data
 		self.buffer = ""
-		self.queue = Queue.Queue()
+		self.queue = queue.Queue()
 		self.address = address
 		self.server_sock = None
 		self.queue_thread = None
