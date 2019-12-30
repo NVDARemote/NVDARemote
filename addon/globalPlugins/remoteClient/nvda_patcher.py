@@ -171,9 +171,9 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.patch_synth()
 		return result
 
-	def playWaveFile(self, fileName, async=True):
-		self.call_callbacks('wave', fileName=fileName, async=async)
-		return self.orig_playWaveFile(fileName, async=async)
+	def playWaveFile(self, fileName, asynchronous=True):
+		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
+		return self.orig_playWaveFile(fileName, asynchronous=asynchronous)
 
 	def display(self, cells):
 		self.call_callbacks('display', cells=cells)

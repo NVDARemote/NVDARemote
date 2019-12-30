@@ -142,8 +142,8 @@ class SlaveSession(RemoteSession):
 	def beep(self, hz, length, left=50, right=50):
 		self.transport.send(type='tone', hz=hz, length=length, left=left, right=right)
 
-	def playWaveFile(self, fileName, async=True):
-		self.transport.send(type='wave', fileName=fileName, async=async)
+	def playWaveFile(self, fileName, asynchronous=True):
+		self.transport.send(type='wave', fileName=fileName, asynchronous=asynchronous)
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
