@@ -45,7 +45,7 @@ class Server(object):
 					continue
 				self.clients[sock].handle_data()
 			if time.time() - self.last_ping_time >= self.PING_TIME:
-				for client in self.clients.itervalues():
+				for client in self.clients.values():
 					if client.authenticated:
 						client.send(type='ping')
 				self.last_ping_time = time.time()
@@ -174,6 +174,6 @@ class Client(object):
 	def send_to_others(self, origin=None, **obj):
 		if origin is None:
 			origin = self.id
-		for c in self.server.clients.itervalues():
+		for c in self.server.clients.values():
 			if c is not self and c.authenticated:
 				c.send(origin=origin, **obj)

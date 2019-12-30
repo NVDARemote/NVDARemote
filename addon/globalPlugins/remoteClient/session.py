@@ -109,7 +109,7 @@ class SlaveSession(RemoteSession):
 			self.patcher.unpatch()
 
 	def set_display_size(self, sizes=None, **kwargs):
-		self.master_display_sizes = sizes if sizes else [info.get("braille_numCells", 0) for info in self.masters.itervalues()]
+		self.master_display_sizes = sizes if sizes else [info.get("braille_numCells", 0) for info in self.masters.values()]
 		self.local_machine.set_braille_display_size(self.master_display_sizes)
 
 	def handle_braille_info(self, name=None, numCells=0, origin=None, **kwargs):
