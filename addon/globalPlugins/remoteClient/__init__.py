@@ -8,13 +8,10 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from . import json
 sys.path.remove(sys.path[-1])
 import threading
-import time
 import socket
 from globalPluginHandler import GlobalPlugin
 import logging
 logger = logging.getLogger(__name__)
-import Queue
-import select
 import wx
 from config import isInstalledCopy
 from . import configuration
@@ -27,18 +24,16 @@ from . import local_machine
 from . import serializer
 from .session import MasterSession, SlaveSession
 from . import url_handler
-import time
 import ui
 import addonHandler
 addonHandler.initTranslation()
 from . import keyboard_hook
 import ctypes.wintypes as ctypes
-import win32con
+from winUser import WM_QUIT, VK_F11  # provided by NVDA
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 from logHandler import log
 from . import dialogs
 import IAccessibleHandler
-import tones
 import globalVars
 import shlobj
 import uuid
@@ -257,7 +252,7 @@ class GlobalPlugin(GlobalPlugin):
 			self.local_machine.is_muted = False
 		self.sending_keys = False
 		if self.hook_thread is not None:
-			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, win32con.WM_QUIT, 0, 0)
+			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, WM_QUIT, 0, 0)
 			self.hook_thread.join()
 			self.hook_thread = None
 			self.removeGestureBinding(REMOTE_KEY)
@@ -381,9 +376,9 @@ class GlobalPlugin(GlobalPlugin):
 		#Prevent disabling sending keys if another key is held down
 		if not self.sending_keys:
 			return False
-		if kwargs['vk_code'] != win32con.VK_F11:
+		if kwargs['vk_code'] != VK_F11:
 			self.key_modified = kwargs['pressed']
-		if kwargs['vk_code'] == win32con.VK_F11 and kwargs['pressed'] and not self.key_modified:
+		if kwargs['vk_code'] == VK_F11 and kwargs['pressed'] and not self.key_modified:
 			self.sending_keys = False
 			self.set_receiving_braille(False)
 			# This is called from the hook thread and should be executed on the main thread.
