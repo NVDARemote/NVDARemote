@@ -9,13 +9,13 @@ except ImportError:
 
 import ctypes
 import os
-import win32con
+from winUser import WM_COPYDATA  # provided by NVDA
 from . import regobj
 from . import connection_info
 
 import windowUtils
 import wx
-import gui
+import gui  # provided by NVDA
 
 class COPYDATASTRUCT(ctypes.Structure):
 	_fields_ = [
@@ -35,12 +35,12 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 		super(URLHandlerWindow, self).__init__(*args, **kwargs)
 		self.callback = callback
 		try:
-			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, win32con.WM_COPYDATA, MSGFLT_ALLOW, None)
+			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, WM_COPYDATA, MSGFLT_ALLOW, None)
 		except AttributeError:
 			pass
 
 	def windowProc(self, hwnd, msg, wParam, lParam):
-		if msg != win32con.WM_COPYDATA:
+		if msg != WM_COPYDATA:
 			return
 		hwnd = wParam
 		struct_pointer = lParam
