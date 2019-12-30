@@ -196,7 +196,7 @@ class GlobalPlugin(GlobalPlugin):
 	def on_copy_link_item(self, evt):
 		session = self.master_session or self.slave_session
 		url = session.get_connection_info().get_url_to_connect()
-		api.copyToClip(unicode(url))
+		api.copyToClip(str(url))
 
 	def script_copy_link(self, gesture):
 		self.on_copy_link_item(None)
