@@ -20,11 +20,11 @@ class LocalMachine(object):
 		self.is_muted = False
 		self.receiving_braille=False
 		
-	def play_wave(self, fileName, async, **kwargs):
+	def play_wave(self, fileName, asynchronous, **kwargs):
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):
-			nvwave.playWaveFile(fileName=fileName, async=async)
+			nvwave.playWaveFile(fileName=fileName, asynchronous=asynchronous)
 
 	def beep(self, hz, length, left, right, **kwargs):
 		if self.is_muted:
