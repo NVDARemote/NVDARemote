@@ -4,7 +4,7 @@ from __future__ import division
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from . import json
+import json
 sys.path.remove(sys.path[-1])
 import random
 import threading

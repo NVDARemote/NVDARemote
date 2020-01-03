@@ -5,9 +5,7 @@ from logging import getLogger
 log = getLogger('serializer')
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from . import json
-sys.path.remove(sys.path[-1])
+import json
 import speech
 
 class JSONSerializer(object):
