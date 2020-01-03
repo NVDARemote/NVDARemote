@@ -1,9 +1,8 @@
 
 from io import StringIO
 import os
-import config
 import configobj
-import validate
+from configobj import validate
 import globalVars
 from . import socket_utils
 
