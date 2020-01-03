@@ -8,6 +8,7 @@ except ImportError:
 	log = getLogger('url_handler')
 
 import ctypes
+import ctypes.wintypes
 import os
 from winUser import WM_COPYDATA  # provided by NVDA
 from . import regobj

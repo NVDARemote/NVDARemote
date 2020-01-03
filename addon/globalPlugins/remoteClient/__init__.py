@@ -28,7 +28,8 @@ import ui
 import addonHandler
 addonHandler.initTranslation()
 from . import keyboard_hook
-import ctypes.wintypes as ctypes
+import ctypes
+import ctypes.wintypes
 from winUser import WM_QUIT, VK_F11  # provided by NVDA
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 from logHandler import log
@@ -366,7 +367,7 @@ class GlobalPlugin(GlobalPlugin):
 		log.debug("Hook thread start")
 		keyhook = keyboard_hook.KeyboardHook()
 		keyhook.register_callback(self.hook_callback)
-		msg = ctypes.MSG()
+		msg = ctypes.wintypes.MSG()
 		while ctypes.windll.user32.GetMessageW(ctypes.byref(msg), None, 0, 0):
 			pass
 		log.debug("Hook thread end")
