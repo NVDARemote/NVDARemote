@@ -1,4 +1,4 @@
-import collections
+import collections.abc
 import time
 import tones
 import threading
@@ -10,7 +10,7 @@ def beep_sequence(*sequence):
 	A single integer is assumed to be a delay in ms.
 	"""
 	for element in sequence:
-		if not isinstance(element, collections.Sequence):
+		if not isinstance(element, collections.abc.Sequence):
 			time.sleep(element / 1000)
 		else:
 			tone, duration = element
