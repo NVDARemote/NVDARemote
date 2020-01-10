@@ -31,7 +31,7 @@ LRESULT = c_long
 LowLevelKeyboardProc = ctypes.WINFUNCTYPE(LRESULT, c_int, wintypes.LPARAM, wintypes.WPARAM)
 
 
-class KeyboardHook(object):
+class KeyboardHook:
 
 	def __init__(self):
 		self.callbacks = list()

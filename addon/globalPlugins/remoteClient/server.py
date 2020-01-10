@@ -6,7 +6,7 @@ import sys
 import json
 import time
 
-class Server(object):
+class Server:
 	PING_TIME = 300
 
 	def __init__(self, port, password, bind_host='', bind_host6='[::]'):
@@ -72,7 +72,7 @@ class Server(object):
 		self.server_socket.close()
 		self.server_socket6.close()
 
-class Client(object):
+class Client:
 	id = 0
 
 	def __init__(self, server, socket):
