@@ -12,7 +12,7 @@ from . import callback_manager
 PROTOCOL_VERSION = 2
 
 
-class Transport(object):
+class Transport:
 
 	def __init__(self, serializer):
 		self.serializer = serializer

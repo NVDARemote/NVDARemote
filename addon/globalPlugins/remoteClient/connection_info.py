@@ -10,7 +10,7 @@ URL_PREFIX = 'nvdaremote://'
 class URLParsingError(Exception):
 	"""Raised if it's impossible to parse out the URL"""
 
-class ConnectionInfo(object):
+class ConnectionInfo:
 
 	def __init__(self, hostname, mode, key, port=socket_utils.SERVER_PORT):
 		self.hostname = hostname

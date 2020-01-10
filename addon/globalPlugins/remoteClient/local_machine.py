@@ -11,7 +11,7 @@ import inputCore
 import logging
 logger = logging.getLogger('local_machine')
 
-class LocalMachine(object):
+class LocalMachine:
 
 	def __init__(self):
 		self.is_muted = False

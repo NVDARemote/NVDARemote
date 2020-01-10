@@ -12,7 +12,7 @@ from collections import defaultdict
 from . import connection_info
 import hashlib
 
-class RemoteSession(object):
+class RemoteSession:
 
 	def __init__(self, local_machine, transport):
 		self.local_machine = local_machine

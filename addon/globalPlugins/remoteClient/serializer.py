@@ -5,7 +5,7 @@ import os
 import json
 import speech
 
-class JSONSerializer(object):
+class JSONSerializer:
 	SEP = '\n'
 
 	def serialize(self, type=None, **obj):
