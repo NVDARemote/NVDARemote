@@ -177,5 +177,5 @@ def clear_queue(queue):
 	try:
 		while True:
 			queue.get_nowait()
-	except:
+	except Exception:
 		pass
