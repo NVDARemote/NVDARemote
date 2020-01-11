@@ -24,7 +24,7 @@ class CustomEncoder(json.JSONEncoder):
 	def default(self, obj):
 		if is_subclass_or_instance(obj, SEQUENCE_CLASSES):
 			return [obj.__class__.__name__, obj.__dict__]
-		return super(CustomEncoder, self).default(obj)
+		return super().default(obj)
 
 def is_subclass_or_instance(unknown, possible):
 	try:
