@@ -49,7 +49,7 @@ class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
 	def __init__(self, *args, **kwargs):
-		super(SlaveSession, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.transport.callback_manager.register_callback('msg_client_joined', self.handle_client_connected)
 		self.transport.callback_manager.register_callback('msg_client_left', self.handle_client_disconnected)
 		self.transport.callback_manager.register_callback('msg_key', self.local_machine.send_key)
@@ -156,7 +156,7 @@ class SlaveSession(RemoteSession):
 class MasterSession(RemoteSession):
 
 	def __init__(self, *args, **kwargs):
-		super(MasterSession, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.slaves = defaultdict(dict)
 		self.index_thread = None
 		self.patcher = nvda_patcher.NVDAMasterPatcher()

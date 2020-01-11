@@ -45,7 +45,7 @@ class GlobalPlugin(GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
 
 	def __init__(self, *args, **kwargs):
-		super(GlobalPlugin, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.local_machine = local_machine.LocalMachine()
 		self.slave_session = None
 		self.master_session = None

@@ -28,7 +28,7 @@ class Transport:
 class TCPTransport(Transport):
 
 	def __init__(self, serializer, address, timeout=0):
-		super(TCPTransport, self).__init__(serializer=serializer)
+		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
 		self.buffer = ""
@@ -138,7 +138,7 @@ class TCPTransport(Transport):
 class RelayTransport(TCPTransport):
 
 	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION):
-		super(RelayTransport, self).__init__(address=address, serializer=serializer, timeout=timeout)
+		super().__init__(address=address, serializer=serializer, timeout=timeout)
 		log.info("Connecting to %s channel %s" % (address, channel))
 		self.channel = channel
 		self.connection_type = connection_type
@@ -155,7 +155,7 @@ class RelayTransport(TCPTransport):
 class ConnectorThread(threading.Thread):
 
 	def __init__(self, connector, connect_delay=5):
-		super(ConnectorThread, self).__init__()
+		super().__init__()
 		self.connect_delay = connect_delay
 		self.running = True
 		self.connector = connector

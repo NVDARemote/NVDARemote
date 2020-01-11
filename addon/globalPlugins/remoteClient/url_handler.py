@@ -30,7 +30,7 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 	className = u'NVDARemoteURLHandler'
 
 	def __init__(self, callback=None, *args, **kwargs):
-		super(URLHandlerWindow, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.callback = callback
 		try:
 			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, WM_COPYDATA, MSGFLT_ALLOW, None)
