@@ -48,7 +48,7 @@ class Server:
 	def accept_new_connection(self, sock):
 		try:
 			client_sock, addr = sock.accept()
-		except (ssl.SSLError, socket.error):
+		except (ssl.SSLError, socket.error, OSError):
 			return
 		client_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 		client = Client(server=self, socket=client_sock)
