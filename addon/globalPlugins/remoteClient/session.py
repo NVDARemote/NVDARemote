@@ -54,7 +54,7 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_client_left', self.handle_client_disconnected)
 		self.transport.callback_manager.register_callback('msg_key', self.local_machine.send_key)
 		self.masters = defaultdict(dict)
-		self.master_display_sizes=[]
+		self.master_display_sizes = []
 		self.last_client_index = None
 		self.transport.callback_manager.register_callback('msg_index', self.update_index)
 		self.transport.callback_manager.register_callback('transport_closing', self.handle_transport_closing)
@@ -225,9 +225,9 @@ class MasterSession(RemoteSession):
 			self.patch_callbacks_added = False
 		tones.beep(108, 300)
 
-	def send_braille_info(self):
-		display=braille.handler.display
-		self.transport.send(type="set_braille_info", name=display.name, numCells=display.numCells)
+	def send_braille_info(self, **kwargs):
+		display = braille.handler.display
+		self.transport.send(type="set_braille_info", name=display.name, numCells=display.numCells or braille.handler.displaySize)
 
 	def braille_input(self,**kwargs):
 		self.transport.send(type="braille_input", **kwargs)

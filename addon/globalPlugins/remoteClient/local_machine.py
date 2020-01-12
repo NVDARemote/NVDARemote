@@ -42,7 +42,7 @@ class LocalMachine:
 		wx.CallAfter(synth.speak, sequence)
 
 	def display(self, cells, **kwargs):
-		if self.receiving_braille and braille.handler.display.numCells>0 and len(cells)<=braille.handler.display.numCells:
+		if self.receiving_braille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
@@ -58,8 +58,8 @@ class LocalMachine:
 		try:
 			size=min(i for i in sizes if i>0)
 		except ValueError:
-			size=braille.handler.display.numCells
-		braille.handler.displaySize=size
+			size = braille.handler.display.numCells
+		braille.handler.displaySize = size
 		braille.handler.enabled = bool(size)
 
 	def send_key(self, vk_code=None, extended=None, pressed=None, **kwargs):
