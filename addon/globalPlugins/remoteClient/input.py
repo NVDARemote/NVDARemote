@@ -99,6 +99,14 @@ class BrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInp
 			if func:
 				return func
 
+		# Vision enhancement provider level
+		for provider in vision.handler.getActiveProviderInstances():
+			if isinstance(provider, baseObject.ScriptableObject):
+				if cls=='VisionEnhancementProvider' and module==provider.__module__:
+					func = getattr(app, "script_%s" % scriptName, None)
+					if func:
+						return func
+
 		# Tree interceptor level.
 		treeInterceptor = focus.treeInterceptor
 		if treeInterceptor and treeInterceptor.isReady:
