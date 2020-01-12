@@ -88,7 +88,18 @@ class Client:
 	def handle_data(self):
 		sock_data = ''
 		try:
-			sock_data = self.socket.recv(16384).decode(errors="surrogatepass")
+			# 16384 is 2^14 self.socket is a ssl wrapped socket.
+			# Perhaps this value was chosen as the largest value that could be received [1] to avoid having to loop
+			# until a new line is reached.
+			# However, the Python docs [2] say:
+			# "For best match with hardware and network realities, the value of bufsize should be a relatively
+			# small power of 2, for example, 4096."
+			# This should probably be changed in the future.
+			# See also transport.py handle_server_data in class TCPTransport.
+			# [1] https://stackoverflow.com/a/24870153/
+			# [2] https://docs.python.org/3.7/library/socket.html#socket.socket.recv
+			buffSize = 16384
+			sock_data = self.socket.recv(buffSize).decode(errors="surrogatepass")
 		except:
 			self.close()
 			return

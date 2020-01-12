@@ -81,7 +81,10 @@ class TCPTransport(Transport):
 		return server_sock
 
 	def handle_server_data(self):
-		data = self.buffer + self.server_sock.recv(16384).decode(errors="surrogatepass")
+		# This approach may be problematic:
+		# See also server.py handle_data in class Client.
+		buffSize = 16384
+		data = self.buffer + self.server_sock.recv(buffSize).decode(errors="surrogatepass")
 		self.buffer = ""
 		if data == '':
 			self._disconnect()
