@@ -16,8 +16,8 @@ class LocalMachine:
 	def __init__(self):
 		self.is_muted = False
 		self.receiving_braille=False
-		
-	def play_wave(self, fileName, asynchronous, **kwargs):
+
+	def play_wave(self, fileName, asynchronous=True, **kwargs):
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):
