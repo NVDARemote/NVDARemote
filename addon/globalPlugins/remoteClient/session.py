@@ -116,14 +116,23 @@ class SlaveSession(RemoteSession):
 		self.masters[origin]['braille_numCells'] = numCells
 		self.set_display_size()
 
+	def _get_patcher_callbacks(self):
+		return (
+			('speak', self.speak),
+			('beep', self.beep),
+			('wave', self.playWaveFile),
+			('cancel_speech', self.cancel_speech),
+			('display', self.display),
+			('set_display', self.set_display_size)
+		)
+
 	def add_patch_callbacks(self):
-		patcher_callbacks = (('speak', self.speak), ('beep', self.beep), ('wave', self.playWaveFile), ('cancel_speech', self.cancel_speech), ('display', self.display), ('set_display', self.set_display_size))
+		patcher_callbacks = self._get_patcher_callbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.register_callback(event, callback)
-		self.patcher.set_last_index_callback(self._get_lastIndex)
 
 	def remove_patch_callbacks(self):
-		patcher_callbacks = (('speak', self.speak), ('beep', self.beep), ('wave', self.playWaveFile), ('cancel_speech', self.cancel_speech), ('display', self.display), ('set_display', self.set_display_size))
+		patcher_callbacks = self._get_patcher_callbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.unregister_callback(event, callback)
 
