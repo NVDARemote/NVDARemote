@@ -144,7 +144,7 @@ class Client:
 		self.authenticated = True
 		clients = []
 		client_ids = []
-		for c in self.server.clients.values():
+		for c in list(self.server.clients.values()):
 			if c is self or not c.authenticated:
 				continue
 			clients.append(c.as_dict())
