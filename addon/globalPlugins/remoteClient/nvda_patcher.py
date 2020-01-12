@@ -47,35 +47,17 @@ class NVDASlavePatcher(NVDAPatcher):
 		super().__init__()
 		self.orig_speak = None
 		self.orig_cancel = None
-		self.orig_get_lastIndex  = None
-		self.last_index_callback = None
-		self.orig_setSynth  = None
 		self.orig_beep = None
 		self.orig_playWaveFile = None
 		self.orig_display = None
 
-	def patch_synth(self):
-		if self.orig_setSynth  is not None:
+	def patch_speech(self):
+		if self.orig_speak  is not None:
 			return
-		synth = speech.getSynth()
-		self.orig_setSynth = synthDriverHandler.setSynth
-		synthDriverHandler.setSynth = self.setSynth
-		speech.setSynth = self.setSynth
-		gui.settingsDialogs.setSynth = self.setSynth
-		if synth is None:
-			return
-		self.orig_speak = synth.speak
-		synth.speak = self.speak
-		self.orig_cancel = synth.cancel
-		synth.cancel = self.cancel
-		if synth.__class__.name == 'silence':
-			def setter(self, val):
-				pass
-			self.orig_get_lastIndex = synth.__class__.lastIndex
-			synth.__class__.lastIndex = property(fget=self._get_lastIndex, fset=setter)
-		else:
-			self.orig_get_lastIndex = synth.__class__.lastIndex.fget
-			synth.__class__.lastIndex.fget = self._get_lastIndex
+		self.orig_speak = speech._manager.speak
+		speech._manager.speak = self.speak
+		self.orig_cancel = speech._manager.cancel
+		speech._manager.cancel = self.cancel
 
 	def patch_tones(self):
 		if self.orig_beep is not None:
@@ -95,25 +77,13 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.orig_display = braille.handler._writeCells
 		braille.handler._writeCells = self.display
 
-	def unpatch_synth(self):
-		if self.orig_setSynth  is None:
+	def unpatch_speech(self):
+		if self.orig_speak  is None:
 			return
-		synth = speech.getSynth()
-		synthDriverHandler.setSynth = self.orig_setSynth
-		speech.setSynth = self.orig_setSynth
-		gui.settingsDialogs.setSynth = self.orig_setSynth
-		self.orig_setSynth = None
-		if synth is None:
-			return
-		synth.speak = self.orig_speak
+		speech._manager.speak = self.orig_speak
 		self.orig_speak = None
-		synth.cancel = self.orig_cancel
+		speech._manager.cancel = self.orig_cancel
 		self.orig_cancel = None
-		if synth.__class__.name == 'silence':
-			synth.__class__.lastIndex = self.orig_get_lastIndex
-		else:
-			synth.__class__.lastIndex.fget = self.orig_get_lastIndex
-			self.orig_get_lastIndex = None
 
 	def unpatch_tones(self):
 		if self.orig_beep is None:
@@ -137,21 +107,21 @@ class NVDASlavePatcher(NVDAPatcher):
 
 	def patch(self):
 		super().patch()
-		self.patch_synth()
+		self.patch_speech()
 		self.patch_tones()
 		self.patch_nvwave()
 		self.patch_braille()
 
 	def unpatch(self):
 		super().unpatch()
-		self.unpatch_synth()
+		self.unpatch_speech()
 		self.unpatch_tones()
 		self.unpatch_nvwave()
 		self.unpatch_braille()
 
-	def speak(self, speechSequence):
-		self.call_callbacks('speak', speechSequence=speechSequence)
-		self.orig_speak(speechSequence)
+	def speak(self, speechSequence, priority):
+		self.call_callbacks('speak', speechSequence=speechSequence, priority=priority)
+		self.orig_speak(speechSequence, priority)
 
 	def cancel(self):
 		self.call_callbacks('cancel_speech')
@@ -161,13 +131,6 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right)
 		return self.orig_beep(hz=hz, length=length, left=left, right=right)
 
-	def setSynth(self, *args, **kwargs):
-		orig = self.orig_setSynth
-		self.unpatch_synth()
-		result = orig(*args, **kwargs)
-		self.patch_synth()
-		return result
-
 	def playWaveFile(self, fileName, asynchronous=True):
 		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
 		return self.orig_playWaveFile(fileName, asynchronous=asynchronous)
@@ -175,12 +138,6 @@ class NVDASlavePatcher(NVDAPatcher):
 	def display(self, cells):
 		self.call_callbacks('display', cells=cells)
 		self.orig_display(cells)
-
-	def _get_lastIndex(self, instance):
-		return self.last_index_callback()
-
-	def set_last_index_callback(self, callback):
-		self.last_index_callback = callback
 
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""

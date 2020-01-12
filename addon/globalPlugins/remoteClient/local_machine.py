@@ -31,15 +31,18 @@ class LocalMachine:
 	def cancel_speech(self, **kwargs):
 		if self.is_muted:
 			return
-		synth = speech.getSynth()
-		wx.CallAfter(synth.cancel)
+		wx.CallAfter(speech._manager.cancel)
 
-	def speak(self, sequence, **kwargs):
+	def speak(
+			self,
+			sequence,
+			priority=speech.priorities.Spri.NORMAL,
+			**kwargs
+	):
 		if self.is_muted:
 			return
-		synth = speech.getSynth()
 		speech.beenCanceled = False
-		wx.CallAfter(synth.speak, sequence)
+		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
 		if self.receiving_braille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
