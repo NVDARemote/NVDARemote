@@ -34,8 +34,8 @@ class NVDAPatcher(callback_manager.CallbackManager):
 	def unpatch(self):
 		self.unpatch_set_display()
 
-	def setDisplayByName(self, name, isFallback=False):
-		result=self.orig_setDisplayByName(name,isFallback)
+	def setDisplayByName(self, *args, **kwargs):
+		result=self.orig_setDisplayByName(*args, **kwargs)
 		if result:
 			self.call_callbacks('set_display')
 		return result
