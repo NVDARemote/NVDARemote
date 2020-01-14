@@ -1,9 +1,7 @@
 REMOTE_KEY = "kb:f11"
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import json
-sys.path.remove(sys.path[-1])
 import threading
 import socket
 from globalPluginHandler import GlobalPlugin
