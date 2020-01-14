@@ -21,7 +21,13 @@ from .session import MasterSession, SlaveSession
 from . import url_handler
 import ui
 import addonHandler
-addonHandler.initTranslation()
+try:
+	addonHandler.initTranslation()
+except addonHandler.AddonError:
+	from logHandler import log
+	log.warning(
+		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
+	)
 from . import keyboard_hook
 import ctypes
 import ctypes.wintypes

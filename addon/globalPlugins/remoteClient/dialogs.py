@@ -9,7 +9,13 @@ from . import server
 from . import transport
 from . import socket_utils
 import addonHandler
-addonHandler.initTranslation()
+try:
+	addonHandler.initTranslation()
+except addonHandler.AddonError:
+	from logHandler import log
+	log.warning(
+		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
+	)
 
 WX_VERSION = int(wx.version()[0])
 WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
