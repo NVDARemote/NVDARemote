@@ -12,6 +12,10 @@ from collections import defaultdict
 from . import connection_info
 import hashlib
 
+EXCLUDED_SPEECH_COMMANDS = (
+	speech.commands.BaseCallbackCommand,
+)
+
 class RemoteSession:
 
 	def __init__(self, local_machine, transport):
@@ -136,8 +140,18 @@ class SlaveSession(RemoteSession):
 		for event, callback in patcher_callbacks:
 			self.patcher.unregister_callback(event, callback)
 
+	def _filterUnsupportedSpeechCommands(self, speechSequence):
+		return list([
+			item for item in speechSequence
+			if not isinstance(item, EXCLUDED_SPEECH_COMMANDS)
+		])
+
 	def speak(self, speechSequence, priority):
-		self.transport.send(type="speak", sequence=speechSequence, priority=priority)
+		self.transport.send(
+			type="speak",
+			sequence=self._filterUnsupportedSpeechCommands(speechSequence),
+			priority=priority
+		)
 
 	def cancel_speech(self):
 		self.transport.send(type="cancel")
