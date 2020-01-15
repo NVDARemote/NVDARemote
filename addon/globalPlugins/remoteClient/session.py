@@ -55,6 +55,8 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_key', self.local_machine.send_key)
 		self.masters = defaultdict(dict)
 		self.master_display_sizes = []
+
+		self.transport.callback_manager.register_callback('msg_index', self.recv_index)
 		self.transport.callback_manager.register_callback('transport_closing', self.handle_transport_closing)
 		self.patcher = nvda_patcher.NVDASlavePatcher()
 		self.patch_callbacks_added = False
@@ -154,6 +156,9 @@ class SlaveSession(RemoteSession):
 	def has_braille_masters(self):
 		return bool([i for i in self.master_display_sizes if i>0])
 
+	def recv_index(self, index=None, **kwargs):
+		pass  # speech index approach changed in 2019.3
+
 class MasterSession(RemoteSession):
 
 	def __init__(self, *args, **kwargs):
@@ -172,6 +177,8 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
 		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
 		self.transport.callback_manager.register_callback('msg_send_braille_info', self.send_braille_info)
+		self.transport.callback_manager.register_callback('transport_connected', self.handle_connected)
+		self.transport.callback_manager.register_callback('transport_disconnected', self.handle_disconnected)
 
 
 	def get_connection_info(self):
@@ -182,6 +189,14 @@ class MasterSession(RemoteSession):
 	def handle_nvda_not_connected(self):
 		speech.cancelSpeech()
 		ui.message(_("Remote NVDA not connected."))
+
+	def handle_connected(self):
+		# speech index approach changed in 2019.3
+		pass  # nothing to do
+
+	def handle_disconnected(self):
+		# speech index approach changed in 2019.3
+		pass  # nothing to do
 
 	def handle_channel_joined(self, channel=None, clients=None, origin=None, **kwargs):
 		if clients is None:
