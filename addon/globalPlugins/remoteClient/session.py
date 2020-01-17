@@ -32,16 +32,16 @@ Please either use a different server or upgrade your version of the addon.""")
 		ui.message(message)
 		self.transport.close()
 
-	def handle_motd(self, motd, force_display=False, **kwargs):
+	def handle_motd(self, motd: str, force_display=False, **kwargs):
 		if force_display or self.should_display_motd(motd):
 			gui.messageBox(parent=gui.mainFrame, caption=_("Message of the Day"), message=motd)
 
-	def should_display_motd(self, motd):
+	def should_display_motd(self, motd: str):
 		conf = configuration.get_config()
 		host, port = self.transport.address
 		host = host.lower()
 		address = '{host}:{port}'.format(host=host, port=port)
-		hashed = hashlib.sha1(motd).hexdigest()
+		hashed = hashlib.sha1(motd.encode('utf-8')).hexdigest()
 		current = conf['seen_motds'].get(address, "")
 		if current == hashed:
 			return False
