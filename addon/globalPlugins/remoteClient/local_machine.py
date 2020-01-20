@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+
 import wx
 from . import input
 import api
@@ -17,7 +19,12 @@ class LocalMachine:
 		self.is_muted = False
 		self.receiving_braille=False
 
-	def play_wave(self, fileName, asynchronous=True, **kwargs):
+	def play_wave(self, fileName, asynchronous: Optional[bool]=None, **kwargs):
+		if asynchronous is None:  # Don't override with value from kwargs if it was provided explicitly
+			asynchronous = True  # Default should be True
+			if "async" in kwargs:  # In version 2.2, arg was named 'async'.
+				# Handle cross version communication.
+				asynchronous = kwargs.pop('async')
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):

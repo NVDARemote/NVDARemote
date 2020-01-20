@@ -132,7 +132,10 @@ class NVDASlavePatcher(NVDAPatcher):
 		return self.orig_beep(hz=hz, length=length, left=left, right=right)
 
 	def playWaveFile(self, fileName, asynchronous=True):
-		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
+		kwargs = {
+			'async': asynchronous  # in case we are communicating with version 2.2
+		}
+		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous, **kwargs)
 		return self.orig_playWaveFile(fileName, asynchronous=asynchronous)
 
 	def display(self, cells):
