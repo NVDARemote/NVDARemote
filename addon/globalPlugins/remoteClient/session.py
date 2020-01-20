@@ -41,7 +41,8 @@ Please either use a different server or upgrade your version of the addon.""")
 		host, port = self.transport.address
 		host = host.lower()
 		address = '{host}:{port}'.format(host=host, port=port)
-		hashed = hashlib.sha1(motd.encode('utf-8')).hexdigest()
+		motdBytes = motd.encode('utf-8', errors='surrogatepass')
+		hashed = hashlib.sha1(motdBytes).hexdigest()
 		current = conf['seen_motds'].get(address, "")
 		if current == hashed:
 			return False
