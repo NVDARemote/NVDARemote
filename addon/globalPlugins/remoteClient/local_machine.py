@@ -19,16 +19,14 @@ class LocalMachine:
 		self.is_muted = False
 		self.receiving_braille=False
 
-	def play_wave(self, fileName, asynchronous: Optional[bool]=None, **kwargs):
-		if asynchronous is None:  # Don't override with value from kwargs if it was provided explicitly
-			asynchronous = True  # Default should be True
-			if "async" in kwargs:  # In version 2.2, arg was named 'async'.
-				# Handle cross version communication.
-				asynchronous = kwargs.pop('async')
+	def play_wave(self, fileName):
+		"""Instructed by remote machine to play a wave file."""
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):
-			nvwave.playWaveFile(fileName=fileName, asynchronous=asynchronous)
+			# ignore async / asynchronous from kwargs:
+			# playWaveFile should play asynchronously from NVDA remote.
+			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz, length, left, right, **kwargs):
 		if self.is_muted:

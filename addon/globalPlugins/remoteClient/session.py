@@ -6,8 +6,10 @@ import speech
 import ui
 import tones
 import braille
+from logHandler import log
 from . import configuration
 from . import nvda_patcher
+from . import RelayTransport
 from collections import defaultdict
 from . import connection_info
 import hashlib
@@ -18,7 +20,7 @@ EXCLUDED_SPEECH_COMMANDS = (
 
 class RemoteSession:
 
-	def __init__(self, local_machine, transport):
+	def __init__(self, local_machine, transport: RelayTransport):
 		self.local_machine = local_machine
 		self.patcher = None
 		self.transport = transport
@@ -160,8 +162,17 @@ class SlaveSession(RemoteSession):
 	def beep(self, hz, length, left=50, right=50):
 		self.transport.send(type='tone', hz=hz, length=length, left=left, right=right)
 
-	def playWaveFile(self, fileName, asynchronous=True):
-		self.transport.send(type='wave', fileName=fileName, asynchronous=asynchronous)
+	def playWaveFile(self, **kwargs):
+		"""This machine played a sound, send it to Master machine"""
+		kwargs.update({
+			# nvWave.playWaveFile should always be asynchronous when called from NVDA remote, so always send 'True'
+			# Version 2.2 requires 'async' keyword.
+			'async': True,
+			# Version 2.3 onwards. Not currently used, but matches arguments for nvWave.playWaveFile.
+			# Including it allows for forward compatibility if requirements change.
+			'asynchronous': True,
+		})
+		self.transport.send(type='wave', **kwargs)
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
@@ -184,7 +195,7 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_speak', self.local_machine.speak)
 		self.transport.callback_manager.register_callback('msg_cancel', self.local_machine.cancel_speech)
 		self.transport.callback_manager.register_callback('msg_tone', self.local_machine.beep)
-		self.transport.callback_manager.register_callback('msg_wave', self.local_machine.play_wave)
+		self.transport.callback_manager.register_callback('msg_wave', self.handle_play_wave)
 		self.transport.callback_manager.register_callback('msg_display', self.local_machine.display)
 		self.transport.callback_manager.register_callback('msg_nvda_not_connected', self.handle_nvda_not_connected)
 		self.transport.callback_manager.register_callback('msg_client_joined', self.handle_client_connected)
@@ -195,6 +206,18 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.register_callback('transport_connected', self.handle_connected)
 		self.transport.callback_manager.register_callback('transport_disconnected', self.handle_disconnected)
 
+	def handle_play_wave(self, **kwargs):
+		"""Receive instruction to play a 'wave' from the slave machine
+		This method handles translation (between versions of NVDA Remote) of arguments required for 'msg_wave'
+		"""
+		# Note:
+		# Version 2.2 will send only 'async' in kwargs
+		# Version 2.3 will send 'asynchronous' and 'async' in kwargs
+		if "fileName" not in kwargs:
+			log.error("'fileName' missing from kwargs.")
+			return
+		fileName = kwargs.pop("fileName")
+		self.local_machine.play_wave(fileName=fileName)
 
 	def get_connection_info(self):
 		hostname, port = self.transport.address

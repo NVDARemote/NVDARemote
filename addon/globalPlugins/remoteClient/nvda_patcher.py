@@ -132,11 +132,12 @@ class NVDASlavePatcher(NVDAPatcher):
 		return self.orig_beep(hz=hz, length=length, left=left, right=right)
 
 	def playWaveFile(self, fileName, asynchronous=True):
-		kwargs = {
-			'async': asynchronous  # in case we are communicating with version 2.2
-		}
-		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous, **kwargs)
-		return self.orig_playWaveFile(fileName, asynchronous=asynchronous)
+		"""Intercepts playing of 'wave' file.
+		Used to instruct master to play this file also. File is then played locally.
+		Note: Signature must match nvwave.playWaveFile
+		"""
+		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
+		return self.orig_playWaveFile(fileName, asynchronous)
 
 	def display(self, cells):
 		self.call_callbacks('display', cells=cells)
