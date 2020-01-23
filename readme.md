@@ -158,3 +158,18 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Update to protocol version 2, which includes an origin field in every remote message
 * Significant code cleanup allowing easier modifications in future
 
+## Altering NVDA Remote
+
+You may clone this repo to make alteration to NVDA Remote.
+
+### 3rd Party dependecies
+These can be installed with pip:
+- Markdown
+- scons
+- python-gettext
+
+### To package the add-on for distribution:
+
+1. Open a command line, change to the root of this repo
+1. Run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
+
