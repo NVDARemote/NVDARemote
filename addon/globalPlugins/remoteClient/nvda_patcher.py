@@ -1,4 +1,4 @@
-import callback_manager
+from . import callback_manager
 import synthDriverHandler
 import tones
 import nvwave
@@ -13,7 +13,7 @@ class NVDAPatcher(callback_manager.CallbackManager):
 	"""Base class to manage patching of braille display changes."""
 
 	def __init__(self):
-		super(NVDAPatcher, self).__init__()
+		super().__init__()
 		self.orig_setDisplayByName = None
 
 	def patch_set_display(self):
@@ -34,8 +34,8 @@ class NVDAPatcher(callback_manager.CallbackManager):
 	def unpatch(self):
 		self.unpatch_set_display()
 
-	def setDisplayByName(self, name, isFallback=False):
-		result=self.orig_setDisplayByName(name,isFallback)
+	def setDisplayByName(self, *args, **kwargs):
+		result=self.orig_setDisplayByName(*args, **kwargs)
 		if result:
 			self.call_callbacks('set_display')
 		return result
@@ -44,38 +44,20 @@ class NVDASlavePatcher(NVDAPatcher):
 	"""Class to manage patching of synth, tones, nvwave, and braille."""
 
 	def __init__(self):
-		super(NVDASlavePatcher, self).__init__()
+		super().__init__()
 		self.orig_speak = None
 		self.orig_cancel = None
-		self.orig_get_lastIndex  = None
-		self.last_index_callback = None
-		self.orig_setSynth  = None
 		self.orig_beep = None
 		self.orig_playWaveFile = None
 		self.orig_display = None
 
-	def patch_synth(self):
-		if self.orig_setSynth  is not None:
+	def patch_speech(self):
+		if self.orig_speak  is not None:
 			return
-		synth = speech.getSynth()
-		self.orig_setSynth = synthDriverHandler.setSynth
-		synthDriverHandler.setSynth = self.setSynth
-		speech.setSynth = self.setSynth
-		gui.settingsDialogs.setSynth = self.setSynth
-		if synth is None:
-			return
-		self.orig_speak = synth.speak
-		synth.speak = self.speak
-		self.orig_cancel = synth.cancel
-		synth.cancel = self.cancel
-		if synth.__class__.name == 'silence':
-			def setter(self, val):
-				pass
-			self.orig_get_lastIndex = synth.__class__.lastIndex
-			synth.__class__.lastIndex = property(fget=self._get_lastIndex, fset=setter)
-		else:
-			self.orig_get_lastIndex = synth.__class__.lastIndex.fget
-			synth.__class__.lastIndex.fget = self._get_lastIndex
+		self.orig_speak = speech._manager.speak
+		speech._manager.speak = self.speak
+		self.orig_cancel = speech._manager.cancel
+		speech._manager.cancel = self.cancel
 
 	def patch_tones(self):
 		if self.orig_beep is not None:
@@ -95,25 +77,13 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.orig_display = braille.handler._writeCells
 		braille.handler._writeCells = self.display
 
-	def unpatch_synth(self):
-		if self.orig_setSynth  is None:
+	def unpatch_speech(self):
+		if self.orig_speak  is None:
 			return
-		synth = speech.getSynth()
-		synthDriverHandler.setSynth = self.orig_setSynth
-		speech.setSynth = self.orig_setSynth
-		gui.settingsDialogs.setSynth = self.orig_setSynth
-		self.orig_setSynth = None
-		if synth is None:
-			return
-		synth.speak = self.orig_speak
+		speech._manager.speak = self.orig_speak
 		self.orig_speak = None
-		synth.cancel = self.orig_cancel
+		speech._manager.cancel = self.orig_cancel
 		self.orig_cancel = None
-		if synth.__class__.name == 'silence':
-			synth.__class__.lastIndex = self.orig_get_lastIndex
-		else:
-			synth.__class__.lastIndex.fget = self.orig_get_lastIndex
-			self.orig_get_lastIndex = None
 
 	def unpatch_tones(self):
 		if self.orig_beep is None:
@@ -136,22 +106,22 @@ class NVDASlavePatcher(NVDAPatcher):
 		braille.handler.enabled = bool(braille.handler.displaySize)
 
 	def patch(self):
-		super(NVDASlavePatcher, self).patch()
-		self.patch_synth()
+		super().patch()
+		self.patch_speech()
 		self.patch_tones()
 		self.patch_nvwave()
 		self.patch_braille()
 
 	def unpatch(self):
-		super(NVDASlavePatcher, self).unpatch()
-		self.unpatch_synth()
+		super().unpatch()
+		self.unpatch_speech()
 		self.unpatch_tones()
 		self.unpatch_nvwave()
 		self.unpatch_braille()
 
-	def speak(self, speechSequence):
-		self.call_callbacks('speak', speechSequence=speechSequence)
-		self.orig_speak(speechSequence)
+	def speak(self, speechSequence, priority):
+		self.call_callbacks('speak', speechSequence=speechSequence, priority=priority)
+		self.orig_speak(speechSequence, priority)
 
 	def cancel(self):
 		self.call_callbacks('cancel_speech')
@@ -161,32 +131,23 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right)
 		return self.orig_beep(hz=hz, length=length, left=left, right=right)
 
-	def setSynth(self, *args, **kwargs):
-		orig = self.orig_setSynth
-		self.unpatch_synth()
-		result = orig(*args, **kwargs)
-		self.patch_synth()
-		return result
-
-	def playWaveFile(self, fileName, async=True):
-		self.call_callbacks('wave', fileName=fileName, async=async)
-		return self.orig_playWaveFile(fileName, async=async)
+	def playWaveFile(self, fileName, asynchronous=True):
+		"""Intercepts playing of 'wave' file.
+		Used to instruct master to play this file also. File is then played locally.
+		Note: Signature must match nvwave.playWaveFile
+		"""
+		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
+		return self.orig_playWaveFile(fileName, asynchronous)
 
 	def display(self, cells):
 		self.call_callbacks('display', cells=cells)
 		self.orig_display(cells)
 
-	def _get_lastIndex(self, instance):
-		return self.last_index_callback()
-
-	def set_last_index_callback(self, callback):
-		self.last_index_callback = callback
-
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""
 
 	def __init__(self):
-		super(NVDAMasterPatcher, self).__init__()
+		super().__init__()
 		self.orig_executeGesture = None
 
 	def patch_braille_input(self):
@@ -202,11 +163,11 @@ class NVDAMasterPatcher(NVDAPatcher):
 		self.orig_executeGesture = None
 
 	def patch(self):
-		super(NVDAMasterPatcher, self).patch()
+		super().patch()
 		# We do not patch braille input by default
 
 	def unpatch(self):
-		super(NVDAMasterPatcher, self).unpatch()
+		super().unpatch()
 		# To be sure, unpatch braille input
 		self.unpatch_braille_input()
 

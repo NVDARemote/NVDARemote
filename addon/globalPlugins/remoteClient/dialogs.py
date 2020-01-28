@@ -1,19 +1,21 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import json
-sys.path.remove(sys.path[-1])
 import random
 import threading
-import urllib
+from urllib import request
 import wx
 import gui
-import serializer
-import server
-import transport
-import socket_utils
+from . import serializer
+from . import server
+from . import transport
+from . import socket_utils
 import addonHandler
-addonHandler.initTranslation()
+try:
+	addonHandler.initTranslation()
+except addonHandler.AddonError:
+	from logHandler import log
+	log.warning(
+		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
+	)
 
 WX_VERSION = int(wx.version()[0])
 WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
@@ -21,7 +23,7 @@ WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
 class ClientPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
-		super(ClientPanel, self).__init__(parent, id)
+		super().__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
@@ -54,7 +56,7 @@ class ClientPanel(wx.Panel):
 class ServerPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
-		super(ServerPanel, self).__init__(parent, id)
+		super().__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
 		self.get_IP = wx.Button(parent=self, label=_("Get External &IP"))
@@ -79,7 +81,7 @@ class ServerPanel(wx.Panel):
 	def on_generate_key(self, evt):
 		evt.Skip()
 		res = str(random.randrange(1, 9))
-		for n in xrange(6):
+		for n in range(6):
 			res += str(random.randrange(0, 9))
 		self.key.SetValue(res)
 		self.key.SetFocus()
@@ -94,7 +96,7 @@ class ServerPanel(wx.Panel):
 	def do_portcheck(self, port):
 		temp_server = server.Server(port=port, password=None)
 		try:
-			req = urllib.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
+			req = request.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
 			data = req.read()
 			result = json.loads(data)
 			wx.CallAfter(self.on_get_IP_success, result)
@@ -124,7 +126,7 @@ class ServerPanel(wx.Panel):
 class DirectConnectDialog(wx.Dialog):
 
 	def __init__(self, parent, id, title):
-		super(DirectConnectDialog, self).__init__(parent, id, title=title)
+		super().__init__(parent, id, title=title)
 		main_sizer = self.main_sizer = wx.BoxSizer(wx.VERTICAL)
 		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL)
 		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
@@ -167,7 +169,7 @@ class DirectConnectDialog(wx.Dialog):
 class OptionsDialog(wx.Dialog):
 
 	def __init__(self, parent, id, title):
-		super(OptionsDialog, self).__init__(parent, id, title=title)
+		super().__init__(parent, id, title=title)
 		main_sizer = wx.BoxSizer(wx.VERTICAL)
 		# Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
 		self.autoconnect = wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup"))
