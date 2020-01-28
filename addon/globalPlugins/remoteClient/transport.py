@@ -9,11 +9,12 @@ from logging import getLogger
 log = getLogger('transport')
 from . import callback_manager
 
-PROTOCOL_VERSION = 2
+PROTOCOL_VERSION: int = 2
 
 
 class Transport:
 	connected: bool
+	successful_connects: int
 
 	def __init__(self, serializer):
 		self.serializer = serializer
@@ -28,6 +29,8 @@ class Transport:
 
 class TCPTransport(Transport):
 	buffer: bytes
+	closed: bool
+	
 	def __init__(self, serializer, address, timeout=0):
 		super().__init__(serializer=serializer)
 		self.closed = False
