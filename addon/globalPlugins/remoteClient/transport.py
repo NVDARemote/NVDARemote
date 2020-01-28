@@ -13,6 +13,7 @@ PROTOCOL_VERSION = 2
 
 
 class Transport:
+	connected: bool
 
 	def __init__(self, serializer):
 		self.serializer = serializer
@@ -26,7 +27,7 @@ class Transport:
 		self.callback_manager.call_callbacks('transport_connected')
 
 class TCPTransport(Transport):
-
+	buffer: bytes
 	def __init__(self, serializer, address, timeout=0):
 		super().__init__(serializer=serializer)
 		self.closed = False
@@ -44,7 +45,7 @@ class TCPTransport(Transport):
 		try:
 			self.server_sock = self.create_outbound_socket(self.address)
 			self.server_sock.connect(self.address)
-		except Exception as e:
+		except Exception:
 			self.callback_manager.call_callbacks('transport_connection_failed')
 			raise
 		self.transport_connected()
@@ -64,7 +65,7 @@ class TCPTransport(Transport):
 				try:
 					self.handle_server_data()
 				except socket.error:
-					self.buffer = ""
+					self.buffer = b''
 					break
 		self.connected = False
 		self.callback_manager.call_callbacks('transport_disconnected')
@@ -86,7 +87,7 @@ class TCPTransport(Transport):
 		buffSize = 16384
 		data = self.buffer + self.server_sock.recv(buffSize)
 		self.buffer = b''
-		if data == '':
+		if not data:
 			self._disconnect()
 			return
 		if b'\n' not in data:
