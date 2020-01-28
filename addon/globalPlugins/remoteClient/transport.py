@@ -31,7 +31,7 @@ class TCPTransport(Transport):
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
-		self.buffer = ""
+		self.buffer = B''
 		self.queue = queue.Queue()
 		self.address = address
 		self.server_sock = None
@@ -55,10 +55,10 @@ class TCPTransport(Transport):
 			try:
 				readers, writers, error = select.select([self.server_sock], [], [self.server_sock])
 			except socket.error:
-				self.buffer = ""
+				self.buffer = b''
 				break
 			if self.server_sock in error:
-				self.buffer = ""
+				self.buffer = b""
 				break
 			if self.server_sock in readers:
 				try:
@@ -84,16 +84,16 @@ class TCPTransport(Transport):
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
 		buffSize = 16384
-		data = self.buffer + self.server_sock.recv(buffSize).decode(errors="surrogatepass")
-		self.buffer = ""
+		data = self.buffer + self.server_sock.recv(buffSize)
+		self.buffer = b''
 		if data == '':
 			self._disconnect()
 			return
-		if '\n' not in data:
+		if b'\n' not in data:
 			self.buffer += data
 			return
-		while '\n' in data:
-			line, sep, data = data.partition('\n')
+		while b'\n' in data:
+			line, sep, data = data.partition(b'\n')
 			self.parse(line)
 		self.buffer += data
 
@@ -111,7 +111,7 @@ class TCPTransport(Transport):
 			if item is None:
 				return
 			try:
-				self.server_sock.sendall(item.encode(errors="surrogatepass"))
+				self.server_sock.sendall(item)
 			except socket.error:
 				return
 
