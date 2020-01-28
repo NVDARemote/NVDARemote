@@ -1,6 +1,8 @@
 import os
+from typing import Optional
+
 import wx
-import input
+from . import input
 import api
 import nvwave
 import tones
@@ -11,17 +13,20 @@ import inputCore
 import logging
 logger = logging.getLogger('local_machine')
 
-class LocalMachine(object):
+class LocalMachine:
 
 	def __init__(self):
 		self.is_muted = False
 		self.receiving_braille=False
-		
-	def play_wave(self, fileName, async, **kwargs):
+
+	def play_wave(self, fileName):
+		"""Instructed by remote machine to play a wave file."""
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):
-			nvwave.playWaveFile(fileName=fileName, async=async)
+			# ignore async / asynchronous from kwargs:
+			# playWaveFile should play asynchronously from NVDA remote.
+			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz, length, left, right, **kwargs):
 		if self.is_muted:
@@ -31,18 +36,21 @@ class LocalMachine(object):
 	def cancel_speech(self, **kwargs):
 		if self.is_muted:
 			return
-		synth = speech.getSynth()
-		wx.CallAfter(synth.cancel)
+		wx.CallAfter(speech._manager.cancel)
 
-	def speak(self, sequence, **kwargs):
+	def speak(
+			self,
+			sequence,
+			priority=speech.priorities.Spri.NORMAL,
+			**kwargs
+	):
 		if self.is_muted:
 			return
-		synth = speech.getSynth()
 		speech.beenCanceled = False
-		wx.CallAfter(synth.speak, sequence)
+		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
-		if self.receiving_braille and braille.handler.display.numCells>0 and len(cells)<=braille.handler.display.numCells:
+		if self.receiving_braille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
@@ -58,8 +66,8 @@ class LocalMachine(object):
 		try:
 			size=min(i for i in sizes if i>0)
 		except ValueError:
-			size=braille.handler.display.numCells
-		braille.handler.displaySize=size
+			size = braille.handler.display.numCells
+		braille.handler.displaySize = size
 		braille.handler.enabled = bool(size)
 
 	def send_key(self, vk_code=None, extended=None, pressed=None, **kwargs):

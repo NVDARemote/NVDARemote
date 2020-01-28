@@ -5,14 +5,15 @@ except ImportError:
 	log = getLogger('url_handler')
 
 import ctypes
+import ctypes.wintypes
 import os
-import win32con
-import regobj
-import connection_info
+from winUser import WM_COPYDATA  # provided by NVDA
+from . import regobj
+from . import connection_info
 
 import windowUtils
 import wx
-import gui
+import gui  # provided by NVDA
 
 class COPYDATASTRUCT(ctypes.Structure):
 	_fields_ = [
@@ -29,15 +30,15 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 	className = u'NVDARemoteURLHandler'
 
 	def __init__(self, callback=None, *args, **kwargs):
-		super(URLHandlerWindow, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.callback = callback
 		try:
-			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, win32con.WM_COPYDATA, MSGFLT_ALLOW, None)
+			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, WM_COPYDATA, MSGFLT_ALLOW, None)
 		except AttributeError:
 			pass
 
 	def windowProc(self, hwnd, msg, wParam, lParam):
-		if msg != win32con.WM_COPYDATA:
+		if msg != WM_COPYDATA:
 			return
 		hwnd = wParam
 		struct_pointer = lParam

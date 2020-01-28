@@ -1,4 +1,4 @@
-class BridgeTransport(object):
+class BridgeTransport:
 	"""Object to bridge two transports together,
 	passing messages to both of them.
 	We exclude transport-specific messages such as client_joined."""
