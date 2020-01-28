@@ -8,12 +8,12 @@ import speech.commands
 class JSONSerializer:
 	SEP = B'\n'
 
-	def serialize(self, type=None, **obj):
+	def serialize(self, type=None, **obj) -> bytes:
 		obj['type'] = type
 		data = json.dumps(obj, cls=CustomEncoder).encode('UTF-8') + self.SEP
 		return data
 
-	def deserialize(self, data):
+	def deserialize(self, data: bytes):
 		obj = json.loads(data, object_hook=as_sequence)
 		return obj
 
