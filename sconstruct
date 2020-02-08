@@ -8,6 +8,8 @@ import gettext
 import os
 import os.path
 import zipfile
+import sys
+sys.dont_write_bytecode = True
 
 import buildVars
 
@@ -22,7 +24,7 @@ def md2html(source, dest):
 	}
 	with codecs.open(source, "r", "utf-8") as f:
 		mdText = f.read()
-		for k, v in headerDic.iteritems():
+		for k, v in headerDic.items():
 			mdText = mdText.replace(k, v, 1)
 		htmlText = markdown.markdown(mdText)
 	with codecs.open(dest, "w", "utf-8") as f:
@@ -51,10 +53,25 @@ def mdTool(env):
 	)
 	env['BUILDERS']['markdown']=mdBuilder
 
+vars = Variables()
+vars.Add("version", "The version of this build", buildVars.addon_info["addon_version"])
+vars.Add(BoolVariable("dev", "Whether this is a daily development version", False))
+vars.Add("channel", "Update channel for this build", buildVars.addon_info["addon_updateChannel"])
 
-env = Environment(ENV=os.environ, tools=['default', 'gettexttool', mdTool], TARGET_ARCH='x86')
+env = Environment(variables=vars, ENV=os.environ, tools=['default', 'gettexttool', mdTool], TARGET_ARCH='x86')
 
 env.Append(**buildVars.addon_info)
+
+if env["dev"]:
+	import datetime
+	buildDate = datetime.datetime.now()
+	year, month, day = str(buildDate.year), str(buildDate.month), str(buildDate.day)
+	env["addon_version"] = "".join([year, month.zfill(2), day.zfill(2), "-dev"])
+	env["channel"] = "dev"
+elif env["version"] is not None:
+	env["addon_version"] = env["version"]
+if "channel" in env and env["channel"] is not None:
+	env["addon_updateChannel"] = env["channel"]
 
 addonFile = env.File("${addon_name}-${addon_version}.nvda-addon")
 
@@ -107,14 +124,21 @@ def createAddonBundleFromPath(path, dest):
 	return dest
 
 def generateManifest(source, dest):
+	addon_info = buildVars.addon_info
+	addon_info["addon_version"] = env["addon_version"]
+	addon_info["addon_updateChannel"] = env["addon_updateChannel"]
 	with codecs.open(source, "r", "utf-8") as f:
 		manifest_template = f.read()
-	manifest = manifest_template.format(**buildVars.addon_info)
+	manifest = manifest_template.format(**addon_info)
 	with codecs.open(dest, "w", "utf-8") as f:
 		f.write(manifest)
 
 def generateTranslatedManifest(source, language, out):
-	_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
+	# No ugettext in Python 3.
+	if sys.version_info.major == 2:
+		_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).ugettext
+	else:
+		_ = gettext.translation("nvda", localedir=os.path.join("addon", "locale"), languages=[language]).gettext
 	vars = {}
 	for var in ("addon_summary", "addon_description"):
 		vars[var] = _(buildVars.addon_info[var])
@@ -154,7 +178,7 @@ for mdFile in env.Glob(os.path.join('addon', 'doc', '*', '*.md')):
 # Pot target
 i18nFiles = expandGlobs(buildVars.i18nSources)
 gettextvars={
-		'gettext_package_bugs_address' : 'nvda-translations@freelists.org',
+		'gettext_package_bugs_address' : 'nvda-translations@groups.io',
 		'gettext_package_name' : buildVars.addon_info['addon_name'],
 		'gettext_package_version' : buildVars.addon_info['addon_version']
 	}
@@ -177,3 +201,4 @@ url_handler = env.Program('addon/globalPlugins/remoteClient/url_handler.cpp', CC
 env.Depends(addon, url_handler)
 
 env.Default(addon)
+env.Clean (addon, ['.sconsign.dblite', 'addon/doc/en/'])

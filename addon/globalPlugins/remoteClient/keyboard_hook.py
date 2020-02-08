@@ -1,7 +1,13 @@
 from logging import getLogger
 logger = getLogger('keyboard_hook')
 
-from ctypes import wintypes as ctypes
+import ctypes
+from ctypes import (
+	wintypes,
+	Structure,
+	c_long,
+	c_int,
+)
 
 
 HC_ACTION = 0
@@ -11,21 +17,21 @@ LLKHF_UP = 128
 KF_EXTENDED = 0x0100
 LLKHF_EXTENDED = KF_EXTENDED >> 8
 
-class KBDLLHOOKSTRUCT(ctypes.Structure):
+class KBDLLHOOKSTRUCT(Structure):
 	_fields_ = [
-		('vkCode', ctypes.DWORD),
-		('scanCode', ctypes.DWORD),
-		('flags', ctypes.DWORD),
-		('time', ctypes.DWORD),
-		('dwExtraInfo', ctypes.DWORD),
+		('vkCode', wintypes.DWORD),
+		('scanCode', wintypes.DWORD),
+		('flags', wintypes.DWORD),
+		('time', wintypes.DWORD),
+		('dwExtraInfo', wintypes.DWORD),
 	]
 
-LRESULT = ctypes.c_long
+LRESULT = c_long
 
-LowLevelKeyboardProc = ctypes.WINFUNCTYPE(LRESULT, ctypes.c_int, ctypes.LPARAM, ctypes.WPARAM)
+LowLevelKeyboardProc = ctypes.WINFUNCTYPE(LRESULT, c_int, wintypes.LPARAM, wintypes.WPARAM)
 
 
-class KeyboardHook(object):
+class KeyboardHook:
 
 	def __init__(self):
 		self.callbacks = list()

@@ -1,18 +1,18 @@
 import threading
 import time
-import Queue
+import queue
 import ssl
 import socket
 import select
 from collections import defaultdict
 from logging import getLogger
 log = getLogger('transport')
-import callback_manager
+from . import callback_manager
 
 PROTOCOL_VERSION = 2
 
 
-class Transport(object):
+class Transport:
 
 	def __init__(self, serializer):
 		self.serializer = serializer
@@ -28,11 +28,11 @@ class Transport(object):
 class TCPTransport(Transport):
 
 	def __init__(self, serializer, address, timeout=0):
-		super(TCPTransport, self).__init__(serializer=serializer)
+		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
 		self.buffer = ""
-		self.queue = Queue.Queue()
+		self.queue = queue.Queue()
 		self.address = address
 		self.server_sock = None
 		self.queue_thread = None
@@ -41,8 +41,8 @@ class TCPTransport(Transport):
 
 	def run(self):
 		self.closed = False
-		self.server_sock = self.create_server_socket()
 		try:
+			self.server_sock = self.create_outbound_socket(self.address)
 			self.server_sock.connect(self.address)
 		except Exception as e:
 			self.callback_manager.call_callbacks('transport_connection_failed')
@@ -70,8 +70,9 @@ class TCPTransport(Transport):
 		self.callback_manager.call_callbacks('transport_disconnected')
 		self._disconnect()
 
-	def create_server_socket(self):
-		server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	def create_outbound_socket(self, address):
+		address = socket.getaddrinfo(*address)[0]
+		server_sock = socket.socket(*address[:3])
 		if self.timeout:
 			server_sock.settimeout(self.timeout)
 		server_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -80,7 +81,10 @@ class TCPTransport(Transport):
 		return server_sock
 
 	def handle_server_data(self):
-		data = self.buffer + self.server_sock.recv(16384)
+		# This approach may be problematic:
+		# See also server.py handle_data in class Client.
+		buffSize = 16384
+		data = self.buffer + self.server_sock.recv(buffSize).decode(errors="surrogatepass")
 		self.buffer = ""
 		if data == '':
 			self._disconnect()
@@ -107,7 +111,7 @@ class TCPTransport(Transport):
 			if item is None:
 				return
 			try:
-				self.server_sock.sendall(item)
+				self.server_sock.sendall(item.encode(errors="surrogatepass"))
 			except socket.error:
 				return
 
@@ -137,7 +141,7 @@ class TCPTransport(Transport):
 class RelayTransport(TCPTransport):
 
 	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION):
-		super(RelayTransport, self).__init__(address=address, serializer=serializer, timeout=timeout)
+		super().__init__(address=address, serializer=serializer, timeout=timeout)
 		log.info("Connecting to %s channel %s" % (address, channel))
 		self.channel = channel
 		self.connection_type = connection_type
@@ -154,7 +158,7 @@ class RelayTransport(TCPTransport):
 class ConnectorThread(threading.Thread):
 
 	def __init__(self, connector, connect_delay=5):
-		super(ConnectorThread, self).__init__()
+		super().__init__()
 		self.connect_delay = connect_delay
 		self.running = True
 		self.connector = connector
@@ -176,5 +180,5 @@ def clear_queue(queue):
 	try:
 		while True:
 			queue.get_nowait()
-	except:
+	except Exception:
 		pass

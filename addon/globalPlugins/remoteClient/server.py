@@ -3,49 +3,52 @@ import select
 import socket
 import ssl
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import json
-sys.path.remove(sys.path[-1])
 import time
 
-class Server(object):
+class Server:
 	PING_TIME = 300
 
-	def __init__(self, port, password, bind_host=''):
+	def __init__(self, port, password, bind_host='', bind_host6='[::]'):
 		self.port = port
 		self.password = password
 		#Maps client sockets to clients
 		self.clients = {}
 		self.client_sockets = []
 		self.running = False
-		self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.server_socket = self.create_server_socket(socket.AF_INET, socket.SOCK_STREAM, bind_addr=(bind_host, self.port))
+		self.server_socket6 = self.create_server_socket(socket.AF_INET6, socket.SOCK_STREAM, bind_addr=(bind_host6, self.port))
+
+	def create_server_socket(self, family, type, bind_addr):
+		server_socket = socket.socket(family, type)
 		certfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'server.pem')
-		self.server_socket = ssl.wrap_socket(self.server_socket, certfile=certfile)
-		self.server_socket.bind((bind_host, self.port))
-		self.server_socket.listen(5)
+		server_socket = ssl.wrap_socket(server_socket, certfile=certfile)
+		server_socket.bind(bind_addr)
+		server_socket.listen(5)
+		return server_socket
 
 	def run(self):
 		self.running = True
 		self.last_ping_time = time.time()
 		while self.running:
-			r, w, e = select.select(self.client_sockets+[self.server_socket], [], self.client_sockets, 60)
+			r, w, e = select.select(self.client_sockets+[self.server_socket, self.server_socket6], [], self.client_sockets, 60)
 			if not self.running:
 				break
 			for sock in r:
-				if sock is self.server_socket:
-					self.accept_new_connection()
+				if sock is self.server_socket or sock is self.server_socket6:
+					self.accept_new_connection(sock)
 					continue
 				self.clients[sock].handle_data()
 			if time.time() - self.last_ping_time >= self.PING_TIME:
-				for client in self.clients.itervalues():
+				for client in self.clients.values():
 					if client.authenticated:
 						client.send(type='ping')
 				self.last_ping_time = time.time()
 
-	def accept_new_connection(self):
+	def accept_new_connection(self, sock):
 		try:
-			client_sock, addr = self.server_socket.accept()
-		except (ssl.SSLError, socket.error):
+			client_sock, addr = sock.accept()
+		except (ssl.SSLError, socket.error, OSError):
 			return
 		client_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 		client = Client(server=self, socket=client_sock)
@@ -67,8 +70,9 @@ class Server(object):
 	def close(self):
 		self.running = False
 		self.server_socket.close()
+		self.server_socket6.close()
 
-class Client(object):
+class Client:
 	id = 0
 
 	def __init__(self, server, socket):
@@ -84,7 +88,18 @@ class Client(object):
 	def handle_data(self):
 		sock_data = ''
 		try:
-			sock_data = self.socket.recv(16384)
+			# 16384 is 2^14 self.socket is a ssl wrapped socket.
+			# Perhaps this value was chosen as the largest value that could be received [1] to avoid having to loop
+			# until a new line is reached.
+			# However, the Python docs [2] say:
+			# "For best match with hardware and network realities, the value of bufsize should be a relatively
+			# small power of 2, for example, 4096."
+			# This should probably be changed in the future.
+			# See also transport.py handle_server_data in class TCPTransport.
+			# [1] https://stackoverflow.com/a/24870153/
+			# [2] https://docs.python.org/3.7/library/socket.html#socket.socket.recv
+			buffSize = 16384
+			sock_data = self.socket.recv(buffSize).decode(errors="surrogatepass")
 		except:
 			self.close()
 			return
@@ -129,7 +144,7 @@ class Client(object):
 		self.authenticated = True
 		clients = []
 		client_ids = []
-		for c in self.server.clients.values():
+		for c in list(self.server.clients.values()):
 			if c is self or not c.authenticated:
 				continue
 			clients.append(c.as_dict())
@@ -158,13 +173,13 @@ class Client(object):
 				msg['client'] = client
 		msgstr = json.dumps(msg)+"\n"
 		try:
-			self.socket.sendall(msgstr)
+			self.socket.sendall(msgstr.encode(errors="surrogatepass"))
 		except:
 			self.close()
 
 	def send_to_others(self, origin=None, **obj):
 		if origin is None:
 			origin = self.id
-		for c in self.server.clients.itervalues():
+		for c in self.server.clients.values():
 			if c is not self and c.authenticated:
 				c.send(origin=origin, **obj)
