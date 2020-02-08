@@ -129,8 +129,23 @@ Chcielibyśmy podziękować chociaż kilku spośród wielu współautorów, bez 
 * Casey Mathews
 * Babbage B.V.
 * Leonard de Ruijter
+* NV Access
+* Reef Turner
 
 ## Lista zmian
+
+### Wersja 2.3
+* Przejście do Pythona 3
+* Unicestwione wsparcie dla Pythona 2
+* Zaktualizowana zgodność z Api 2019.3:
+  - przebudowa mowy
+  - zmiany w kodzie sterowników dla monitorów brajlowskich
+
+### Wersja 2.2
+
+* Wsparcie dla IPv6
+* Wsparcie dla nowej wersji NVDA 2018.3 a także dla starszych wersji
+* Wsparcie dla gestów brajlowskich monitorów dla określonego modelu
 
 ### Wersja 2.1
 
@@ -149,4 +164,19 @@ Chcielibyśmy podziękować chociaż kilku spośród wielu współautorów, bez 
 * Usprawniono poprawki błędów w dokumentacji
 * Aktualizacja do  protokołu wersja 2, który zawiera pole origin w każdej wiadomości zdalnej.
 * Znaczne oczyszczenie kodu ułatwiające dokonywanie zmian w przyszłości.
+
+## Modyfikowanie NVDA Remote
+
+możesz sklonować to repozytorium w celu wprowadzenia zmian w NVDA remote/
+
+### Zależnożci trzeciej strony
+Mogą być zainstalowane za pomocą pip:
+- Markdown
+- scons
+- python-gettext
+
+### Aby skompilować dodatek dla dalszego rozprzestrzeniania:
+
+1. otwórz wiersz poleceń, przejdź do katalogu głównego tego repozytorium
+1. Uruchom polecenie **scons**. Jeżeli nie napotkano na nieoczekiwany błąd,dodatek znajdzie się w aktualnym katalogu.
 
