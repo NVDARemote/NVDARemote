@@ -82,7 +82,7 @@ class Client:
 	def __init__(self, server, socket):
 		self.server = server
 		self.socket = socket
-		self.buffer = ""
+		self.buffer = b''
 		self.authenticated = False
 		self.id = Client.id + 1
 		self.connection_type = None
@@ -175,7 +175,7 @@ class Client:
 				msg['clients'] = clients
 			if client:
 				msg['client'] = client
-		msgstr = json.dumps(msg)+b'\n'
+		msgstr = json.dumps(msg)+'\n'
 		try:
 			self.socket.sendall(msgstr.encode('UTF-8'))
 		except:
