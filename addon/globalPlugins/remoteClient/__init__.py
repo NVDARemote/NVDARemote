@@ -445,7 +445,7 @@ class GlobalPlugin(_GlobalPlugin):
 		relay_thread.daemon = True
 		relay_thread.start()
 		data = [port, channel]
-		with open(self.ipc_file, 'wb') as fp:
+		with open(self.ipc_file, 'w') as fp:
 			json.dump(data, fp)
 
 	def leave_secure_desktop(self):
