@@ -1,13 +1,17 @@
+import json
 import os
 import select
 import socket
 import ssl
 import sys
-import json
 import time
 
+
 class Server:
-	PING_TIME = 300
+	PING_TIME: int = 300
+	running: bool = False
+	port: int
+	password: str
 
 	def __init__(self, port, password, bind_host='', bind_host6='[::]'):
 		self.port = port
@@ -73,12 +77,12 @@ class Server:
 		self.server_socket6.close()
 
 class Client:
-	id = 0
+	id: int = 0
 
 	def __init__(self, server, socket):
 		self.server = server
 		self.socket = socket
-		self.buffer = ""
+		self.buffer = b''
 		self.authenticated = False
 		self.id = Client.id + 1
 		self.connection_type = None
@@ -86,7 +90,7 @@ class Client:
 		Client.id += 1
 
 	def handle_data(self):
-		sock_data = ''
+		sock_data: bytes = b''
 		try:
 			# 16384 is 2^14 self.socket is a ssl wrapped socket.
 			# Perhaps this value was chosen as the largest value that could be received [1] to avoid having to loop
@@ -99,20 +103,20 @@ class Client:
 			# [1] https://stackoverflow.com/a/24870153/
 			# [2] https://docs.python.org/3.7/library/socket.html#socket.socket.recv
 			buffSize = 16384
-			sock_data = self.socket.recv(buffSize).decode(errors="surrogatepass")
+			sock_data = self.socket.recv(buffSize)
 		except:
 			self.close()
 			return
-		if sock_data == '': #Disconnect
+		if not sock_data: #Disconnect
 			self.close()
 			return
 		data = self.buffer + sock_data
-		if '\n' not in data:
+		if b'\n' not in data:
 			self.buffer = data
 			return
-		self.buffer = ""
-		while '\n' in data:
-			line, sep, data = data.partition('\n')
+		self.buffer = b""
+		while b'\n' in data:
+			line, sep, data = data.partition(b'\n')
 			try:
 				self.parse(line)
 			except ValueError:
@@ -171,9 +175,9 @@ class Client:
 				msg['clients'] = clients
 			if client:
 				msg['client'] = client
-		msgstr = json.dumps(msg)+"\n"
+		msgstr = json.dumps(msg)+'\n'
 		try:
-			self.socket.sendall(msgstr.encode(errors="surrogatepass"))
+			self.socket.sendall(msgstr.encode('UTF-8'))
 		except:
 			self.close()
 

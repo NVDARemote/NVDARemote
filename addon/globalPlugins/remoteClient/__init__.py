@@ -4,7 +4,7 @@ import sys
 import json
 import threading
 import socket
-from globalPluginHandler import GlobalPlugin
+from globalPluginHandler import GlobalPlugin as _GlobalPlugin
 import logging
 logger = logging.getLogger(__name__)
 import wx
@@ -45,7 +45,7 @@ from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
 import ssl
 
-class GlobalPlugin(GlobalPlugin):
+class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
 
 	def __init__(self, *args, **kwargs):

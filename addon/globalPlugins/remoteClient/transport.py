@@ -9,10 +9,12 @@ from logging import getLogger
 log = getLogger('transport')
 from . import callback_manager
 
-PROTOCOL_VERSION = 2
+PROTOCOL_VERSION: int = 2
 
 
 class Transport:
+	connected: bool
+	successful_connects: int
 
 	def __init__(self, serializer):
 		self.serializer = serializer
@@ -26,12 +28,14 @@ class Transport:
 		self.callback_manager.call_callbacks('transport_connected')
 
 class TCPTransport(Transport):
-
+	buffer: bytes
+	closed: bool
+	
 	def __init__(self, serializer, address, timeout=0):
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
-		self.buffer = ""
+		self.buffer = B''
 		self.queue = queue.Queue()
 		self.address = address
 		self.server_sock = None
@@ -44,7 +48,7 @@ class TCPTransport(Transport):
 		try:
 			self.server_sock = self.create_outbound_socket(self.address)
 			self.server_sock.connect(self.address)
-		except Exception as e:
+		except Exception:
 			self.callback_manager.call_callbacks('transport_connection_failed')
 			raise
 		self.transport_connected()
@@ -55,16 +59,16 @@ class TCPTransport(Transport):
 			try:
 				readers, writers, error = select.select([self.server_sock], [], [self.server_sock])
 			except socket.error:
-				self.buffer = ""
+				self.buffer = b''
 				break
 			if self.server_sock in error:
-				self.buffer = ""
+				self.buffer = b""
 				break
 			if self.server_sock in readers:
 				try:
 					self.handle_server_data()
 				except socket.error:
-					self.buffer = ""
+					self.buffer = b''
 					break
 		self.connected = False
 		self.callback_manager.call_callbacks('transport_disconnected')
@@ -84,16 +88,16 @@ class TCPTransport(Transport):
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
 		buffSize = 16384
-		data = self.buffer + self.server_sock.recv(buffSize).decode(errors="surrogatepass")
-		self.buffer = ""
-		if data == '':
+		data = self.buffer + self.server_sock.recv(buffSize)
+		self.buffer = b''
+		if not data:
 			self._disconnect()
 			return
-		if '\n' not in data:
+		if b'\n' not in data:
 			self.buffer += data
 			return
-		while '\n' in data:
-			line, sep, data = data.partition('\n')
+		while b'\n' in data:
+			line, sep, data = data.partition(b'\n')
 			self.parse(line)
 		self.buffer += data
 
@@ -111,7 +115,7 @@ class TCPTransport(Transport):
 			if item is None:
 				return
 			try:
-				self.server_sock.sendall(item.encode(errors="surrogatepass"))
+				self.server_sock.sendall(item)
 			except socket.error:
 				return
 
