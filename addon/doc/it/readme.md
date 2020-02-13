@@ -1,11 +1,11 @@
 #NVDA Remote Access
-Versione 2.2
+Versione 2.3
 
 Ecco il componente aggiuntivo NVDA Remote Access, che consente di connettervi ad un altro computer che esegue lo screen reader  NVDA. Non importa se si è dall'altra parte della stanza o del mondo. Connettersi è semplice, e ci sono solo pochi comandi da ricordare. È possibile collegarsi al computer di un'altra persona, o permettere ad una persona di fiducia di connettersi al proprio dispositivo per eseguire operazioni di manutenzione di routine, diagnosticare problemi, o per attività didattica.
 
 ## Requisiti
 
-È necessario installare NVDA     eil componente aggiuntivo NVDA Remote Access su entrambi i computer.
+È necessario installare NVDA     e il componente aggiuntivo NVDA Remote Access su entrambi i computer.
 
 L'installazione del componente aggiuntivo e dello screen reader si esegue in modo abituale, vedere il manuale utente dello screen reader NVDA per maggiori informazioni.
 
@@ -114,7 +114,7 @@ Affinché NVDA Remote funzioni sul desktop sicuro e finestra di logon, l'addon d
 Una volta che NVDA remoto viene installato sul desktop sicuro, se si viene controllati in una sessione remota, sarà possibile controllare anche la finestra di logon e Desktop Sicuro quando vi si accede.
 
 ## Contributi
-Vorremmo inoltre ringraziare i seguenti collaboratori che hanno contribuito a rendere il progetto NVDA Remote una realtà.
+Vorremmo inoltre ringraziare i seguenti collaboratori che hanno contribuito a rendere il progetto NVDA Remote una realtà:
 
 * Hai Nguyen Ly
 * Chris Westbrook
@@ -129,15 +129,23 @@ Vorremmo inoltre ringraziare i seguenti collaboratori che hanno contribuito a re
 * Casey Mathews
 * Babbage B.V.
 * Leonard de Ruijter
+* NV Access
+* Reef Turner
 
 ## Change Log
+
+### Version 2.3
+* Migrated to Python 3
+* Dropped Python 2 support
+* Update to meet changed API in NVDA 2019.3, including:
+  - Speech refactor
+  - Changes to braille displays
 
 ### Version 2.2
 
 * IPv6 Support
 * Support for new NVDA 2018.3 as well as older versions
 * Support for model-specific Braille display gestures
-
 
 ### Version 2.1
 
@@ -157,5 +165,21 @@ Vorremmo inoltre ringraziare i seguenti collaboratori che hanno contribuito a re
 * Fixed rendering error in documentation
 * Update to protocol version 2, which includes an origin field in every remote message
 * Significant code cleanup allowing easier modifications in future
+
+## Altering NVDA Remote
+
+You may clone this repo to make alteration to NVDA Remote.
+
+### 3rd Party dependecies
+These can be installed with pip:
+- Markdown
+- scons
+- python-gettext
+
+### To package the add-on for distribution:
+
+1. Open a command line, change to the root of this repo
+2. Run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
+
 
 
