@@ -13,6 +13,7 @@ import globalPluginHandler
 import scriptHandler
 import inputCore
 import api
+import vision
 
 INPUT_MOUSE = 0
 INPUT_KEYBOARD = 1
