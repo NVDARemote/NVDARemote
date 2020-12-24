@@ -170,7 +170,8 @@ We would like to acknowledge the following contributors, among others, who helpe
 
 You may clone this repo to make alteration to NVDA Remote.
 
-### 3rd Party dependecies
+### 3rd Party dependencies
+
 These can be installed with pip:
 - Markdown
 - scons
