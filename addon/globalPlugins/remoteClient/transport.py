@@ -1,18 +1,20 @@
 import threading
 import time
-import Queue
+import queue
 import ssl
 import socket
 import select
 from collections import defaultdict
 from logging import getLogger
 log = getLogger('transport')
-import callback_manager
+from . import callback_manager
 
-PROTOCOL_VERSION = 2
+PROTOCOL_VERSION: int = 2
 
 
-class Transport(object):
+class Transport:
+	connected: bool
+	successful_connects: int
 
 	def __init__(self, serializer):
 		self.serializer = serializer
@@ -26,13 +28,15 @@ class Transport(object):
 		self.callback_manager.call_callbacks('transport_connected')
 
 class TCPTransport(Transport):
-
+	buffer: bytes
+	closed: bool
+	
 	def __init__(self, serializer, address, timeout=0):
-		super(TCPTransport, self).__init__(serializer=serializer)
+		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
-		self.buffer = ""
-		self.queue = Queue.Queue()
+		self.buffer = B''
+		self.queue = queue.Queue()
 		self.address = address
 		self.server_sock = None
 		self.queue_thread = None
@@ -44,7 +48,7 @@ class TCPTransport(Transport):
 		try:
 			self.server_sock = self.create_outbound_socket(self.address)
 			self.server_sock.connect(self.address)
-		except Exception as e:
+		except Exception:
 			self.callback_manager.call_callbacks('transport_connection_failed')
 			raise
 		self.transport_connected()
@@ -55,16 +59,16 @@ class TCPTransport(Transport):
 			try:
 				readers, writers, error = select.select([self.server_sock], [], [self.server_sock])
 			except socket.error:
-				self.buffer = ""
+				self.buffer = b''
 				break
 			if self.server_sock in error:
-				self.buffer = ""
+				self.buffer = b""
 				break
 			if self.server_sock in readers:
 				try:
 					self.handle_server_data()
 				except socket.error:
-					self.buffer = ""
+					self.buffer = b''
 					break
 		self.connected = False
 		self.callback_manager.call_callbacks('transport_disconnected')
@@ -81,16 +85,19 @@ class TCPTransport(Transport):
 		return server_sock
 
 	def handle_server_data(self):
-		data = self.buffer + self.server_sock.recv(16384)
-		self.buffer = ""
-		if data == '':
+		# This approach may be problematic:
+		# See also server.py handle_data in class Client.
+		buffSize = 16384
+		data = self.buffer + self.server_sock.recv(buffSize)
+		self.buffer = b''
+		if not data:
 			self._disconnect()
 			return
-		if '\n' not in data:
+		if b'\n' not in data:
 			self.buffer += data
 			return
-		while '\n' in data:
-			line, sep, data = data.partition('\n')
+		while b'\n' in data:
+			line, sep, data = data.partition(b'\n')
 			self.parse(line)
 		self.buffer += data
 
@@ -138,7 +145,7 @@ class TCPTransport(Transport):
 class RelayTransport(TCPTransport):
 
 	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION):
-		super(RelayTransport, self).__init__(address=address, serializer=serializer, timeout=timeout)
+		super().__init__(address=address, serializer=serializer, timeout=timeout)
 		log.info("Connecting to %s channel %s" % (address, channel))
 		self.channel = channel
 		self.connection_type = connection_type
@@ -155,7 +162,7 @@ class RelayTransport(TCPTransport):
 class ConnectorThread(threading.Thread):
 
 	def __init__(self, connector, connect_delay=5):
-		super(ConnectorThread, self).__init__()
+		super().__init__()
 		self.connect_delay = connect_delay
 		self.running = True
 		self.connector = connector
@@ -177,5 +184,5 @@ def clear_queue(queue):
 	try:
 		while True:
 			queue.get_nowait()
-	except:
+	except Exception:
 		pass

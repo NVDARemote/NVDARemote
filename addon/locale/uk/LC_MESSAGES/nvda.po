@@ -1,0 +1,270 @@
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: NVDARemote 2.3\n"
+"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"POT-Creation-Date: 2020-09-16 15:12+0300\n"
+"PO-Revision-Date: 2020-09-24 09:40+0300\n"
+"Last-Translator: Oleksandr Gryshchenko <grisov.nvaccess@mailnull.com>\n"
+"Language-Team: \n"
+"Language: uk_UA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || "
+"n%100>14) ? 1 : 2);\n"
+"X-Poedit-Basepath: ../../../..\n"
+"X-Poedit-SearchPath-0: .\n"
+
+msgid "NVDA Remote"
+msgstr "NVDA Remote"
+
+#. Translators: Item in NVDA Remote submenu to connect to a remote computer.
+msgid "Connect..."
+msgstr "&Підключитись..."
+
+msgid "Remotely connect to another computer running NVDA Remote Access"
+msgstr "Віддалене підключення до іншого комп'ютера за допомогою NVDA Remote"
+
+#. Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
+msgid "Disconnect"
+msgstr "&Завершити віддалений сеанс"
+
+msgid "Disconnect from another computer running NVDA Remote Access"
+msgstr "Завершити сеанс віддаленого підключення за допомогою NVDA Remote"
+
+#. Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
+msgid "Mute remote"
+msgstr "&Вимкнути звуки з віддаленого комп'ютера"
+
+msgid "Mute speech and sounds from the remote computer"
+msgstr "Вимикає мову та інші звуки, що надходять з віддаленого комп'ютера"
+
+#. Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
+msgid "&Push clipboard"
+msgstr "Передати &буфер обміну"
+
+msgid "Push the clipboard to the other machine"
+msgstr "Передає текст з буфера обміну на віддалений комп'ютер"
+
+#. Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
+msgid "Copy &link"
+msgstr "&Копіювати посилання на віддалений сеанс"
+
+msgid "Copy a link to the remote session"
+msgstr "Копіює посилання на віддалений сеанс до буфера обміну"
+
+#. Translators: Menu item in NvDA Remote submenu to open add-on options.
+msgid "&Options..."
+msgstr "Пара&метри..."
+
+#. Translators: The title of the add-on options dialog.
+msgid "Options"
+msgstr "Параметри"
+
+#. Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
+msgid "Send Ctrl+Alt+Del"
+msgstr "Ві&дправити Ctrl + Alt + Del"
+
+#. Translators: Label of menu in NVDA tools menu.
+msgid "R&emote"
+msgstr "Віддалене &керування"
+
+msgid "NVDA Remote Access"
+msgstr "Віддалений доступ NVDA"
+
+msgid "Mute or unmute the speech coming from the remote computer"
+msgstr "Вимкнути або увімкнути мову, що надходить від віддаленого комп'ютера"
+
+msgid "Not connected."
+msgstr "Не з'єднано."
+
+msgid "Clipboard pushed"
+msgstr "Вміст буфера обміну передано"
+
+msgid "Unable to push clipboard"
+msgstr "Неможливо передати буфер обміну"
+
+msgid "Sends the contents of the clipboard to the remote machine"
+msgstr "Передає вміст буфера обміну на віддалений комп'ютер"
+
+msgid "Copied link"
+msgstr "Посилання скопійоване"
+
+msgid "Copies a link to the remote session to the clipboard"
+msgstr "Копіює посилання на віддалений сеанс до буфера обміну"
+
+#. Translators: Title of the connection error dialog.
+msgid "Error Connecting"
+msgstr "Помилка підключення"
+
+#. Translators: Message shown when cannot connect to the remote computer.
+msgid "Unable to connect to the remote computer"
+msgstr "Не вдалось підключитись до віддаленого комп’ютера"
+
+msgid "Disconnect a remote session"
+msgstr "Завершити віддалений сеанс"
+
+#. Translators: Title of the connect dialog.
+msgid "Connect"
+msgstr "Підключення"
+
+#. Translators: Presented when connected to the remote computer.
+msgid "Connected!"
+msgstr "Підключено!"
+
+#. Translators: Presented when connection to a remote computer was interupted.
+msgid "Connection interrupted"
+msgstr "З'єднання перервано"
+
+#. Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
+msgid "Connected to control server"
+msgstr "Підключено до керуючого сервера"
+
+#. This is called from the hook thread and should be executed on the main thread.
+#. Translators: Presented when keyboard control is back to the controlling computer.
+msgid "Controlling local machine."
+msgstr "Керування локальним комп'ютером."
+
+#. Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
+msgid "Controlling remote machine."
+msgstr "Керування віддаленим комп'ютером."
+
+msgid "NVDA Remote is already connected. Disconnect before opening a new connection."
+msgstr ""
+"Сеанс NVDA Remote вже встановлено. Для створення нового підключення необхідно розірвати існуюче."
+
+msgid "NVDA Remote Already Connected"
+msgstr "Віддалений сеанс NVDA Remote вже встановлено"
+
+#, python-brace-format
+msgid "Do you wish to control the machine on server {server} with key {key}?"
+msgstr "Ви хочете керувати іншим комп'ютером з ключем {key} на сервері {server}?"
+
+#, python-brace-format
+msgid "Do you wish to allow this machine to be controlled on server {server} with key {key}?"
+msgstr "Ви хочете дозволити керувати цим комп'ютером з ключем {key} на сервері {server}?"
+
+msgid "NVDA Remote Connection Request"
+msgstr "Запит на підключення до сеансу NVDA Remote"
+
+#. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
+msgid "&Host:"
+msgstr "&Адреса сервера:"
+
+#. Translators: Label of the edit field to enter key (password) to secure the remote connection.
+msgid "&Key:"
+msgstr "К&люч:"
+
+#. Translators: The button used to generate a random key/password.
+msgid "&Generate Key"
+msgstr "&Згенерувати ключ"
+
+#. Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
+msgid "Get External &IP"
+msgstr "&Отримати зовнішню IP-адресу"
+
+#. Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
+msgid "&External IP:"
+msgstr "Зовнішня IP-&адреса:"
+
+#. Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
+msgid "&Port:"
+msgstr "&Порт:"
+
+#, python-brace-format
+msgid "Successfully retrieved IP address. Port {port} is open."
+msgstr "Зовнішню IP-адресу успішно отримано. Порт {port} відкритий."
+
+msgid "Success"
+msgstr "Операція успішно виконана"
+
+#, python-brace-format
+msgid "Retrieved external IP, but port {port} is not currently forwarded."
+msgstr "Зовнішню IP-адресу отримано, але порт {port} зараз закритий."
+
+msgid "Warning"
+msgstr "Увага!"
+
+msgid "Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Не вдається з'єднатись з сервером перевірки портів, будь-ласка визначте свою IP-адресу вручну"
+
+msgid "Error"
+msgstr "Помилка"
+
+msgid "Client"
+msgstr "&Клієнт"
+
+msgid "Server"
+msgstr "&Сервер"
+
+msgid "Control another machine"
+msgstr "Керувати &іншим комп'ютером"
+
+msgid "Allow this machine to be controlled"
+msgstr "Дозволити керувати &цим комп'ютером"
+
+msgid "Both host and key must be set."
+msgstr "Необхідно вказати адресу сервера та ключ."
+
+msgid "Both port and key must be set."
+msgstr "Необхідно вказати порт та ключ."
+
+#. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
+msgid "Auto-connect to control server on startup"
+msgstr "Автоматично підключатись до керуючого сервера при запуску NVDA"
+
+#. Translators: Whether or not to use a relay server when autoconnecting
+msgid "Use Remote Control Server"
+msgstr "Використовувати віддалений керуючий сервер"
+
+msgid "Host Control Server"
+msgstr "Використовувати локальний керуючий сервер"
+
+#. translators: Message for version mismatch
+msgid ""
+"The version of the relay server which you have connected to is not compatible with this version "
+"of the Remote Client.\n"
+"Please either use a different server or upgrade your version of the addon."
+msgstr ""
+"Версія керуючого сервера, до якого ви підключені не сумісна з версією вашого клієнта "
+"віддаленого доступу.\n"
+"Будь-ласка скористайтесь іншим керуючим сервером або оновіть ваш додаток NVDA Remote."
+
+msgid "Message of the Day"
+msgstr "Повідомлення дня"
+
+msgid "Remote NVDA not connected."
+msgstr "Віддалений NVDA не підключений."
+
+msgid "Invalid URL"
+msgstr "Невірна URL-адреса"
+
+#. Translators: Message shown when an invalid URL has been provided.
+#, python-format
+msgid "Unable to parse url \"%s\""
+msgstr "Неможливо розібрати URL-адресу \"%s\""
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+msgid "Remote Support"
+msgstr "Віддалена підтримка"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+msgid "Allows remote control of and remote access to another machine."
+msgstr ""
+"Дозволяє здійснювати сеанси віддаленого керування між різними комп'ютерами та отримувати доступ "
+"до іншого обладнання."
+
+#~ msgid "Sending keys."
+#~ msgstr "Відправка клавіш включена."
+
+#~ msgid "Not sending keys."
+#~ msgstr "Відправка клавіш вимкнена."
+
+#~ msgid "Key must be set."
+#~ msgstr "Необхідно вказати ключ."

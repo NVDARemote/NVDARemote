@@ -1,15 +1,17 @@
+import json
 import os
 import select
 import socket
 import ssl
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import json
-sys.path.remove(sys.path[-1])
 import time
 
-class Server(object):
-	PING_TIME = 300
+
+class Server:
+	PING_TIME: int = 300
+	running: bool = False
+	port: int
+	password: str
 
 	def __init__(self, port, password, bind_host='', bind_host6='[::]'):
 		self.port = port
@@ -42,7 +44,7 @@ class Server(object):
 					continue
 				self.clients[sock].handle_data()
 			if time.time() - self.last_ping_time >= self.PING_TIME:
-				for client in self.clients.itervalues():
+				for client in self.clients.values():
 					if client.authenticated:
 						client.send(type='ping')
 				self.last_ping_time = time.time()
@@ -50,7 +52,7 @@ class Server(object):
 	def accept_new_connection(self, sock):
 		try:
 			client_sock, addr = sock.accept()
-		except (ssl.SSLError, socket.error):
+		except (ssl.SSLError, socket.error, OSError):
 			return
 		client_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 		client = Client(server=self, socket=client_sock)
@@ -74,13 +76,13 @@ class Server(object):
 		self.server_socket.close()
 		self.server_socket6.close()
 
-class Client(object):
-	id = 0
+class Client:
+	id: int = 0
 
 	def __init__(self, server, socket):
 		self.server = server
 		self.socket = socket
-		self.buffer = ""
+		self.buffer = b''
 		self.authenticated = False
 		self.id = Client.id + 1
 		self.connection_type = None
@@ -88,22 +90,33 @@ class Client(object):
 		Client.id += 1
 
 	def handle_data(self):
-		sock_data = ''
+		sock_data: bytes = b''
 		try:
-			sock_data = self.socket.recv(16384)
+			# 16384 is 2^14 self.socket is a ssl wrapped socket.
+			# Perhaps this value was chosen as the largest value that could be received [1] to avoid having to loop
+			# until a new line is reached.
+			# However, the Python docs [2] say:
+			# "For best match with hardware and network realities, the value of bufsize should be a relatively
+			# small power of 2, for example, 4096."
+			# This should probably be changed in the future.
+			# See also transport.py handle_server_data in class TCPTransport.
+			# [1] https://stackoverflow.com/a/24870153/
+			# [2] https://docs.python.org/3.7/library/socket.html#socket.socket.recv
+			buffSize = 16384
+			sock_data = self.socket.recv(buffSize)
 		except:
 			self.close()
 			return
-		if sock_data == '': #Disconnect
+		if not sock_data: #Disconnect
 			self.close()
 			return
 		data = self.buffer + sock_data
-		if '\n' not in data:
+		if b'\n' not in data:
 			self.buffer = data
 			return
-		self.buffer = ""
-		while '\n' in data:
-			line, sep, data = data.partition('\n')
+		self.buffer = b""
+		while b'\n' in data:
+			line, sep, data = data.partition(b'\n')
 			try:
 				self.parse(line)
 			except ValueError:
@@ -135,7 +148,7 @@ class Client(object):
 		self.authenticated = True
 		clients = []
 		client_ids = []
-		for c in self.server.clients.values():
+		for c in list(self.server.clients.values()):
 			if c is self or not c.authenticated:
 				continue
 			clients.append(c.as_dict())
@@ -162,15 +175,15 @@ class Client(object):
 				msg['clients'] = clients
 			if client:
 				msg['client'] = client
-		msgstr = json.dumps(msg)+"\n"
+		msgstr = json.dumps(msg)+'\n'
 		try:
-			self.socket.sendall(msgstr)
+			self.socket.sendall(msgstr.encode('UTF-8'))
 		except:
 			self.close()
 
 	def send_to_others(self, origin=None, **obj):
 		if origin is None:
 			origin = self.id
-		for c in self.server.clients.itervalues():
+		for c in self.server.clients.values():
 			if c is not self and c.authenticated:
 				c.send(origin=origin, **obj)

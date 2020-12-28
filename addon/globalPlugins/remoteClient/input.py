@@ -1,10 +1,19 @@
-import ctypes.wintypes as ctypes
+import ctypes
+from ctypes import (
+	wintypes,
+	Structure,
+	c_long,
+	POINTER,
+	c_ulong,
+	Union,
+)
 import braille
 import brailleInput
 import globalPluginHandler
 import scriptHandler
 import inputCore
 import api
+import vision
 
 INPUT_MOUSE = 0
 INPUT_KEYBOARD = 1
@@ -15,49 +24,49 @@ KEYEVENTF_KEYUP = 0x0002
 KEYEVENT_SCANCODE = 0x0008
 KEYEVENTF_UNICODE = 0x0004
 
-class MOUSEINPUT(ctypes.Structure):
+class MOUSEINPUT(Structure):
 	_fields_ = (
-		('dx', ctypes.c_long),
-		('dy', ctypes.c_long),
-		('mouseData', ctypes.DWORD),
-		('dwFlags', ctypes.DWORD),
-		('time', ctypes.DWORD),
-		('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)),
+		('dx', c_long),
+		('dy', c_long),
+		('mouseData', wintypes.DWORD),
+		('dwFlags', wintypes.DWORD),
+		('time', wintypes.DWORD),
+		('dwExtraInfo', POINTER(c_ulong)),
 	)
 
-class KEYBDINPUT(ctypes.Structure):
+class KEYBDINPUT(Structure):
 	_fields_ = (
-		('wVk', ctypes.WORD),
-		('wScan', ctypes.WORD),
-		('dwFlags', ctypes.DWORD),
-		('time', ctypes.DWORD),
-		('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)),
+		('wVk', wintypes.WORD),
+		('wScan', wintypes.WORD),
+		('dwFlags', wintypes.DWORD),
+		('time', wintypes.DWORD),
+		('dwExtraInfo', POINTER(c_ulong)),
 	)
 
-class HARDWAREINPUT(ctypes.Structure):
+class HARDWAREINPUT(Structure):
 	_fields_ = (
-		('uMsg', ctypes.DWORD),
-		('wParamL', ctypes.WORD),
-		('wParamH', ctypes.WORD),
+		('uMsg', wintypes.DWORD),
+		('wParamL', wintypes.WORD),
+		('wParamH', wintypes.WORD),
 	)
 
-class INPUTUnion(ctypes.Union):
+class INPUTUnion(Union):
 	_fields_ = (
 		('mi', MOUSEINPUT),
 		('ki', KEYBDINPUT),
 		('hi', HARDWAREINPUT),
 	)
 
-class INPUT(ctypes.Structure):
+class INPUT(Structure):
 	_fields_ = (
-		('type', ctypes.DWORD),
+		('type', wintypes.DWORD),
 		('union', INPUTUnion))
 
 class BrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
 
 	def __init__(self, **kwargs):
-		super(BrailleInputGesture, self).__init__()
-		for key, value in kwargs.iteritems():
+		super().__init__()
+		for key, value in kwargs.items():
 			setattr(self, key, value)
 		self.source="remote{}{}".format(self.source[0].upper(),self.source[1:])
 		self.scriptPath=getattr(self,"scriptPath",None)
@@ -90,6 +99,14 @@ class BrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInp
 			func = getattr(app, "script_%s" % scriptName, None)
 			if func:
 				return func
+
+		# Vision enhancement provider level
+		for provider in vision.handler.getActiveProviderInstances():
+			if isinstance(provider, baseObject.ScriptableObject):
+				if cls=='VisionEnhancementProvider' and module==provider.__module__:
+					func = getattr(app, "script_%s" % scriptName, None)
+					if func:
+						return func
 
 		# Tree interceptor level.
 		treeInterceptor = focus.treeInterceptor

@@ -1,5 +1,5 @@
 ﻿# NVDA-etäkäyttö
-Versio 2.1
+Versio 2.2
 
 Tervetuloa NVDA-etäkäyttö-lisäosaan, jonka avulla voit yhdistää toiseen ilmaista NVDA-ruudunlukuohjelmaa käyttävään tietokoneeseen. On yhdentekevää, oletko  samassa huoneessa tai toisella puolen maailmaa. Yhdistäminen on yksinkertaista, ja muistettavia komentojakin on vain muutama. Voit yhdistää toisen henkilön tietokoneeseen tai sallia luotetun henkilön yhdistää järjestelmääsi ylläpitorutiinien suorittamista, ongelman diagnosointia tai koulutuksen tarjoamista varten.
 
@@ -62,7 +62,7 @@ Ctrl+Alt+Del-näppäinyhdistelmän lähettäminen ei ole mahdollista näppäinpa
 Käytä tätä komentoa, mikäli sinun on lähetettävä Ctrl+Alt+Del etäjärjestelmälle, jossa suojattu työpöytä on aktiivisena.
 
 ## Valvomattoman tietokoneen etähallinta
-Saatat joskus haluta etähallita omaa konettasi. Tämä on erityisen hyödyllistä matkoilla ollessasi ja halutessasi hallita kotikonetta kannettavallasi, tai kotona sisällä talossa olevaa konetta ollessasi itse ulkona toisen koneen kanssa. Tämä on mahdollista pienellä valmistelulla.
+Saatat joskus haluta etähallita omaa konettasi. Tämä on erityisen hyödyllistä matkoilla ollessasi ja halutessasi hallita kotikonetta kannettavallasi, tai kotona sisällä talossa olevaa konetta ollessasi itse ulkona toisen koneen kanssa. Tämä on mahdollista pienen valmistelun jälkeen.
 
 1. Avaa NVDA-valikko ja valitse Työkalut ja sitten Etäkäyttö. Paina lopuksi Enter Asetukset-vaihtoehdon kohdalla.
 2. Valitse valintaruutu "Yhdistä hallintapalvelimeen automaattisesti käynnistyksen yhteydessä".
@@ -115,6 +115,11 @@ Haluamme kiittää muiden muassa seuraavia henkilöitä, jotka auttoivat tekemä
 * Leonard de Ruijter
 
 ## Muutosloki
+
+### Versio 2.2
+* IPv6-tuki
+* Tuki sekä uudelle NVDA 2018.3:lle että vanhemmille versioille
+* Tuki pistenäyttöjen mallikohtaisille komennoille
 
 ### Versio 2.1
 * Korjattu tallentumaton yhteys, kun tietokoneen hallinta sallitaan.

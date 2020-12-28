@@ -9,7 +9,7 @@ _ = lambda x : x
 # Add-on information variables
 addon_info = {
 	# for previously unpublished addons, please follow the community guidelines at:
-	# https://bitbucket.org/nvdaaddonteam/todo/raw/master/guideLines.txt
+	# https://bitbucket.org/nvdaaddonteam/todo/raw/master/guidelines.txt
 	# add-on Name, internal for nvda
 	"addon_name" : "remote",
 	# Add-on summary, usually the user visible name of the addon.
@@ -19,13 +19,19 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description" : _("""Allows remote control of and remote access to another machine."""),
 	# version
-	"addon_version" : "2.2",
+	"addon_version" : "2.3",
 	# Author(s)
 	"addon_author" : u"Tyler Spivey <tspivey@pcdesk.net>, Christopher Toth <q@q-continuum.net>",
 	# URL for the add-on documentation support
 	"addon_url" : "http://NVDARemote.com",
 	# Documentation file name
 	"addon_docFileName" : "readme.html",
+	# Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
+	"addon_minimumNVDAVersion": "2019.3",
+	# Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
+	"addon_lastTestedNVDAVersion": "2019.3",
+	# Add-on update channel (default is None, denoting stable releases, and for development releases, use "dev"; do not change unless you know what you are doing)
+	"addon_updateChannel" : None,
 }
 
 

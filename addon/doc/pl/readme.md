@@ -1,7 +1,7 @@
 # Dostęp Zdalny NVDA
-Wersja 2.1
+Wersja 2.3
 
-Witamy w dodatku Dostęp Zdalny NVDA. Umożliwia on połączenie się z innym komputerem obsługiwanym przez darmowy czytnik ekranu NVDA. Nie ważne, czy ten komputer znajduje się na sąsiednim biurku, czy na innym kontynencie. Samo łączenie się jest niezwykle proste, a do obsługi dodatku wystarczy zapamiętać  kilka komend. Można kontrolować inny komputer lub udzielić zaufanej osobie dostępu do systemu operacyjnego własnego komputera,  w celu przeprowadzenia  rutynowej konserwacji, zdjagnozowania problemu, czy przeprowadzenia szkolenia.
+Witamy w dodatku Dostęp Zdalny NVDA. Umożliwia on połączenie się z innym komputerem obsługiwanym przez darmowy czytnik ekranu NVDA. Nie ważne, czy ten komputer znajduje się na sąsiednim biurku, czy na innym kontynencie. Samo łączenie się jest niezwykle proste, a do obsługi dodatku wystarczy zapamiętać  kilka komend. Można kontrolować inny komputer lub udzielić zaufanej osobie dostępu do systemu operacyjnego własnego komputera,  w celu przeprowadzenia  rutynowej konserwacji, zdiagnozowania problemu, czy przeprowadzenia szkolenia.
 
 ## Zanim Zaczniesz Pracę z Dodatkiem
 
@@ -11,7 +11,7 @@ Instalacja czytnika ekranu i dodatku przebiega standardowo. Więcej informacji n
 ## Aktualizacja
 
 Jeżeli posiadasz kopię dodatku Dostęp Zdalny NVDA zainstalowaną na bezpiecznym pulpicie, podczas aktualizacji dodatku w systemie zalecane jest uaktualnienie również tej kopii.
-Aby to zrobić, najpierw uaktualnij  główną kopię dodatku zainstalowaną w systemie. Następnie otwórz menu NVDA, Ustawienia, Ustawienia ogólne i naciśnij przycisk o nazwie "Używaj zapisanych ustawień NVDA na ekranie logowania i innych zabezpieczonych ekranach (wymaga uprawnień administratora)".
+Aby to zrobić, najpierw uaktualnij  główną kopię dodatku zainstalowaną w systemie. Następnie otwórz menu NVDA, Ustawienia, ogólne i naciśnij przycisk o nazwie "Używaj zapisanych ustawień NVDA na ekranie logowania i innych zabezpieczonych ekranach (wymaga uprawnień administratora)".
 
 ## Rozpoczęcie sesji zdalnej przez serwer pośredniczący
 ### Na komputerze kontrolowanym
@@ -69,7 +69,7 @@ W razie potrzeby przesłania CTRL+Alt+del, można użyć tej komendy gdy system 
 
 ## Kontrola zdalna komputera nienadzorowanego
 
-Możesz też kontrolować zdalnie inny własny komputer. Jest to szczególnie pomocne, kiedy podczas podróży chcesz skontrolować swój domowy PC z laptopa. Tak samo możesz kontrolować komputer znajdujący się w  domu kiedy siedzisz na dworze z innym PC. Dzięki niewielkim uprzednim przygotowaniom, staje się to możliwe i wygodne.
+Możesz też kontrolować zdalnie inny własny komputer. Jest to szczególnie pomocne, kiedy podczas podróży chcesz używać swojego domowego komputera za pomocą laptopa. Tak samo możesz kontrolować komputer znajdujący się w  domu kiedy siedzisz na dworze z innym PC. Dzięki niewielkim uprzednim przygotowaniom, staje się to możliwe i wygodne.
 
 1. Wejdź do meni NVDA. W menu wybierz kolejno Narzędzia i Zdalne. Następnie naciśnij enter na pozycji Opcje.
 2. Zaznacz pole wyboru o nazwie "Łącz automatycznie z serwerem kontroli przy starcie".
@@ -129,8 +129,23 @@ Chcielibyśmy podziękować chociaż kilku spośród wielu współautorów, bez 
 * Casey Mathews
 * Babbage B.V.
 * Leonard de Ruijter
+* NV Access
+* Reef Turner
 
 ## Lista zmian
+
+### Wersja 2.3
+* Przejście do Pythona 3
+* Unicestwione wsparcie dla Pythona 2
+* Zaktualizowana zgodność z Api 2019.3:
+  - przebudowa mowy
+  - zmiany w kodzie sterowników dla monitorów brajlowskich
+
+### Wersja 2.2
+
+* Wsparcie dla IPv6
+* Wsparcie dla nowej wersji NVDA 2018.3 a także dla starszych wersji
+* Wsparcie dla gestów brajlowskich monitorów dla określonego modelu
 
 ### Wersja 2.1
 
@@ -149,4 +164,19 @@ Chcielibyśmy podziękować chociaż kilku spośród wielu współautorów, bez 
 * Usprawniono poprawki błędów w dokumentacji
 * Aktualizacja do  protokołu wersja 2, który zawiera pole origin w każdej wiadomości zdalnej.
 * Znaczne oczyszczenie kodu ułatwiające dokonywanie zmian w przyszłości.
+
+## Modyfikowanie NVDA Remote
+
+możesz sklonować to repozytorium w celu wprowadzenia zmian w NVDA remote/
+
+### Zależnożci trzeciej strony
+Mogą być zainstalowane za pomocą pip:
+- Markdown
+- scons
+- python-gettext
+
+### Aby skompilować dodatek dla dalszego rozprzestrzeniania:
+
+1. otwórz wiersz poleceń, przejdź do katalogu głównego tego repozytorium
+1. Uruchom polecenie **scons**. Jeżeli nie napotkano na nieoczekiwany błąd,dodatek znajdzie się w aktualnym katalogu.
 

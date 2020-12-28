@@ -1,5 +1,5 @@
 # NVDA Remote Access
-Version 2.2
+Version 2.3
 
 Welcome to the NVDA Remote Access addon, which will allow you to connect to another computer running the free NVDA screen reader. It makes no difference whether you are across the room or across the world. Connecting is simple, and there are very few commands to remember. You can connect to another person's computer, or allow a trusted person to connect to your system to perform routine maintenance, diagnose a problem, or provide training.
 
@@ -35,8 +35,8 @@ The machine being controlled and all its clients need to use the same key.
 
 ## Direct connections
 The server option in the connect dialog allows you to set up a direct connection.
-Once selecting this, select which mode your end of the connection wwill be in.
-The other pperson will connect to you using the opposite.
+Once selecting this, select which mode your end of the connection will be in.
+The other person will connect to you using the opposite.
 
 Once the mode is selected, you can use the Get External IP button to get your external IP address and
 make sure the port which is entered in the port field is forwarded correctly.
@@ -129,15 +129,23 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Casey Mathews
 * Babbage B.V.
 * Leonard de Ruijter
+* NV Access
+* Reef Turner
 
 ## Change Log
+
+### Version 2.3
+* Migrated to Python 3
+* Dropped Python 2 support
+* Update to meet changed API in NVDA 2019.3, including:
+  - Speech refactor
+  - Changes to braille displays
 
 ### Version 2.2
 
 * IPv6 Support
 * Support for new NVDA 2018.3 as well as older versions
 * Support for model-specific Braille display gestures
-
 
 ### Version 2.1
 
@@ -157,4 +165,20 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Fixed rendering error in documentation
 * Update to protocol version 2, which includes an origin field in every remote message
 * Significant code cleanup allowing easier modifications in future
+
+## Altering NVDA Remote
+
+You may clone this repo to make alteration to NVDA Remote.
+
+### 3rd Party dependencies
+
+These can be installed with pip:
+- Markdown
+- scons
+- python-gettext
+
+### To package the add-on for distribution:
+
+1. Open a command line, change to the root of this repo
+1. Run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
 
