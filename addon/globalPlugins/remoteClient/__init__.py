@@ -294,8 +294,8 @@ class GlobalPlugin(_GlobalPlugin):
 			if dlg_result != wx.ID_OK:
 				return
 			if dlg.client_or_server.GetSelection() == 0: #client
-				server_addr = dlg.panel.host.GetValue()
-				server_addr, port = address_to_hostport(server_addr)
+				host = dlg.panel.host.GetValue()
+				server_addr, port = address_to_hostport(host)
 				channel = dlg.panel.key.GetValue()
 				if dlg.connection_type.GetSelection() == 0:
 					self.connect_as_master((server_addr, port), channel)
@@ -330,9 +330,10 @@ class GlobalPlugin(_GlobalPlugin):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_as_master(self, address, key):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master')
+	def connect_as_master(self, address, key, insecure=False):
+		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
+		transport.callback_manager.register_callback('certificate_authentication_failed', self.on_certificate_as_master_failed)
 		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
 		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
 		transport.callback_manager.register_callback('transport_closing', self.disconnecting_as_master)
@@ -340,14 +341,35 @@ class GlobalPlugin(_GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_as_slave(self, address, key):
-		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave')
+	def connect_as_slave(self, address, key, insecure=False):
+		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
+		transport.callback_manager.register_callback('certificate_authentication_failed', self.on_certificate_as_slave_failed)
 		self.slave_transport.callback_manager.register_callback('transport_connected', self.on_connected_as_slave)
 		self.slave_transport.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
+
+	def handle_certificate_failed(self, transport):
+		self.last_fail_address = transport.address
+		self.last_fail_key = transport.channel
+		self.disconnect()
+		try:
+			cert_hash = transport.last_fail_fingerprint
+			message = _("Warning! The certificate of this server could not be verified.\nThis connection may not be secure. It is possible that someone is trying to overhear your communication.\nBefore continuing please make sure that the following server certificate fingerprint is a proper one.\nIf you have any questions, please contact the server administrator.\n\nServer SHA256 fingerprint: {fingerprint}\n\nDo you want to continue connecting?").format(fingerprint=cert_hash)
+			if gui.messageBox(message, _("NVDA Remote Connection Security Warning"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES: return True
+		except Exception as ex:
+			log.error(ex)
+		return False
+
+	def on_certificate_as_master_failed(self):
+		if self.handle_certificate_failed(self.master_transport):
+			self.connect_as_master(self.last_fail_address, self.last_fail_key, True)
+
+	def on_certificate_as_slave_failed(self):
+		if self.handle_certificate_failed(self.slave_transport):
+			self.connect_as_slave(self.last_fail_address, self.last_fail_key, True)
 
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
