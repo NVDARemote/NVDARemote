@@ -62,7 +62,7 @@ class TCPTransport(Transport):
 				fingerprint = hashlib.sha256(certBin).hexdigest().lower()
 			except Exception: pass
 			config = configuration.get_config()
-			if hostport_to_address(self.address) in config['trusted_certs'][hostport_to_address(self.address)]==fingerprint:
+			if hostport_to_address(self.address) in config['trusted_certs'] and config['trusted_certs'][hostport_to_address(self.address)]==fingerprint:
 				self.insecure=True
 				return self.run()
 			self.last_fail_fingerprint = fingerprint
