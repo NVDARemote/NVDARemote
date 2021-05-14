@@ -357,8 +357,14 @@ class GlobalPlugin(_GlobalPlugin):
 		self.disconnect()
 		try:
 			cert_hash = transport.last_fail_fingerprint
-			message = _("Warning! The certificate of this server could not be verified.\nThis connection may not be secure. It is possible that someone is trying to overhear your communication.\nBefore continuing please make sure that the following server certificate fingerprint is a proper one.\nIf you have any questions, please contact the server administrator.\n\nServer SHA256 fingerprint: {fingerprint}\n\nDo you want to continue connecting?").format(fingerprint=cert_hash)
-			if gui.messageBox(message, _("NVDA Remote Connection Security Warning"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES: return True
+				
+			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
+			a = wnd.ShowModal()
+			if a == wx.ID_YES:
+				config = configuration.get_config()
+				config['trusted_certs'][hostport_to_address(self.last_fail_address)]=cert_hash
+				config.write()
+			if a == wx.ID_YES or a == wx.ID_NO: return True
 		except Exception as ex:
 			log.error(ex)
 		return False

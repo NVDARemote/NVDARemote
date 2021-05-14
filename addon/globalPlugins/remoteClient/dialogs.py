@@ -258,3 +258,13 @@ class OptionsDialog(wx.Dialog):
 			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
 		config.write()
+
+class CertificateUnauthorizedDialog(wx.MessageDialog):
+
+	def __init__(self, parent, fingerprint=None):
+		# Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+		title=_("NVDA Remote Connection Security Warning")
+		# Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+		message = _("Warning! The certificate of this server could not be verified.\nThis connection may not be secure. It is possible that someone is trying to overhear your communication.\nBefore continuing please make sure that the following server certificate fingerprint is a proper one.\nIf you have any questions, please contact the server administrator.\n\nServer SHA256 fingerprint: {fingerprint}\n\nDo you want to continue connecting?").format(fingerprint=fingerprint)
+		super().__init__(parent, caption=title, message=message, style=wx.YES_NO|wx.CANCEL|wx.CANCEL_DEFAULT|wx.CENTRE)
+		self.SetYesNoLabels(_("Connect and do not ask again for this server"), _("Connect"))
