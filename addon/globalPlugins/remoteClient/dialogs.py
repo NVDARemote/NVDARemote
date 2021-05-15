@@ -240,7 +240,7 @@ class OptionsDialog(wx.Dialog):
 		self.set_controls()
 
 	def on_delete_fingerprints(self, evt):
-		if gui.messageBox(_("When connecting to an authorized server, you will again be prompted to accepts its certificate."), _("Are you sure you want to delete all stored trusted fingerprints?"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES:
+		if gui.messageBox(_("When connecting to an unauthorized server, you will again be prompted to accepts its certificate."), _("Are you sure you want to delete all stored trusted fingerprints?"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES:
 			config = configuration.get_config()
 			config['trusted_certs'].clear()
 			config.write()
