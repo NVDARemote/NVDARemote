@@ -1,5 +1,3 @@
-import threading
-import time
 from . import connection_info
 import gui
 import speech

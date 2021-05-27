@@ -1,7 +1,5 @@
 from logging import getLogger
 log = getLogger('serializer')
-import sys
-import os
 import json
 import speech.commands
 
