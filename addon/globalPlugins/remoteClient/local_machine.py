@@ -16,8 +16,9 @@ logger = logging.getLogger('local_machine')
 
 def setSpeechCancelledToFalse():
 	"""
-	This function updates the state of speech so that it is aware that
-	future speech should not be cancelled.
+	This function updates the state of speech so that it is aware that future
+	speech should not be cancelled. In the long term this is a fragile solution
+	as NVDA does not support modifying the internal state of speech.
 	"""
 	if versionInfo.version_year >= 2021:
 		# workaround as beenCanceled is readonly as of NVDA#12395
