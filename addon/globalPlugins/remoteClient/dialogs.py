@@ -16,6 +16,7 @@ except addonHandler.AddonError:
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
+from . import configuration
 
 WX_VERSION = int(wx.version()[0])
 WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
@@ -198,6 +199,10 @@ class OptionsDialog(wx.Dialog):
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		self.key.Enable(False)
 		main_sizer.Add(self.key)
+		# Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
+		self.delete_fingerprints = wx.Button(self, wx.ID_ANY, label=_("Delete all trusted fingerprints"))
+		self.delete_fingerprints.Bind(wx.EVT_BUTTON, self.on_delete_fingerprints)
+		main_sizer.Add(self.delete_fingerprints)
 		buttons = self.CreateButtonSizer(wx.OK | wx.CANCEL)
 		main_sizer.Add(buttons, flag=wx.BOTTOM)
 		main_sizer.Fit(self)
@@ -234,6 +239,13 @@ class OptionsDialog(wx.Dialog):
 		self.key.SetValue(cs['key'])
 		self.set_controls()
 
+	def on_delete_fingerprints(self, evt):
+		if gui.messageBox(_("When connecting to an unauthorized server, you will again be prompted to accepts its certificate."), _("Are you sure you want to delete all stored trusted fingerprints?"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES:
+			config = configuration.get_config()
+			config['trusted_certs'].clear()
+			config.write()
+		evt.skip()
+
 	def on_ok(self, evt):
 		if self.autoconnect.GetValue():
 			if not self.client_or_server.GetSelection() and (not self.host.GetValue() or not self.key.GetValue()):
@@ -258,3 +270,13 @@ class OptionsDialog(wx.Dialog):
 			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
 		config.write()
+
+class CertificateUnauthorizedDialog(wx.MessageDialog):
+
+	def __init__(self, parent, fingerprint=None):
+		# Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+		title=_("NVDA Remote Connection Security Warning")
+		# Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+		message = _("Warning! The certificate of this server could not be verified.\nThis connection may not be secure. It is possible that someone is trying to overhear your communication.\nBefore continuing please make sure that the following server certificate fingerprint is a proper one.\nIf you have any questions, please contact the server administrator.\n\nServer SHA256 fingerprint: {fingerprint}\n\nDo you want to continue connecting?").format(fingerprint=fingerprint)
+		super().__init__(parent, caption=title, message=message, style=wx.YES_NO|wx.CANCEL|wx.CANCEL_DEFAULT|wx.CENTRE)
+		self.SetYesNoLabels(_("Connect and do not ask again for this server"), _("Connect"))
