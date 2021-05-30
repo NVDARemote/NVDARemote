@@ -4,10 +4,13 @@ import queue
 import ssl
 import socket
 import select
+import hashlib
 from collections import defaultdict
 from logging import getLogger
 log = getLogger('transport')
 from . import callback_manager
+from . import configuration
+from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 
 PROTOCOL_VERSION: int = 2
 
@@ -31,7 +34,7 @@ class TCPTransport(Transport):
 	buffer: bytes
 	closed: bool
 	
-	def __init__(self, serializer, address, timeout=0):
+	def __init__(self, serializer, address, timeout=0, insecure=False):
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
@@ -42,12 +45,29 @@ class TCPTransport(Transport):
 		self.queue_thread = None
 		self.timeout = timeout
 		self.reconnector_thread = ConnectorThread(self)
+		self.insecure=insecure
 
 	def run(self):
 		self.closed = False
 		try:
-			self.server_sock = self.create_outbound_socket(self.address)
+			self.server_sock = self.create_outbound_socket(*self.address, insecure=self.insecure)
 			self.server_sock.connect(self.address)
+		except ssl.SSLCertVerificationError as ex:
+			fingerprint=None
+			try:
+				tmp_con = self.create_outbound_socket(*self.address, insecure = True)
+				tmp_con.connect(self.address)
+				certBin = tmp_con.getpeercert(True)
+				tmp_con.close()
+				fingerprint = hashlib.sha256(certBin).hexdigest().lower()
+			except Exception: pass
+			config = configuration.get_config()
+			if hostport_to_address(self.address) in config['trusted_certs'] and config['trusted_certs'][hostport_to_address(self.address)]==fingerprint:
+				self.insecure=True
+				return self.run()
+			self.last_fail_fingerprint = fingerprint
+			self.callback_manager.call_callbacks('certificate_authentication_failed')
+			raise
 		except Exception:
 			self.callback_manager.call_callbacks('transport_connection_failed')
 			raise
@@ -74,15 +94,23 @@ class TCPTransport(Transport):
 		self.callback_manager.call_callbacks('transport_disconnected')
 		self._disconnect()
 
-	def create_outbound_socket(self, address):
-		address = socket.getaddrinfo(*address)[0]
+	def create_outbound_socket(self, host, port, insecure=False):
+		address = socket.getaddrinfo(host, port)[0]
 		server_sock = socket.socket(*address[:3])
 		if self.timeout:
 			server_sock.settimeout(self.timeout)
 		server_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 		server_sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, 60000, 2000))
-		server_sock = ssl.wrap_socket(server_sock)
+		ctx = (ssl.SSLContext())
+		if insecure: ctx.verify_mode = ssl.CERT_NONE
+		ctx.check_hostname = not insecure
+		ctx.load_default_certs()
+		server_sock = ctx.wrap_socket(sock=server_sock, server_hostname=host)
 		return server_sock
+
+	def getpeercert(self, binary_form=False):
+		if self.server_sock is None: return None
+		return self.server_sock.getpeercert(binary_form)
 
 	def handle_server_data(self):
 		# This approach may be problematic:
@@ -144,8 +172,8 @@ class TCPTransport(Transport):
 
 class RelayTransport(TCPTransport):
 
-	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION):
-		super().__init__(address=address, serializer=serializer, timeout=timeout)
+	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION, insecure=False):
+		super().__init__(address=address, serializer=serializer, timeout=timeout, insecure=insecure)
 		log.info("Connecting to %s channel %s" % (address, channel))
 		self.channel = channel
 		self.connection_type = connection_type
