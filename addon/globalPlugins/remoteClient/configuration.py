@@ -23,6 +23,9 @@ configspec = StringIO("""
 
 [seen_motds]
 	__many__ = string(default="")
+
+[trusted_certs]
+	__many__ = string(default="")
 """)
 def get_config():
 	global _config
