@@ -16,7 +16,7 @@ import hashlib
 
 if not (
 	versionInfo.version_year >= 2021 or
-	(versionInfo.version_year == 2020 and versionInfo.major >= 2)
+	(versionInfo.version_year == 2020 and versionInfo.version_major >= 2)
 ):
 	# NVDA versions newer than 2020.2 have a _CancellableSpeechCommand which should be ignored by NVDA remote
 	# For older versions, we create a dummy command that won't cause existing commands to be ignored.
