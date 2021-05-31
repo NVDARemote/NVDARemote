@@ -92,5 +92,6 @@ class LocalMachine:
 		if systemUtils.hasUiAccess():
 			ctypes.windll.sas.SendSAS(0)
 		else:
-			ui.message(_("No permission on remote device to trigger CTRL+ALT+DEL"))
+			# Translators: Sent when a user is fails send CTRL+ALT+DEL from a remote NVDA instance
+			ui.message(_("No permission on device to trigger CTRL+ALT+DEL from remote"))
 			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")
