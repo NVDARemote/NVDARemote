@@ -10,7 +10,12 @@ import speech
 import ctypes
 import braille
 import inputCore
-import systemUtils
+
+try:
+	from systemUtils import hasUiAccess
+except ModuleNotFoundError:
+	from config import hasUiAccess
+	
 import ui
 import logging
 logger = logging.getLogger('local_machine')
@@ -87,5 +92,5 @@ class LocalMachine:
 		if systemUtils.hasUiAccess():
 			ctypes.windll.sas.SendSAS(0)
 		else:
-			ui.message("No permission on remote device to trigger CTRL+ALT+DEL")
+			ui.message(_("No permission on remote device to trigger CTRL+ALT+DEL"))
 			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")
