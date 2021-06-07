@@ -1,3 +1,4 @@
+from .transport import TransportEvents
 import threading
 import time
 from . import connection_info
@@ -64,7 +65,7 @@ class SlaveSession(RemoteSession):
 		self.master_display_sizes = []
 
 		self.transport.callback_manager.register_callback('msg_index', self.recv_index)
-		self.transport.callback_manager.register_callback('transport_closing', self.handle_transport_closing)
+		self.transport.callback_manager.register_callback(TransportEvents.CLOSING, self.handle_transport_closing)
 		self.patcher = nvda_patcher.NVDASlavePatcher()
 		self.patch_callbacks_added = False
 		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
@@ -203,8 +204,8 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
 		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
 		self.transport.callback_manager.register_callback('msg_send_braille_info', self.send_braille_info)
-		self.transport.callback_manager.register_callback('transport_connected', self.handle_connected)
-		self.transport.callback_manager.register_callback('transport_disconnected', self.handle_disconnected)
+		self.transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.handle_connected)
+		self.transport.callback_manager.register_callback(TransportEvents.DISCONNECTED, self.handle_disconnected)
 
 	def handle_play_wave(self, **kwargs):
 		"""Receive instruction to play a 'wave' from the slave machine
