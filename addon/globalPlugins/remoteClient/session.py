@@ -1,12 +1,11 @@
 from .transport import TransportEvents
-import threading
-import time
 from . import connection_info
 import gui
 import speech
 import ui
 import tones
 import braille
+import versionInfo
 from logHandler import log
 from . import configuration
 from . import nvda_patcher
@@ -15,8 +14,21 @@ from collections import defaultdict
 from . import connection_info
 import hashlib
 
+
+if not (
+	versionInfo.version_year >= 2021 or
+	(versionInfo.version_year == 2020 and versionInfo.version_major >= 2)
+):
+	# NVDA versions newer than 2020.2 have a _CancellableSpeechCommand which should be ignored by NVDA remote
+	# For older versions, we create a dummy command that won't cause existing commands to be ignored.
+	class _DummyCommand(speech.commands.SpeechCommand): pass
+	speech.commands._CancellableSpeechCommand = _DummyCommand
+
+
 EXCLUDED_SPEECH_COMMANDS = (
 	speech.commands.BaseCallbackCommand,
+	# _CancellableSpeechCommands are not designed to be reported and are used internally by NVDA. (#230)
+	speech.commands._CancellableSpeechCommand,
 )
 
 class RemoteSession:

@@ -1,8 +1,6 @@
 from . import callback_manager
-import synthDriverHandler
 import tones
 import nvwave
-import gui
 import speech
 import inputCore
 import braille
