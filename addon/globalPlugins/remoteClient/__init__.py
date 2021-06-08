@@ -13,7 +13,7 @@ from . import configuration
 import gui
 from . import beep_sequence
 import speech
-from .transport import RelayTransport
+from .transport import RelayTransport, TransportEvents
 import braille
 from . import local_machine
 from . import serializer
@@ -333,11 +333,11 @@ class GlobalPlugin(_GlobalPlugin):
 	def connect_as_master(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
-		transport.callback_manager.register_callback('certificate_authentication_failed', self.on_certificate_as_master_failed)
-		transport.callback_manager.register_callback('transport_connected', self.on_connected_as_master)
-		transport.callback_manager.register_callback('transport_connection_failed', self.on_connected_as_master_failed)
-		transport.callback_manager.register_callback('transport_closing', self.disconnecting_as_master)
-		transport.callback_manager.register_callback('transport_disconnected', self.on_disconnected_as_master)
+		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
+		transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected_as_master)
+		transport.callback_manager.register_callback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
+		transport.callback_manager.register_callback(TransportEvents.CLOSING, self.disconnecting_as_master)
+		transport.callback_manager.register_callback(TransportEvents.DISCONNECTED, self.on_disconnected_as_master)
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
@@ -345,8 +345,8 @@ class GlobalPlugin(_GlobalPlugin):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
 		self.slave_transport = transport
-		transport.callback_manager.register_callback('certificate_authentication_failed', self.on_certificate_as_slave_failed)
-		self.slave_transport.callback_manager.register_callback('transport_connected', self.on_connected_as_slave)
+		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
+		self.slave_transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected_as_slave)
 		self.slave_transport.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
