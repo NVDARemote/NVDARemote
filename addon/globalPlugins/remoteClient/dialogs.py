@@ -244,7 +244,7 @@ class OptionsDialog(wx.Dialog):
 			config = configuration.get_config()
 			config['trusted_certs'].clear()
 			config.write()
-		evt.skip()
+		evt.Skip()
 
 	def on_ok(self, evt):
 		if self.autoconnect.GetValue():
