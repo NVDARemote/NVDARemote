@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import wx
 from . import input
@@ -12,8 +11,23 @@ import braille
 import inputCore
 import systemUtils
 import ui
+import versionInfo
 import logging
 logger = logging.getLogger('local_machine')
+
+
+def setSpeechCancelledToFalse():
+	"""
+	This function updates the state of speech so that it is aware that future
+	speech should not be cancelled. In the long term this is a fragile solution
+	as NVDA does not support modifying the internal state of speech.
+	"""
+	if versionInfo.version_year >= 2021:
+		# workaround as beenCanceled is readonly as of NVDA#12395
+		speech.speech._speechState.beenCanceled = False
+	else:
+		speech.beenCanceled = False
+
 
 class LocalMachine:
 
@@ -48,7 +62,7 @@ class LocalMachine:
 	):
 		if self.is_muted:
 			return
-		speech.beenCanceled = False
+		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
