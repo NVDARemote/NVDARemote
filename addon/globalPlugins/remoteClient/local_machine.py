@@ -9,7 +9,12 @@ import speech
 import ctypes
 import braille
 import inputCore
-import systemUtils
+
+try:
+	from systemUtils import hasUiAccess
+except ModuleNotFoundError:
+	from config import hasUiAccess
+	
 import ui
 import versionInfo
 import logging
@@ -98,8 +103,9 @@ class LocalMachine:
 		SendSAS requires UI Access, so we provide a warning when this fails.
 		This warning will only be read by the remote NVDA if it is currently connected to the machine.
 		"""
-		if systemUtils.hasUiAccess():
+		if hasUiAccess():
 			ctypes.windll.sas.SendSAS(0)
 		else:
-			ui.message("No permission on remote device to trigger CTRL+ALT+DEL")
+			# Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+			ui.message(_("No permission on device to trigger CTRL+ALT+DEL from remote"))
 			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")
