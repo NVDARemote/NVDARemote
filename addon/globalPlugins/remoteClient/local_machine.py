@@ -9,6 +9,13 @@ import speech
 import ctypes
 import braille
 import inputCore
+
+try:
+	from systemUtils import hasUiAccess
+except ModuleNotFoundError:
+	from config import hasUiAccess
+	
+import ui
 import versionInfo
 import logging
 logger = logging.getLogger('local_machine')
@@ -91,4 +98,14 @@ class LocalMachine:
 		api.copyToClip(text=text)
 
 	def send_SAS(self, **kwargs):
-		ctypes.windll.sas.SendSAS(0)
+		"""
+		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
+		SendSAS requires UI Access, so we provide a warning when this fails.
+		This warning will only be read by the remote NVDA if it is currently connected to the machine.
+		"""
+		if hasUiAccess():
+			ctypes.windll.sas.SendSAS(0)
+		else:
+			# Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+			ui.message(_("No permission on device to trigger CTRL+ALT+DEL from remote"))
+			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")
