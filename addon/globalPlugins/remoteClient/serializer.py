@@ -1,7 +1,5 @@
 from logging import getLogger
 log = getLogger('serializer')
-import sys
-import os
 import json
 import speech.commands
 
@@ -45,11 +43,8 @@ def as_sequence(dct):
 			sequence.append(item)
 			continue
 		name, values = item
-		if not hasattr(speech.commands, name):
-			log.warning("Unknown sequence type received: %r" % name)
-			continue
-		cls = getattr(speech, name)
-		if not issubclass(cls, SEQUENCE_CLASSES):
+		cls = getattr(speech.commands, name, None)
+		if cls is None or not issubclass(cls, SEQUENCE_CLASSES):
 			log.warning("Unknown sequence type received: %r" % name)
 			continue
 		cls = cls.__new__(cls)

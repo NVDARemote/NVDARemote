@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import wx
 from . import input
@@ -10,8 +9,30 @@ import speech
 import ctypes
 import braille
 import inputCore
+
+try:
+	from systemUtils import hasUiAccess
+except ModuleNotFoundError:
+	from config import hasUiAccess
+	
+import ui
+import versionInfo
 import logging
 logger = logging.getLogger('local_machine')
+
+
+def setSpeechCancelledToFalse():
+	"""
+	This function updates the state of speech so that it is aware that future
+	speech should not be cancelled. In the long term this is a fragile solution
+	as NVDA does not support modifying the internal state of speech.
+	"""
+	if versionInfo.version_year >= 2021:
+		# workaround as beenCanceled is readonly as of NVDA#12395
+		speech.speech._speechState.beenCanceled = False
+	else:
+		speech.beenCanceled = False
+
 
 class LocalMachine:
 
@@ -46,7 +67,7 @@ class LocalMachine:
 	):
 		if self.is_muted:
 			return
-		speech.beenCanceled = False
+		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
@@ -77,4 +98,14 @@ class LocalMachine:
 		api.copyToClip(text=text)
 
 	def send_SAS(self, **kwargs):
-		ctypes.windll.sas.SendSAS(0)
+		"""
+		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
+		SendSAS requires UI Access, so we provide a warning when this fails.
+		This warning will only be read by the remote NVDA if it is currently connected to the machine.
+		"""
+		if hasUiAccess():
+			ctypes.windll.sas.SendSAS(0)
+		else:
+			# Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+			ui.message(_("No permission on device to trigger CTRL+ALT+DEL from remote"))
+			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")

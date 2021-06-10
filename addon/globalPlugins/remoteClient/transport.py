@@ -6,18 +6,28 @@ import socket
 import select
 import hashlib
 from collections import defaultdict
+from typing import Tuple
 from logging import getLogger
 log = getLogger('transport')
 from . import callback_manager
 from . import configuration
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
+from enum import Enum
 
 PROTOCOL_VERSION: int = 2
+
+class TransportEvents(Enum):
+	CONNECTED = 'transport_connected'
+	CERTIFICATE_AUTHENTICATION_FAILED = 'certificate_authentication_failed'
+	CONNECTION_FAILED = 'transport_connection_failed'
+	CLOSING = 'transport_closing'
+	DISCONNECTED = 'transport_disconnected'
 
 
 class Transport:
 	connected: bool
 	successful_connects: int
+	callback_manager: callback_manager.CallbackManager
 
 	def __init__(self, serializer):
 		self.serializer = serializer
@@ -28,13 +38,15 @@ class Transport:
 	def transport_connected(self):
 		self.successful_connects += 1
 		self.connected = True
-		self.callback_manager.call_callbacks('transport_connected')
+		self.callback_manager.call_callbacks(TransportEvents.CONNECTED)
 
 class TCPTransport(Transport):
 	buffer: bytes
 	closed: bool
+	queue: queue.Queue
+	insecure: bool
 	
-	def __init__(self, serializer, address, timeout=0, insecure=False):
+	def __init__(self, serializer, address: Tuple[str, int], timeout: int=0, insecure: bool=False):
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
@@ -66,10 +78,10 @@ class TCPTransport(Transport):
 				self.insecure=True
 				return self.run()
 			self.last_fail_fingerprint = fingerprint
-			self.callback_manager.call_callbacks('certificate_authentication_failed')
+			self.callback_manager.call_callbacks(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED)
 			raise
 		except Exception:
-			self.callback_manager.call_callbacks('transport_connection_failed')
+			self.callback_manager.call_callbacks(TransportEvents.CONNECTION_FAILED)
 			raise
 		self.transport_connected()
 		self.queue_thread = threading.Thread(target=self.send_queue)
@@ -91,7 +103,7 @@ class TCPTransport(Transport):
 					self.buffer = b''
 					break
 		self.connected = False
-		self.callback_manager.call_callbacks('transport_disconnected')
+		self.callback_manager.call_callbacks(TransportEvents.DISCONNECTED)
 		self._disconnect()
 
 	def create_outbound_socket(self, host, port, insecure=False):
@@ -164,7 +176,7 @@ class TCPTransport(Transport):
 		self.server_sock = None
 
 	def close(self):
-		self.callback_manager.call_callbacks('transport_closing')
+		self.callback_manager.call_callbacks(TransportEvents.CLOSING)
 		self.reconnector_thread.running = False
 		self._disconnect()
 		self.closed = True
@@ -178,7 +190,7 @@ class RelayTransport(TCPTransport):
 		self.channel = channel
 		self.connection_type = connection_type
 		self.protocol_version = protocol_version
-		self.callback_manager.register_callback('transport_connected', self.on_connected)
+		self.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected)
 
 	def on_connected(self):
 		self.send('protocol_version', version=self.protocol_version)
