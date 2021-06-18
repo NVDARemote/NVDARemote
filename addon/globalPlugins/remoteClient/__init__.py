@@ -305,9 +305,9 @@ class GlobalPlugin(_GlobalPlugin):
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 				else:
-					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel)
+					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_as_master(self):
@@ -501,7 +501,7 @@ class GlobalPlugin(_GlobalPlugin):
 			test_socket=ssl.wrap_socket(test_socket)
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
-			self.connect_as_slave(('127.0.0.1', port), channel)
+			self.connect_as_slave(('127.0.0.1', port), channel, insecure=True)
 		except:
 			pass
 
