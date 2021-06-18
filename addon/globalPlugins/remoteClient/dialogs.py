@@ -8,11 +8,11 @@ from . import serializer
 from . import server
 from . import transport
 from . import socket_utils
+from logHandler import log
 import addonHandler
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:
-	from logHandler import log
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
@@ -41,18 +41,44 @@ class ClientPanel(wx.Panel):
 		self.SetSizerAndFit(sizer)
 
 	def on_generate_key(self, evt):
-		evt.Skip()
-		address = socket_utils.address_to_hostport(self.host.GetValue())
-		self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer())
-		self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
-		t = threading.Thread(target=self.key_connector.run)
-		t.start()
+		if not self.host.GetValue():
+			gui.messageBox(_("Host must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			self.host.SetFocus()
+		else:
+			evt.Skip()
+			self.generate_key_command()
+
+	def generate_key_command(self, insecure=False):
+			address = socket_utils.address_to_hostport(self.host.GetValue())
+			self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
+			self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
+			self.key_connector.callback_manager.register_callback(transport.TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.handle_certificate_failed)
+			t = threading.Thread(target=self.key_connector.run)
+			t.start()
 
 	def handle_key_generated(self, key=None):
 		self.key.SetValue(key)
 		self.key.SetFocus()
 		self.key_connector.close()
 		self.key_connector = None
+
+	def handle_certificate_failed(self):
+		try:
+			cert_hash = self.key_connector.last_fail_fingerprint
+				
+			wnd = CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
+			a = wnd.ShowModal()
+			if a == wx.ID_YES:
+				config = configuration.get_config()
+				config['trusted_certs'][self.host.GetValue()]=cert_hash
+				config.write()
+			if a != wx.ID_YES and a != wx.ID_NO: return
+		except Exception as ex:
+			log.error(ex)
+			return
+		self.key_connector.close()
+		self.key_connector = None
+		self.generate_key_command(True)
 
 class ServerPanel(wx.Panel):
 
