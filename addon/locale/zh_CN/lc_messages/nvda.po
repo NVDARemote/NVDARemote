@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: NVDARemote 2.1\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2021-06-21 16:24+0800\n"
-"PO-Revision-Date: 2021-06-21 17:04+0800\n"
+"PO-Revision-Date: 2021-06-21 20:26+0800\n"
 "Last-Translator: dingpengyu <dingpengyu06@gmail.com>\n"
 "Language-Team: NVDA Simplified Chinese Team <dingpengyu06@gmail.com>\n"
 "Language: zh_CN\n"
@@ -58,11 +58,11 @@ msgstr "发送剪贴板内容到对方电脑"
 #. Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
 #: addon\globalPlugins\remoteClient\__init__.py:111
 msgid "Copy &link"
-msgstr "复制连接（&L）"
+msgstr "复制链接（&L）"
 
 #: addon\globalPlugins\remoteClient\__init__.py:111
 msgid "Copy a link to the remote session"
-msgstr "复制指向远程电脑的连接"
+msgstr "复制指向远程电脑的链接"
 
 #. Translators: Menu item in NvDA Remote submenu to open add-on options.
 #: addon\globalPlugins\remoteClient\__init__.py:115
@@ -157,12 +157,12 @@ msgstr "连接到控制服务器"
 #. Translators: Presented when keyboard control is back to the controlling computer.
 #: addon\globalPlugins\remoteClient\__init__.py:416
 msgid "Controlling local machine."
-msgstr "正在控制本机电脑。"
+msgstr "正在控制本地计算机。"
 
 #. Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
 #: addon\globalPlugins\remoteClient\__init__.py:423
 msgid "Controlling remote machine."
-msgstr "正在控制远程电脑。"
+msgstr "正在控制远程计算机。"
 
 #: addon\globalPlugins\remoteClient\__init__.py:510
 msgid ""
