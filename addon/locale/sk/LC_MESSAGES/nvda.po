@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 'remote' '1.0'\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-05 20:47+0100\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
+"POT-Creation-Date: 2021-06-11 07:08+0200\n"
 "PO-Revision-Date: 2015-07-04 10:33+0200\n"
 "Last-Translator: Peter Vágner <peter.v@datagate.sk>\n"
 "Language-Team: sk\n"
@@ -17,130 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.2\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-
-#. Add-on summary, usually the user visible name of the addon.
-#. Translators: Summary for this add-on to be shown on installation and add-on information.
-#: buildVars.py:17
-msgid "Remote Support"
-msgstr "Podpora vzdialeného ovládania"
-
-#. Add-on description
-#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
-#: buildVars.py:20
-msgid "Allows remote control of and remote access to another machine."
-msgstr "Umožňuje vzájomné ovládanie počítačov cez internet."
-
-#. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
-#: addon/globalPlugins/remoteClient/dialogs.py:27
-#: addon/globalPlugins/remoteClient/dialogs.py:187
-msgid "&Host:"
-msgstr "&Hostiteľ:"
-
-#. Translators: Label of the edit field to enter key (password) to secure the remote connection.
-#: addon/globalPlugins/remoteClient/dialogs.py:31
-#: addon/globalPlugins/remoteClient/dialogs.py:71
-#: addon/globalPlugins/remoteClient/dialogs.py:195
-msgid "&Key:"
-msgstr "&Kľúč:"
-
-#. Translators: The button used to generate a random key/password.
-#: addon/globalPlugins/remoteClient/dialogs.py:35
-#: addon/globalPlugins/remoteClient/dialogs.py:74
-msgid "&Generate Key"
-msgstr "Vy&generovať kľúč"
-
-#. Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
-#: addon/globalPlugins/remoteClient/dialogs.py:60
-msgid "Get External &IP"
-msgstr "Zistiť verejnú adresu &IP"
-
-#. Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
-#: addon/globalPlugins/remoteClient/dialogs.py:64
-msgid "&External IP:"
-msgstr "V&erejná adresa IP:"
-
-#. Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
-#: addon/globalPlugins/remoteClient/dialogs.py:68
-#: addon/globalPlugins/remoteClient/dialogs.py:191
-msgid "&Port:"
-msgstr "&Port:"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:113
-#, python-brace-format
-msgid "Successfully retrieved IP address. Port {port} is open."
-msgstr "Zisťovanie verejnej adresy dokončené. Port {port} je otvorený."
-
-#: addon/globalPlugins/remoteClient/dialogs.py:113
-msgid "Success"
-msgstr "Hotovo"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:115
-#, python-brace-format
-msgid "Retrieved external IP, but port {port} is not currently forwarded."
-msgstr ""
-"Zisťovanie verejnej adresy dokončené. Port {port} ale nie je momentálne "
-"presmerovaný."
-
-#: addon/globalPlugins/remoteClient/dialogs.py:115
-msgid "Warning"
-msgstr "Upozornenie"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:122
-msgid ""
-"Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr ""
-"Nie je možné pripojiť sa k serveru a overiť presmerovanie portu. Prosím "
-"pokúste sa zistiť verejnú adresu IP ručne."
-
-#: addon/globalPlugins/remoteClient/dialogs.py:122
-#: addon/globalPlugins/remoteClient/dialogs.py:159
-#: addon/globalPlugins/remoteClient/dialogs.py:162
-#: addon/globalPlugins/remoteClient/dialogs.py:238
-#: addon/globalPlugins/remoteClient/dialogs.py:240
-msgid "Error"
-msgstr "Chyba"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:129
-msgid "Client"
-msgstr "Klient"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:129
-msgid "Server"
-msgstr "Server"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:133
-#: addon/globalPlugins/remoteClient/dialogs.py:182
-msgid "Control another machine"
-msgstr "Ovládať vzdialený počítač"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:133
-#: addon/globalPlugins/remoteClient/dialogs.py:182
-msgid "Allow this machine to be controlled"
-msgstr "Povoliť ovládanie tohoto počítača"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:159
-#: addon/globalPlugins/remoteClient/dialogs.py:238
-msgid "Both host and key must be set."
-msgstr "Musia byť zadané obe hodnoty, Hostiteľ aj Kľúč."
-
-#: addon/globalPlugins/remoteClient/dialogs.py:162
-#: addon/globalPlugins/remoteClient/dialogs.py:240
-msgid "Both port and key must be set."
-msgstr "Musia byť zadané obe hodnoty, Port aj Kľúč."
-
-#. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
-#: addon/globalPlugins/remoteClient/dialogs.py:173
-msgid "Auto-connect to control server on startup"
-msgstr "Pri spustení sa automaticky pripojiť k riadiacemu serveru"
-
-#. Translators: Whether or not to use a relay server when autoconnecting
-#: addon/globalPlugins/remoteClient/dialogs.py:177
-msgid "Use Remote Control Server"
-msgstr "Pripojiť sa ku vzdialenému serveru"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:177
-msgid "Host Control Server"
-msgstr "Spustiť riadiaci server"
 
 #: addon/globalPlugins/remoteClient/__init__.py:49
 msgid "NVDA Remote"
@@ -262,6 +138,7 @@ msgstr "Odpojí sa zo vzdialenej relácie"
 
 #. Translators: Title of the connect dialog.
 #: addon/globalPlugins/remoteClient/__init__.py:290
+#: addon/globalPlugins/remoteClient/dialogs.py:282
 msgid "Connect"
 msgstr "Pripojiť"
 
@@ -276,38 +153,38 @@ msgid "Connection interrupted"
 msgstr "Spojenie prerušené"
 
 #. Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
-#: addon/globalPlugins/remoteClient/__init__.py:356
+#: addon/globalPlugins/remoteClient/__init__.py:384
 msgid "Connected to control server"
 msgstr "Ste pripojení k riadiacemu serveru"
 
 #. This is called from the hook thread and should be executed on the main thread.
 #. Translators: Presented when keyboard control is back to the controlling computer.
-#: addon/globalPlugins/remoteClient/__init__.py:388
+#: addon/globalPlugins/remoteClient/__init__.py:416
 msgid "Controlling local machine."
 msgstr "Ovládanie lokálneho počítača"
 
 #. Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-#: addon/globalPlugins/remoteClient/__init__.py:395
+#: addon/globalPlugins/remoteClient/__init__.py:423
 msgid "Controlling remote machine."
 msgstr "Ovládanie vzdialeného počítača"
 
-#: addon/globalPlugins/remoteClient/__init__.py:482
+#: addon/globalPlugins/remoteClient/__init__.py:510
 msgid ""
 "NVDA Remote is already connected. Disconnect before opening a new connection."
 msgstr ""
 "Už ste pripojený k vzdialenej relácii. Pred opätovným pripojením sa musíte "
 "odpojiť."
 
-#: addon/globalPlugins/remoteClient/__init__.py:482
+#: addon/globalPlugins/remoteClient/__init__.py:510
 msgid "NVDA Remote Already Connected"
 msgstr "NVDA remote je už pripojený"
 
-#: addon/globalPlugins/remoteClient/__init__.py:488
+#: addon/globalPlugins/remoteClient/__init__.py:516
 #, python-brace-format
 msgid "Do you wish to control the machine on server {server} with key {key}?"
 msgstr "Želáte si ovládať počítač s kľúčom {key} na servery {server}?"
 
-#: addon/globalPlugins/remoteClient/__init__.py:490
+#: addon/globalPlugins/remoteClient/__init__.py:518
 #, python-brace-format
 msgid ""
 "Do you wish to allow this machine to be controlled on server {server} with "
@@ -316,12 +193,178 @@ msgstr ""
 "Želáte si povoliť ovládanie tohoto počítača s kľúčom {key} na servery "
 "{server}?"
 
-#: addon/globalPlugins/remoteClient/__init__.py:491
+#: addon/globalPlugins/remoteClient/__init__.py:519
 msgid "NVDA Remote Connection Request"
 msgstr "Žiadosť o spojenie NVDA Remote"
 
+#. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
+#: addon/globalPlugins/remoteClient/dialogs.py:30
+#: addon/globalPlugins/remoteClient/dialogs.py:190
+msgid "&Host:"
+msgstr "&Hostiteľ:"
+
+#. Translators: Label of the edit field to enter key (password) to secure the remote connection.
+#: addon/globalPlugins/remoteClient/dialogs.py:34
+#: addon/globalPlugins/remoteClient/dialogs.py:74
+#: addon/globalPlugins/remoteClient/dialogs.py:198
+msgid "&Key:"
+msgstr "&Kľúč:"
+
+#. Translators: The button used to generate a random key/password.
+#: addon/globalPlugins/remoteClient/dialogs.py:38
+#: addon/globalPlugins/remoteClient/dialogs.py:77
+msgid "&Generate Key"
+msgstr "Vy&generovať kľúč"
+
+#. Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
+#: addon/globalPlugins/remoteClient/dialogs.py:63
+msgid "Get External &IP"
+msgstr "Zistiť verejnú adresu &IP"
+
+#. Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
+#: addon/globalPlugins/remoteClient/dialogs.py:67
+msgid "&External IP:"
+msgstr "V&erejná adresa IP:"
+
+#. Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
+#: addon/globalPlugins/remoteClient/dialogs.py:71
+#: addon/globalPlugins/remoteClient/dialogs.py:194
+msgid "&Port:"
+msgstr "&Port:"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:116
+#, python-brace-format
+msgid "Successfully retrieved IP address. Port {port} is open."
+msgstr "Zisťovanie verejnej adresy dokončené. Port {port} je otvorený."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:116
+msgid "Success"
+msgstr "Hotovo"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:118
+#, python-brace-format
+msgid "Retrieved external IP, but port {port} is not currently forwarded."
+msgstr ""
+"Zisťovanie verejnej adresy dokončené. Port {port} ale nie je momentálne "
+"presmerovaný."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:118
+msgid "Warning"
+msgstr "Upozornenie"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:125
+msgid ""
+"Unable to contact portcheck server, please manually retrieve your IP address"
+msgstr ""
+"Nie je možné pripojiť sa k serveru a overiť presmerovanie portu. Prosím "
+"pokúste sa zistiť verejnú adresu IP ručne."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:125
+#: addon/globalPlugins/remoteClient/dialogs.py:162
+#: addon/globalPlugins/remoteClient/dialogs.py:165
+#: addon/globalPlugins/remoteClient/dialogs.py:252
+#: addon/globalPlugins/remoteClient/dialogs.py:254
+msgid "Error"
+msgstr "Chyba"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:132
+msgid "Client"
+msgstr "Klient"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:132
+msgid "Server"
+msgstr "Server"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:136
+#: addon/globalPlugins/remoteClient/dialogs.py:185
+msgid "Control another machine"
+msgstr "Ovládať vzdialený počítač"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:136
+#: addon/globalPlugins/remoteClient/dialogs.py:185
+msgid "Allow this machine to be controlled"
+msgstr "Povoliť ovládanie tohoto počítača"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:162
+#: addon/globalPlugins/remoteClient/dialogs.py:252
+msgid "Both host and key must be set."
+msgstr "Musia byť zadané obe hodnoty, Hostiteľ aj Kľúč."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:165
+#: addon/globalPlugins/remoteClient/dialogs.py:254
+msgid "Both port and key must be set."
+msgstr "Musia byť zadané obe hodnoty, Port aj Kľúč."
+
+#. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
+#: addon/globalPlugins/remoteClient/dialogs.py:176
+msgid "Auto-connect to control server on startup"
+msgstr "Pri spustení sa automaticky pripojiť k riadiacemu serveru"
+
+#. Translators: Whether or not to use a relay server when autoconnecting
+#: addon/globalPlugins/remoteClient/dialogs.py:180
+msgid "Use Remote Control Server"
+msgstr "Pripojiť sa ku vzdialenému serveru"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:180
+msgid "Host Control Server"
+msgstr "Spustiť riadiaci server"
+
+#. Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
+#: addon/globalPlugins/remoteClient/dialogs.py:203
+msgid "Delete all trusted fingerprints"
+msgstr "Vymazať všetky dôverované odtlačky"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:243
+msgid ""
+"When connecting to an unauthorized server, you will again be prompted to "
+"accepts its certificate."
+msgstr "Počas pripájania sa k neautorizovanému serveru, budete opäť vyzvaní na prijatie jeho certifikátu."
+
+#: addon/globalPlugins/remoteClient/dialogs.py:243
+msgid "Are you sure you want to delete all stored trusted fingerprints?"
+msgstr "Ste si istí, že chcete zmazať všetky zapamätané dôverované odtlačky?"
+
+#. Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+#: addon/globalPlugins/remoteClient/dialogs.py:278
+msgid "NVDA Remote Connection Security Warning"
+msgstr "Bezpečnostné varovanie spojenia NVDA Remote"
+
+#. Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+#: addon/globalPlugins/remoteClient/dialogs.py:280
+#, python-brace-format
+msgid ""
+"Warning! The certificate of this server could not be verified.\n"
+"This connection may not be secure. It is possible that someone is trying to "
+"overhear your communication.\n"
+"Before continuing please make sure that the following server certificate "
+"fingerprint is a proper one.\n"
+"If you have any questions, please contact the server administrator.\n"
+"\n"
+"Server SHA256 fingerprint: {fingerprint}\n"
+"\n"
+"Do you want to continue connecting?"
+msgstr ""
+"Pozor! Nie je možné overiť certifikát tohoto servera.\n"
+"Toto spojenie nemusí byť bezpečné. Je možné, že niekto sa usiluje "
+"odpočúvať vašu komunikáciu.\n"
+"Skôr než budete pokračovať, mali by ste sa uistiť, že nasledujúci odtlačok certifikátu servera je ten správny.\n"
+"Ak máte k procesu overenia otázky, kontaktujte prosím správcu servera.\n"
+"\n"
+"Odtlačok SHA256 certifikátu servera: {fingerprint}\n"
+"\n"
+"Chcete v pripájaní pokračovať?"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:282
+msgid "Connect and do not ask again for this server"
+msgstr "Pripojiť a viac sa na tento server nepýtať"
+
+#. Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+#: addon/globalPlugins/remoteClient/local_machine.py:110
+msgid "No permission on device to trigger CTRL+ALT+DEL from remote"
+msgstr "Na zariadení nie je povolené spúšťať príkaz CTRL+ALT+DEL zo vzdialenej relácie"
+
 #. translators: Message for version mismatch
-#: addon/globalPlugins/remoteClient/session.py:26
+#: addon/globalPlugins/remoteClient/session.py:45
 msgid ""
 "The version of the relay server which you have connected to is not "
 "compatible with this version of the Remote Client.\n"
@@ -331,21 +374,33 @@ msgstr ""
 "kompatibilná s vašou inštaláciou doplnku NVDA Remote.\n"
 "Prosím, použite buď iný server alebo skúste aktualizovať doplnok NVDA Remote."
 
-#: addon/globalPlugins/remoteClient/session.py:33
+#: addon/globalPlugins/remoteClient/session.py:52
 msgid "Message of the Day"
 msgstr "Uvítacia správa"
 
-#: addon/globalPlugins/remoteClient/session.py:186
+#: addon/globalPlugins/remoteClient/session.py:242
 msgid "Remote NVDA not connected."
 msgstr ""
 "Nie ste pripojení ku vzdialenému počítaču so spusteným doplnkom NVDA Remote."
 
-#: addon/globalPlugins/remoteClient/url_handler.py:50
+#: addon/globalPlugins/remoteClient/url_handler.py:51
 msgid "Invalid URL"
 msgstr "Neplatná adresa URL"
 
 #. Translators: Message shown when an invalid URL has been provided.
-#: addon/globalPlugins/remoteClient/url_handler.py:52
+#: addon/globalPlugins/remoteClient/url_handler.py:53
 #, python-format
 msgid "Unable to parse url \"%s\""
 msgstr "Nie je možné spracovať URL adresu \"%s\""
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+#: buildVars.py:17
+msgid "Remote Support"
+msgstr "Podpora vzdialeného ovládania"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+#: buildVars.py:20
+msgid "Allows remote control of and remote access to another machine."
+msgstr "Umožňuje vzájomné ovládanie počítačov cez internet."
