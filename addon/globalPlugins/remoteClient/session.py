@@ -1,11 +1,11 @@
-import threading
-import time
+from .transport import TransportEvents
 from . import connection_info
 import gui
 import speech
 import ui
 import tones
 import braille
+import versionInfo
 from logHandler import log
 from . import configuration
 from . import nvda_patcher
@@ -14,8 +14,21 @@ from collections import defaultdict
 from . import connection_info
 import hashlib
 
+
+if not (
+	versionInfo.version_year >= 2021 or
+	(versionInfo.version_year == 2020 and versionInfo.version_major >= 2)
+):
+	# NVDA versions newer than 2020.2 have a _CancellableSpeechCommand which should be ignored by NVDA remote
+	# For older versions, we create a dummy command that won't cause existing commands to be ignored.
+	class _DummyCommand(speech.commands.SpeechCommand): pass
+	speech.commands._CancellableSpeechCommand = _DummyCommand
+
+
 EXCLUDED_SPEECH_COMMANDS = (
 	speech.commands.BaseCallbackCommand,
+	# _CancellableSpeechCommands are not designed to be reported and are used internally by NVDA. (#230)
+	speech.commands._CancellableSpeechCommand,
 )
 
 class RemoteSession:
@@ -64,7 +77,7 @@ class SlaveSession(RemoteSession):
 		self.master_display_sizes = []
 
 		self.transport.callback_manager.register_callback('msg_index', self.recv_index)
-		self.transport.callback_manager.register_callback('transport_closing', self.handle_transport_closing)
+		self.transport.callback_manager.register_callback(TransportEvents.CLOSING, self.handle_transport_closing)
 		self.patcher = nvda_patcher.NVDASlavePatcher()
 		self.patch_callbacks_added = False
 		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
@@ -203,8 +216,8 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_channel_joined', self.handle_channel_joined)
 		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
 		self.transport.callback_manager.register_callback('msg_send_braille_info', self.send_braille_info)
-		self.transport.callback_manager.register_callback('transport_connected', self.handle_connected)
-		self.transport.callback_manager.register_callback('transport_disconnected', self.handle_disconnected)
+		self.transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.handle_connected)
+		self.transport.callback_manager.register_callback(TransportEvents.DISCONNECTED, self.handle_disconnected)
 
 	def handle_play_wave(self, **kwargs):
 		"""Receive instruction to play a 'wave' from the slave machine
