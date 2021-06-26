@@ -13,8 +13,10 @@ from . import RelayTransport
 from collections import defaultdict
 from . import connection_info
 import hashlib
+import addonHandler
 
 
+addonHandler.initTranslation()
 if not (
 	versionInfo.version_year >= 2021 or
 	(versionInfo.version_year == 2020 and versionInfo.version_major >= 2)
