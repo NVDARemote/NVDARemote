@@ -5,16 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: NVDARemote 2.1\n"
-"Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
-"POT-Creation-Date: 2018-10-02 19:31+0800\n"
-"PO-Revision-Date: 2018-10-13 14:21+0800\n"
+"Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
+"POT-Creation-Date: 2021-06-26 17:22+0800\n"
+"PO-Revision-Date: 2021-06-26 18:05+0800\n"
 "Last-Translator: Sponge Jhan <school510587@yahoo.com.tw>\n"
-"Language-Team: NVDA-Taiwan Volunteers Team\n"
+"Language-Team: NVDA-Taiwan Volunteers\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.13\n"
+"X-Generator: Poedit 3.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -29,7 +29,7 @@ msgstr "連線..."
 
 #: addon\globalPlugins\remoteClient\__init__.py:96
 msgid "Remotely connect to another computer running NVDA Remote Access"
-msgstr "連線到遠端另一台正執行 NVDA Remote Access 的電腦。"
+msgstr "連線到遠端另一台正執行 NVDA Remote Access 的電腦"
 
 #. Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:99
@@ -38,7 +38,7 @@ msgstr "中斷連線"
 
 #: addon\globalPlugins\remoteClient\__init__.py:99
 msgid "Disconnect from another computer running NVDA Remote Access"
-msgstr "中斷連線另一台正執行 NVDA Remote Access 的電腦。"
+msgstr "中斷連線另一台正執行 NVDA Remote Access 的電腦"
 
 #. Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:103
@@ -99,7 +99,7 @@ msgstr "開關來自遠端電腦的語音"
 #: addon\globalPlugins\remoteClient\__init__.py:189
 #: addon\globalPlugins\remoteClient\__init__.py:278
 msgid "Not connected."
-msgstr "沒有連線"
+msgstr "沒有連線。"
 
 #: addon\globalPlugins\remoteClient\__init__.py:193
 msgid "Clipboard pushed"
@@ -115,7 +115,7 @@ msgstr "將剪貼簿內容送到遠端電腦"
 
 #: addon\globalPlugins\remoteClient\__init__.py:205
 msgid "Copied link"
-msgstr "連結複製好了"
+msgstr "連結已複製"
 
 #: addon\globalPlugins\remoteClient\__init__.py:206
 msgid "Copies a link to the remote session to the clipboard"
@@ -137,13 +137,14 @@ msgstr "中斷遠端連線"
 
 #. Translators: Title of the connect dialog.
 #: addon\globalPlugins\remoteClient\__init__.py:290
+#: addon\globalPlugins\remoteClient\dialogs.py:308
 msgid "Connect"
 msgstr "連線"
 
 #. Translators: Presented when connected to the remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:326
 msgid "Connected!"
-msgstr "已連線"
+msgstr "已連線！"
 
 #. Translators: Presented when connection to a remote computer was interupted.
 #: addon\globalPlugins\remoteClient\__init__.py:331
@@ -151,39 +152,37 @@ msgid "Connection interrupted"
 msgstr "連線被打斷"
 
 #. Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
-#: addon\globalPlugins\remoteClient\__init__.py:356
+#: addon\globalPlugins\remoteClient\__init__.py:384
 msgid "Connected to control server"
 msgstr "已連線到控制伺服器"
 
 #. This is called from the hook thread and should be executed on the main thread.
 #. Translators: Presented when keyboard control is back to the controlling computer.
-#: addon\globalPlugins\remoteClient\__init__.py:388
+#: addon\globalPlugins\remoteClient\__init__.py:416
 msgid "Controlling local machine."
-msgstr "控制本機電腦"
+msgstr "控制本機電腦。"
 
 #. Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-#: addon\globalPlugins\remoteClient\__init__.py:395
+#: addon\globalPlugins\remoteClient\__init__.py:423
 msgid "Controlling remote machine."
-msgstr "控制遠端電腦"
+msgstr "控制遠端電腦。"
 
-#: addon\globalPlugins\remoteClient\__init__.py:482
+#: addon\globalPlugins\remoteClient\__init__.py:510
 msgid ""
 "NVDA Remote is already connected. Disconnect before opening a new connection."
 msgstr "NVDA Remote 已連線。開啟新連線前請先中斷。"
 
-#: addon\globalPlugins\remoteClient\__init__.py:482
+#: addon\globalPlugins\remoteClient\__init__.py:510
 msgid "NVDA Remote Already Connected"
 msgstr "NVDA Remote 已連線"
 
-#: addon\globalPlugins\remoteClient\__init__.py:488
-#, python-brace-format
+#: addon\globalPlugins\remoteClient\__init__.py:516
 msgid "Do you wish to control the machine on server {server} with key {key}?"
 msgstr ""
 "您要控制遠端電腦嗎？\n"
 "伺服器: {server} 金鑰: {key}"
 
-#: addon\globalPlugins\remoteClient\__init__.py:490
-#, python-brace-format
+#: addon\globalPlugins\remoteClient\__init__.py:518
 msgid ""
 "Do you wish to allow this machine to be controlled on server {server} with "
 "key {key}?"
@@ -191,120 +190,175 @@ msgstr ""
 "您要允許這台電腦被遠端控制嗎？\n"
 "伺服器: {server} 金鑰: {key}"
 
-#: addon\globalPlugins\remoteClient\__init__.py:491
+#: addon\globalPlugins\remoteClient\__init__.py:519
 msgid "NVDA Remote Connection Request"
 msgstr "NVDA Remote 連線要求"
 
 #. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
-#: addon\globalPlugins\remoteClient\dialogs.py:27
-#: addon\globalPlugins\remoteClient\dialogs.py:187
+#: addon\globalPlugins\remoteClient\dialogs.py:30
+#: addon\globalPlugins\remoteClient\dialogs.py:216
 msgid "&Host:"
 msgstr "主機(&H):"
 
 #. Translators: Label of the edit field to enter key (password) to secure the remote connection.
-#: addon\globalPlugins\remoteClient\dialogs.py:31
-#: addon\globalPlugins\remoteClient\dialogs.py:71
-#: addon\globalPlugins\remoteClient\dialogs.py:195
+#: addon\globalPlugins\remoteClient\dialogs.py:34
+#: addon\globalPlugins\remoteClient\dialogs.py:100
+#: addon\globalPlugins\remoteClient\dialogs.py:224
 msgid "&Key:"
 msgstr "金鑰(&K):"
 
 #. Translators: The button used to generate a random key/password.
-#: addon\globalPlugins\remoteClient\dialogs.py:35
-#: addon\globalPlugins\remoteClient\dialogs.py:74
+#: addon\globalPlugins\remoteClient\dialogs.py:38
+#: addon\globalPlugins\remoteClient\dialogs.py:103
 msgid "&Generate Key"
 msgstr "產生金鑰(&G)"
 
+#: addon\globalPlugins\remoteClient\dialogs.py:45
+msgid "Host must be set."
+msgstr "您必須設定主機。"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:45
+#: addon\globalPlugins\remoteClient\dialogs.py:151
+#: addon\globalPlugins\remoteClient\dialogs.py:188
+#: addon\globalPlugins\remoteClient\dialogs.py:191
+#: addon\globalPlugins\remoteClient\dialogs.py:278
+#: addon\globalPlugins\remoteClient\dialogs.py:280
+msgid "Error"
+msgstr "錯誤"
+
 #. Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
-#: addon\globalPlugins\remoteClient\dialogs.py:60
+#: addon\globalPlugins\remoteClient\dialogs.py:89
 msgid "Get External &IP"
 msgstr "取得外部 IP (&I)"
 
 #. Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
-#: addon\globalPlugins\remoteClient\dialogs.py:64
+#: addon\globalPlugins\remoteClient\dialogs.py:93
 msgid "&External IP:"
 msgstr "外部 IP (&E):"
 
 #. Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
-#: addon\globalPlugins\remoteClient\dialogs.py:68
-#: addon\globalPlugins\remoteClient\dialogs.py:191
+#: addon\globalPlugins\remoteClient\dialogs.py:97
+#: addon\globalPlugins\remoteClient\dialogs.py:220
 msgid "&Port:"
 msgstr "連接埠(&P):"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:113
-#, python-brace-format
+#: addon\globalPlugins\remoteClient\dialogs.py:142
 msgid "Successfully retrieved IP address. Port {port} is open."
 msgstr "已成功取得 IP 位址，連接埠 {port} 開啟。"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:113
+#: addon\globalPlugins\remoteClient\dialogs.py:142
 msgid "Success"
 msgstr "成功"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:115
-#, python-brace-format
+#: addon\globalPlugins\remoteClient\dialogs.py:144
 msgid "Retrieved external IP, but port {port} is not currently forwarded."
 msgstr "已取得外部 IP, 但連接埠 {port} 未正常轉送。"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:115
+#: addon\globalPlugins\remoteClient\dialogs.py:144
 msgid "Warning"
 msgstr "警告"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:122
+#: addon\globalPlugins\remoteClient\dialogs.py:151
 msgid ""
 "Unable to contact portcheck server, please manually retrieve your IP address"
-msgstr "無法連線至連接埠檢查伺服器，請手動取得 IP 位址。"
+msgstr "無法連線至連接埠檢查伺服器，請手動取得 IP 位址"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:122
-#: addon\globalPlugins\remoteClient\dialogs.py:159
-#: addon\globalPlugins\remoteClient\dialogs.py:162
-#: addon\globalPlugins\remoteClient\dialogs.py:238
-#: addon\globalPlugins\remoteClient\dialogs.py:240
-msgid "Error"
-msgstr "錯誤"
-
-#: addon\globalPlugins\remoteClient\dialogs.py:129
+#: addon\globalPlugins\remoteClient\dialogs.py:158
 msgid "Client"
 msgstr "用戶端"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:129
+#: addon\globalPlugins\remoteClient\dialogs.py:158
 msgid "Server"
 msgstr "伺服器"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:133
-#: addon\globalPlugins\remoteClient\dialogs.py:182
+#: addon\globalPlugins\remoteClient\dialogs.py:162
+#: addon\globalPlugins\remoteClient\dialogs.py:211
 msgid "Control another machine"
 msgstr "控制另一台電腦"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:133
-#: addon\globalPlugins\remoteClient\dialogs.py:182
+#: addon\globalPlugins\remoteClient\dialogs.py:162
+#: addon\globalPlugins\remoteClient\dialogs.py:211
 msgid "Allow this machine to be controlled"
 msgstr "允許這台電腦被控制"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:159
-#: addon\globalPlugins\remoteClient\dialogs.py:238
+#: addon\globalPlugins\remoteClient\dialogs.py:188
+#: addon\globalPlugins\remoteClient\dialogs.py:278
 msgid "Both host and key must be set."
 msgstr "您必須同時設定主機和金鑰。"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:162
-#: addon\globalPlugins\remoteClient\dialogs.py:240
+#: addon\globalPlugins\remoteClient\dialogs.py:191
+#: addon\globalPlugins\remoteClient\dialogs.py:280
 msgid "Both port and key must be set."
 msgstr "您必須同時設定連接埠和金鑰。"
 
 #. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
-#: addon\globalPlugins\remoteClient\dialogs.py:173
+#: addon\globalPlugins\remoteClient\dialogs.py:202
 msgid "Auto-connect to control server on startup"
 msgstr "啟動後自動連線到控制伺服器"
 
 #. Translators: Whether or not to use a relay server when autoconnecting
-#: addon\globalPlugins\remoteClient\dialogs.py:177
+#: addon\globalPlugins\remoteClient\dialogs.py:206
 msgid "Use Remote Control Server"
 msgstr "使用遠端控制伺服器"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:177
+#: addon\globalPlugins\remoteClient\dialogs.py:206
 msgid "Host Control Server"
 msgstr "自行建立控制伺服器"
 
+#. Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
+#: addon\globalPlugins\remoteClient\dialogs.py:229
+msgid "Delete all trusted fingerprints"
+msgstr "刪除所有受信任指紋"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:269
+msgid ""
+"When connecting to an unauthorized server, you will again be prompted to "
+"accepts its certificate."
+msgstr "當連線到未經授權的伺服器時，將再次提示您接受其憑證。"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:269
+msgid "Are you sure you want to delete all stored trusted fingerprints?"
+msgstr "您確定要刪除所有已儲存的受信任指紋嗎？"
+
+#. Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+#: addon\globalPlugins\remoteClient\dialogs.py:304
+msgid "NVDA Remote Connection Security Warning"
+msgstr "NVDA Remote 連線安全警告"
+
+#. Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+#: addon\globalPlugins\remoteClient\dialogs.py:306
+msgid ""
+"Warning! The certificate of this server could not be verified.\n"
+"This connection may not be secure. It is possible that someone is trying to "
+"overhear your communication.\n"
+"Before continuing please make sure that the following server certificate "
+"fingerprint is a proper one.\n"
+"If you have any questions, please contact the server administrator.\n"
+"\n"
+"Server SHA256 fingerprint: {fingerprint}\n"
+"\n"
+"Do you want to continue connecting?"
+msgstr ""
+"警告！無法驗證此伺服器的憑證。\n"
+"此連線可能不安全。有人可能會嘗試偷聽您的通訊。\n"
+"在繼續之前，請確保以下伺服器憑證指紋是正確的。\n"
+"如果您有任何問題，請聯繫伺服器管理者。\n"
+"\n"
+"伺服器 SHA256 指紋：{fingerprint}\n"
+"\n"
+"您要繼續連線嗎？"
+
+#: addon\globalPlugins\remoteClient\dialogs.py:308
+msgid "Connect and do not ask again for this server"
+msgstr "連線並且不再針對此伺服器詢問"
+
+#. Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+#: addon\globalPlugins\remoteClient\local_machine.py:110
+msgid "No permission on device to trigger CTRL+ALT+DEL from remote"
+msgstr "在此裝置上無權限從遠程觸發 CTRL+ALT+DEL"
+
 #. translators: Message for version mismatch
-#: addon\globalPlugins\remoteClient\session.py:26
+#: addon\globalPlugins\remoteClient\session.py:45
 msgid ""
 "The version of the relay server which you have connected to is not "
 "compatible with this version of the Remote Client.\n"
@@ -313,20 +367,20 @@ msgstr ""
 "您要連線的轉送伺服器版本與 Remote 用戶端版本不相容。請使用不同的伺服器或升級"
 "附加元件版本。"
 
-#: addon\globalPlugins\remoteClient\session.py:33
+#: addon\globalPlugins\remoteClient\session.py:52
 msgid "Message of the Day"
 msgstr "本日訊息"
 
-#: addon\globalPlugins\remoteClient\session.py:186
+#: addon\globalPlugins\remoteClient\session.py:242
 msgid "Remote NVDA not connected."
 msgstr "Remote NVDA 未連線。"
 
-#: addon\globalPlugins\remoteClient\url_handler.py:50
+#: addon\globalPlugins\remoteClient\url_handler.py:51
 msgid "Invalid URL"
 msgstr "無效的 URL"
 
 #. Translators: Message shown when an invalid URL has been provided.
-#: addon\globalPlugins\remoteClient\url_handler.py:52
+#: addon\globalPlugins\remoteClient\url_handler.py:53
 #, python-format
 msgid "Unable to parse url \"%s\""
 msgstr "無法解析 URL \"%s\""
@@ -341,4 +395,4 @@ msgstr "Remote Support"
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 #: buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
-msgstr "允許控制與存取遠端電腦"
+msgstr "允許控制與存取遠端電腦。"
