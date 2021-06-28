@@ -172,8 +172,12 @@ class GlobalPlugin(_GlobalPlugin):
 		self.local_machine.is_muted = self.mute_item.IsChecked()
 
 	def script_toggle_remote_mute(self, gesture):
+		if not self.is_connected() or self.connecting: return
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
+		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
+		status = _("Mute speech and sounds from the remote computer") if self.local_machine.is_muted else _("Unmute speech and sounds from the remote computer")
+		ui.message(status)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
 	def on_push_clipboard_item(self, evt):
