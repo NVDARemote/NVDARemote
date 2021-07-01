@@ -225,6 +225,9 @@ class OptionsDialog(wx.Dialog):
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		self.key.Enable(False)
 		main_sizer.Add(self.key)
+		# Translators: A checkbox in add-on options dialog to set whether sounds play instead of beeps.
+		self.play_sounds = wx.CheckBox(self, wx.ID_ANY, label=_("Play sounds instead of beeps"))
+		main_sizer.Add(self.play_sounds)
 		# Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
 		self.delete_fingerprints = wx.Button(self, wx.ID_ANY, label=_("Delete all trusted fingerprints"))
 		self.delete_fingerprints.Bind(wx.EVT_BUTTON, self.on_delete_fingerprints)
@@ -264,6 +267,7 @@ class OptionsDialog(wx.Dialog):
 		self.port.SetValue(str(cs['port']))
 		self.key.SetValue(cs['key'])
 		self.set_controls()
+		self.play_sounds.SetValue(config['ui']['play_sounds'])
 
 	def on_delete_fingerprints(self, evt):
 		if gui.messageBox(_("When connecting to an unauthorized server, you will again be prompted to accepts its certificate."), _("Are you sure you want to delete all stored trusted fingerprints?"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES:
@@ -295,6 +299,7 @@ class OptionsDialog(wx.Dialog):
 		else:
 			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
+		config['ui']['play_sounds'] = self.play_sounds.GetValue()
 		config.write()
 
 class CertificateUnauthorizedDialog(wx.MessageDialog):
