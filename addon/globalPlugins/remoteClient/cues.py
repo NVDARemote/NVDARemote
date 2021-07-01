@@ -6,7 +6,7 @@ from . import configuration
 
 def connected():
 	if should_play_sounds():
-		play_sound("controlling")
+		play_sound("connected")
 	else:
 		beep_sequence.beep_sequence_async((440, 60), (660, 60))
 
@@ -24,7 +24,7 @@ def control_server_connected():
 
 def client_connected():
 	if should_play_sounds():
-		play_sound("connected")
+		play_sound("controlling")
 	else:
 		tones.beep(1000, 300)
 
