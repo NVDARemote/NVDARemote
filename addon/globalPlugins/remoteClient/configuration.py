@@ -26,6 +26,9 @@ configspec = StringIO("""
 
 [trusted_certs]
 	__many__ = string(default="")
+
+[ui]
+	play_sounds = boolean(default=True)
 """)
 def get_config():
 	global _config

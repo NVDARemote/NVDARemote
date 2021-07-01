@@ -43,6 +43,7 @@ pythonSources = [
 	'addon/globalPlugins/*/*.py',
 	'addon/globalPlugins/*/*.exe',
 	'addon/synthDrivers/*/*.py',
+	'addon/sounds/*.wav',
 ]
 
 # Files that contain strings for translation. Usually your python sources
