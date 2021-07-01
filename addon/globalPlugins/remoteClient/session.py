@@ -11,8 +11,12 @@ from . import nvda_patcher
 from . import RelayTransport
 from collections import defaultdict
 from . import connection_info
+from . import cues
 import hashlib
 import addonHandler
+
+
+
 
 
 addonHandler.initTranslation()
