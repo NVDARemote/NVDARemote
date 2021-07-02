@@ -273,7 +273,7 @@ class MasterSession(RemoteSession):
 		if self.patch_callbacks_added:
 			self.remove_patch_callbacks()
 			self.patch_callbacks_added = False
-		cues.client_disconnected
+		cues.client_disconnected()
 
 	def send_braille_info(self, **kwargs):
 		display = braille.handler.display
