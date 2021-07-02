@@ -3,6 +3,8 @@ import time
 import tones
 import threading
 
+local_beep = tones.beep
+
 def beep_sequence(*sequence):
 	"""	Play a simple synchronous monophonic beep sequence
 	A beep sequence is an iterable containing one of two kinds of elements.
@@ -15,7 +17,7 @@ def beep_sequence(*sequence):
 		else:
 			tone, duration = element
 			time.sleep(duration / 1000)
-			tones.beep(tone, duration)
+			local_beep(tone, duration)
 
 def beep_sequence_async(*sequence):
 	"""Play an asynchronous beep sequence.

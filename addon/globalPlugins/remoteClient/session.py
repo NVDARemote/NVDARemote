@@ -3,7 +3,6 @@ from . import connection_info
 import gui
 import speech
 import ui
-import tones
 import braille
 import versionInfo
 from logHandler import log
@@ -12,9 +11,15 @@ from . import nvda_patcher
 from . import RelayTransport
 from collections import defaultdict
 from . import connection_info
+from . import cues
 import hashlib
+import addonHandler
 
 
+
+
+
+addonHandler.initTranslation()
 if not (
 	versionInfo.version_year >= 2021 or
 	(versionInfo.version_year == 2020 and versionInfo.version_major >= 2)
@@ -98,7 +103,7 @@ class SlaveSession(RemoteSession):
 		if not self.patch_callbacks_added:
 			self.add_patch_callbacks()
 			self.patch_callbacks_added = True
-		self.patcher.orig_beep(1000, 300)
+		cues.client_connected()
 		if client['connection_type'] == 'master':
 			self.masters[client['id']]['active'] = True
 
@@ -115,11 +120,11 @@ class SlaveSession(RemoteSession):
 			self.patch_callbacks_added = False
 
 	def handle_transport_disconnected(self):
-		self.patcher.orig_beep(1000, 300)
+		cues.client_connected()
 		self.patcher.unpatch()
 
 	def handle_client_disconnected(self, client=None, **kwargs):
-		self.patcher.orig_beep(108, 300)
+		cues.client_disconnected()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
 		if not self.masters:
@@ -261,14 +266,14 @@ class MasterSession(RemoteSession):
 			self.add_patch_callbacks()
 			self.patch_callbacks_added = True
 		self.send_braille_info()
-		tones.beep(1000, 300)
+		cues.client_connected()
 
 	def handle_client_disconnected(self, client=None, **kwargs):
 		self.patcher.unpatch()
 		if self.patch_callbacks_added:
 			self.remove_patch_callbacks()
 			self.patch_callbacks_added = False
-		tones.beep(108, 300)
+		cues.client_disconnected()
 
 	def send_braille_info(self, **kwargs):
 		display = braille.handler.display

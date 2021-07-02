@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 import wx
 from config import isInstalledCopy
 from . import configuration
+from . import cues
 import gui
-from . import beep_sequence
 import speech
 from .transport import RelayTransport, TransportEvents
 import braille
@@ -172,8 +172,12 @@ class GlobalPlugin(_GlobalPlugin):
 		self.local_machine.is_muted = self.mute_item.IsChecked()
 
 	def script_toggle_remote_mute(self, gesture):
+		if not self.is_connected() or self.connecting: return
 		self.local_machine.is_muted = not self.local_machine.is_muted
 		self.mute_item.Check(self.local_machine.is_muted)
+		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
+		status = _("Mute speech and sounds from the remote computer") if self.local_machine.is_muted else _("Unmute speech and sounds from the remote computer")
+		ui.message(status)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
 	def on_push_clipboard_item(self, evt):
@@ -230,7 +234,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.disconnect_as_master()
 		if self.slave_transport is not None:
 			self.disconnect_as_slave()
-		beep_sequence.beep_sequence_async((660, 60), (440, 60))
+		cues.disconnected()
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
@@ -324,7 +328,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.bindGesture(REMOTE_KEY, "sendKeys")
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
-		beep_sequence.beep_sequence_async((440, 60), (660, 60))
+		cues.connected()
 
 	def on_disconnected_as_master(self):
 		# Translators: Presented when connection to a remote computer was interupted.
@@ -379,7 +383,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
-		beep_sequence.beep_sequence_async((720, 100), 50, (720, 100), 50, (720, 100))
+		cues.control_server_connected()
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
 		self.push_clipboard_item.Enable(True)
