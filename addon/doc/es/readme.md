@@ -137,8 +137,6 @@ Nos gustaría dar nuestro reconocimiento a los siguientes contribuyentes que, en
 
     * Refactorización del habla
     * Cambios en pantallas Braille
-  - Speech refactor
-  - Changes to braille displays
 
 ### Versión 2.2
 
