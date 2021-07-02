@@ -4,6 +4,8 @@ import tones
 import nvwave
 from . import configuration
 
+local_beep = tones.beep
+
 def connected():
 	if should_play_sounds():
 		play_sound("connected")
@@ -26,13 +28,13 @@ def client_connected():
 	if should_play_sounds():
 		play_sound("controlling")
 	else:
-		tones.beep(1000, 300)
+		local_beep(1000, 300)
 
 def client_disconnected():
 	if should_play_sounds():
 		play_sound("disconnected")
 	else:
-		tones.beep(108, 300)
+		local_beep(108, 300)
 
 def should_play_sounds():
 	return configuration.get_config()['ui']['play_sounds']
