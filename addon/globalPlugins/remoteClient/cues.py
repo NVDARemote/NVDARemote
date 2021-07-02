@@ -5,6 +5,7 @@ import nvwave
 from . import configuration
 
 local_beep = tones.beep
+local_playWaveFile = nvwave.playWaveFile
 
 def connected():
 	if should_play_sounds():
@@ -41,4 +42,4 @@ def should_play_sounds():
 
 def play_sound(filename):
 	path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'sounds', filename))
-	return nvwave.playWaveFile(path + ".wav")
+	return local_playWaveFile(path + ".wav")
