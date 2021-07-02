@@ -92,7 +92,6 @@ If you do not wish to hear the remote computer's speech or NVDA specific sounds,
 To end a remote session, do the following:
 
 1. On the controlling computer, press F11 to stop controlling the remote machine. You should hear or read the message: "Controlling local machine." If you instead hear or read a message that you are controlling the remote machine, press F11 once more.
-
 2. Access the NVDA menu, then Tools, Remote, and press Enter on Disconnect.
 
 ## Push clipboard
@@ -104,9 +103,7 @@ when activated, any text on the clipboard will be pushed to the other machines.
 In order for NVDA Remote to work on the secure desktop, the addon must be installed in the NVDA running on the secure desktop.
 
 1. From the NVDA menu, select Preferences, then General Settings.
-
 2. Tab to the Use Currently Saved Settings on the Logon and Other Secure Screens (requires administrator privileges) button, and press Enter.
-
 3. Answer Yes to the prompts regarding copying your settings and about copying plugins, and respond to the User Account Control prompt that may appear.
 4. When settings are copied, press Enter to dismiss the OK button. Tab to OK and Enter once more to exit the dialog.
 
@@ -135,11 +132,13 @@ We would like to acknowledge the following contributors, among others, who helpe
 ## Change Log
 
 ### Version 2.3
+
 * Migrated to Python 3
 * Dropped Python 2 support
 * Update to meet changed API in NVDA 2019.3, including:
-  - Speech refactor
-  - Changes to braille displays
+
+    * Speech refactor
+    * Changes to braille displays
 
 ### Version 2.2
 
@@ -173,12 +172,13 @@ You may clone this repo to make alteration to NVDA Remote.
 ### 3rd Party dependencies
 
 These can be installed with pip:
-- Markdown
-- scons
-- python-gettext
+
+* Markdown
+* scons
+* python-gettext
 
 ### To package the add-on for distribution:
 
 1. Open a command line, change to the root of this repo
-1. Run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
+2. Run the **scons** command. The created add-on, if there were no errors, is placed in the current directory.
 
