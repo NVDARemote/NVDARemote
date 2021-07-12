@@ -8,14 +8,15 @@ msgstr ""
 "Project-Id-Version: NVDARemote2.4\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2021-06-26 14:30+0200\n"
-"PO-Revision-Date: 2021-06-27 17:13+0200\n"
-"Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2021-07-12 18:25+0200\n"
+"Last-Translator: Oreonan <corentin@progaccess.net>\n"
+"Language-Team: Oreonan <corentin@progaccess.net>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 3.0\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: addon\globalPlugins\remoteClient\__init__.py:49
 msgid "NVDA Remote"
@@ -33,7 +34,7 @@ msgstr "Se connecter à un autre ordinateur exécutant l'Accès Distant NVDA"
 #. Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:99
 msgid "Disconnect"
-msgstr "Se déconnecter"
+msgstr "Se &déconnecter"
 
 #: addon\globalPlugins\remoteClient\__init__.py:99
 msgid "Disconnect from another computer running NVDA Remote Access"
@@ -42,7 +43,7 @@ msgstr "Fermer la session d'Accès Distant NVDA"
 #. Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:103
 msgid "Mute remote"
-msgstr "Couper le son distant"
+msgstr "Co&uper le son distant"
 
 #: addon\globalPlugins\remoteClient\__init__.py:103
 msgid "Mute speech and sounds from the remote computer"
@@ -138,7 +139,7 @@ msgstr "Fermer la session distante"
 #: addon\globalPlugins\remoteClient\__init__.py:290
 #: addon\globalPlugins\remoteClient\dialogs.py:308
 msgid "Connect"
-msgstr "Se connecter"
+msgstr "Se &connecter"
 
 #. Translators: Presented when connected to the remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:326
@@ -199,7 +200,7 @@ msgstr "Demande de connexion à l'accès distant NVDA"
 #: addon\globalPlugins\remoteClient\dialogs.py:30
 #: addon\globalPlugins\remoteClient\dialogs.py:216
 msgid "&Host:"
-msgstr "&Adresse du serveur :"
+msgstr "&Hôte :"
 
 #. Translators: Label of the edit field to enter key (password) to secure the remote connection.
 #: addon\globalPlugins\remoteClient\dialogs.py:34
