@@ -469,7 +469,7 @@ class GlobalPlugin(_GlobalPlugin):
 		server_thread = threading.Thread(target=self.sd_server.run)
 		server_thread.daemon = True
 		server_thread.start()
-		self.sd_relay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel)
+		self.sd_relay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel, insecure=True)
 		self.sd_relay.callback_manager.register_callback('msg_client_joined', self.on_master_display_change)
 		self.slave_transport.callback_manager.register_callback('msg_set_braille_info', self.on_master_display_change)
 		self.sd_bridge = bridge.BridgeTransport(self.slave_transport, self.sd_relay)
