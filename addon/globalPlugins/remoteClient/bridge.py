@@ -1,3 +1,5 @@
+import enum
+
 class BridgeTransport:
 	"""Object to bridge two transports together,
 	passing messages to both of them.
@@ -11,6 +13,8 @@ class BridgeTransport:
 		t2.callback_manager.register_callback('*', self.send_to_t1)
 
 	def send(self, transport, callback, *args, **kwargs):
+		if isinstance(callback, enum.Enum):
+			callback = callback.value
 		if not callback.startswith('msg_'):
 			return
 		msg = callback.split('_', 1)[-1]
