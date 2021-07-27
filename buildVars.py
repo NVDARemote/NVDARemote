@@ -19,7 +19,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description" : _("""Allows remote control of and remote access to another machine."""),
 	# version
-	"addon_version" : "2.3",
+	"addon_version" : "2.4",
 	# Author(s)
 	"addon_author" : u"Tyler Spivey <tspivey@pcdesk.net>, Christopher Toth <q@q-continuum.net>",
 	# URL for the add-on documentation support
