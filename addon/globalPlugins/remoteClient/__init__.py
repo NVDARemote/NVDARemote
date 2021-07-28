@@ -495,6 +495,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def on_master_display_change(self, **kwargs):
 		self.sd_relay.send(type='set_display_size', sizes=self.slave_session.master_display_sizes)
 
+	SD_CONNECT_BLOCK_TIMEOUT = 1
 	def handle_secure_desktop(self):
 		try:
 			with open(self.ipc_file) as fp:
@@ -506,6 +507,11 @@ class GlobalPlugin(_GlobalPlugin):
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
 			self.connect_as_slave(('127.0.0.1', port), channel, insecure=True)
+			# So we don't miss the first output when switching to a secure desktop,
+			# block the main thread until the connection is established. We're
+			# connecting to localhost, so this should be pretty fast. Use a short
+			# timeout, though.
+			self.slave_transport.connected_event.wait(self.SD_CONNECT_BLOCK_TIMEOUT)
 		except:
 			pass
 
