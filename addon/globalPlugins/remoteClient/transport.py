@@ -28,16 +28,19 @@ class Transport:
 	connected: bool
 	successful_connects: int
 	callback_manager: callback_manager.CallbackManager
+	connect_event: threading.Event
 
 	def __init__(self, serializer):
 		self.serializer = serializer
 		self.callback_manager = callback_manager.CallbackManager()
 		self.connected = False
 		self.successful_connects = 0
+		self.connected_event = threading.Event()
 
 	def transport_connected(self):
 		self.successful_connects += 1
 		self.connected = True
+		self.connected_event.set()
 		self.callback_manager.call_callbacks(TransportEvents.CONNECTED)
 
 class TCPTransport(Transport):
@@ -108,6 +111,7 @@ class TCPTransport(Transport):
 					self.buffer = b''
 					break
 		self.connected = False
+		self.connected_event.clear()
 		self.callback_manager.call_callbacks(TransportEvents.DISCONNECTED)
 		self._disconnect()
 
