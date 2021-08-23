@@ -2,15 +2,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nvdaremote 1.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
-"POT-Creation-Date: 2021-05-30 13:14+0200\n"
-"PO-Revision-Date: 2021-05-30 13:25+0200\n"
+"POT-Creation-Date: 2021-07-20 13:32+0200\n"
+"PO-Revision-Date: 2021-07-20 13:36+0200\n"
 "Last-Translator: zvonimir stanecic <zvonimirek222@yandex.com>\n"
 "Language-Team: zvonimir stanecic <zvonimirek222@yandex.com>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.3\n"
+"X-Generator: Poedit 3.0\n"
 "X-Poedit-Basepath: rechner/nvda-git/nvdaremote\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
@@ -44,7 +44,9 @@ msgstr "Odspoji se sa drugog računala koje koristi NVDA Remote access"
 msgid "Mute remote"
 msgstr "Utišaj udaljeno računalo"
 
+#. Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
 #: addon/globalPlugins/remoteClient/__init__.py:103
+#: addon/globalPlugins/remoteClient/__init__.py:179
 msgid "Mute speech and sounds from the remote computer"
 msgstr "Utišava govor i zvukove udaljenog računala."
 
@@ -73,7 +75,7 @@ msgstr "&Postavke..."
 
 #. Translators: The title of the add-on options dialog.
 #: addon/globalPlugins/remoteClient/__init__.py:115
-#: addon/globalPlugins/remoteClient/__init__.py:212
+#: addon/globalPlugins/remoteClient/__init__.py:216
 msgid "Options"
 msgstr "Postavke"
 
@@ -91,99 +93,104 @@ msgstr "U&daljeno"
 msgid "NVDA Remote Access"
 msgstr "NVDA Remote Access"
 
-#: addon/globalPlugins/remoteClient/__init__.py:177
+#: addon/globalPlugins/remoteClient/__init__.py:179
+#| msgid "Mute speech and sounds from the remote computer"
+msgid "Unmute speech and sounds from the remote computer"
+msgstr "Odtišava zvukove i govor s udaljenog računala"
+
+#: addon/globalPlugins/remoteClient/__init__.py:181
 msgid "Mute or unmute the speech coming from the remote computer"
 msgstr "Utišava ili odtišava zvuk udaljenog računala."
 
-#: addon/globalPlugins/remoteClient/__init__.py:189
-#: addon/globalPlugins/remoteClient/__init__.py:278
+#: addon/globalPlugins/remoteClient/__init__.py:193
+#: addon/globalPlugins/remoteClient/__init__.py:282
 msgid "Not connected."
 msgstr "Nije spojeno."
 
-#: addon/globalPlugins/remoteClient/__init__.py:193
+#: addon/globalPlugins/remoteClient/__init__.py:197
 msgid "Clipboard pushed"
 msgstr "Međuspremnik je poslan"
 
-#: addon/globalPlugins/remoteClient/__init__.py:195
+#: addon/globalPlugins/remoteClient/__init__.py:199
 msgid "Unable to push clipboard"
 msgstr "Nemoguće poslati međuspremnik"
 
-#: addon/globalPlugins/remoteClient/__init__.py:196
+#: addon/globalPlugins/remoteClient/__init__.py:200
 msgid "Sends the contents of the clipboard to the remote machine"
 msgstr "Prenaša sadržaj međuspremnika na drugo računalo"
 
-#: addon/globalPlugins/remoteClient/__init__.py:205
+#: addon/globalPlugins/remoteClient/__init__.py:209
 msgid "Copied link"
 msgstr "Kopirani link"
 
-#: addon/globalPlugins/remoteClient/__init__.py:206
+#: addon/globalPlugins/remoteClient/__init__.py:210
 msgid "Copies a link to the remote session to the clipboard"
 msgstr "kopira link udaljene sesije u međuspremnik"
 
 #. Translators: Title of the connection error dialog.
-#: addon/globalPlugins/remoteClient/__init__.py:272
+#: addon/globalPlugins/remoteClient/__init__.py:276
 msgid "Error Connecting"
 msgstr "Greška pri spajanju"
 
 #. Translators: Message shown when cannot connect to the remote computer.
-#: addon/globalPlugins/remoteClient/__init__.py:274
+#: addon/globalPlugins/remoteClient/__init__.py:278
 msgid "Unable to connect to the remote computer"
 msgstr "Nemoguće se spojiti na udaljeno računalo"
 
-#: addon/globalPlugins/remoteClient/__init__.py:281
+#: addon/globalPlugins/remoteClient/__init__.py:285
 msgid "Disconnect a remote session"
 msgstr "Odspoji udaljenu sesiju"
 
 #. Translators: Title of the connect dialog.
-#: addon/globalPlugins/remoteClient/__init__.py:290
-#: addon/globalPlugins/remoteClient/dialogs.py:282
+#: addon/globalPlugins/remoteClient/__init__.py:294
+#: addon/globalPlugins/remoteClient/dialogs.py:313
 msgid "Connect"
 msgstr "Spoji se"
 
 #. Translators: Presented when connected to the remote computer.
-#: addon/globalPlugins/remoteClient/__init__.py:326
+#: addon/globalPlugins/remoteClient/__init__.py:330
 msgid "Connected!"
 msgstr "Povezan!"
 
 #. Translators: Presented when connection to a remote computer was interupted.
-#: addon/globalPlugins/remoteClient/__init__.py:331
+#: addon/globalPlugins/remoteClient/__init__.py:335
 msgid "Connection interrupted"
 msgstr "Veza je prekinuta"
 
 #. Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
-#: addon/globalPlugins/remoteClient/__init__.py:384
+#: addon/globalPlugins/remoteClient/__init__.py:388
 msgid "Connected to control server"
 msgstr "Spojen na kontrolni server"
 
 #. This is called from the hook thread and should be executed on the main thread.
 #. Translators: Presented when keyboard control is back to the controlling computer.
-#: addon/globalPlugins/remoteClient/__init__.py:416
+#: addon/globalPlugins/remoteClient/__init__.py:420
 msgid "Controlling local machine."
 msgstr "Kontroliranje lokalnog računala."
 
 #. Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-#: addon/globalPlugins/remoteClient/__init__.py:423
+#: addon/globalPlugins/remoteClient/__init__.py:427
 msgid "Controlling remote machine."
 msgstr "Kontroliram udaljeno računalo."
 
-#: addon/globalPlugins/remoteClient/__init__.py:510
+#: addon/globalPlugins/remoteClient/__init__.py:514
 msgid ""
 "NVDA Remote is already connected. Disconnect before opening a new connection."
 msgstr ""
 "NVDA remote je već spojen. Odspojite se prije nego što započnete novo "
 "povezivanje."
 
-#: addon/globalPlugins/remoteClient/__init__.py:510
+#: addon/globalPlugins/remoteClient/__init__.py:514
 msgid "NVDA Remote Already Connected"
 msgstr "NVDA remote je već spojen"
 
-#: addon/globalPlugins/remoteClient/__init__.py:516
+#: addon/globalPlugins/remoteClient/__init__.py:520
 #, python-brace-format
 msgid "Do you wish to control the machine on server {server} with key {key}?"
 msgstr ""
 "Želite li kontrolirati računaoo na poslužitelju {server} sa ključem {key}?"
 
-#: addon/globalPlugins/remoteClient/__init__.py:518
+#: addon/globalPlugins/remoteClient/__init__.py:522
 #, python-brace-format
 msgid ""
 "Do you wish to allow this machine to be controlled on server {server} with "
@@ -192,128 +199,139 @@ msgstr ""
 "Želite li da ovo računalo bude kontrolirano na poslužitelju {server} sa "
 "ključem {key}?"
 
-#: addon/globalPlugins/remoteClient/__init__.py:519
+#: addon/globalPlugins/remoteClient/__init__.py:523
 msgid "NVDA Remote Connection Request"
 msgstr "Zahtjev za udaljeno upravljanje "
 
 #. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
 #: addon/globalPlugins/remoteClient/dialogs.py:30
-#: addon/globalPlugins/remoteClient/dialogs.py:190
+#: addon/globalPlugins/remoteClient/dialogs.py:216
 msgid "&Host:"
 msgstr "&Host:"
 
 #. Translators: Label of the edit field to enter key (password) to secure the remote connection.
 #: addon/globalPlugins/remoteClient/dialogs.py:34
-#: addon/globalPlugins/remoteClient/dialogs.py:74
-#: addon/globalPlugins/remoteClient/dialogs.py:198
+#: addon/globalPlugins/remoteClient/dialogs.py:100
+#: addon/globalPlugins/remoteClient/dialogs.py:224
 msgid "&Key:"
 msgstr "&Ključ"
 
 #. Translators: The button used to generate a random key/password.
 #: addon/globalPlugins/remoteClient/dialogs.py:38
-#: addon/globalPlugins/remoteClient/dialogs.py:77
+#: addon/globalPlugins/remoteClient/dialogs.py:103
 msgid "&Generate Key"
 msgstr "&Generiraj Ključ"
 
+#: addon/globalPlugins/remoteClient/dialogs.py:45
+#| msgid "Key must be set."
+msgid "Host must be set."
+msgstr "Poslužitelj mora biti upisan"
+
+#: addon/globalPlugins/remoteClient/dialogs.py:45
+#: addon/globalPlugins/remoteClient/dialogs.py:151
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+#: addon/globalPlugins/remoteClient/dialogs.py:191
+#: addon/globalPlugins/remoteClient/dialogs.py:282
+#: addon/globalPlugins/remoteClient/dialogs.py:284
+msgid "Error"
+msgstr "Greška"
+
 #. Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
-#: addon/globalPlugins/remoteClient/dialogs.py:63
+#: addon/globalPlugins/remoteClient/dialogs.py:89
 msgid "Get External &IP"
 msgstr "Doznaj Vanjsku &IP adresu"
 
 #. Translators: Label of the field displaying the external IP address if using direct (client to server) connection.
-#: addon/globalPlugins/remoteClient/dialogs.py:67
+#: addon/globalPlugins/remoteClient/dialogs.py:93
 msgid "&External IP:"
 msgstr "&Vanjska IP adresa:"
 
 #. Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
-#: addon/globalPlugins/remoteClient/dialogs.py:71
-#: addon/globalPlugins/remoteClient/dialogs.py:194
+#: addon/globalPlugins/remoteClient/dialogs.py:97
+#: addon/globalPlugins/remoteClient/dialogs.py:220
 msgid "&Port:"
 msgstr "&priključak:"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:116
+#: addon/globalPlugins/remoteClient/dialogs.py:142
 #, python-brace-format
 msgid "Successfully retrieved IP address. Port {port} is open."
 msgstr "Uspješno dohvaćena IP adresa. priključak {port} je otvoren."
 
-#: addon/globalPlugins/remoteClient/dialogs.py:116
+#: addon/globalPlugins/remoteClient/dialogs.py:142
 msgid "Success"
 msgstr "Uspjeh"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:118
+#: addon/globalPlugins/remoteClient/dialogs.py:144
 #, python-brace-format
 msgid "Retrieved external IP, but port {port} is not currently forwarded."
 msgstr ""
 "dohvaćena je vanjska ip adresa, ali priključak {port} nije trenutno "
 "preusmjeren."
 
-#: addon/globalPlugins/remoteClient/dialogs.py:118
+#: addon/globalPlugins/remoteClient/dialogs.py:144
 msgid "Warning"
 msgstr "Upozorenje"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:125
+#: addon/globalPlugins/remoteClient/dialogs.py:151
 msgid ""
 "Unable to contact portcheck server, please manually retrieve your IP address"
 msgstr ""
 "Nemoguće kontaktirati portcheck poslužitelja, molim ručno dohvatite vašu IP "
 "adresu"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:125
-#: addon/globalPlugins/remoteClient/dialogs.py:162
-#: addon/globalPlugins/remoteClient/dialogs.py:165
-#: addon/globalPlugins/remoteClient/dialogs.py:252
-#: addon/globalPlugins/remoteClient/dialogs.py:254
-msgid "Error"
-msgstr "Greška"
-
-#: addon/globalPlugins/remoteClient/dialogs.py:132
+#: addon/globalPlugins/remoteClient/dialogs.py:158
 msgid "Client"
 msgstr "Klijent"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:132
+#: addon/globalPlugins/remoteClient/dialogs.py:158
 msgid "Server"
 msgstr "Poslužitelj"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:136
-#: addon/globalPlugins/remoteClient/dialogs.py:185
+#: addon/globalPlugins/remoteClient/dialogs.py:162
+#: addon/globalPlugins/remoteClient/dialogs.py:211
 msgid "Control another machine"
 msgstr "Kontroliraj drugo računalo"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:136
-#: addon/globalPlugins/remoteClient/dialogs.py:185
+#: addon/globalPlugins/remoteClient/dialogs.py:162
+#: addon/globalPlugins/remoteClient/dialogs.py:211
 msgid "Allow this machine to be controlled"
 msgstr "Dopusti da ovo računalo bude kontrolirano"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:162
-#: addon/globalPlugins/remoteClient/dialogs.py:252
+#: addon/globalPlugins/remoteClient/dialogs.py:188
+#: addon/globalPlugins/remoteClient/dialogs.py:282
 msgid "Both host and key must be set."
 msgstr "Host i ključ moraju biti upisani."
 
-#: addon/globalPlugins/remoteClient/dialogs.py:165
-#: addon/globalPlugins/remoteClient/dialogs.py:254
+#: addon/globalPlugins/remoteClient/dialogs.py:191
+#: addon/globalPlugins/remoteClient/dialogs.py:284
 msgid "Both port and key must be set."
 msgstr "I port i ključ moraju biti postavljeni"
 
 #. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
-#: addon/globalPlugins/remoteClient/dialogs.py:176
+#: addon/globalPlugins/remoteClient/dialogs.py:202
 msgid "Auto-connect to control server on startup"
 msgstr "Automatsko spajanje na kontrolni poslužitelj pri pokretanju"
 
 #. Translators: Whether or not to use a relay server when autoconnecting
-#: addon/globalPlugins/remoteClient/dialogs.py:180
+#: addon/globalPlugins/remoteClient/dialogs.py:206
 msgid "Use Remote Control Server"
 msgstr "Koristi server za udaljeno upravljanje"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:180
+#: addon/globalPlugins/remoteClient/dialogs.py:206
 msgid "Host Control Server"
 msgstr "Kontrolni server domaćin"
 
+#. Translators: A checkbox in add-on options dialog to set whether sounds play instead of beeps.
+#: addon/globalPlugins/remoteClient/dialogs.py:229
+msgid "Play sounds instead of beeps"
+msgstr "Reproduciraj zvučne datoteke umjesto zvučnih signala"
+
 #. Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
-#: addon/globalPlugins/remoteClient/dialogs.py:203
+#: addon/globalPlugins/remoteClient/dialogs.py:232
 msgid "Delete all trusted fingerprints"
 msgstr "Izbrišite sve otiske prstiju kojima vjerujete"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:243
+#: addon/globalPlugins/remoteClient/dialogs.py:273
 msgid ""
 "When connecting to an unauthorized server, you will again be prompted to "
 "accepts its certificate."
@@ -321,20 +339,19 @@ msgstr ""
 "Prilikom spajanja na neautoriziran server, biti ćete upitanj da prihvatite "
 "njegov certifikat."
 
-#: addon/globalPlugins/remoteClient/dialogs.py:243
+#: addon/globalPlugins/remoteClient/dialogs.py:273
 msgid "Are you sure you want to delete all stored trusted fingerprints?"
 msgstr ""
 "Jeste li sigurni da želite izbrisati sve spremljene otiske prstiju kojima "
 "vjerujete?"
 
 #. Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
-#: addon/globalPlugins/remoteClient/dialogs.py:278
-#| msgid "NVDA Remote Connection Request"
+#: addon/globalPlugins/remoteClient/dialogs.py:309
 msgid "NVDA Remote Connection Security Warning"
 msgstr "NVDA Remote sigurnosno upozorenje pri povezivanju"
 
 #. Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
-#: addon/globalPlugins/remoteClient/dialogs.py:280
+#: addon/globalPlugins/remoteClient/dialogs.py:311
 #, python-brace-format
 msgid ""
 "Warning! The certificate of this server could not be verified.\n"
@@ -358,12 +375,18 @@ msgstr ""
 "\n"
 "Želite li nastaviti spajanje?"
 
-#: addon/globalPlugins/remoteClient/dialogs.py:282
+#: addon/globalPlugins/remoteClient/dialogs.py:313
 msgid "Connect and do not ask again for this server"
 msgstr "Spoji se i ne pitaj ponovno za ovaj poslužitelj"
 
+#. Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+#: addon/globalPlugins/remoteClient/local_machine.py:110
+msgid "No permission on device to trigger CTRL+ALT+DEL from remote"
+msgstr ""
+"Nemate prava pritisnuti CTRL+ALT+DEL na uređaju sa udaljene radne površine"
+
 #. translators: Message for version mismatch
-#: addon/globalPlugins/remoteClient/session.py:32
+#: addon/globalPlugins/remoteClient/session.py:50
 msgid ""
 "The version of the relay server which you have connected to is not "
 "compatible with this version of the Remote Client.\n"
@@ -373,11 +396,11 @@ msgstr ""
 "kompatibilna sa trenutnim klijentom.\n"
 "Molimo vas, koristite noviju inačicu dodatka, ili nadogradite poslužitelj."
 
-#: addon/globalPlugins/remoteClient/session.py:39
+#: addon/globalPlugins/remoteClient/session.py:57
 msgid "Message of the Day"
 msgstr "Savjet dana"
 
-#: addon/globalPlugins/remoteClient/session.py:229
+#: addon/globalPlugins/remoteClient/session.py:247
 msgid "Remote NVDA not connected."
 msgstr "Remote NVDA nije spojen"
 
@@ -422,6 +445,3 @@ msgstr "Omogućava udaljeni nadzor računala."
 
 #~ msgid "Mute speech from the remote computer"
 #~ msgstr "Utišava govor na udaljenom računalu"
-
-#~ msgid "Key must be set."
-#~ msgstr "Ključ mora biti upisan"
