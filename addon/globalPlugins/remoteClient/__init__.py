@@ -44,6 +44,7 @@ from . import bridge
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
 import ssl
+import core
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
@@ -66,14 +67,17 @@ class GlobalPlugin(_GlobalPlugin):
 		self.sd_server = None
 		self.sd_relay = None
 		self.sd_bridge = None
-		cs = configuration.get_config()['controlserver']
 		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
+		self.sd_focused = False
+		core.postNvdaStartup.register(self.postStartupHandler)
+
+	def postStartupHandler(self):
+		cs = configuration.get_config()['controlserver']
 		if globalVars.appArgs.secure:
 			self.handle_secure_desktop()
 		if cs['autoconnect'] and not self.master_session and not self.slave_session:
 			self.perform_autoconnect()
-		self.sd_focused = False
 
 	def perform_autoconnect(self):
 		cs = configuration.get_config()['controlserver']
@@ -162,6 +166,7 @@ class GlobalPlugin(_GlobalPlugin):
 			url_handler.unregister_url_handler()
 		self.url_handler_window.destroy()
 		self.url_handler_window=None
+		core.postNvdaStartup.unregister(self.postStartupHandler)
 
 	def on_disconnect_item(self, evt):
 		evt.Skip()
