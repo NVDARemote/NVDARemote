@@ -116,8 +116,11 @@ class TCPTransport(Transport):
 		self._disconnect()
 
 	def create_outbound_socket(self, host, port, insecure=False):
-		address = socket.getaddrinfo(host, port)[0]
-		server_sock = socket.socket(*address[:3])
+		if host.lower().endswith(".onion"):
+			server_sock = socket.socket(socket.AF_INET)
+		else:
+			address = socket.getaddrinfo(host, port)[0]
+			server_sock = socket.socket(*address[:3])
 		if self.timeout:
 			server_sock.settimeout(self.timeout)
 		server_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
