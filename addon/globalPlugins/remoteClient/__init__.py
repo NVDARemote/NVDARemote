@@ -67,7 +67,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.sd_relay = None
 		self.sd_bridge = None
 		cs = configuration.get_config()['controlserver']
-		self.temp_location = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
+		self.temp_location = os.path.join(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA), 'temp')
 		self.ipc_file = os.path.join(self.temp_location, 'remote.ipc')
 		if globalVars.appArgs.secure:
 			self.handle_secure_desktop()
