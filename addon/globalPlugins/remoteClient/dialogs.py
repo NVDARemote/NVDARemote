@@ -173,6 +173,7 @@ class DirectConnectDialog(wx.Dialog):
 		self.Center(wx.BOTH | WX_CENTER)
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.on_ok)
+		self.client_or_server.SetFocus()
 
 	def on_client_or_server(self, evt):
 		evt.Skip()
