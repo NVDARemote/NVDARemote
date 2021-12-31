@@ -56,6 +56,8 @@ class NVDASlavePatcher(NVDAPatcher):
 		speech._manager.speak = self.speak
 		self.orig_cancel = speech._manager.cancel
 		speech._manager.cancel = self.cancel
+		self.orig_pauseSpeech = speech.pauseSpeech
+		speech.pauseSpeech = self.pauseSpeech
 
 	def patch_tones(self):
 		if self.orig_beep is not None:
@@ -82,6 +84,8 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.orig_speak = None
 		speech._manager.cancel = self.orig_cancel
 		self.orig_cancel = None
+		speech.pauseSpeech = self.orig_pauseSpeech
+		self.orig_pauseSpeech = None
 
 	def unpatch_tones(self):
 		if self.orig_beep is None:
@@ -124,6 +128,10 @@ class NVDASlavePatcher(NVDAPatcher):
 	def cancel(self):
 		self.call_callbacks('cancel_speech')
 		self.orig_cancel()
+
+	def pauseSpeech(self, switch):
+		self.call_callbacks('pause_speech', switch=switch)
+		self.orig_pauseSpeech(switch)
 
 	def beep(self, hz, length, left=50, right=50):
 		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right)

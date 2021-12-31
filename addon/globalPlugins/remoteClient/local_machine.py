@@ -59,6 +59,11 @@ class LocalMachine:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
+	def pause_speech(self, switch, **kwargs):
+		if self.is_muted:
+			return
+		wx.CallAfter(speech.pauseSpeech, switch)
+
 	def speak(
 			self,
 			sequence,

@@ -147,6 +147,7 @@ class SlaveSession(RemoteSession):
 			('beep', self.beep),
 			('wave', self.playWaveFile),
 			('cancel_speech', self.cancel_speech),
+			('pause_speech', self.pause_speech),
 			('display', self.display),
 			('set_display', self.set_display_size)
 		)
@@ -176,6 +177,9 @@ class SlaveSession(RemoteSession):
 
 	def cancel_speech(self):
 		self.transport.send(type="cancel")
+
+	def pause_speech(self, switch):
+		self.transport.send(type="pause_speech", switch=switch)
 
 	def beep(self, hz, length, left=50, right=50):
 		self.transport.send(type='tone', hz=hz, length=length, left=left, right=right)
@@ -212,6 +216,7 @@ class MasterSession(RemoteSession):
 		self.patch_callbacks_added = False
 		self.transport.callback_manager.register_callback('msg_speak', self.local_machine.speak)
 		self.transport.callback_manager.register_callback('msg_cancel', self.local_machine.cancel_speech)
+		self.transport.callback_manager.register_callback('msg_pause_speech', self.local_machine.pause_speech)
 		self.transport.callback_manager.register_callback('msg_tone', self.local_machine.beep)
 		self.transport.callback_manager.register_callback('msg_wave', self.handle_play_wave)
 		self.transport.callback_manager.register_callback('msg_display', self.local_machine.display)
