@@ -290,13 +290,10 @@ class GlobalPlugin(_GlobalPlugin):
 	def do_connect(self, evt):
 		evt.Skip()
 		last_cons = configuration.get_config()['connections']['last_connected']
-		last = ''
-		if last_cons:
-			last = last_cons[-1]
 		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
-		dlg.panel.host.SetValue(last)
-		dlg.panel.host.SelectAll()
+		dlg.panel.host.SetItems(list(reversed(last_cons)))
+		dlg.panel.host.SetSelection(0)
 		def handle_dlg_complete(dlg_result):
 			if dlg_result != wx.ID_OK:
 				return
