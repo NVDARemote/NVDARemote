@@ -28,7 +28,7 @@ class ClientPanel(wx.Panel):
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
-		self.host = wx.TextCtrl(self, wx.ID_ANY)
+		self.host = wx.ComboBox(self, wx.ID_ANY)
 		sizer.Add(self.host)
 		# Translators: Label of the edit field to enter key (password) to secure the remote connection.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
