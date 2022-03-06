@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Actions
+# This is a simple action which builds NVDA Addons
 
 name: CI
 
@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,8 +26,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: "3.7"
       - name: Install Dependencies
-        run: pip install scons
+        run: pip install scons markdown
       - name: Run Scons
         run: scons
