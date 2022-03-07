@@ -1,5 +1,5 @@
 # NVDA Remote Access
-Version 2.3
+Version 2.5
 
 Welcome to the NVDA Remote Access addon, which will allow you to connect to another computer running the free NVDA screen reader. It makes no difference whether you are across the room or across the world. Connecting is simple, and there are very few commands to remember. You can connect to another person's computer, or allow a trusted person to connect to your system to perform routine maintenance, diagnose a problem, or provide training.
 
@@ -32,6 +32,10 @@ The machine being controlled and all its clients need to use the same key.
 5. Enter a key into the key field, or press the generate key button.
 The machine being controlled and all its clients need to use the same key.
 6. Press ok. Once done, you will hear a tone and connected.
+
+### Connection security warning
+If you connect to a server without a valid SSL certificate, you will receive a connection security warning.
+This may mean that your connection is insecure. If you trust this server fingerprint, you can press "Connect" to connect once, or "Connect and do not ask again for this server" to connect and save the fingerprint.
 
 ## Direct connections
 The server option in the connect dialog allows you to set up a direct connection.
@@ -110,6 +114,9 @@ In order for NVDA Remote to work on the secure desktop, the addon must be instal
 Once NVDA Remote is installed on the secure desktop, if you are currently being controlled in a remote session,
 you will have speech and braille access to the secure desktop when switched to.
 
+## Clearing SSL certificate fingerprints
+If you no longer want to trust the server fingerprints you've trusted, you can clear all of the trusted fingerprints by pressing the "Delete all trusted fingerprints" button in the Options dialog.
+
 ## Contributions
 We would like to acknowledge the following contributors, among others, who helped make the NVDA Remote project a reality.
 
@@ -130,6 +137,20 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Reef Turner
 
 ## Change Log
+
+### Version 2.5
+
+* Fix SSL stability
+* Fix secure desktop support
+* Fix the initial focus in the Connect dialog
+* Support pausing of remote speech
+* Replace the host edit box with an edit combo allowing for history
+
+### Version 2.4
+
+* Added sounds
+* Updated for NVDA 2021.1
+* Verify the SSL certificates of hosts we connect to
 
 ### Version 2.3
 
