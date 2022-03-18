@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: NVDARemote 2.1\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2021-07-28 15:26+0800\n"
-"PO-Revision-Date: 2021-07-28 15:33+0800\n"
+"POT-Creation-Date: 2022-03-18 00:17+0800\n"
+"PO-Revision-Date: 2022-03-18 00:18+0800\n"
 "Last-Translator: 完美很难 <1872265132@qq.com>\n"
 "Language-Team: NVDA Simplified Chinese Team <dingpengyu06@gmail.com>\n"
 "Language: zh_CN\n"
@@ -20,127 +20,127 @@ msgid "NVDA Remote"
 msgstr "NVDA 远程"
 
 #. Translators: Item in NVDA Remote submenu to connect to a remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:96
+#: addon\globalPlugins\remoteClient\__init__.py:99
 msgid "Connect..."
 msgstr "连接（&C）..."
 
-#: addon\globalPlugins\remoteClient\__init__.py:96
+#: addon\globalPlugins\remoteClient\__init__.py:99
 msgid "Remotely connect to another computer running NVDA Remote Access"
 msgstr "连接到另一台运行 NVDA 远程访问的计算机"
 
 #. Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:99
+#: addon\globalPlugins\remoteClient\__init__.py:102
 msgid "Disconnect"
 msgstr "断开（&D）"
 
-#: addon\globalPlugins\remoteClient\__init__.py:99
+#: addon\globalPlugins\remoteClient\__init__.py:102
 msgid "Disconnect from another computer running NVDA Remote Access"
 msgstr "断开与另一台运行 NVDA 远程访问计算机的连接"
 
 #. Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:103
+#: addon\globalPlugins\remoteClient\__init__.py:106
 msgid "Mute remote"
 msgstr "远程计算机静音（&M）"
 
 #. Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:103
-#: addon\globalPlugins\remoteClient\__init__.py:179
+#: addon\globalPlugins\remoteClient\__init__.py:106
+#: addon\globalPlugins\remoteClient\__init__.py:182
 msgid "Mute speech and sounds from the remote computer"
 msgstr "静音来自远程计算机的语音和声音"
 
 #. Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:107
+#: addon\globalPlugins\remoteClient\__init__.py:110
 msgid "&Push clipboard"
 msgstr "发送剪贴板内容（&P）"
 
-#: addon\globalPlugins\remoteClient\__init__.py:107
+#: addon\globalPlugins\remoteClient\__init__.py:110
 msgid "Push the clipboard to the other machine"
 msgstr "发送剪贴板内容到对方计算机"
 
 #. Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
-#: addon\globalPlugins\remoteClient\__init__.py:111
+#: addon\globalPlugins\remoteClient\__init__.py:114
 msgid "Copy &link"
 msgstr "复制链接（&L）"
 
-#: addon\globalPlugins\remoteClient\__init__.py:111
+#: addon\globalPlugins\remoteClient\__init__.py:114
 msgid "Copy a link to the remote session"
 msgstr "复制连接到远程计算机的链接"
 
 #. Translators: Menu item in NvDA Remote submenu to open add-on options.
-#: addon\globalPlugins\remoteClient\__init__.py:115
+#: addon\globalPlugins\remoteClient\__init__.py:118
 msgid "&Options..."
 msgstr "选项（&O）"
 
 #. Translators: The title of the add-on options dialog.
-#: addon\globalPlugins\remoteClient\__init__.py:115
-#: addon\globalPlugins\remoteClient\__init__.py:216
+#: addon\globalPlugins\remoteClient\__init__.py:118
+#: addon\globalPlugins\remoteClient\__init__.py:219
 msgid "Options"
 msgstr "选项"
 
 #. Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:118
+#: addon\globalPlugins\remoteClient\__init__.py:121
 msgid "Send Ctrl+Alt+Del"
 msgstr "发送 Ctrl+Alt+Del 命令"
 
 #. Translators: Label of menu in NVDA tools menu.
-#: addon\globalPlugins\remoteClient\__init__.py:122
+#: addon\globalPlugins\remoteClient\__init__.py:125
 msgid "R&emote"
 msgstr "远程(&E)"
 
-#: addon\globalPlugins\remoteClient\__init__.py:122
+#: addon\globalPlugins\remoteClient\__init__.py:125
 msgid "NVDA Remote Access"
 msgstr "NVDA 远程访问"
 
-#: addon\globalPlugins\remoteClient\__init__.py:179
+#: addon\globalPlugins\remoteClient\__init__.py:182
 msgid "Unmute speech and sounds from the remote computer"
 msgstr "恢复远程计算机的语音和声音"
 
-#: addon\globalPlugins\remoteClient\__init__.py:181
+#: addon\globalPlugins\remoteClient\__init__.py:184
 msgid "Mute or unmute the speech coming from the remote computer"
 msgstr "静音或恢复来自远程计算机的语音"
 
-#: addon\globalPlugins\remoteClient\__init__.py:193
-#: addon\globalPlugins\remoteClient\__init__.py:282
+#: addon\globalPlugins\remoteClient\__init__.py:196
+#: addon\globalPlugins\remoteClient\__init__.py:285
 msgid "Not connected."
 msgstr "未连接"
 
-#: addon\globalPlugins\remoteClient\__init__.py:197
+#: addon\globalPlugins\remoteClient\__init__.py:200
 msgid "Clipboard pushed"
 msgstr "剪贴板发送"
 
-#: addon\globalPlugins\remoteClient\__init__.py:199
+#: addon\globalPlugins\remoteClient\__init__.py:202
 msgid "Unable to push clipboard"
 msgstr "无法发送剪贴板"
 
-#: addon\globalPlugins\remoteClient\__init__.py:200
+#: addon\globalPlugins\remoteClient\__init__.py:203
 msgid "Sends the contents of the clipboard to the remote machine"
 msgstr "将剪贴板的内容发送到远程计算机"
 
-#: addon\globalPlugins\remoteClient\__init__.py:209
+#: addon\globalPlugins\remoteClient\__init__.py:212
 msgid "Copied link"
 msgstr "复制链接"
 
-#: addon\globalPlugins\remoteClient\__init__.py:210
+#: addon\globalPlugins\remoteClient\__init__.py:213
 msgid "Copies a link to the remote session to the clipboard"
 msgstr "将连接远程计算机的链接复制到剪贴板"
 
 #. Translators: Title of the connection error dialog.
-#: addon\globalPlugins\remoteClient\__init__.py:276
+#: addon\globalPlugins\remoteClient\__init__.py:279
 msgid "Error Connecting"
 msgstr "连接错误"
 
 #. Translators: Message shown when cannot connect to the remote computer.
-#: addon\globalPlugins\remoteClient\__init__.py:278
+#: addon\globalPlugins\remoteClient\__init__.py:281
 msgid "Unable to connect to the remote computer"
 msgstr "无法连接到远程计算机"
 
-#: addon\globalPlugins\remoteClient\__init__.py:285
+#: addon\globalPlugins\remoteClient\__init__.py:288
 msgid "Disconnect a remote session"
 msgstr "断开远程绘画"
 
 #. Translators: Title of the connect dialog.
 #: addon\globalPlugins\remoteClient\__init__.py:294
-#: addon\globalPlugins\remoteClient\dialogs.py:313
+#: addon\globalPlugins\remoteClient\dialogs.py:314
 msgid "Connect"
 msgstr "连接"
 
@@ -199,14 +199,14 @@ msgstr "NVDA 远程连接请求"
 
 #. Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
 #: addon\globalPlugins\remoteClient\dialogs.py:30
-#: addon\globalPlugins\remoteClient\dialogs.py:216
+#: addon\globalPlugins\remoteClient\dialogs.py:217
 msgid "&Host:"
 msgstr "主机（&H）"
 
 #. Translators: Label of the edit field to enter key (password) to secure the remote connection.
 #: addon\globalPlugins\remoteClient\dialogs.py:34
 #: addon\globalPlugins\remoteClient\dialogs.py:100
-#: addon\globalPlugins\remoteClient\dialogs.py:224
+#: addon\globalPlugins\remoteClient\dialogs.py:225
 msgid "&Key:"
 msgstr "秘钥（&K）"
 
@@ -222,10 +222,10 @@ msgstr "必须设置主机。"
 
 #: addon\globalPlugins\remoteClient\dialogs.py:45
 #: addon\globalPlugins\remoteClient\dialogs.py:151
-#: addon\globalPlugins\remoteClient\dialogs.py:188
-#: addon\globalPlugins\remoteClient\dialogs.py:191
-#: addon\globalPlugins\remoteClient\dialogs.py:282
-#: addon\globalPlugins\remoteClient\dialogs.py:284
+#: addon\globalPlugins\remoteClient\dialogs.py:189
+#: addon\globalPlugins\remoteClient\dialogs.py:192
+#: addon\globalPlugins\remoteClient\dialogs.py:283
+#: addon\globalPlugins\remoteClient\dialogs.py:285
 msgid "Error"
 msgstr "错误"
 
@@ -241,7 +241,7 @@ msgstr "公网 IP （&E）："
 
 #. Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
 #: addon\globalPlugins\remoteClient\dialogs.py:97
-#: addon\globalPlugins\remoteClient\dialogs.py:220
+#: addon\globalPlugins\remoteClient\dialogs.py:221
 msgid "&Port:"
 msgstr "端口（&P）："
 
@@ -275,66 +275,66 @@ msgid "Server"
 msgstr "服务器"
 
 #: addon\globalPlugins\remoteClient\dialogs.py:162
-#: addon\globalPlugins\remoteClient\dialogs.py:211
+#: addon\globalPlugins\remoteClient\dialogs.py:212
 msgid "Control another machine"
 msgstr "控制另一台计算机"
 
 #: addon\globalPlugins\remoteClient\dialogs.py:162
-#: addon\globalPlugins\remoteClient\dialogs.py:211
+#: addon\globalPlugins\remoteClient\dialogs.py:212
 msgid "Allow this machine to be controlled"
 msgstr "允许此计算机被控制"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:188
-#: addon\globalPlugins\remoteClient\dialogs.py:282
+#: addon\globalPlugins\remoteClient\dialogs.py:189
+#: addon\globalPlugins\remoteClient\dialogs.py:283
 msgid "Both host and key must be set."
 msgstr "必须设置主机和秘钥。"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:191
-#: addon\globalPlugins\remoteClient\dialogs.py:284
+#: addon\globalPlugins\remoteClient\dialogs.py:192
+#: addon\globalPlugins\remoteClient\dialogs.py:285
 msgid "Both port and key must be set."
 msgstr "必须设置端口和秘钥。"
 
 #. Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
-#: addon\globalPlugins\remoteClient\dialogs.py:202
+#: addon\globalPlugins\remoteClient\dialogs.py:203
 msgid "Auto-connect to control server on startup"
 msgstr "启动后自动连接到控制服务器（&A）"
 
 #. Translators: Whether or not to use a relay server when autoconnecting
-#: addon\globalPlugins\remoteClient\dialogs.py:206
+#: addon\globalPlugins\remoteClient\dialogs.py:207
 msgid "Use Remote Control Server"
 msgstr "使用远程控制服务器"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:206
+#: addon\globalPlugins\remoteClient\dialogs.py:207
 msgid "Host Control Server"
 msgstr "主控服务器"
 
 #. Translators: A checkbox in add-on options dialog to set whether sounds play instead of beeps.
-#: addon\globalPlugins\remoteClient\dialogs.py:229
+#: addon\globalPlugins\remoteClient\dialogs.py:230
 msgid "Play sounds instead of beeps"
 msgstr "用音效代替蜂鸣音 (&P)"
 
 #. Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
-#: addon\globalPlugins\remoteClient\dialogs.py:232
+#: addon\globalPlugins\remoteClient\dialogs.py:233
 msgid "Delete all trusted fingerprints"
 msgstr "移除所有已信任的指纹(&R)"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:273
+#: addon\globalPlugins\remoteClient\dialogs.py:274
 msgid ""
 "When connecting to an unauthorized server, you will again be prompted to "
 "accepts its certificate."
 msgstr "每当连接到未授权的服务器时，会再次提示您接受其证书。"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:273
+#: addon\globalPlugins\remoteClient\dialogs.py:274
 msgid "Are you sure you want to delete all stored trusted fingerprints?"
 msgstr "您确定要移除所有存储的已信任指纹吗？"
 
 #. Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
-#: addon\globalPlugins\remoteClient\dialogs.py:309
+#: addon\globalPlugins\remoteClient\dialogs.py:310
 msgid "NVDA Remote Connection Security Warning"
 msgstr "NVDA 远程连接安全警告"
 
 #. Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
-#: addon\globalPlugins\remoteClient\dialogs.py:311
+#: addon\globalPlugins\remoteClient\dialogs.py:312
 msgid ""
 "Warning! The certificate of this server could not be verified.\n"
 "This connection may not be secure. It is possible that someone is trying to "
@@ -356,12 +356,12 @@ msgstr ""
 "\n"
 "您想继续连接吗？"
 
-#: addon\globalPlugins\remoteClient\dialogs.py:313
+#: addon\globalPlugins\remoteClient\dialogs.py:314
 msgid "Connect and do not ask again for this server"
 msgstr "连接且不再询问该服务器"
 
 #. Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
-#: addon\globalPlugins\remoteClient\local_machine.py:110
+#: addon\globalPlugins\remoteClient\local_machine.py:115
 msgid "No permission on device to trigger CTRL+ALT+DEL from remote"
 msgstr "此设备无权从远程服务器触发 CTRL+ALT+DEL。"
 
@@ -379,7 +379,7 @@ msgstr ""
 msgid "Message of the Day"
 msgstr "每日信息"
 
-#: addon\globalPlugins\remoteClient\session.py:247
+#: addon\globalPlugins\remoteClient\session.py:252
 msgid "Remote NVDA not connected."
 msgstr "远程 NVDA 未连接。"
 
@@ -395,12 +395,12 @@ msgstr "无法解析 URL \"%s\""
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
-#: buildVars.py:24
+#: buildVars.py:17
 msgid "Remote Support"
 msgstr "远程支持"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
-#: buildVars.py:27
+#: buildVars.py:20
 msgid "Allows remote control of and remote access to another machine."
 msgstr "允许远程控制和访问另一台计算机。"
