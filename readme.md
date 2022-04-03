@@ -145,6 +145,7 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Fix the initial focus in the Connect dialog
 * Support pausing of remote speech
 * Replace the host edit box with an edit combo allowing for history
+* Automatically remove corrupted configs
 
 ### Version 2.4
 

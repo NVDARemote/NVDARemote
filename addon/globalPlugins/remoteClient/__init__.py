@@ -44,6 +44,8 @@ from . import bridge
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 import api
 import ssl
+import configobj
+import queueHandler
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
@@ -66,6 +68,11 @@ class GlobalPlugin(_GlobalPlugin):
 		self.sd_server = None
 		self.sd_relay = None
 		self.sd_bridge = None
+		try:
+			configuration.get_config()
+		except configobj.ParseError:
+			os.remove(os.path.abspath(os.path.join(globalVars.appArgs.configPath, configuration.CONFIG_FILE_NAME)))
+			queueHandler.queueFunction(queueHandler.eventQueue, wx.CallAfter, wx.MessageBox, _("Your NVDA Remote configuration was corrupted and has been reset."), _("NVDA Remote Configuration Error"), wx.OK|wx.ICON_EXCLAMATION)
 		cs = configuration.get_config()['controlserver']
 		if hasattr(shlobj, 'SHGetKnownFolderPath'):
 			self.temp_location = os.path.join(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA), 'temp')
