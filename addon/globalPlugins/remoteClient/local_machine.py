@@ -1,7 +1,7 @@
 import os
-
 import wx
 from . import input
+from . import cues
 import api
 import nvwave
 import tones
@@ -100,6 +100,7 @@ class LocalMachine:
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
 	def set_clipboard_text(self, text, **kwargs):
+		cues.clipboard_received()
 		api.copyToClip(text=text)
 
 	def send_SAS(self, **kwargs):

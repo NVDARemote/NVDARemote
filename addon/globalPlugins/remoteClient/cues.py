@@ -37,6 +37,18 @@ def client_disconnected():
 	else:
 		local_beep(108, 300)
 
+def clipboard_pushed():
+	if should_play_sounds():
+		play_sound("push_clipboard")
+	else:
+		beep_sequence.beep_sequence_async((500, 100), (600, 100))
+
+def clipboard_received():
+	if should_play_sounds():
+		play_sound("receive_clipboard")
+	else:
+		beep_sequence.beep_sequence_async((600, 100), (500, 100))
+
 def should_play_sounds():
 	return configuration.get_config()['ui']['play_sounds']
 
