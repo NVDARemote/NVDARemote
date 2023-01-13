@@ -89,6 +89,8 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.register_callback('msg_set_clipboard_text', self.local_machine.set_clipboard_text)
 		self.transport.callback_manager.register_callback('msg_set_braille_info', self.handle_braille_info)
 		self.transport.callback_manager.register_callback('msg_set_display_size', self.set_display_size)
+		if versionInfo.version_year >= 2023:
+			braille.handler.filter_displaySize.register(self.local_machine.handle_filter_displaySize)
 		self.transport.callback_manager.register_callback('msg_braille_input', self.local_machine.braille_input)
 		self.transport.callback_manager.register_callback('msg_send_SAS', self.local_machine.send_SAS)
 
@@ -280,9 +282,12 @@ class MasterSession(RemoteSession):
 			self.patch_callbacks_added = False
 		cues.client_disconnected()
 
-	def send_braille_info(self, **kwargs):
-		display = braille.handler.display
-		self.transport.send(type="set_braille_info", name=display.name, numCells=display.numCells or braille.handler.displaySize)
+	def send_braille_info(self, display=None, displaySize=None, **kwargs):
+		if display is None:
+			display = braille.handler.display
+		if displaySize is None:
+			displaySize = braille.handler.displaySize
+		self.transport.send(type="set_braille_info", name=display.name, numCells=displaySize)
 
 	def braille_input(self,**kwargs):
 		self.transport.send(type="braille_input", **kwargs)

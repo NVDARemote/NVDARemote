@@ -46,6 +46,7 @@ import api
 import ssl
 import configobj
 import queueHandler
+import versionInfo
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
@@ -84,6 +85,8 @@ class GlobalPlugin(_GlobalPlugin):
 		if cs['autoconnect'] and not self.master_session and not self.slave_session:
 			self.perform_autoconnect()
 		self.sd_focused = False
+		if versionInfo.version_year >= 2023:
+			braille.handler.decide_enabled.register(self.local_machine.handle_decide_enabled)
 
 	def perform_autoconnect(self):
 		cs = configuration.get_config()['controlserver']
@@ -132,6 +135,8 @@ class GlobalPlugin(_GlobalPlugin):
 		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
+		if versionInfo.version_year >= 2023:
+			braille.handler.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
 		self.disconnect()
 		self.local_machine = None
 		self.menu.Remove(self.connect_item.Id)
@@ -370,7 +375,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.disconnect()
 		try:
 			cert_hash = transport.last_fail_fingerprint
-				
+
 			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
 			a = wnd.ShowModal()
 			if a == wx.ID_YES:
@@ -440,7 +445,8 @@ class GlobalPlugin(_GlobalPlugin):
 	def set_receiving_braille(self, state):
 		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
 			self.master_session.patcher.patch_braille_input()
-			braille.handler.enabled = False
+			if versionInfo.version_year < 2023:
+				braille.handler.enabled = False
 			if braille.handler._cursorBlinkTimer:
 				braille.handler._cursorBlinkTimer.Stop()
 				braille.handler._cursorBlinkTimer=None
@@ -453,7 +459,8 @@ class GlobalPlugin(_GlobalPlugin):
 			self.local_machine.receiving_braille=True
 		elif not state:
 			self.master_session.patcher.unpatch_braille_input()
-			braille.handler.enabled = bool(braille.handler.displaySize)
+			if versionInfo.version_year < 2023:
+				braille.handler.enabled = bool(braille.handler.displaySize)
 			self.local_machine.receiving_braille=False
 
 	def event_gainFocus(self, obj, nextHandler):
@@ -554,5 +561,3 @@ class GlobalPlugin(_GlobalPlugin):
 		"kb:alt+NVDA+pageDown": "disconnect",
 		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
-
-
