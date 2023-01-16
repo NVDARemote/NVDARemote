@@ -86,7 +86,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.perform_autoconnect()
 		self.sd_focused = False
 		if versionInfo.version_year >= 2023:
-			braille.handler.decide_enabled.register(self.local_machine.handle_decide_enabled)
+			braille.decide_enabled.register(self.local_machine.handle_decide_enabled)
 
 	def perform_autoconnect(self):
 		cs = configuration.get_config()['controlserver']

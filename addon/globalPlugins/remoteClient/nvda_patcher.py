@@ -18,8 +18,8 @@ class NVDAPatcher(callback_manager.CallbackManager):
 
 	def patch_set_display(self):
 		if versionInfo.version_year >= 2023:
-			braille.handler.displayChanged.register(self.handle_displayChanged)
-			braille.handler.displaySizeChanged.register(self.handle_displaySizeChanged)
+			braille.displayChanged.register(self.handle_displayChanged)
+			braille.displaySizeChanged.register(self.handle_displaySizeChanged)
 			return
 		if self.orig_setDisplayByName is not None:
 			return
@@ -28,8 +28,8 @@ class NVDAPatcher(callback_manager.CallbackManager):
 
 	def unpatch_set_display(self):
 		if versionInfo.version_year >= 2023:
-			braille.handler.displaySizeChanged.unregister(self.handle_displaySizeChanged)
-			braille.handler.displayChanged.unregister(self.handle_displayChanged)
+			braille.displaySizeChanged.unregister(self.handle_displaySizeChanged)
+			braille.displayChanged.unregister(self.handle_displayChanged)
 			return
 		if self.orig_setDisplayByName is None:
 			return
@@ -95,7 +95,7 @@ class NVDASlavePatcher(NVDAPatcher):
 
 	def patch_braille(self):
 		if versionInfo.version_year >= 2023:
-			braille.handler.pre_writeCells.register(self.handle_pre_writeCells)
+			braille.pre_writeCells.register(self.handle_pre_writeCells)
 			return
 		if self.orig_display is not None:
 			return
@@ -132,7 +132,7 @@ class NVDASlavePatcher(NVDAPatcher):
 
 	def unpatch_braille(self):
 		if versionInfo.version_year >= 2023:
-			braille.handler.pre_writeCells.unregister(self.handle_pre_writeCells)
+			braille.pre_writeCells.unregister(self.handle_pre_writeCells)
 			return
 		if self.orig_display is None:
 			return
@@ -205,7 +205,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 
 	def patch_braille_input(self):
 		if versionInfo.version_year >= 2023:
-			inputCore.manager.decide_executeGesture.register(self.handle_decide_executeGesture)
+			inputCore.decide_executeGesture.register(self.handle_decide_executeGesture)
 			return
 		if self.orig_executeGesture is not None:
 			return
@@ -214,7 +214,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 
 	def unpatch_braille_input(self):
 		if versionInfo.version_year >= 2023:
-			inputCore.manager.decide_executeGesture.unregister(self.handle_decide_executeGesture)
+			inputCore.decide_executeGesture.unregister(self.handle_decide_executeGesture)
 			return
 		if self.orig_executeGesture is None:
 			return
