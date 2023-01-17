@@ -136,7 +136,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def terminate(self):
 		if versionInfo.version_year >= 2023:
-			braille.handler.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
+			braille.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
 		self.disconnect()
 		self.local_machine = None
 		self.menu.Remove(self.connect_item.Id)
