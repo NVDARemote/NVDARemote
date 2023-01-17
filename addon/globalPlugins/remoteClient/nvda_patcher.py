@@ -170,6 +170,7 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.orig_pauseSpeech(switch)
 
 	def beep(self, hz, length, left=50, right=50):
+		"""Pre NVDA 2023.1."""
 		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right)
 		return self.orig_beep(hz=hz, length=length, left=left, right=right)
 
@@ -178,7 +179,8 @@ class NVDASlavePatcher(NVDAPatcher):
 		return True
 
 	def playWaveFile(self, fileName, asynchronous=True):
-		"""Intercepts playing of 'wave' file.
+		"""Pre NVDA 2023.1.
+		Intercepts playing of 'wave' file.
 		Used to instruct master to play this file also. File is then played locally.
 		Note: Signature must match nvwave.playWaveFile
 		"""

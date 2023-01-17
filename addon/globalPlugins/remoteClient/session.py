@@ -183,8 +183,8 @@ class SlaveSession(RemoteSession):
 	def pause_speech(self, switch):
 		self.transport.send(type="pause_speech", switch=switch)
 
-	def beep(self, hz, length, left=50, right=50):
-		self.transport.send(type='tone', hz=hz, length=length, left=left, right=right)
+	def beep(self, hz, length, left=50, right=50, **kwargs):
+		self.transport.send(type='tone', hz=hz, length=length, left=left, right=right, **kwargs)
 
 	def playWaveFile(self, **kwargs):
 		"""This machine played a sound, send it to Master machine"""
