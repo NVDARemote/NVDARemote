@@ -444,15 +444,15 @@ class GlobalPlugin(_GlobalPlugin):
 			self.master_session.patcher.patch_braille_input()
 			if versionInfo.version_year < 2023:
 				braille.handler.enabled = False
-			if braille.handler._cursorBlinkTimer:
-				braille.handler._cursorBlinkTimer.Stop()
-				braille.handler._cursorBlinkTimer=None
-			if braille.handler.buffer is braille.handler.messageBuffer:
-				braille.handler.buffer.clear()
-				braille.handler.buffer = braille.handler.mainBuffer
-				if braille.handler._messageCallLater:
-					braille.handler._messageCallLater.Stop()
-					braille.handler._messageCallLater = None
+				if braille.handler._cursorBlinkTimer:
+					braille.handler._cursorBlinkTimer.Stop()
+					braille.handler._cursorBlinkTimer=None
+				if braille.handler.buffer is braille.handler.messageBuffer:
+					braille.handler.buffer.clear()
+					braille.handler.buffer = braille.handler.mainBuffer
+					if braille.handler._messageCallLater:
+						braille.handler._messageCallLater.Stop()
+						braille.handler._messageCallLater = None
 			self.local_machine.receiving_braille=True
 		elif not state:
 			self.master_session.patcher.unpatch_braille_input()
