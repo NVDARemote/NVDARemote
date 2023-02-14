@@ -44,7 +44,7 @@ class LocalMachine:
 		if versionInfo.version_year >= 2023:
 			braille.decide_enabled.register(self.handle_decide_enabled)
 
-	def __dell__(self):
+	def terminate(self):
 		if versionInfo.version_year >= 2023:
 			braille.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
 

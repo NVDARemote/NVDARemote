@@ -134,6 +134,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def terminate(self):
 		self.disconnect()
+		self.local_machine.terminate()
 		self.local_machine = None
 		self.menu.Remove(self.connect_item.Id)
 		self.connect_item.Destroy()
