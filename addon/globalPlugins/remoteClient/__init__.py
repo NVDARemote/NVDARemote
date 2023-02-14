@@ -85,8 +85,6 @@ class GlobalPlugin(_GlobalPlugin):
 		if cs['autoconnect'] and not self.master_session and not self.slave_session:
 			self.perform_autoconnect()
 		self.sd_focused = False
-		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.register(self.local_machine.handle_decide_enabled)
 
 	def perform_autoconnect(self):
 		cs = configuration.get_config()['controlserver']
@@ -135,8 +133,6 @@ class GlobalPlugin(_GlobalPlugin):
 		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
-		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
 		self.disconnect()
 		self.local_machine = None
 		self.menu.Remove(self.connect_item.Id)

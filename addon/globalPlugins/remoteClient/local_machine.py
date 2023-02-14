@@ -41,6 +41,12 @@ class LocalMachine:
 		self.is_muted = False
 		self.receiving_braille=False
 		self._cached_sizes = None
+		if versionInfo.version_year >= 2023:
+			braille.decide_enabled.register(self.handle_decide_enabled)
+
+	def __dell__(self):
+		if versionInfo.version_year >= 2023:
+			braille.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
 
 	def play_wave(self, fileName):
 		"""Instructed by remote machine to play a wave file."""
