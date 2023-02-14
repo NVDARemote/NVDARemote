@@ -46,7 +46,7 @@ class LocalMachine:
 
 	def terminate(self):
 		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.unregister(self.local_machine.handle_decide_enabled)
+			braille.decide_enabled.unregister(self.handle_decide_enabled)
 
 	def play_wave(self, fileName):
 		"""Instructed by remote machine to play a wave file."""
