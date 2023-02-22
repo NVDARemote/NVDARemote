@@ -194,7 +194,6 @@ class GlobalPlugin(_GlobalPlugin):
 		connector = self.slave_transport or self.master_transport
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
-			cues.clipboard_pushed()
 		except TypeError:
 			log.exception("Unable to push clipboard")
 
@@ -205,7 +204,6 @@ class GlobalPlugin(_GlobalPlugin):
 			return
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
-			cues.clipboard_pushed()
 			ui.message(_("Clipboard pushed"))
 		except TypeError:
 			ui.message(_("Unable to push clipboard"))
@@ -296,8 +294,13 @@ class GlobalPlugin(_GlobalPlugin):
 		self.disconnect()
 	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
+	def script_connect(self, gesture):
+		if self.is_connected() or self.connecting: return
+		self.do_connect(evt = None)
+	script_connect.__doc__ = _("""Connect to a remote computer""")
+	
 	def do_connect(self, evt):
-		evt.Skip()
+		if evt is not None: evt.Skip()
 		last_cons = configuration.get_config()['connections']['last_connected']
 		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
@@ -552,6 +555,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
+		"kb:alt+NVDA+pageUp": "connect",
 		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
 
