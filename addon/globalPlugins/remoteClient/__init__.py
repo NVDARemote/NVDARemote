@@ -194,6 +194,7 @@ class GlobalPlugin(_GlobalPlugin):
 		connector = self.slave_transport or self.master_transport
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
+			cues.clipboard_pushed()
 		except TypeError:
 			log.exception("Unable to push clipboard")
 
@@ -204,6 +205,7 @@ class GlobalPlugin(_GlobalPlugin):
 			return
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
+			cues.clipboard_pushed()
 			ui.message(_("Clipboard pushed"))
 		except TypeError:
 			ui.message(_("Unable to push clipboard"))
