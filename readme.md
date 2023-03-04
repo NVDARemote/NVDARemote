@@ -140,9 +140,11 @@ We would like to acknowledge the following contributors, among others, who helpe
 
 ### Version 2.6
 
+* NVDA 2023.1 support
 * Added a gesture to open the connect dialog
 * Translation Updates for ukrainian and Italian
 * New clipboard cues
+
 ### Version 2.5
 
 * Fix SSL stability
