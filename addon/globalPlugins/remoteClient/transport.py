@@ -28,16 +28,19 @@ class Transport:
 	connected: bool
 	successful_connects: int
 	callback_manager: callback_manager.CallbackManager
+	connect_event: threading.Event
 
 	def __init__(self, serializer):
 		self.serializer = serializer
 		self.callback_manager = callback_manager.CallbackManager()
 		self.connected = False
 		self.successful_connects = 0
+		self.connected_event = threading.Event()
 
 	def transport_connected(self):
 		self.successful_connects += 1
 		self.connected = True
+		self.connected_event.set()
 		self.callback_manager.call_callbacks(TransportEvents.CONNECTED)
 
 class TCPTransport(Transport):
@@ -45,6 +48,7 @@ class TCPTransport(Transport):
 	closed: bool
 	queue: queue.Queue
 	insecure: bool
+	server_sock_lock: threading.Lock
 	
 	def __init__(self, serializer, address: Tuple[str, int], timeout: int=0, insecure: bool=False):
 		super().__init__(serializer=serializer)
@@ -54,6 +58,10 @@ class TCPTransport(Transport):
 		self.queue = queue.Queue()
 		self.address = address
 		self.server_sock = None
+		# Reading/writing from an SSL socket is not thread safe.
+		# See https://bugs.python.org/issue41597#msg375692
+		# Guard access to the socket with a lock.
+		self.server_sock_lock = threading.Lock()
 		self.queue_thread = None
 		self.timeout = timeout
 		self.reconnector_thread = ConnectorThread(self)
@@ -103,6 +111,7 @@ class TCPTransport(Transport):
 					self.buffer = b''
 					break
 		self.connected = False
+		self.connected_event.clear()
 		self.callback_manager.call_callbacks(TransportEvents.DISCONNECTED)
 		self._disconnect()
 
@@ -128,7 +137,23 @@ class TCPTransport(Transport):
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
 		buffSize = 16384
-		data = self.buffer + self.server_sock.recv(buffSize)
+		with self.server_sock_lock:
+			# select operates on the raw socket. Even though it said there was data to
+			# read, that might be SSL data which might not result in actual data for
+			# us. Therefore, do a non-blocking read so SSL doesn't try to wait for
+			# more data for us.
+			# We don't make the socket non-blocking earlier because then we'd have to
+			# handle retries during the SSL handshake.
+			# See https://stackoverflow.com/questions/3187565/select-and-ssl-in-python
+			# and https://docs.python.org/3/library/ssl.html#notes-on-non-blocking-sockets
+			self.server_sock.setblocking(False)
+			try:
+				data = self.buffer + self.server_sock.recv(buffSize)
+			except ssl.SSLWantReadError:
+				# There's no data for us.
+				return
+			finally:
+				self.server_sock.setblocking(True)
 		self.buffer = b''
 		if not data:
 			self._disconnect()
@@ -155,7 +180,8 @@ class TCPTransport(Transport):
 			if item is None:
 				return
 			try:
-				self.server_sock.sendall(item)
+				with self.server_sock_lock:
+					self.server_sock.sendall(item)
 			except socket.error:
 				return
 
