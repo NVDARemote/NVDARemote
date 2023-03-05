@@ -30,7 +30,7 @@ msgstr "NVDA 远程配置错误"
 #. Translators: Item in NVDA Remote submenu to connect to a remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:107
 msgid "Connect..."
-msgstr "连接(&C)..."
+msgstr "连接(&C)"
 
 #: addon\globalPlugins\remoteClient\__init__.py:107
 msgid "Remotely connect to another computer running NVDA Remote Access"
@@ -88,7 +88,7 @@ msgstr "选项"
 #. Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
 #: addon\globalPlugins\remoteClient\__init__.py:129
 msgid "Send Ctrl+Alt+Del"
-msgstr "发送 Ctrl+Alt+Del 命令"
+msgstr "发送 Ctrl+Alt+Del 命令(&S)"
 
 #. Translators: Label of menu in NVDA tools menu.
 #: addon\globalPlugins\remoteClient\__init__.py:133
