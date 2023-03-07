@@ -15,7 +15,7 @@ To do this, first update your existing addon. Then open the NVDA menu, preferenc
 
 ## Starting a remote session through a relay server
 ### On the computer to be controlled
-1. Open the NVDA menu, Tools, Remote, Connect.
+1. Open the NVDA menu, Tools, Remote, Connect.  Alternatively, you can press NVDA+alt+page up to open the connection dialog.
 2. Choose client in the first radio button.
 3. Select Allow this machine to be controlled in the second set of radio buttons.
 4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com. When the particular server uses an alternative port, you can enter the host in the form &lt;host&gt;:&lt;port&gt;, for example nvdaremote.com:1234.
