@@ -33,7 +33,9 @@ addon_info = {
 	# Add-on update channel (default is None, denoting stable releases, and for development releases, use "dev"; do not change unless you know what you are doing)
 	"addon_updateChannel" : None,
 }
-
+import os
+if os.environ.get('CI') and os.environ.get('GITHUB_REF_TYPE') == 'tag':
+	addon_info['addon_version'] = os.environ['GITHUB_REF_NAME'].lstrip('v')
 
 import os.path
 
