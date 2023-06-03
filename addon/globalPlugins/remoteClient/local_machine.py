@@ -1,6 +1,7 @@
 import os
 import wx
-import input
+from . import input
+from . import cues
 import api
 import nvwave
 import tones
@@ -8,20 +9,53 @@ import speech
 import ctypes
 import braille
 import inputCore
+import versionInfo
+
+try:
+	from systemUtils import hasUiAccess
+except ModuleNotFoundError:
+	from config import hasUiAccess
+
+import ui
+import versionInfo
 import logging
 logger = logging.getLogger('local_machine')
 
-class LocalMachine(object):
+
+def setSpeechCancelledToFalse():
+	"""
+	This function updates the state of speech so that it is aware that future
+	speech should not be cancelled. In the long term this is a fragile solution
+	as NVDA does not support modifying the internal state of speech.
+	"""
+	if versionInfo.version_year >= 2021:
+		# workaround as beenCanceled is readonly as of NVDA#12395
+		speech.speech._speechState.beenCanceled = False
+	else:
+		speech.beenCanceled = False
+
+
+class LocalMachine:
 
 	def __init__(self):
 		self.is_muted = False
 		self.receiving_braille=False
-		
-	def play_wave(self, fileName, async, **kwargs):
+		self._cached_sizes = None
+		if versionInfo.version_year >= 2023:
+			braille.decide_enabled.register(self.handle_decide_enabled)
+
+	def terminate(self):
+		if versionInfo.version_year >= 2023:
+			braille.decide_enabled.unregister(self.handle_decide_enabled)
+
+	def play_wave(self, fileName):
+		"""Instructed by remote machine to play a wave file."""
 		if self.is_muted:
 			return
 		if os.path.exists(fileName):
-			nvwave.playWaveFile(fileName=fileName, async=async)
+			# ignore async / asynchronous from kwargs:
+			# playWaveFile should play asynchronously from NVDA remote.
+			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz, length, left, right, **kwargs):
 		if self.is_muted:
@@ -31,18 +65,26 @@ class LocalMachine(object):
 	def cancel_speech(self, **kwargs):
 		if self.is_muted:
 			return
-		synth = speech.getSynth()
-		wx.CallAfter(synth.cancel)
+		wx.CallAfter(speech._manager.cancel)
 
-	def speak(self, sequence, **kwargs):
+	def pause_speech(self, switch, **kwargs):
 		if self.is_muted:
 			return
-		synth = speech.getSynth()
-		speech.beenCanceled = False
-		wx.CallAfter(synth.speak, sequence)
+		wx.CallAfter(speech.pauseSpeech, switch)
+
+	def speak(
+			self,
+			sequence,
+			priority=speech.priorities.Spri.NORMAL,
+			**kwargs
+	):
+		if self.is_muted:
+			return
+		setSpeechCancelledToFalse()
+		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
-		if self.receiving_braille and braille.handler.display.numCells>0 and len(cells)<=braille.handler.display.numCells:
+		if self.receiving_braille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
@@ -54,19 +96,45 @@ class LocalMachine(object):
 			pass
 
 	def set_braille_display_size(self, sizes, **kwargs):
+		if versionInfo.version_year >= 2023:
+			self._cached_sizes = sizes
+			return
 		sizes.append(braille.handler.display.numCells)
 		try:
 			size=min(i for i in sizes if i>0)
 		except ValueError:
-			size=braille.handler.display.numCells
-		braille.handler.displaySize=size
+			size = braille.handler.display.numCells
+		braille.handler.displaySize = size
 		braille.handler.enabled = bool(size)
+
+	def handle_filter_displaySize(self, value):
+		if not self._cached_sizes:
+			return value
+		sizes = self._cached_sizes + [value]
+		try:
+			return min(i for i in sizes if i>0)
+		except ValueError:
+			return value
+
+	def handle_decide_enabled(self):
+		return not self.receiving_braille
 
 	def send_key(self, vk_code=None, extended=None, pressed=None, **kwargs):
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
 	def set_clipboard_text(self, text, **kwargs):
+		cues.clipboard_received()
 		api.copyToClip(text=text)
 
 	def send_SAS(self, **kwargs):
-		ctypes.windll.sas.SendSAS(0)
+		"""
+		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
+		SendSAS requires UI Access, so we provide a warning when this fails.
+		This warning will only be read by the remote NVDA if it is currently connected to the machine.
+		"""
+		if hasUiAccess():
+			ctypes.windll.sas.SendSAS(0)
+		else:
+			# Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
+			ui.message(_("No permission on device to trigger CTRL+ALT+DEL from remote"))
+			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")

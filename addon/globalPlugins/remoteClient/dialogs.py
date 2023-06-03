@@ -1,19 +1,22 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import json
-sys.path.remove(sys.path[-1])
 import random
 import threading
-import urllib
+from urllib import request
 import wx
 import gui
-import serializer
-import server
-import transport
-import socket_utils
+from . import serializer
+from . import server
+from . import transport
+from . import socket_utils
+from logHandler import log
 import addonHandler
-addonHandler.initTranslation()
+try:
+	addonHandler.initTranslation()
+except addonHandler.AddonError:
+	log.warning(
+		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
+	)
+from . import configuration
 
 WX_VERSION = int(wx.version()[0])
 WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
@@ -21,11 +24,11 @@ WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
 class ClientPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
-		super(ClientPanel, self).__init__(parent, id)
+		super().__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: The label of an edit field in connect dialog to enter name or address of the remote computer.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Host:")))
-		self.host = wx.TextCtrl(self, wx.ID_ANY)
+		self.host = wx.ComboBox(self, wx.ID_ANY)
 		sizer.Add(self.host)
 		# Translators: Label of the edit field to enter key (password) to secure the remote connection.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
@@ -38,12 +41,20 @@ class ClientPanel(wx.Panel):
 		self.SetSizerAndFit(sizer)
 
 	def on_generate_key(self, evt):
-		evt.Skip()
-		address = socket_utils.address_to_hostport(self.host.GetValue())
-		self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer())
-		self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
-		t = threading.Thread(target=self.key_connector.run)
-		t.start()
+		if not self.host.GetValue():
+			gui.messageBox(_("Host must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+			self.host.SetFocus()
+		else:
+			evt.Skip()
+			self.generate_key_command()
+
+	def generate_key_command(self, insecure=False):
+			address = socket_utils.address_to_hostport(self.host.GetValue())
+			self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
+			self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
+			self.key_connector.callback_manager.register_callback(transport.TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.handle_certificate_failed)
+			t = threading.Thread(target=self.key_connector.run)
+			t.start()
 
 	def handle_key_generated(self, key=None):
 		self.key.SetValue(key)
@@ -51,10 +62,28 @@ class ClientPanel(wx.Panel):
 		self.key_connector.close()
 		self.key_connector = None
 
+	def handle_certificate_failed(self):
+		try:
+			cert_hash = self.key_connector.last_fail_fingerprint
+				
+			wnd = CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
+			a = wnd.ShowModal()
+			if a == wx.ID_YES:
+				config = configuration.get_config()
+				config['trusted_certs'][self.host.GetValue()]=cert_hash
+				config.write()
+			if a != wx.ID_YES and a != wx.ID_NO: return
+		except Exception as ex:
+			log.error(ex)
+			return
+		self.key_connector.close()
+		self.key_connector = None
+		self.generate_key_command(True)
+
 class ServerPanel(wx.Panel):
 
 	def __init__(self, parent=None, id=wx.ID_ANY):
-		super(ServerPanel, self).__init__(parent, id)
+		super().__init__(parent, id)
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: Used in server mode to obtain the external IP address for the server (controlled computer) for direct connection.
 		self.get_IP = wx.Button(parent=self, label=_("Get External &IP"))
@@ -79,7 +108,7 @@ class ServerPanel(wx.Panel):
 	def on_generate_key(self, evt):
 		evt.Skip()
 		res = str(random.randrange(1, 9))
-		for n in xrange(6):
+		for n in range(6):
 			res += str(random.randrange(0, 9))
 		self.key.SetValue(res)
 		self.key.SetFocus()
@@ -94,7 +123,7 @@ class ServerPanel(wx.Panel):
 	def do_portcheck(self, port):
 		temp_server = server.Server(port=port, password=None)
 		try:
-			req = urllib.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
+			req = request.urlopen('https://portcheck.nvdaremote.com/port/%s' % port)
 			data = req.read()
 			result = json.loads(data)
 			wx.CallAfter(self.on_get_IP_success, result)
@@ -124,7 +153,7 @@ class ServerPanel(wx.Panel):
 class DirectConnectDialog(wx.Dialog):
 
 	def __init__(self, parent, id, title):
-		super(DirectConnectDialog, self).__init__(parent, id, title=title)
+		super().__init__(parent, id, title=title)
 		main_sizer = self.main_sizer = wx.BoxSizer(wx.VERTICAL)
 		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL)
 		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
@@ -144,6 +173,7 @@ class DirectConnectDialog(wx.Dialog):
 		self.Center(wx.BOTH | WX_CENTER)
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.on_ok)
+		self.client_or_server.SetFocus()
 
 	def on_client_or_server(self, evt):
 		evt.Skip()
@@ -167,7 +197,7 @@ class DirectConnectDialog(wx.Dialog):
 class OptionsDialog(wx.Dialog):
 
 	def __init__(self, parent, id, title):
-		super(OptionsDialog, self).__init__(parent, id, title=title)
+		super().__init__(parent, id, title=title)
 		main_sizer = wx.BoxSizer(wx.VERTICAL)
 		# Translators: A checkbox in add-on options dialog to set whether remote server is started when NVDA starts.
 		self.autoconnect = wx.CheckBox(self, wx.ID_ANY, label=_("Auto-connect to control server on startup"))
@@ -196,6 +226,13 @@ class OptionsDialog(wx.Dialog):
 		self.key = wx.TextCtrl(self, wx.ID_ANY)
 		self.key.Enable(False)
 		main_sizer.Add(self.key)
+		# Translators: A checkbox in add-on options dialog to set whether sounds play instead of beeps.
+		self.play_sounds = wx.CheckBox(self, wx.ID_ANY, label=_("Play sounds instead of beeps"))
+		main_sizer.Add(self.play_sounds)
+		# Translators: A button in add-on options dialog to delete all fingerprints of unauthorized certificates.
+		self.delete_fingerprints = wx.Button(self, wx.ID_ANY, label=_("Delete all trusted fingerprints"))
+		self.delete_fingerprints.Bind(wx.EVT_BUTTON, self.on_delete_fingerprints)
+		main_sizer.Add(self.delete_fingerprints)
 		buttons = self.CreateButtonSizer(wx.OK | wx.CANCEL)
 		main_sizer.Add(buttons, flag=wx.BOTTOM)
 		main_sizer.Fit(self)
@@ -231,6 +268,14 @@ class OptionsDialog(wx.Dialog):
 		self.port.SetValue(str(cs['port']))
 		self.key.SetValue(cs['key'])
 		self.set_controls()
+		self.play_sounds.SetValue(config['ui']['play_sounds'])
+
+	def on_delete_fingerprints(self, evt):
+		if gui.messageBox(_("When connecting to an unauthorized server, you will again be prompted to accepts its certificate."), _("Are you sure you want to delete all stored trusted fingerprints?"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES:
+			config = configuration.get_config()
+			config['trusted_certs'].clear()
+			config.write()
+		evt.Skip()
 
 	def on_ok(self, evt):
 		if self.autoconnect.GetValue():
@@ -255,4 +300,15 @@ class OptionsDialog(wx.Dialog):
 		else:
 			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
+		config['ui']['play_sounds'] = self.play_sounds.GetValue()
 		config.write()
+
+class CertificateUnauthorizedDialog(wx.MessageDialog):
+
+	def __init__(self, parent, fingerprint=None):
+		# Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+		title=_("NVDA Remote Connection Security Warning")
+		# Translators: A message of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
+		message = _("Warning! The certificate of this server could not be verified.\nThis connection may not be secure. It is possible that someone is trying to overhear your communication.\nBefore continuing please make sure that the following server certificate fingerprint is a proper one.\nIf you have any questions, please contact the server administrator.\n\nServer SHA256 fingerprint: {fingerprint}\n\nDo you want to continue connecting?").format(fingerprint=fingerprint)
+		super().__init__(parent, caption=title, message=message, style=wx.YES_NO|wx.CANCEL|wx.CANCEL_DEFAULT|wx.CENTRE)
+		self.SetYesNoLabels(_("Connect and do not ask again for this server"), _("Connect"))

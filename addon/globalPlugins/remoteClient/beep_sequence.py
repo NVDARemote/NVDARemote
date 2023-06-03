@@ -1,8 +1,9 @@
-from __future__ import division
-import collections
+import collections.abc
 import time
 import tones
 import threading
+
+local_beep = tones.beep
 
 def beep_sequence(*sequence):
 	"""	Play a simple synchronous monophonic beep sequence
@@ -11,12 +12,12 @@ def beep_sequence(*sequence):
 	A single integer is assumed to be a delay in ms.
 	"""
 	for element in sequence:
-		if not isinstance(element, collections.Sequence):
+		if not isinstance(element, collections.abc.Sequence):
 			time.sleep(element / 1000)
 		else:
 			tone, duration = element
 			time.sleep(duration / 1000)
-			tones.beep(tone, duration)
+			local_beep(tone, duration)
 
 def beep_sequence_async(*sequence):
 	"""Play an asynchronous beep sequence.

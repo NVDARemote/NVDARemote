@@ -1,5 +1,5 @@
 #NVDA Remote Access
-Versión 2.1
+Versión 2.3
 
 Bienvenido al complemento de acceso remoto de NVDA, que te permitirá conectarte a otro equipo que ejecute el lector de pantalla gratuito NVDA. Da igual que estés al otro lado de la habitación o al otro lado del mundo. Conectarse es simple, y hay muy pocas órdenes que aprenderse. Puedes conectarte al equipo de otra persona, o permitir a una persona de confianza que se conecte a tu sistema para realizar un mantenimiento rutinario, diagnosticar un problema, o enseñarte algo.
 
@@ -52,7 +52,7 @@ Cuando la otra persona se conecte, podrás usar NVDA Remote con normalidad.
 
 Una vez la sesión está conectada, el usuario del equipo controlador puede pulsar f11 para empezar a controlar el equipo remoto (por ejemplo, enviando pulsaciones de teclado o entrada Braille).
 Cuando NVDA diga controlando equipo remoto, las teclas que pulses en tu teclado o pantalla braille irán al equipo remoto. Más aún, si el equipo controlador dispone de una pantalla braille, la información remota se mostrará en ella. Pulsa f11 de nuevo para detener el envío de pulsaciones y volver al equipo controlador.
-Para mayor compatibilidad, asegúrate de que las distribuciones de teclado de ambas máquinas coinciden.
+Para mayor compatibilidad, asegúrate de que las distribuciones de teclado de ambos equipos coinciden.
 
 ## Compartir tu sesión
 
@@ -82,7 +82,7 @@ Para un uso avanzado, puedes también configurar NVDA Remote para que se conecte
 Nota: las opciones relacionadas con conectar automáticamente al arrancar en el diálogo de opciones no tienen efecto hasta que se reinicia NVDA.
 
 
-##Silenciar la voz en el equipo remoto
+##Silenciar la voz del equipo remoto
 Si no quieres oír la voz del ordenador remoto o sonidos específicos de NVDA, es tan simple como ir al menú de NVDA, herramientas, remoto. Baja con flecha abajo hasta oír silenciar equipo remoto, y pulsa intro. Ten en cuenta que esta opción no desactivará la salida braille remota a la pantalla controladora cuando el equipo controlador esté enviando pulsaciones.
 
 
@@ -91,7 +91,6 @@ Si no quieres oír la voz del ordenador remoto o sonidos específicos de NVDA, e
 Para finalizar una sesión remota, haz lo siguiente:
 
 1. En el equipo controlador, pulsa f11 para dejar de controlar el equipo remoto. Deberías escuchar o leer el mensaje: "Controlando equipo local". Si en vez de eso oyes o lees un mensaje diciendo que estás controlando el equipo remoto, pulsa f11 nuevamente.
-
 2. Accede al menú de NVDA, herramientas, remoto, y pulsa intro en desconectar.
 
 ##Enviar portapapeles
@@ -103,14 +102,11 @@ Cuando esté activada, cualquier texto en el portapapeles se enviará a los otro
 Para que NVDA Remote funcione en el escritorio seguro, el complemento debe estar instalado en el NVDA que se ejecuta en el escritorio seguro.
 
 1. En el menú de NVDA, selecciona preferencias, y a continuación opciones generales.
-
 2. Pulsa tabulador hasta el botón Utilizar opciones actualmente guardadas en la autentificación (logon) y otras pantallas seguras (requiere privilegios de administrador), y pulsa Intro.
-
 3. Responde sí a las advertencias sobre copiar la configuración y los complementos, y responde a la advertencia del control de cuentas de usuario que debería aparecer.
 4. Cuando la configuración se haya copiado, pulsa intro para aceptar la confirmación. Pulsa tabulador hasta aceptar y pulsa intro de nuevo para salir del diálogo.
 
-En cuanto NVDA Remote esté instalado en el escritorio seguro, si te controlan en una sesión remota,
-el escritorio seguro tendrá soporte de voz y braille cuando se entre en él.
+En cuanto NVDA Remote esté instalado en el escritorio seguro, si te controlan en una sesión remota, el escritorio seguro tendrá soporte de voz y braille cuando se entre en él.
 
 ##Contribuciones
 Nos gustaría dar nuestro reconocimiento a los siguientes contribuyentes que, entre otros, han ayudado a que el proyecto NVDA Remote sea una realidad.
@@ -128,8 +124,25 @@ Nos gustaría dar nuestro reconocimiento a los siguientes contribuyentes que, en
 * Casey Mathews
 * Babbage B.V.
 * Leonard de Ruijter
+* NV Access
+* Reef Turner
 
 ## Registro de cambios
+
+### Versión 2.3
+
+* Se ha migrado a Python 3
+* Eliminado soporte para Python 2
+* Actualizaciones para trabajar con la API cambiada en NVDA 2019.3, incluyendo:
+
+    * Refactorización del habla
+    * Cambios en pantallas Braille
+
+### Versión 2.2
+
+* Soporte IPV6
+* Soporte para el nuevo NVDA 2018.3, así como versiones más antiguas
+* Soporte para gestos de pantallas Braille de modelos concretos
 
 ### Versión 2.1
 
@@ -149,4 +162,21 @@ Nos gustaría dar nuestro reconocimiento a los siguientes contribuyentes que, en
 * Arreglado error de renderizado en la documentación
 * Actualización a la versión 2 del protocolo, que incluye un campo de origen en cada mensaje remoto
 * Limpieza importante del código que permitirá modificarlo más fácilmente en el futuro
+
+## Alteración de NVDA Remote
+
+Puedes clonar este repositorio para hacer alteraciones a NVDA Remote.
+
+### Dependencias de terceros
+
+Se pueden instalar con Pip:
+
+* Markdown
+* scons
+* python-gettext
+
+### Para empaquetar el complemento para su distribución:
+
+1. Abre una línea de órdenes y cambia a la raíz de este repositorio
+2. Ejecuta la orden **scons**. El complemento creado, si no hubo errores, se encuentra en la carpeta actual.
 

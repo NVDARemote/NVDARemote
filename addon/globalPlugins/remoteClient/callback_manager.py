@@ -3,7 +3,7 @@ logger = getLogger('callback_manager')
 import wx
 from collections import defaultdict
 
-class CallbackManager(object):
+class CallbackManager:
 	"""A simple way of associating multiple callbacks to events and calling them all when that event happens"""
 
 	def __init__(self):

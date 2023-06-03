@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+    branches: [master]
+    tags:
+      - '*'
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: pip install scons markdown
+      - name: Run Scons
+        run: scons
+      - name: Create and Upload Release
+        if: contains(github.ref, '/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: ${{ endsWith(github.ref, '-dev') }}
+          files: '*.nvda-addon'
