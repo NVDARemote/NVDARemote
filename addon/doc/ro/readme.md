@@ -1,5 +1,5 @@
 ﻿# NVDA Remote Access
-Versiunea 2.2
+Versiunea 2.6
 
 Bun venit la suplimentul NVDA Remote Access, Care vă va permite să vă conectați la un alt computer folosind NVDA, cititorul de ecran gratuit. Nu contează că sunteți în camera alăturată sau la capătul lumii. Conectarea e simplă. Sunt doar câteva comenzi pe care trebuie să le țineți minte. Vă puteți conecta la calculatorul unei persoane, sau îi puteți permite uneia de încredere să se conecteze la calculatorul dumneavoastră pentru a efectua mentenanța de rutină, pentru a diagnostica o problemă, sau pentru a oferi antrenament (training).
 
@@ -32,6 +32,10 @@ Calculatorul care este controlat și toți clienții săi trebuie să utilizeze 
 5. Introduceți o cheie în câmpul cu același nume sau apăsați butonul generare cheie.
 Calculatorul care este controlat și toți clienții săi trebuie să utilizeze aceeași cheie.
 6. Apăsați ok. Odată terminată operațiunea veți auzi un semnal sonor, iar în același timp pe NVDA spunând „conectat”.
+
+### Avertizarea de securitate a conexiunii
+Dacă vă conectați la un server care nu are un certificat SSL valid, veți primi o avertizare de securitate a conexiunii.
+Acest lucru poate însemna că nu este sigură conexiunea. Dacă aveți încredere în server-ul respectiv, puteți apăsa butonul „Conectare” pentru a vă conecta o dată, sau pe butonul „Conectează-te și nu mai întreba din nou pentru acest server” pentru a vă conecta și a marca faptul că aveți încredere în acel server.
 
 ## Conexiuni directe
 Opțiunea server din dialogul de conectare vă permite să setați o conexiune directă.
@@ -90,7 +94,6 @@ Dacă nu doriți să auziți vorbirea care provine de la calculatorul aflat la d
 Pentru a termina o sesiune la distanță, faceți în felul următor:
 
 1. Pe calculatorul care controlează, apăsați F11 pentru a opri controlarea computerului aflat la distanță.
-
 2. Accesați meniul NVDA, apoi Instrumente, Remote, apoi apăsați Enter pe Deconectare.
 
 ## Trimitere conținut la planșetă
@@ -102,13 +105,14 @@ Când e activată, orice text de pe planșetă va fi trimis la cealaltă.
 Pentru ca NVDA să lucreze pe spațiul de lucru sigur, suplimentul trebuie să fie instalat în NVDA, care rulează pe acest spațiu de lucru.
 
 1. Din meniul NVDA, selectați Preferințe, apoi Setări Generale.
-
 2. Apăsați Tab până la butonul „Utilizați preferințele curent salvate asupra ecranului de autentificare și a altor ecrane securizate (cere privilegii de administrator)”, apoi apăsați Enter.
-
 3. Confirmați această acțiune prin apăsarea butonului „Da”, apoi mai apăsați-l o dată pentru a scăpa de dialogul de UAC (User Account Control) (Control Cont Utilizator) care ar putea apărea.
 4. Când setările sunt copiate, apăsați butonul OK, apoi apăsați-l din nou pentru a închide dialogul setărilor generale.
 
 Odată ce NVDA Remote este instalat pe spațiul de lucru sigur, dacă sunteți controlat într-o sesiune la distanță, veți avea accesul vorbirii și al braille la spațiul de lucru sigur.
+
+## Ștergerea amprentelor pentru certificatele SSL
+Dacă nu mai aveți încredere într-un anumit server, îi puteți șterge amprentele pentru certificatul SSL apăsând butonul „Șterge toate amprentele de încredere” din dialogul Opțiuni.
 
 ## Contribuții
 Dorim să menționăm următorii contributori care, împreună cu alții, au făcut ca proiectul NVDA Remote să fie o realitate.
@@ -126,8 +130,41 @@ Dorim să menționăm următorii contributori care, împreună cu alții, au fă
 * Casey Mathews
 * Babbage B.V.
 * Leonard de Ruijter
+* NV Access
+* Reef Turner
 
 ## Jurnal de modificări
+
+### Versiunea 2.6
+
+* Suport pentru NVDA 2023.1
+* A fost adăugat un gest care deschide dialogul de conectare
+* Actualizări la traducerile pentru limbile italiană și ucraineană
+* Indicații noi pentru planșetă
+
+### Versiunea 2.5
+
+* A fost rezolvată stabilitatea SSL
+* A fost rezolvat suportul pentru spațiul de lucru sigur
+* A fost rezolvată focalizarea inițială din dialogul de conectare
+* Suport pentru pauza vorbirii de la distanță
+* A fost înlocuită caseta de editare gazdă cu un edit combo pentru istoric
+* Fișierele de configurare corupte sunt șterse automat
+
+### Versiunea 2.4
+
+* Au fost adăugate sunete
+* Actualizat pentru NVDA 2021.1
+* Se face verificarea certificatelor SSL ale serverelor gazdă la care ne conectăm
+
+### Versiunea 2.3
+
+* Am migrat la Python 3
+* Am abandonat suportul pentru Python 2
+* Am actualizat suplimentul astfel încât să se potrivească cu API-ul modificat în NVDA 2019.3, incluzând:
+
+* Rescrierea vorbirii
+* Modificări la afișajele Braille
 
 ### Versiunea 2.2
 
