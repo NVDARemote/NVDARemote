@@ -192,14 +192,14 @@ class TCPTransport(Transport):
 
 	def _disconnect(self):
 		"""Disconnect the transport due to an error, without closing the connector thread."""
-		if not self.connected:
-			return
 		if self.queue_thread is not None:
 			self.queue.put(None)
 			self.queue_thread.join()
+			self.queue_thread = None
 		clear_queue(self.queue)
-		self.server_sock.close()
-		self.server_sock = None
+		if self.server_sock:
+			self.server_sock.close()
+			self.server_sock = None
 
 	def close(self):
 		self.callback_manager.call_callbacks(TransportEvents.CLOSING)

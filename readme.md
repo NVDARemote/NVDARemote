@@ -1,5 +1,5 @@
 # NVDA Remote Access
-Version 2.5
+Version 2.6
 
 Welcome to the NVDA Remote Access addon, which will allow you to connect to another computer running the free NVDA screen reader. It makes no difference whether you are across the room or across the world. Connecting is simple, and there are very few commands to remember. You can connect to another person's computer, or allow a trusted person to connect to your system to perform routine maintenance, diagnose a problem, or provide training.
 
@@ -15,7 +15,7 @@ To do this, first update your existing addon. Then open the NVDA menu, preferenc
 
 ## Starting a remote session through a relay server
 ### On the computer to be controlled
-1. Open the NVDA menu, Tools, Remote, Connect.
+1. Open the NVDA menu, Tools, Remote, Connect.  Alternatively, you can press NVDA+alt+page up to open the connection dialog.
 2. Choose client in the first radio button.
 3. Select Allow this machine to be controlled in the second set of radio buttons.
 4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com. When the particular server uses an alternative port, you can enter the host in the form &lt;host&gt;:&lt;port&gt;, for example nvdaremote.com:1234.
@@ -25,7 +25,7 @@ The machine being controlled and all its clients need to use the same key.
 6. Press ok. Once done, you will hear a tone and connected.
 
 ### On the machine that is to be the controlling computer
-1. Open the NVDA menu, Tools, Remote, Connect.
+1. Open the NVDA menu, Tools, Remote, Connect. Alternatively, you can press NVDA+alt+page up to open the connection dialog.
 2. Choose client in the first radio button.
 3. Select Control another machine in the second set of radio buttons.
 4. In the host field, enter the host of the server you are connecting to, for example nvdaremote.com. When the particular server uses an alternative port, you can enter the host in the form &lt;host&gt;:&lt;port&gt;, for example nvdaremote.com:1234.
@@ -96,7 +96,7 @@ If you do not wish to hear the remote computer's speech or NVDA specific sounds,
 To end a remote session, do the following:
 
 1. On the controlling computer, press F11 to stop controlling the remote machine. You should hear or read the message: "Controlling local machine." If you instead hear or read a message that you are controlling the remote machine, press F11 once more.
-2. Access the NVDA menu, then Tools, Remote, and press Enter on Disconnect.
+2. Access the NVDA menu, then Tools, Remote, and press Enter on Disconnect. Alternatively, you can press NVDA+alt+page down to directly disconnect from a remote session.
 
 ## Push clipboard
 The Push clipboard option in the remote menu allows you to push text from your clipboard.
@@ -137,6 +137,13 @@ We would like to acknowledge the following contributors, among others, who helpe
 * Reef Turner
 
 ## Change Log
+
+### Version 2.6
+
+* NVDA 2023.1 support
+* Added a gesture to open the connect dialog
+* Translation Updates for ukrainian and Italian
+* New clipboard cues
 
 ### Version 2.5
 

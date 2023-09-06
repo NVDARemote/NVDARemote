@@ -47,6 +47,7 @@ import ssl
 import configobj
 import queueHandler
 from winAPI.secureDesktop import post_secureDesktopStateChange
+import versionInfo
 
 
 class GlobalPlugin(_GlobalPlugin):
@@ -136,6 +137,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def terminate(self):
 		post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
 		self.disconnect()
+		self.local_machine.terminate()
 		self.local_machine = None
 		self.menu.Remove(self.connect_item.Id)
 		self.connect_item.Destroy()
@@ -299,8 +301,13 @@ class GlobalPlugin(_GlobalPlugin):
 		self.disconnect()
 	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
+	def script_connect(self, gesture):
+		if self.is_connected() or self.connecting: return
+		self.do_connect(evt = None)
+	script_connect.__doc__ = _("""Connect to a remote computer""")
+	
 	def do_connect(self, evt):
-		evt.Skip()
+		if evt is not None: evt.Skip()
 		last_cons = configuration.get_config()['connections']['last_connected']
 		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
@@ -334,9 +341,12 @@ class GlobalPlugin(_GlobalPlugin):
 		self.push_clipboard_item.Enable(True)
 		self.copy_link_item.Enable(True)
 		self.send_ctrl_alt_del_item.Enable(True)
-		self.hook_thread = threading.Thread(target=self.hook)
-		self.hook_thread.daemon = True
-		self.hook_thread.start()
+		# We might have already created a hook thread before if we're restoring an
+		# interrupted connection. We must not create another.
+		if not self.hook_thread:
+			self.hook_thread = threading.Thread(target=self.hook)
+			self.hook_thread.daemon = True
+			self.hook_thread.start()
 		self.bindGesture(REMOTE_KEY, "sendKeys")
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
@@ -373,7 +383,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.disconnect()
 		try:
 			cert_hash = transport.last_fail_fingerprint
-				
+
 			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
 			a = wnd.ShowModal()
 			if a == wx.ID_YES:
@@ -443,20 +453,22 @@ class GlobalPlugin(_GlobalPlugin):
 	def set_receiving_braille(self, state):
 		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
 			self.master_session.patcher.patch_braille_input()
-			braille.handler.enabled = False
-			if braille.handler._cursorBlinkTimer:
-				braille.handler._cursorBlinkTimer.Stop()
-				braille.handler._cursorBlinkTimer=None
-			if braille.handler.buffer is braille.handler.messageBuffer:
-				braille.handler.buffer.clear()
-				braille.handler.buffer = braille.handler.mainBuffer
-				if braille.handler._messageCallLater:
-					braille.handler._messageCallLater.Stop()
-					braille.handler._messageCallLater = None
+			if versionInfo.version_year < 2023:
+				braille.handler.enabled = False
+				if braille.handler._cursorBlinkTimer:
+					braille.handler._cursorBlinkTimer.Stop()
+					braille.handler._cursorBlinkTimer=None
+				if braille.handler.buffer is braille.handler.messageBuffer:
+					braille.handler.buffer.clear()
+					braille.handler.buffer = braille.handler.mainBuffer
+					if braille.handler._messageCallLater:
+						braille.handler._messageCallLater.Stop()
+						braille.handler._messageCallLater = None
 			self.local_machine.receiving_braille=True
 		elif not state:
 			self.master_session.patcher.unpatch_braille_input()
-			braille.handler.enabled = bool(braille.handler.displaySize)
+			if versionInfo.version_year < 2023:
+				braille.handler.enabled = bool(braille.handler.displaySize)
 			self.local_machine.receiving_braille=False
 
 	def onSecureDesktopChange(self, isSecureDesktop: bool):
@@ -554,7 +566,6 @@ class GlobalPlugin(_GlobalPlugin):
 
 	__gestures = {
 		"kb:alt+NVDA+pageDown": "disconnect",
+		"kb:alt+NVDA+pageUp": "connect",
 		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
-
-
