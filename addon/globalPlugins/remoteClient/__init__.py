@@ -47,6 +47,9 @@ import ssl
 import configobj
 import queueHandler
 import versionInfo
+if versionInfo.version_year >= 2024:
+	from winAPI.secureDesktop import post_secureDesktopStateChange
+
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
@@ -85,6 +88,8 @@ class GlobalPlugin(_GlobalPlugin):
 		if cs['autoconnect'] and not self.master_session and not self.slave_session:
 			self.perform_autoconnect()
 		self.sd_focused = False
+		if versionInfo.version_year >= 2024:
+			post_secureDesktopStateChange.register(self.onSecureDesktopChange)
 
 	def perform_autoconnect(self):
 		cs = configuration.get_config()['controlserver']
@@ -133,6 +138,8 @@ class GlobalPlugin(_GlobalPlugin):
 		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
+		if versionInfo.version_year >= 2024:
+			post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
 		self.disconnect()
 		self.local_machine.terminate()
 		self.local_machine = None
@@ -468,15 +475,26 @@ class GlobalPlugin(_GlobalPlugin):
 				braille.handler.enabled = bool(braille.handler.displaySize)
 			self.local_machine.receiving_braille=False
 
-	def event_gainFocus(self, obj, nextHandler):
-		if isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
-			self.sd_focused = True
+	if versionInfo.version_year < 2024:
+		def event_gainFocus(self, obj, nextHandler):
+			if isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
+				self.sd_focused = True
+				self.enter_secure_desktop()
+			elif self.sd_focused and not isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
+				#event_leaveFocus won't work for some reason
+				self.sd_focused = False
+				self.leave_secure_desktop()
+			nextHandler()
+
+	# For NVDA 2024.1 and above
+	def onSecureDesktopChange(self, isSecureDesktop: bool):
+		'''
+		@param isSecureDesktop: True if the new desktop is the secure desktop.
+		'''
+		if isSecureDesktop:
 			self.enter_secure_desktop()
-		elif self.sd_focused and not isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
-			#event_leaveFocus won't work for some reason
-			self.sd_focused = False
+		else:
 			self.leave_secure_desktop()
-		nextHandler()
 
 	def enter_secure_desktop(self):
 		"""function ran when entering a secure desktop."""
