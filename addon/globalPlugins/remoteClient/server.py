@@ -175,7 +175,7 @@ class Client:
 			return
 		elif self.addr in self.server.invalid_join_attempts:
 			# This is a valid attempt, so reset the counter
-			self.server.invalid_join_attempts[self.addr].attempts = 0
+			del self.server.invalid_join_attempts[self.addr]
 		self.connection_type = obj.get('connection_type')
 		self.authenticated = True
 		clients = []
