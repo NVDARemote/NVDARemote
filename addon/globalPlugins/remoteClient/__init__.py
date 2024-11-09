@@ -91,10 +91,7 @@ class GlobalPlugin(_GlobalPlugin):
 			os.remove(os.path.abspath(os.path.join(globalVars.appArgs.configPath, configuration.CONFIG_FILE_NAME)))
 			queueHandler.queueFunction(queueHandler.eventQueue, wx.CallAfter, wx.MessageBox, _("Your NVDA Remote configuration was corrupted and has been reset."), _("NVDA Remote Configuration Error"), wx.OK|wx.ICON_EXCLAMATION)
 		controlServerConfig = configuration.get_config()['controlserver']
-		if hasattr(shlobj, 'SHGetKnownFolderPath'):
-			self.tempLocation = os.path.join(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA), 'temp')
-		else:
-			self.tempLocation = os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
+		self.tempLocation = getTempPath()
 		self.ipcFile = os.path.join(self.tempLocation, 'remote.ipc')
 		if globalVars.appArgs.secure:
 			self.handle_secure_desktop()
@@ -429,9 +426,9 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def startControlServer(self, server_port, channel):
 		self.localControlServer = server.Server(server_port, channel)
-		server_thread = threading.Thread(target=self.localControlServer.run)
-		server_thread.daemon = True
-		server_thread.start()
+		serverThread = threading.Thread(target=self.localControlServer.run)
+		serverThread.daemon = True
+		serverThread.start()
 
 	def hook(self):
 		log.debug("Hook thread start")
@@ -580,10 +577,10 @@ class GlobalPlugin(_GlobalPlugin):
 				data = json.load(fp)
 			os.unlink(self.ipcFile)
 			port, channel = data
-			test_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			test_socket=ssl.wrap_socket(test_socket)
-			test_socket.connect(('127.0.0.1', port))
-			test_socket.close()
+			testSocket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			testSocket=ssl.wrap_socket(testSocket)
+			testSocket.connect(('127.0.0.1', port))
+			testSocket.close()
 			self.connectAsSlave(('127.0.0.1', port), channel, insecure=True)
 			# So we don't miss the first output when switching to a secure desktop,
 			# block the main thread until the connection is established. We're
@@ -624,3 +621,9 @@ class GlobalPlugin(_GlobalPlugin):
 		"kb:alt+NVDA+pageUp": "connect",
 		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
+
+def getTempPath():
+		if hasattr(shlobj, 'SHGetKnownFolderPath'):
+			return os.path.join(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA), 'temp')
+		else:
+			return os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
