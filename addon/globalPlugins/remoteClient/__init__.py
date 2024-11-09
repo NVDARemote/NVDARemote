@@ -67,7 +67,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.key_modifiers = set()
+		self.keyModifiers = set()
 		self.hostPendingModifiers = set()
 		self.localScripts = {self.script_sendKeys}
 		self.local_machine = local_machine.LocalMachine()
@@ -82,8 +82,6 @@ class GlobalPlugin(_GlobalPlugin):
 		self.server = None
 		self.hook_thread = None
 		self.sending_keys = False
-		self.key_modifiers = set()
-		self.hostPendingModifiers = set()
 		self.key_modified = False
 		self.sd_server = None
 		self.sd_relay = None
@@ -299,7 +297,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.hook_thread.join()
 			self.hook_thread = None
 		self.key_modified = False
-		self.key_modifiers = set()
+		self.keyModifiers = set()
 
 	def disconnect_as_slave(self):
 		self.slave_transport.close()
@@ -451,16 +449,16 @@ class GlobalPlugin(_GlobalPlugin):
 		if not self.sending_keys:
 			return False
 		keyCode = (kwargs['vk_code'], kwargs['extended'])
-		gesture = KeyboardInputGesture(self.key_modifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
+		gesture = KeyboardInputGesture(self.keyModifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
 		if not kwargs['pressed'] and keyCode in self.hostPendingModifiers:
 			self.hostPendingModifiers.discard(keyCode)
 			return False
-		gesture = KeyboardInputGesture(self.key_modifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
+		gesture = KeyboardInputGesture(self.keyModifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
 		if gesture.isModifier:
 			if kwargs['pressed']:
-				self.key_modifiers.add(keyCode)
+				self.keyModifiers.add(keyCode)
 			else:
-				self.key_modifiers.discard(keyCode)
+				self.keyModifiers.discard(keyCode)
 		elif kwargs['pressed']:
 			script = gesture.script
 			if script in self.localScripts:
