@@ -73,7 +73,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.localMachine = local_machine.LocalMachine()
 		self.slave_session = None
 		self.master_session = None
-		self.create_menu()
+		self.createMenu()
 		self.connecting = False
 		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verify_connect)
 		url_handler.register_url_handler()
@@ -119,7 +119,7 @@ class GlobalPlugin(_GlobalPlugin):
 		else:
 			self.connect_as_master(address, channel)
 
-	def create_menu(self):
+	def createMenu(self):
 		self.menu = wx.Menu()
 		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
 		# Translators: Item in NVDA Remote submenu to connect to a remote computer.
