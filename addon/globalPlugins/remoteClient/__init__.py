@@ -75,14 +75,13 @@ class GlobalPlugin(_GlobalPlugin):
 		self.master_session = None
 		self.createMenu()
 		self.connecting = False
-		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verify_connect)
+		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verifyConnect)
 		url_handler.register_url_handler()
 		self.master_transport = None
 		self.slave_transport = None
 		self.server = None
-		self.hook_thread = None
-		self.sending_keys = False
-		self.key_modified = False
+		self.hookThread = None
+		self.sendingKeys = False
 		self.sd_server = None
 		self.sd_relay = None
 		self.sd_bridge = None
@@ -111,11 +110,11 @@ class GlobalPlugin(_GlobalPlugin):
 		if controlServerConfig['self_hosted']:
 			port = controlServerConfig['port']
 			address = ('localhost',port)
-			self.start_control_server(port, channel)
+			self.startControlServer(port, channel)
 		else:
 			address = address_to_hostport(controlServerConfig['host'])
 		if controlServerConfig['connection_type']==0:
-			self.connect_AsSlave(address, channel)
+			self.connectAsSlave(address, channel)
 		else:
 			self.connectAsMaster(address, channel)
 
@@ -291,12 +290,11 @@ class GlobalPlugin(_GlobalPlugin):
 			self.send_ctrl_alt_del_item.Enable(False)
 		if self.localMachine:
 			self.localMachine.is_muted = False
-		self.sending_keys = False
-		if self.hook_thread is not None:
-			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, WM_QUIT, 0, 0)
-			self.hook_thread.join()
-			self.hook_thread = None
-		self.key_modified = False
+		self.sendingKeys = False
+		if self.hookThread is not None:
+			ctypes.windll.user32.PostThreadMessageW(self.hookThread.ident, WM_QUIT, 0, 0)
+			self.hookThread.join()
+			self.hookThread = None
 		self.keyModifiers = set()
 
 	def disconnect_as_slave(self):
@@ -341,14 +339,14 @@ class GlobalPlugin(_GlobalPlugin):
 				if dlg.connection_type.GetSelection() == 0:
 					self.connectAsMaster((server_addr, port), channel)
 				else:
-					self.connect_AsSlave((server_addr, port), channel)
+					self.connectAsSlave((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
-				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
+				self.startControlServer(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
 					self.connectAsMaster(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 				else:
-					self.connect_AsSlave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
+					self.connectAsSlave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_as_master(self):
@@ -361,10 +359,10 @@ class GlobalPlugin(_GlobalPlugin):
 		self.send_ctrl_alt_del_item.Enable(True)
 		# We might have already created a hook thread before if we're restoring an
 		# interrupted connection. We must not create another.
-		if not self.hook_thread:
-			self.hook_thread = threading.Thread(target=self.hook)
-			self.hook_thread.daemon = True
-			self.hook_thread.start()
+		if not self.hookThread:
+			self.hookThread = threading.Thread(target=self.hook)
+			self.hookThread.daemon = True
+			self.hookThread.start()
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
 		cues.connected()
@@ -384,7 +382,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_AsSlave(self, address, key, insecure=False):
+	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.localMachine)
 		self.slave_transport = transport
@@ -418,7 +416,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def on_certificate_as_slave_failed(self):
 		if self.handle_certificate_failed(self.slave_transport):
-			self.connect_AsSlave(self.last_fail_address, self.last_fail_key, True)
+			self.connectAsSlave(self.last_fail_address, self.last_fail_key, True)
 
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
@@ -429,7 +427,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.copy_link_item.Enable(True)
 		configuration.write_connection_to_config(self.slave_transport.address)
 
-	def start_control_server(self, server_port, channel):
+	def startControlServer(self, server_port, channel):
 		self.server = server.Server(server_port, channel)
 		server_thread = threading.Thread(target=self.server.run)
 		server_thread.daemon = True
@@ -446,7 +444,7 @@ class GlobalPlugin(_GlobalPlugin):
 		keyhook.free()
 
 	def hook_callback(self, **kwargs):
-		if not self.sending_keys:
+		if not self.sendingKeys:
 			return False
 		keyCode = (kwargs['vk_code'], kwargs['extended'])
 		gesture = KeyboardInputGesture(self.keyModifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
@@ -478,9 +476,9 @@ class GlobalPlugin(_GlobalPlugin):
 		if not self.master_transport:
 			gesture.send()
 			return
-		self.sending_keys = not self.sending_keys
-		self.set_receiving_braille(self.sending_keys)
-		if self.sending_keys:
+		self.sendingKeys = not self.sendingKeys
+		self.setReceivingBraille(self.sendingKeys)
+		if self.sendingKeys:
 			self.hostPendingModifiers = gesture.modifiers
 			# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
 			ui.message(_("Controlling remote machine."))
@@ -495,7 +493,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.master_transport.send(type="key", vk_code=k[0], extended=k[1], pressed=False)
 		self.keyModifiers = set()
 
-	def set_receiving_braille(self, state):
+	def setReceivingBraille(self, state):
 		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
 			self.master_session.patcher.patch_braille_input()
 			if versionInfo.version_year < 2023:
@@ -520,11 +518,11 @@ class GlobalPlugin(_GlobalPlugin):
 		def event_gainFocus(self, obj, nextHandler):
 			if isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
 				self.sd_focused = True
-				self.enter_secure_desktop()
+				self.enterSecureDesktop()
 			elif self.sd_focused and not isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
 				#event_leaveFocus won't work for some reason
 				self.sd_focused = False
-				self.leave_secure_desktop()
+				self.leaveSecureDesktop()
 			nextHandler()
 
 	# For NVDA 2024.1 and above
@@ -533,11 +531,11 @@ class GlobalPlugin(_GlobalPlugin):
 		@param isSecureDesktop: True if the new desktop is the secure desktop.
 		'''
 		if isSecureDesktop:
-			self.enter_secure_desktop()
+			self.enterSecureDesktop()
 		else:
-			self.leave_secure_desktop()
+			self.leaveSecureDesktop()
 
-	def enter_secure_desktop(self):
+	def enterSecureDesktop(self):
 		"""function ran when entering a secure desktop."""
 		if self.slave_transport is None:
 			return
@@ -560,7 +558,7 @@ class GlobalPlugin(_GlobalPlugin):
 		with open(self.ipc_file, 'w') as fp:
 			json.dump(data, fp)
 
-	def leave_secure_desktop(self):
+	def leaveSecureDesktop(self):
 		if self.sd_server is None:
 			return #Nothing to do
 		self.sd_bridge.disconnect()
@@ -586,7 +584,7 @@ class GlobalPlugin(_GlobalPlugin):
 			test_socket=ssl.wrap_socket(test_socket)
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
-			self.connect_AsSlave(('127.0.0.1', port), channel, insecure=True)
+			self.connectAsSlave(('127.0.0.1', port), channel, insecure=True)
 			# So we don't miss the first output when switching to a secure desktop,
 			# block the main thread until the connection is established. We're
 			# connecting to localhost, so this should be pretty fast. Use a short
@@ -595,7 +593,7 @@ class GlobalPlugin(_GlobalPlugin):
 		except:
 			pass
 
-	def verify_connect(self, con_info):
+	def verifyConnect(self, con_info):
 		if self.is_connected() or self.connecting:
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
 			return
@@ -612,7 +610,7 @@ class GlobalPlugin(_GlobalPlugin):
 		if con_info.mode == 'master':
 			self.connectAsMaster((con_info.hostname, con_info.port), key=key)
 		elif con_info.mode == 'slave':
-			self.connect_AsSlave((con_info.hostname, con_info.port), key=key)
+			self.connectAsSlave((con_info.hostname, con_info.port), key=key)
 		self.connecting = False
 
 	def is_connected(self):
