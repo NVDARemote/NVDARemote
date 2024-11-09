@@ -481,11 +481,19 @@ class GlobalPlugin(_GlobalPlugin):
 		self.sending_keys = not self.sending_keys
 		self.set_receiving_braille(self.sending_keys)
 		if self.sending_keys:
+			self.hostPendingModifiers = gesture.modifiers
 			# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
 			ui.message(_("Controlling remote machine."))
 		else:
+			self.releaseKeys()
 			# Translators: Presented when keyboard control is back to the controlling computer.
 			ui.message(_("Controlling local machine."))
+
+	def releaseKeys(self):
+		# release all pressed keys in the guest.
+		for k in self.keyModifiers:
+			self.master_transport.send(type="key", vk_code=k[0], extended=k[1], pressed=False)
+		self.keyModifiers = set()
 
 	def set_receiving_braille(self, state):
 		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
