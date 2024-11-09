@@ -70,7 +70,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.keyModifiers = set()
 		self.hostPendingModifiers = set()
 		self.localScripts = {self.script_sendKeys}
-		self.local_machine = local_machine.LocalMachine()
+		self.localMachine = local_machine.LocalMachine()
 		self.slave_session = None
 		self.master_session = None
 		self.create_menu()
@@ -155,8 +155,8 @@ class GlobalPlugin(_GlobalPlugin):
 		if versionInfo.version_year >= 2024:
 			post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
 		self.disconnect()
-		self.local_machine.terminate()
-		self.local_machine = None
+		self.localMachine.terminate()
+		self.localMachine = None
 		self.menu.Remove(self.connect_item.Id)
 		self.connect_item.Destroy()
 		self.connect_item=None
@@ -202,14 +202,14 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def on_mute_item(self, evt):
 		evt.Skip()
-		self.local_machine.is_muted = self.mute_item.IsChecked()
+		self.localMachine.is_muted = self.mute_item.IsChecked()
 
 	def script_toggle_remote_mute(self, gesture):
 		if not self.is_connected() or self.connecting: return
-		self.local_machine.is_muted = not self.local_machine.is_muted
-		self.mute_item.Check(self.local_machine.is_muted)
+		self.localMachine.is_muted = not self.localMachine.is_muted
+		self.mute_item.Check(self.localMachine.is_muted)
 		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
-		status = _("Mute speech and sounds from the remote computer") if self.local_machine.is_muted else _("Unmute speech and sounds from the remote computer")
+		status = _("Mute speech and sounds from the remote computer") if self.localMachine.is_muted else _("Unmute speech and sounds from the remote computer")
 		ui.message(status)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
@@ -289,8 +289,8 @@ class GlobalPlugin(_GlobalPlugin):
 			self.push_clipboard_item.Enable(False)
 			self.copy_link_item.Enable(False)
 			self.send_ctrl_alt_del_item.Enable(False)
-		if self.local_machine:
-			self.local_machine.is_muted = False
+		if self.localMachine:
+			self.localMachine.is_muted = False
 		self.sending_keys = False
 		if self.hook_thread is not None:
 			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, WM_QUIT, 0, 0)
@@ -375,7 +375,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def connect_as_master(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
-		self.master_session = MasterSession(transport=transport, local_machine=self.local_machine)
+		self.master_session = MasterSession(transport=transport, local_machine=self.localMachine)
 		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
 		transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected_as_master)
 		transport.callback_manager.register_callback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
@@ -386,7 +386,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def connect_as_slave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
-		self.slave_session = SlaveSession(transport=transport, local_machine=self.local_machine)
+		self.slave_session = SlaveSession(transport=transport, local_machine=self.localMachine)
 		self.slave_transport = transport
 		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
 		self.slave_transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected_as_slave)
@@ -509,12 +509,12 @@ class GlobalPlugin(_GlobalPlugin):
 					if braille.handler._messageCallLater:
 						braille.handler._messageCallLater.Stop()
 						braille.handler._messageCallLater = None
-			self.local_machine.receiving_braille=True
+			self.localMachine.receiving_braille=True
 		elif not state:
 			self.master_session.patcher.unpatch_braille_input()
 			if versionInfo.version_year < 2023:
 				braille.handler.enabled = bool(braille.handler.displaySize)
-			self.local_machine.receiving_braille=False
+			self.localMachine.receiving_braille=False
 
 	if versionInfo.version_year < 2024:
 		def event_gainFocus(self, obj, nextHandler):
