@@ -218,7 +218,7 @@ class RelayTransport(TCPTransport):
 		self.channel = channel
 		self.connection_type = connection_type
 		self.protocol_version = protocol_version
-		self.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected)
+		self.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected)
 
 	def on_connected(self):
 		self.send('protocol_version', version=self.protocol_version)

@@ -363,11 +363,11 @@ class GlobalPlugin(_GlobalPlugin):
 	def connectAsMaster(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.masterSession = MasterSession(transport=transport, local_machine=self.localMachine)
-		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
-		transport.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected_as_master)
-		transport.callback_manager.register_callback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
-		transport.callback_manager.register_callback(TransportEvents.CLOSING, self.disconnecting_as_master)
-		transport.callback_manager.register_callback(TransportEvents.DISCONNECTED, self.on_disconnected_as_master)
+		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
+		transport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_master)
+		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
+		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnecting_as_master)
+		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.on_disconnected_as_master)
 		self.masterTransport = transport
 		self.masterTransport.reconnector_thread.start()
 
@@ -375,8 +375,8 @@ class GlobalPlugin(_GlobalPlugin):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, local_machine=self.localMachine)
 		self.slaveTransport = transport
-		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
-		self.slaveTransport.callback_manager.register_callback(TransportEvents.CONNECTED, self.on_connected_as_slave)
+		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
+		self.slaveTransport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_slave)
 		self.slaveTransport.reconnector_thread.start()
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
@@ -537,8 +537,8 @@ class GlobalPlugin(_GlobalPlugin):
 		server_thread.daemon = True
 		server_thread.start()
 		self.sdRelay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel, insecure=True)
-		self.sdRelay.callback_manager.register_callback('msg_client_joined', self.on_master_display_change)
-		self.slaveTransport.callback_manager.register_callback('msg_set_braille_info', self.on_master_display_change)
+		self.sdRelay.callback_manager.registerCallback('msg_client_joined', self.on_master_display_change)
+		self.slaveTransport.callback_manager.registerCallback('msg_set_braille_info', self.on_master_display_change)
 		self.sdBridge = bridge.BridgeTransport(self.slaveTransport, self.sdRelay)
 		relay_thread = threading.Thread(target=self.sdRelay.run)
 		relay_thread.daemon = True
@@ -556,8 +556,8 @@ class GlobalPlugin(_GlobalPlugin):
 		self.sdServer = None
 		self.sdRelay.close()
 		self.sdRelay = None
-		self.slaveTransport.callback_manager.unregister_callback('msg_set_braille_info', self.on_master_display_change)
-		self.slaveSession.set_display_size()
+		self.slaveTransport.callback_manager.unregisterCallback('msg_set_braille_info', self.on_master_display_change)
+		self.slaveSession.setDisplaySize()
 
 	def on_master_display_change(self, **kwargs):
 		self.sdRelay.send(type='set_display_size', sizes=self.slaveSession.master_display_sizes)

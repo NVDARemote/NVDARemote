@@ -12,11 +12,11 @@ class CallbackManager:
 	def __init__(self):
 		self.callbacks = defaultdict(list)
 
-	def register_callback(self, event_type, callback):
+	def registerCallback(self, event_type, callback):
 		"""Registers a callback as a callable to an event type, which can be anything hashable"""
 		self.callbacks[event_type].append(callback)
 
-	def unregister_callback(self, event_type, callback):
+	def unregisterCallback(self, event_type, callback):
 		"""Unregisters a callback from an event type"""
 		self.callbacks[event_type].remove(callback)
 
