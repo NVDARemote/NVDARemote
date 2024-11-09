@@ -1,8 +1,9 @@
 import os
-from . import beep_sequence
-import tones
+
 import nvwave
-from . import configuration
+import tones
+
+from . import beep_sequence, configuration
 
 local_beep = tones.beep
 local_playWaveFile = nvwave.playWaveFile

@@ -1,14 +1,9 @@
 from logging import getLogger
+
 logger = getLogger('keyboard_hook')
 
 import ctypes
-from ctypes import (
-	wintypes,
-	Structure,
-	c_long,
-	c_int,
-)
-
+from ctypes import Structure, c_int, c_long, wintypes
 
 HC_ACTION = 0
 WH_KEYBOARD_LL = 13

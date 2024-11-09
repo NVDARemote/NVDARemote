@@ -1,23 +1,17 @@
-from .transport import TransportEvents
-from . import connection_info
+import hashlib
+from collections import defaultdict
+
+import addonHandler
+import braille
 import gui
 import speech
 import ui
-import braille
 import versionInfo
 from logHandler import log
-from . import configuration
-from . import nvda_patcher
-from . import RelayTransport
-from collections import defaultdict
-from . import connection_info
-from . import cues
-import hashlib
-import addonHandler
 
-
-
-
+from . import (RelayTransport, configuration, connection_info, cues,
+               nvda_patcher)
+from .transport import TransportEvents
 
 addonHandler.initTranslation()
 if not (

@@ -1,40 +1,36 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import ctypes
 import ctypes.wintypes
-import os
-import sys
 import json
-import threading
+import os
 import socket
 import ssl
+import sys
+import threading
 import uuid
-
-import configobj
-import wx
-
 
 import addonHandler
 import api
+import braille
+import configobj
+import globalVars
+import gui
+import IAccessibleHandler
+import speech
+import ui
+import wx
+from config import isInstalledCopy
 from globalPluginHandler import GlobalPlugin as _GlobalPlugin
 from keyboardHandler import KeyboardInputGesture
 from scriptHandler import script
-import IAccessibleHandler
-import globalVars
 
-import ui
-from config import isInstalledCopy
-import gui
-import speech
-import braille
-from . import local_machine
-from . import serializer
-from . import configuration
-from . import cues
-from .transport import RelayTransport, TransportEvents
+from . import configuration, cues, local_machine, serializer, url_handler
 from .session import MasterSession, SlaveSession
-from . import url_handler
+from .transport import RelayTransport, TransportEvents
+
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:
@@ -42,21 +38,17 @@ except addonHandler.AddonError:
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
-from . import dialogs
-from . import keyboard_hook
-from . import server
-from . import bridge
+from winUser import WM_QUIT  # provided by NVDA
+
+from . import bridge, dialogs, keyboard_hook, server
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 
-from winUser import WM_QUIT  # provided by NVDA
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
+import queueHandler
+import shlobj
+import versionInfo
 from logHandler import log
 
-import shlobj
-
-
-import queueHandler
-import versionInfo
 if versionInfo.version_year >= 2024:
 	from winAPI.secureDesktop import post_secureDesktopStateChange
 

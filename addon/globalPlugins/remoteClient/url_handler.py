@@ -7,13 +7,14 @@ except ImportError:
 import ctypes
 import ctypes.wintypes
 import os
-from winUser import WM_COPYDATA  # provided by NVDA
-from . import regobj
-from . import connection_info
 
+import gui  # provided by NVDA
 import windowUtils
 import wx
-import gui  # provided by NVDA
+from winUser import WM_COPYDATA  # provided by NVDA
+
+from . import connection_info, regobj
+
 
 class COPYDATASTRUCT(ctypes.Structure):
 	_fields_ = [
@@ -22,9 +23,11 @@ class COPYDATASTRUCT(ctypes.Structure):
 		('lpData', ctypes.c_void_p)
 	]
 
+
 PCOPYDATASTRUCT = ctypes.POINTER(COPYDATASTRUCT)
 
 MSGFLT_ALLOW = 1
+
 
 class URLHandlerWindow(windowUtils.CustomWindow):
 	className = u'NVDARemoteURLHandler'
@@ -33,7 +36,8 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 		super().__init__(*args, **kwargs)
 		self.callback = callback
 		try:
-			ctypes.windll.user32.ChangeWindowMessageFilterEx(self.handle, WM_COPYDATA, MSGFLT_ALLOW, None)
+			ctypes.windll.user32.ChangeWindowMessageFilterEx(
+				self.handle, WM_COPYDATA, MSGFLT_ALLOW, None)
 		except AttributeError:
 			pass
 
@@ -49,19 +53,22 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 			con_info = connection_info.ConnectionInfo.from_url(url)
 		except connection_info.URLParsingError:
 			wx.CallLater(50, gui.messageBox, parent=gui.mainFrame, caption=_("Invalid URL"),
-			# Translators: Message shown when an invalid URL has been provided.
-			message=_("Unable to parse url \"%s\"")%url, style=wx.OK | wx.ICON_ERROR)
+						 # Translators: Message shown when an invalid URL has been provided.
+						 message=_("Unable to parse url \"%s\"") % url, style=wx.OK | wx.ICON_ERROR)
 			log.exception("unable to parse nvdaremote:// url %s" % url)
 			raise
 		log.info("Connection info: %r" % con_info)
 		if callable(self.callback):
 			wx.CallLater(50, self.callback, con_info)
 
+
 def register_url_handler():
 	regobj.HKCU.SOFTWARE.Classes.nvdaremote = URL_HANDLER_REGISTRY
 
+
 def unregister_url_handler():
-	del regobj.HKCU.SOFTWARE.Classes.nvdaremote 
+	del regobj.HKCU.SOFTWARE.Classes.nvdaremote
+
 
 def url_handler_path():
 	return os.path.join(os.path.split(os.path.abspath(__file__))[0], 'url_handler.exe')
@@ -72,9 +79,8 @@ URL_HANDLER_REGISTRY = {
 	"shell": {
 		"open": {
 			"command": {
-				"": '"{path}" %1'.format(path=url_handler_path()),
+					"": '"{path}" %1'.format(path=url_handler_path()),
 			}
 		}
 	}
 }
-

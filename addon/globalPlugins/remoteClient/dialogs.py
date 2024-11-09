@@ -2,14 +2,14 @@ import json
 import random
 import threading
 from urllib import request
-import wx
-import gui
-from . import serializer
-from . import server
-from . import transport
-from . import socket_utils
-from logHandler import log
+
 import addonHandler
+import gui
+import wx
+from logHandler import log
+
+from . import serializer, server, socket_utils, transport
+
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:

@@ -1,24 +1,27 @@
-import os
-import wx
-from . import input
-from . import cues
-import api
-import nvwave
-import tones
-import speech
 import ctypes
+import os
+
+import api
 import braille
 import inputCore
+import nvwave
+import speech
+import tones
 import versionInfo
+import wx
+
+from . import cues, input
 
 try:
 	from systemUtils import hasUiAccess
 except ModuleNotFoundError:
 	from config import hasUiAccess
 
+import logging
+
 import ui
 import versionInfo
-import logging
+
 logger = logging.getLogger('local_machine')
 
 
