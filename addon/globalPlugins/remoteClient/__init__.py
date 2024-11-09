@@ -1,26 +1,40 @@
-REMOTE_KEY = "kb:f11"
+import logging
+logger = logging.getLogger(__name__)
+
+import ctypes
+import ctypes.wintypes
 import os
 import sys
 import json
 import threading
 import socket
-from globalPluginHandler import GlobalPlugin as _GlobalPlugin
-import logging
-logger = logging.getLogger(__name__)
+import ssl
+import uuid
+
+import configobj
 import wx
+
+
+import addonHandler
+import api
+from globalPluginHandler import GlobalPlugin as _GlobalPlugin
+from keyboardHandler import KeyboardInputGesture
+from scriptHandler import script
+import IAccessibleHandler
+import globalVars
+
+import ui
 from config import isInstalledCopy
-from . import configuration
-from . import cues
 import gui
 import speech
-from .transport import RelayTransport, TransportEvents
 import braille
 from . import local_machine
 from . import serializer
+from . import configuration
+from . import cues
+from .transport import RelayTransport, TransportEvents
 from .session import MasterSession, SlaveSession
 from . import url_handler
-import ui
-import addonHandler
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:
@@ -28,23 +42,19 @@ except addonHandler.AddonError:
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
-from . import keyboard_hook
-import ctypes
-import ctypes.wintypes
-from winUser import WM_QUIT, VK_F11  # provided by NVDA
-logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
-from logHandler import log
 from . import dialogs
-import IAccessibleHandler
-import globalVars
-import shlobj
-import uuid
+from . import keyboard_hook
 from . import server
 from . import bridge
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
-import api
-import ssl
-import configobj
+
+from winUser import WM_QUIT  # provided by NVDA
+logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
+from logHandler import log
+
+import shlobj
+
+
 import queueHandler
 import versionInfo
 if versionInfo.version_year >= 2024:
@@ -53,9 +63,13 @@ if versionInfo.version_year >= 2024:
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
+	localScripts = set()
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.keyModifiers = set()
+		self.hostPendingModifiers = set()
+		self.localScripts = {self.script_sendKeys}
 		self.local_machine = local_machine.LocalMachine()
 		self.slave_session = None
 		self.master_session = None
@@ -282,8 +296,8 @@ class GlobalPlugin(_GlobalPlugin):
 			ctypes.windll.user32.PostThreadMessageW(self.hook_thread.ident, WM_QUIT, 0, 0)
 			self.hook_thread.join()
 			self.hook_thread = None
-			self.removeGestureBinding(REMOTE_KEY)
 		self.key_modified = False
+		self.keyModifiers = set()
 
 	def disconnect_as_slave(self):
 		self.slave_transport.close()
@@ -351,7 +365,6 @@ class GlobalPlugin(_GlobalPlugin):
 			self.hook_thread = threading.Thread(target=self.hook)
 			self.hook_thread.daemon = True
 			self.hook_thread.start()
-		self.bindGesture(REMOTE_KEY, "sendKeys")
 		# Translators: Presented when connected to the remote computer.
 		ui.message(_("Connected!"))
 		cues.connected()
@@ -433,26 +446,54 @@ class GlobalPlugin(_GlobalPlugin):
 		keyhook.free()
 
 	def hook_callback(self, **kwargs):
-		#Prevent disabling sending keys if another key is held down
 		if not self.sending_keys:
 			return False
-		if kwargs['vk_code'] != VK_F11:
-			self.key_modified = kwargs['pressed']
-		if kwargs['vk_code'] == VK_F11 and kwargs['pressed'] and not self.key_modified:
-			self.sending_keys = False
-			self.set_receiving_braille(False)
-			# This is called from the hook thread and should be executed on the main thread.
-			# Translators: Presented when keyboard control is back to the controlling computer.
-			wx.CallAfter(ui.message, _("Controlling local machine."))
-			return True #Don't pass it on
+		keyCode = (kwargs['vk_code'], kwargs['extended'])
+		gesture = KeyboardInputGesture(self.keyModifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
+		if not kwargs['pressed'] and keyCode in self.hostPendingModifiers:
+			self.hostPendingModifiers.discard(keyCode)
+			return False
+		gesture = KeyboardInputGesture(self.keyModifiers, keyCode[0], kwargs['scan_code'], keyCode[1])
+		if gesture.isModifier:
+			if kwargs['pressed']:
+				self.keyModifiers.add(keyCode)
+			else:
+				self.keyModifiers.discard(keyCode)
+		elif kwargs['pressed']:
+			script = gesture.script
+			if script in self.localScripts:
+				wx.CallAfter(script, gesture)
+				return True
 		self.master_transport.send(type="key", **kwargs)
 		return True #Don't pass it on
 
+
+
+	@script(
+		# Translators: Documentation string for the script that toggles the control between guest and host machine.
+		description=_("Toggles the control between guest and host machine"),
+		gesture="kb:f11",
+		)
 	def script_sendKeys(self, gesture):
-		# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
-		ui.message(_("Controlling remote machine."))
-		self.sending_keys = True
-		self.set_receiving_braille(True)
+		if not self.master_transport:
+			gesture.send()
+			return
+		self.sending_keys = not self.sending_keys
+		self.set_receiving_braille(self.sending_keys)
+		if self.sending_keys:
+			self.hostPendingModifiers = gesture.modifiers
+			# Translators: Presented when sending keyboard keys from the controlling computer to the controlled computer.
+			ui.message(_("Controlling remote machine."))
+		else:
+			self.releaseKeys()
+			# Translators: Presented when keyboard control is back to the controlling computer.
+			ui.message(_("Controlling local machine."))
+
+	def releaseKeys(self):
+		# release all pressed keys in the guest.
+		for k in self.keyModifiers:
+			self.master_transport.send(type="key", vk_code=k[0], extended=k[1], pressed=False)
+		self.keyModifiers = set()
 
 	def set_receiving_braille(self, state):
 		if state and self.master_session.patch_callbacks_added and braille.handler.enabled:
