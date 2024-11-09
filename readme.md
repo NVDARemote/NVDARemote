@@ -55,8 +55,8 @@ When the other person connects, you can use NVDA Remote normally.
 
 ## Controlling the remote machine
 
-Once the session is connected, the user of the controlling machine can press f11 to start controlling the remote machine (e.g. by sending keyboard keys or braille input).
-When NVDA says controlling remote machine, the keyboard and braille display keys you press will go to the remote machine. Furthermore, when the controlling machine is using a braille display, information from the remote machine will be displayed on it. Press f11 again to stop sending keys and switch back to the controlling machine.
+Once the session is connected, the user of the controlling machine can press f11 (by default) to start controlling the remote machine (e.g. by sending keyboard keys or braille input). This keystroke can be customized in NVDA Menu -> Preferences -> Input Gestures under the "Remote" category by searching for "Toggles the control between guest and host machine". 
+When NVDA says controlling remote machine, the keyboard and braille display keys you press will go to the remote machine. Furthermore, when the controlling machine is using a braille display, information from the remote machine will be displayed on it. Press f11 (or your customized keystroke) again to stop sending keys and switch back to the controlling machine.
 For best compatibility, please ensure that the keyboard layouts on both machines match.
 
 ## Sharing your session
@@ -95,7 +95,7 @@ If you do not wish to hear the remote computer's speech or NVDA specific sounds,
 
 To end a remote session, do the following:
 
-1. On the controlling computer, press F11 to stop controlling the remote machine. You should hear or read the message: "Controlling local machine." If you instead hear or read a message that you are controlling the remote machine, press F11 once more.
+1. On the controlling computer, press F11 (or your customized keystroke) to stop controlling the remote machine. You should hear or read the message: "Controlling local machine." If you instead hear or read a message that you are controlling the remote machine, press the keystroke once more.
 2. Access the NVDA menu, then Tools, Remote, and press Enter on Disconnect. Alternatively, you can press NVDA+alt+page down to directly disconnect from a remote session.
 
 ## Push clipboard
