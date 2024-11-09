@@ -100,24 +100,24 @@ class GlobalPlugin(_GlobalPlugin):
 		if globalVars.appArgs.secure:
 			self.handle_secure_desktop()
 		if cs['autoconnect'] and not self.master_session and not self.slave_session:
-			self.perform_autoconnect()
+			self.performAutoconnect()
 		self.sd_focused = False
 		if versionInfo.version_year >= 2024:
 			post_secureDesktopStateChange.register(self.onSecureDesktopChange)
 
-	def perform_autoconnect(self):
-		cs = configuration.get_config()['controlserver']
-		channel = cs['key']
-		if cs['self_hosted']:
-			port = cs['port']
+	def performAutoconnect(self):
+		controlServerConfig = configuration.get_config()['controlserver']
+		channel = controlServerConfig['key']
+		if controlServerConfig['self_hosted']:
+			port = controlServerConfig['port']
 			address = ('localhost',port)
 			self.start_control_server(port, channel)
 		else:
-			address = address_to_hostport(cs['host'])
-		if cs['connection_type']==0:
-			self.connect_as_slave(address, channel)
+			address = address_to_hostport(controlServerConfig['host'])
+		if controlServerConfig['connection_type']==0:
+			self.connect_AsSlave(address, channel)
 		else:
-			self.connect_as_master(address, channel)
+			self.connectAsMaster(address, channel)
 
 	def createMenu(self):
 		self.menu = wx.Menu()
@@ -339,16 +339,16 @@ class GlobalPlugin(_GlobalPlugin):
 				server_addr, port = address_to_hostport(host)
 				channel = dlg.panel.key.GetValue()
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_as_master((server_addr, port), channel)
+					self.connectAsMaster((server_addr, port), channel)
 				else:
-					self.connect_as_slave((server_addr, port), channel)
+					self.connect_AsSlave((server_addr, port), channel)
 			else: #We want a server
 				channel = dlg.panel.key.GetValue()
 				self.start_control_server(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
-					self.connect_as_master(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
+					self.connectAsMaster(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 				else:
-					self.connect_as_slave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
+					self.connect_AsSlave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
 	def on_connected_as_master(self):
@@ -373,7 +373,7 @@ class GlobalPlugin(_GlobalPlugin):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connect_as_master(self, address, key, insecure=False):
+	def connectAsMaster(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.master_session = MasterSession(transport=transport, local_machine=self.localMachine)
 		transport.callback_manager.register_callback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
@@ -384,7 +384,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.master_transport = transport
 		self.master_transport.reconnector_thread.start()
 
-	def connect_as_slave(self, address, key, insecure=False):
+	def connect_AsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slave_session = SlaveSession(transport=transport, local_machine=self.localMachine)
 		self.slave_transport = transport
@@ -414,11 +414,11 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def on_certificate_as_master_failed(self):
 		if self.handle_certificate_failed(self.master_transport):
-			self.connect_as_master(self.last_fail_address, self.last_fail_key, True)
+			self.connectAsMaster(self.last_fail_address, self.last_fail_key, True)
 
 	def on_certificate_as_slave_failed(self):
 		if self.handle_certificate_failed(self.slave_transport):
-			self.connect_as_slave(self.last_fail_address, self.last_fail_key, True)
+			self.connect_AsSlave(self.last_fail_address, self.last_fail_key, True)
 
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
@@ -586,7 +586,7 @@ class GlobalPlugin(_GlobalPlugin):
 			test_socket=ssl.wrap_socket(test_socket)
 			test_socket.connect(('127.0.0.1', port))
 			test_socket.close()
-			self.connect_as_slave(('127.0.0.1', port), channel, insecure=True)
+			self.connect_AsSlave(('127.0.0.1', port), channel, insecure=True)
 			# So we don't miss the first output when switching to a secure desktop,
 			# block the main thread until the connection is established. We're
 			# connecting to localhost, so this should be pretty fast. Use a short
@@ -610,9 +610,9 @@ class GlobalPlugin(_GlobalPlugin):
 			self.connecting = False
 			return
 		if con_info.mode == 'master':
-			self.connect_as_master((con_info.hostname, con_info.port), key=key)
+			self.connectAsMaster((con_info.hostname, con_info.port), key=key)
 		elif con_info.mode == 'slave':
-			self.connect_as_slave((con_info.hostname, con_info.port), key=key)
+			self.connect_AsSlave((con_info.hostname, con_info.port), key=key)
 		self.connecting = False
 
 	def is_connected(self):
