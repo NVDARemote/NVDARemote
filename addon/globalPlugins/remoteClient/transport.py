@@ -1,18 +1,20 @@
+import hashlib
+import select
+import socket
+import ssl
 import threading
 import time
-import queue
-import ssl
-import socket
-import select
-import hashlib
 from collections import defaultdict
-from typing import Tuple
 from logging import getLogger
+from queue import Queue
+from typing import Tuple
+
 log = getLogger('transport')
-from . import callback_manager
-from . import configuration
-from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 from enum import Enum
+
+from . import configuration
+from .callback_manager import CallbackManager
+from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 
 PROTOCOL_VERSION: int = 2
 
@@ -27,12 +29,12 @@ class TransportEvents(Enum):
 class Transport:
 	connected: bool
 	successful_connects: int
-	callback_manager: callback_manager.CallbackManager
+	callback_manager: CallbackManager
 	connect_event: threading.Event
 
 	def __init__(self, serializer):
 		self.serializer = serializer
-		self.callback_manager = callback_manager.CallbackManager()
+		self.callback_manager = CallbackManager()
 		self.connected = False
 		self.successful_connects = 0
 		self.connected_event = threading.Event()
@@ -41,12 +43,12 @@ class Transport:
 		self.successful_connects += 1
 		self.connected = True
 		self.connected_event.set()
-		self.callback_manager.call_callbacks(TransportEvents.CONNECTED)
+		self.callback_manager.callCallbacks(TransportEvents.CONNECTED)
 
 class TCPTransport(Transport):
 	buffer: bytes
 	closed: bool
-	queue: queue.Queue
+	queue: Queue
 	insecure: bool
 	server_sock_lock: threading.Lock
 	
@@ -55,7 +57,7 @@ class TCPTransport(Transport):
 		self.closed = False
 		#Buffer to hold partially received data
 		self.buffer = B''
-		self.queue = queue.Queue()
+		self.queue = Queue()
 		self.address = address
 		self.server_sock = None
 		# Reading/writing from an SSL socket is not thread safe.
@@ -86,10 +88,10 @@ class TCPTransport(Transport):
 				self.insecure=True
 				return self.run()
 			self.last_fail_fingerprint = fingerprint
-			self.callback_manager.call_callbacks(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED)
+			self.callback_manager.callCallbacks(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED)
 			raise
 		except Exception:
-			self.callback_manager.call_callbacks(TransportEvents.CONNECTION_FAILED)
+			self.callback_manager.callCallbacks(TransportEvents.CONNECTION_FAILED)
 			raise
 		self.transport_connected()
 		self.queue_thread = threading.Thread(target=self.send_queue)
@@ -112,7 +114,7 @@ class TCPTransport(Transport):
 					break
 		self.connected = False
 		self.connected_event.clear()
-		self.callback_manager.call_callbacks(TransportEvents.DISCONNECTED)
+		self.callback_manager.callCallbacks(TransportEvents.DISCONNECTED)
 		self._disconnect()
 
 	def create_outbound_socket(self, host, port, insecure=False):
@@ -172,7 +174,7 @@ class TCPTransport(Transport):
 			return
 		callback = "msg_"+obj['type']
 		del obj['type']
-		self.callback_manager.call_callbacks(callback, **obj)
+		self.callback_manager.callCallbacks(callback, **obj)
 
 	def send_queue(self):
 		while True:
@@ -202,7 +204,7 @@ class TCPTransport(Transport):
 			self.server_sock = None
 
 	def close(self):
-		self.callback_manager.call_callbacks(TransportEvents.CLOSING)
+		self.callback_manager.callCallbacks(TransportEvents.CLOSING)
 		self.reconnector_thread.running = False
 		self._disconnect()
 		self.closed = True

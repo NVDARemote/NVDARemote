@@ -17,7 +17,7 @@ class CallbackManager:
 		"""Unregisters a callback from an event type"""
 		self.callbacks[event_type].remove(callback)
 
-	def call_callbacks(self, type, *args, **kwargs):
+	def callCallbacks(self, type, *args, **kwargs):
 		"""Calls all callbacks for a given event type with the provided args and kwargs"""
 		for callback in self.callbacks[type]:
 			try:

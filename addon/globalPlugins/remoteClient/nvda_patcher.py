@@ -46,14 +46,14 @@ class NVDAPatcher(callback_manager.CallbackManager):
 	def setDisplayByName(self, *args, **kwargs):
 		result=self.origSetDisplayByName(*args, **kwargs)
 		if result:
-			self.call_callbacks('set_display')
+			self.callCallbacks('set_display')
 		return result
 
 	def handle_displayChanged(self, display):
-		self.call_callbacks('set_display', display=display)
+		self.callCallbacks('set_display', display=display)
 
 	def handle_displaySizeChanged(self, displaySize):
-		self.call_callbacks('set_display', displaySize=displaySize)
+		self.callCallbacks('set_display', displaySize=displaySize)
 
 class NVDASlavePatcher(NVDAPatcher):
 	"""Class to manage patching of synth, tones, nvwave, and braille."""
@@ -159,24 +159,24 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.unpatchBraille()
 
 	def speak(self, speechSequence, priority):
-		self.call_callbacks('speak', speechSequence=speechSequence, priority=priority)
+		self.callCallbacks('speak', speechSequence=speechSequence, priority=priority)
 		self.origSpeak(speechSequence, priority)
 
 	def cancel(self):
-		self.call_callbacks('cancel_speech')
+		self.callCallbacks('cancel_speech')
 		self.origCancel()
 
 	def pauseSpeech(self, switch):
-		self.call_callbacks('pause_speech', switch=switch)
+		self.callCallbacks('pause_speech', switch=switch)
 		self.orig_pauseSpeech(switch)
 
 	def beep(self, hz, length, left=50, right=50):
 		"""Pre NVDA 2023.1."""
-		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right)
+		self.callCallbacks('beep', hz=hz, length=length, left=left, right=right)
 		return self.origBeep(hz=hz, length=length, left=left, right=right)
 
 	def handle_decide_beep(self, hz, length, left=50, right=50, isSpeechBeepCommand=False):
-		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right, isSpeechBeepCommand=isSpeechBeepCommand)
+		self.callCallbacks('beep', hz=hz, length=length, left=left, right=right, isSpeechBeepCommand=isSpeechBeepCommand)
 		return True
 
 	def playWaveFile(self, fileName, asynchronous=True):
@@ -185,11 +185,11 @@ class NVDASlavePatcher(NVDAPatcher):
 		Used to instruct master to play this file also. File is then played locally.
 		Note: Signature must match nvwave.playWaveFile
 		"""
-		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
+		self.callCallbacks('wave', fileName=fileName, asynchronous=asynchronous)
 		return self.origPlayWaveFile(fileName, asynchronous)
 
 	def handle_decide_playWaveFile(self, fileName, asynchronous=True, isSpeechWaveFileCommand=False):
-		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous, isSpeechWaveFileCommand=isSpeechWaveFileCommand)
+		self.callCallbacks('wave', fileName=fileName, asynchronous=asynchronous, isSpeechWaveFileCommand=isSpeechWaveFileCommand)
 		return True
 
 	def display(self, cells):
@@ -197,7 +197,7 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.origDisplay(cells)
 
 	def handle_pre_writeCells(self, cells):
-		self.call_callbacks('display', cells=cells)
+		self.callCallbacks('display', cells=cells)
 
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""
@@ -271,7 +271,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 				dict["space"]=gesture.space
 			if hasattr(gesture,"routingIndex") and "routingIndex" not in dict:
 				dict["routingIndex"]=gesture.routingIndex
-			self.call_callbacks('braille_input', **dict)
+			self.callCallbacks('braille_input', **dict)
 			return False
 		else:
 			return True
