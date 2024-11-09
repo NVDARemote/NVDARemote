@@ -9,9 +9,8 @@ import ui
 import versionInfo
 from logHandler import log
 
-from . import (RelayTransport, configuration, connection_info, cues,
-               nvda_patcher)
-from .transport import TransportEvents
+from . import configuration, connection_info, cues, nvda_patcher
+from .transport import TransportEvents, RelayTransport
 
 addonHandler.initTranslation()
 if not (
