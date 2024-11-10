@@ -194,6 +194,9 @@ class DirectConnectDialog(wx.Dialog):
 		else:
 			evt.Skip()
 
+	def get_key(self):
+		return self.panel.key.GetValue()
+		
 class OptionsDialog(wx.Dialog):
 
 	def __init__(self, parent, id, title):

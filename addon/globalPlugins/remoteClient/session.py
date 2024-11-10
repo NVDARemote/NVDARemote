@@ -83,7 +83,8 @@ class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
 	mode = 'slave'
-
+	patcher: nvda_patcher.NVDASlavePatcher	
+	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.transport.callback_manager.registerCallback(
@@ -231,6 +232,7 @@ class SlaveSession(RemoteSession):
 class MasterSession(RemoteSession):
 
 	mode = 'master'
+	patcher: nvda_patcher.NVDAMasterPatcher
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

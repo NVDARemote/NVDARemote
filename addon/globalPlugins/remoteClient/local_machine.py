@@ -41,9 +41,9 @@ def setSpeechCancelledToFalse():
 class LocalMachine:
 
 	def __init__(self):
-		self.is_muted = False
-		self.receiving_braille=False
-		self._cached_sizes = None
+		self.isMuted = False
+		self.receivingBraille=False
+		self._cachedSizes = None
 		if versionInfo.version_year >= 2023:
 			braille.decide_enabled.register(self.handleDecideEnabled)
 
@@ -53,7 +53,7 @@ class LocalMachine:
 
 	def playWave(self, fileName):
 		"""Instructed by remote machine to play a wave file."""
-		if self.is_muted:
+		if self.isMuted:
 			return
 		if os.path.exists(fileName):
 			# ignore async / asynchronous from kwargs:
@@ -61,17 +61,17 @@ class LocalMachine:
 			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz, length, left, right, **kwargs):
-		if self.is_muted:
+		if self.isMuted:
 			return
 		tones.beep(hz, length, left, right)
 
 	def cancelSpeech(self, **kwargs):
-		if self.is_muted:
+		if self.isMuted:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
 	def pauseSpeech(self, switch, **kwargs):
-		if self.is_muted:
+		if self.isMuted:
 			return
 		wx.CallAfter(speech.pauseSpeech, switch)
 
@@ -81,13 +81,13 @@ class LocalMachine:
 			priority=speech.priorities.Spri.NORMAL,
 			**kwargs
 	):
-		if self.is_muted:
+		if self.isMuted:
 			return
 		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
-		if self.receiving_braille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
+		if self.receivingBraille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
@@ -100,7 +100,7 @@ class LocalMachine:
 
 	def setBrailleDisplay_size(self, sizes, **kwargs):
 		if versionInfo.version_year >= 2023:
-			self._cached_sizes = sizes
+			self._cachedSizes = sizes
 			return
 		sizes.append(braille.handler.display.numCells)
 		try:
@@ -111,16 +111,16 @@ class LocalMachine:
 		braille.handler.enabled = bool(size)
 
 	def handleFilterDisplaySize(self, value):
-		if not self._cached_sizes:
+		if not self._cachedSizes:
 			return value
-		sizes = self._cached_sizes + [value]
+		sizes = self._cachedSizes + [value]
 		try:
 			return min(i for i in sizes if i>0)
 		except ValueError:
 			return value
 
 	def handleDecideEnabled(self):
-		return not self.receiving_braille
+		return not self.receivingBraille
 
 	def sendKey(self, vk_code=None, extended=None, pressed=None, **kwargs):
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)

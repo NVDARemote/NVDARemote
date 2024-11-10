@@ -206,7 +206,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 		super().__init__()
 		self.orig_ExecuteGesture = None
 
-	def patch_Braille_input(self):
+	def patchBrailleInput(self):
 		if versionInfo.version_year >= 2023:
 			inputCore.decide_executeGesture.register(self.handle_decide_executeGesture)
 			return
@@ -215,7 +215,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 		self.orig_ExecuteGesture = inputCore.manager.executeGesture
 		inputCore.manager.executeGesture= self.executeGesture
 
-	def unpatchBraille_input(self):
+	def unpatchBrailleInput(self):
 		if versionInfo.version_year >= 2023:
 			inputCore.decide_executeGesture.unregister(self.handle_decide_executeGesture)
 			return
@@ -231,7 +231,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 	def unpatch(self):
 		super().unpatch()
 		# To be sure, unpatch braille input
-		self.unpatchBraille_input()
+		self.unpatchBrailleInput()
 
 	def handle_decide_executeGesture(self, gesture):
 		if isinstance(gesture,(braille.BrailleDisplayGesture,brailleInput.BrailleInputGesture)):

@@ -116,15 +116,15 @@ class GlobalPlugin(_GlobalPlugin):
 		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
 		# Translators: Item in NVDA Remote submenu to connect to a remote computer.
 		self.connect_item = self.menu.Append(wx.ID_ANY, _("Connect..."), _("Remotely connect to another computer running NVDA Remote Access"))
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.do_connect, self.connect_item)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.doConnect, self.connect_item)
 		# Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
 		self.disconnect_item = self.menu.Append(wx.ID_ANY, _("Disconnect"), _("Disconnect from another computer running NVDA Remote Access"))
 		self.disconnect_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_disconnect_item, self.disconnect_item)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onDisconnectItem, self.disconnect_item)
 		# Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
 		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote"), _("Mute speech and sounds from the remote computer"), kind=wx.ITEM_CHECK)
 		self.mute_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_mute_item, self.mute_item)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_MuteItem, self.mute_item)
 		# Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
 		self.push_clipboard_item = self.menu.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
 		self.push_clipboard_item.Enable(False)
@@ -180,7 +180,7 @@ class GlobalPlugin(_GlobalPlugin):
 			pass
 		try:
 			os.unlink(self.ipcFile)
-		except:
+		except FileNotFoundError:
 			pass
 		self.menu=None
 		if not isInstalledCopy():
@@ -188,20 +188,20 @@ class GlobalPlugin(_GlobalPlugin):
 		self.url_handler_window.destroy()
 		self.url_handler_window=None
 
-	def on_disconnect_item(self, evt):
+	def onDisconnectItem(self, evt):
 		evt.Skip()
 		self.disconnect()
 
-	def on_mute_item(self, evt):
+	def on_MuteItem(self, evt):
 		evt.Skip()
-		self.localMachine.is_muted = self.mute_item.IsChecked()
+		self.localMachine.isMuted = self.mute_item.IsChecked()
 
 	def script_toggle_remote_mute(self, gesture):
 		if not self.is_connected() or self.connecting: return
-		self.localMachine.is_muted = not self.localMachine.is_muted
-		self.mute_item.Check(self.localMachine.is_muted)
+		self.localMachine.isMuted = not self.localMachine.isMuted
+		self.mute_item.Check(self.localMachine.isMuted)
 		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
-		status = _("Mute speech and sounds from the remote computer") if self.localMachine.is_muted else _("Unmute speech and sounds from the remote computer")
+		status = _("Mute speech and sounds from the remote computer") if self.localMachine.isMuted else _("Unmute speech and sounds from the remote computer")
 		ui.message(status)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
@@ -282,7 +282,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.copy_link_item.Enable(False)
 			self.send_ctrl_alt_del_item.Enable(False)
 		if self.localMachine:
-			self.localMachine.is_muted = False
+			self.localMachine.isMuted = False
 		self.sendingKeys = False
 		if self.hookThread is not None:
 			ctypes.windll.user32.PostThreadMessageW(self.hookThread.ident, WM_QUIT, 0, 0)
@@ -312,15 +312,15 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def script_connect(self, gesture):
 		if self.is_connected() or self.connecting: return
-		self.do_connect(evt = None)
+		self.doConnect(evt = None)
 	script_connect.__doc__ = _("""Connect to a remote computer""")
 	
-	def do_connect(self, evt):
+	def doConnect(self, evt):
 		if evt is not None: evt.Skip()
-		last_cons = configuration.get_config()['connections']['last_connected']
+		previousConnections = configuration.get_config()['connections']['last_connected']
 		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
-		dlg.panel.host.SetItems(list(reversed(last_cons)))
+		dlg.panel.host.SetItems(list(reversed(previousConnections)))
 		dlg.panel.host.SetSelection(0)
 		def handle_dlg_complete(dlg_result):
 			if dlg_result != wx.ID_OK:
@@ -328,13 +328,13 @@ class GlobalPlugin(_GlobalPlugin):
 			if dlg.client_or_server.GetSelection() == 0: #client
 				host = dlg.panel.host.GetValue()
 				server_addr, port = address_to_hostport(host)
-				channel = dlg.panel.key.GetValue()
+				channel = dlg.getKey()
 				if dlg.connection_type.GetSelection() == 0:
 					self.connectAsMaster((server_addr, port), channel)
 				else:
 					self.connectAsSlave((server_addr, port), channel)
 			else: #We want a server
-				channel = dlg.panel.key.GetValue()
+				channel = dlg.getKey()
 				self.startControlServer(int(dlg.panel.port.GetValue()), channel)
 				if dlg.connection_type.GetSelection() == 0:
 					self.connectAsMaster(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
@@ -342,7 +342,7 @@ class GlobalPlugin(_GlobalPlugin):
 					self.connectAsSlave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
-	def on_connected_as_master(self):
+	def onConnectedAsMaster(self):
 		configuration.write_connection_to_config(self.masterTransport.address)
 		self.disconnect_item.Enable(True)
 		self.connect_item.Enable(False)
@@ -368,7 +368,7 @@ class GlobalPlugin(_GlobalPlugin):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.masterSession = MasterSession(transport=transport, local_machine=self.localMachine)
 		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
-		transport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_master)
+		transport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.onConnectedAsMaster)
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
 		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
 		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.onDisconnectedAsMaster)
@@ -486,7 +486,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def setReceivingBraille(self, state):
 		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
-			self.masterSession.patcher.patch_Braille_input()
+			self.masterSession.patcher.patchBrailleInput()
 			if versionInfo.version_year < 2023:
 				braille.handler.enabled = False
 				if braille.handler._cursorBlinkTimer:
@@ -498,12 +498,12 @@ class GlobalPlugin(_GlobalPlugin):
 					if braille.handler._messageCallLater:
 						braille.handler._messageCallLater.Stop()
 						braille.handler._messageCallLater = None
-			self.localMachine.receiving_braille=True
+			self.localMachine.receivingBraille=True
 		elif not state:
-			self.masterSession.patcher.unpatchBraille_input()
+			self.masterSession.patcher.unpatchBrailleInput()
 			if versionInfo.version_year < 2023:
 				braille.handler.enabled = bool(braille.handler.displaySize)
-			self.localMachine.receiving_braille=False
+			self.localMachine.receivingBraille=False
 
 	if versionInfo.version_year < 2024:
 		def event_gainFocus(self, obj, nextHandler):
@@ -533,7 +533,7 @@ class GlobalPlugin(_GlobalPlugin):
 		if not os.path.exists(self.tempLocation):
 			os.makedirs(self.tempLocation)
 		channel = str(uuid.uuid4())
-		self.sdServer = server.Server(port=0, password=channel, bind_host='127.0.0.1')
+		self.sdServer = server.Server(port=0, password=channel, bind_host='127.0.0.1') # port = 0 means pick a random port
 		port = self.sdServer.server_socket.getsockname()[1]
 		server_thread = threading.Thread(target=self.sdServer.run)
 		server_thread.daemon = True
@@ -560,7 +560,11 @@ class GlobalPlugin(_GlobalPlugin):
 		self.sdRelay = None
 		self.slaveTransport.callback_manager.unregisterCallback('msg_set_braille_info', self.on_master_display_change)
 		self.slaveSession.setDisplaySize()
-
+		try:
+			os.unlink(self.ipcFile)
+		except FileNotFoundError:
+			pass
+		
 	def on_master_display_change(self, **kwargs):
 		self.sdRelay.send(type='set_display_size', sizes=self.slaveSession.masterDisplaySizes)
 
