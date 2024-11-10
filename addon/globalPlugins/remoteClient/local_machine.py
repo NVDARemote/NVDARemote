@@ -45,13 +45,13 @@ class LocalMachine:
 		self.receiving_braille=False
 		self._cached_sizes = None
 		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.register(self.handle_decide_enabled)
+			braille.decide_enabled.register(self.handleDecideEnabled)
 
 	def terminate(self):
 		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.unregister(self.handle_decide_enabled)
+			braille.decide_enabled.unregister(self.handleDecideEnabled)
 
-	def play_wave(self, fileName):
+	def playWave(self, fileName):
 		"""Instructed by remote machine to play a wave file."""
 		if self.is_muted:
 			return
@@ -65,12 +65,12 @@ class LocalMachine:
 			return
 		tones.beep(hz, length, left, right)
 
-	def cancel_speech(self, **kwargs):
+	def cancelSpeech(self, **kwargs):
 		if self.is_muted:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
-	def pause_speech(self, switch, **kwargs):
+	def pauseSpeech(self, switch, **kwargs):
 		if self.is_muted:
 			return
 		wx.CallAfter(speech.pauseSpeech, switch)
@@ -92,13 +92,13 @@ class LocalMachine:
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
 
-	def braille_input(self, **kwargs):
+	def brailleInput(self, **kwargs):
 		try:
 			inputCore.manager.executeGesture(input.BrailleInputGesture(**kwargs))
 		except inputCore.NoInputGestureAction:
 			pass
 
-	def set_braille_display_size(self, sizes, **kwargs):
+	def setBrailleDisplay_size(self, sizes, **kwargs):
 		if versionInfo.version_year >= 2023:
 			self._cached_sizes = sizes
 			return
@@ -110,7 +110,7 @@ class LocalMachine:
 		braille.handler.displaySize = size
 		braille.handler.enabled = bool(size)
 
-	def handle_filter_displaySize(self, value):
+	def handleFilterDisplaySize(self, value):
 		if not self._cached_sizes:
 			return value
 		sizes = self._cached_sizes + [value]
@@ -119,17 +119,17 @@ class LocalMachine:
 		except ValueError:
 			return value
 
-	def handle_decide_enabled(self):
+	def handleDecideEnabled(self):
 		return not self.receiving_braille
 
-	def send_key(self, vk_code=None, extended=None, pressed=None, **kwargs):
+	def sendKey(self, vk_code=None, extended=None, pressed=None, **kwargs):
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
-	def set_clipboard_text(self, text, **kwargs):
+	def setClipboardText(self, text, **kwargs):
 		cues.clipboard_received()
 		api.copyToClip(text=text)
 
-	def send_SAS(self, **kwargs):
+	def sendSAS(self, **kwargs):
 		"""
 		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
 		SendSAS requires UI Access, so we provide a warning when this fails.

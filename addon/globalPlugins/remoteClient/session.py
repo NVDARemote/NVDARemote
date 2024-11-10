@@ -91,7 +91,7 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.registerCallback(
 			'msg_client_left', self.handleClientDisconnected)
 		self.transport.callback_manager.registerCallback(
-			'msg_key', self.localMachine.send_key)
+			'msg_key', self.localMachine.sendKey)
 		self.masters = defaultdict(dict)
 		self.masterDisplaySizes = []
 		self.transport.callback_manager.registerCallback(
@@ -103,18 +103,18 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.registerCallback(
 			'msg_channel_joined', self.handleChannelJoined)
 		self.transport.callback_manager.registerCallback(
-			'msg_set_clipboard_text', self.localMachine.set_clipboard_text)
+			'msg_set_clipboard_text', self.localMachine.setClipboardText)
 		self.transport.callback_manager.registerCallback(
 			'msg_set_braille_info', self.handleBrailleInfo)
 		self.transport.callback_manager.registerCallback(
 			'msg_set_display_size', self.setDisplaySize)
 		if versionInfo.version_year >= 2023:
 			braille.filter_displaySize.register(
-				self.localMachine.handle_filter_displaySize)
+				self.localMachine.handleFilterDisplaySize)
 		self.transport.callback_manager.registerCallback(
-			'msg_braille_input', self.localMachine.braille_input)
+			'msg_braille_input', self.localMachine.brailleInput)
 		self.transport.callback_manager.registerCallback(
-			'msg_send_SAS', self.localMachine.send_SAS)
+			'msg_send_SAS', self.localMachine.sendSAS)
 
 	def handleClientConnected(self, client=None, **kwargs):
 		self.patcher.patch()
@@ -151,7 +151,7 @@ class SlaveSession(RemoteSession):
 	def setDisplaySize(self, sizes=None, **kwargs):
 		self.masterDisplaySizes = sizes if sizes else [
 			info.get("braille_numCells", 0) for info in self.masters.values()]
-		self.localMachine.set_braille_display_size(self.masterDisplaySizes)
+		self.localMachine.setBrailleDisplay_size(self.masterDisplaySizes)
 
 	def handleBrailleInfo(self, name=None, numCells=0, origin=None, **kwargs):
 		if not self.masters.get(origin):
@@ -240,9 +240,9 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.registerCallback(
 			'msg_speak', self.localMachine.speak)
 		self.transport.callback_manager.registerCallback(
-			'msg_cancel', self.localMachine.cancel_speech)
+			'msg_cancel', self.localMachine.cancelSpeech)
 		self.transport.callback_manager.registerCallback(
-			'msg_pause_speech', self.localMachine.pause_speech)
+			'msg_pause_speech', self.localMachine.pauseSpeech)
 		self.transport.callback_manager.registerCallback(
 			'msg_tone', self.localMachine.beep)
 		self.transport.callback_manager.registerCallback(
@@ -258,7 +258,7 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.registerCallback(
 			'msg_channel_joined', self.handleChannel_joined)
 		self.transport.callback_manager.registerCallback(
-			'msg_set_clipboard_text', self.localMachine.set_clipboard_text)
+			'msg_set_clipboard_text', self.localMachine.setClipboardText)
 		self.transport.callback_manager.registerCallback(
 			'msg_send_braille_info', self.sendBrailleInfo)
 		self.transport.callback_manager.registerCallback(
@@ -277,7 +277,7 @@ class MasterSession(RemoteSession):
 			log.error("'fileName' missing from kwargs.")
 			return
 		fileName = kwargs.pop("fileName")
-		self.localMachine.play_wave(fileName=fileName)
+		self.localMachine.playWave(fileName=fileName)
 
 	def handleNVDANotConnected(self):
 		speech.cancelSpeech()
