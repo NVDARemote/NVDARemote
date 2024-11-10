@@ -254,21 +254,21 @@ class GlobalPlugin(_GlobalPlugin):
 			self.localControlServer.close()
 			self.localControlServer = None
 		if self.masterTransport is not None:
-			self.disconnect_as_master()
+			self.disconnectAsMaster()
 		if self.slaveTransport is not None:
-			self.disconnect_as_slave()
+			self.disconnectAsSlave()
 		cues.disconnected()
 		self.disconnect_item.Enable(False)
 		self.connect_item.Enable(True)
 		self.push_clipboard_item.Enable(False)
 		self.copy_link_item.Enable(False)
 
-	def disconnect_as_master(self):
+	def disconnectAsMaster(self):
 		self.masterTransport.close()
 		self.masterTransport = None
 		self.masterSession = None
 
-	def disconnecting_as_master(self):
+	def disconnectingAsMaster(self):
 		if self.menu:
 			self.connect_item.Enable(True)
 			self.disconnect_item.Enable(False)
@@ -286,14 +286,14 @@ class GlobalPlugin(_GlobalPlugin):
 			self.hookThread = None
 		self.keyModifiers = set()
 
-	def disconnect_as_slave(self):
+	def disconnectAsSlave(self):
 		self.slaveTransport.close()
 		self.slaveTransport = None
 		self.slaveSession = None
 
 	def on_connected_as_master_failed(self):
 		if self.masterTransport.successful_connects == 0:
-			self.disconnect_as_master()
+			self.disconnectAsMaster()
 			# Translators: Title of the connection error dialog.
 			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"),
 			# Translators: Message shown when cannot connect to the remote computer.
@@ -366,7 +366,7 @@ class GlobalPlugin(_GlobalPlugin):
 		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_master)
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
-		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnecting_as_master)
+		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
 		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.on_disconnected_as_master)
 		self.masterTransport = transport
 		self.masterTransport.reconnector_thread.start()
