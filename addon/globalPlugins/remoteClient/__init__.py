@@ -132,7 +132,7 @@ class GlobalPlugin(_GlobalPlugin):
 		# Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
 		self.copy_link_item = self.menu.Append(wx.ID_ANY, _("Copy &link"), _("Copy a link to the remote session"))
 		self.copy_link_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_copy_link_item, self.copy_link_item)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onCopyLinkItem, self.copy_link_item)
 		# Translators: Menu item in NvDA Remote submenu to open add-on options.
 		self.options_item = self.menu.Append(wx.ID_ANY, _("&Options..."), _("Options"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.options_item)
@@ -226,13 +226,13 @@ class GlobalPlugin(_GlobalPlugin):
 			ui.message(_("Unable to push clipboard"))
 	script_push_clipboard.__doc__ = _("Sends the contents of the clipboard to the remote machine")
 
-	def on_copy_link_item(self, evt):
+	def onCopyLinkItem(self, evt):
 		session = self.masterSession or self.slaveSession
 		url = session.getConnectionInfo().get_url_to_connect()
 		api.copyToClip(str(url))
 
 	def script_copy_link(self, gesture):
-		self.on_copy_link_item(None)
+		self.onCopyLinkItem(None)
 		ui.message(_("Copied link"))
 	script_copy_link.__doc__ = _("Copies a link to the remote session to the clipboard")
 
