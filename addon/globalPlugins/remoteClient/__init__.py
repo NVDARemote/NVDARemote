@@ -224,7 +224,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def on_copy_link_item(self, evt):
 		session = self.masterSession or self.slaveSession
-		url = session.get_connection_info().get_url_to_connect()
+		url = session.getConnectionInfo().get_url_to_connect()
 		api.copyToClip(str(url))
 
 	def script_copy_link(self, gesture):
@@ -483,7 +483,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.keyModifiers = set()
 
 	def setReceivingBraille(self, state):
-		if state and self.masterSession.patch_callbacks_added and braille.handler.enabled:
+		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
 			self.masterSession.patcher.patch_Braille_input()
 			if versionInfo.version_year < 2023:
 				braille.handler.enabled = False
@@ -560,7 +560,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveSession.setDisplaySize()
 
 	def on_master_display_change(self, **kwargs):
-		self.sdRelay.send(type='set_display_size', sizes=self.slaveSession.master_display_sizes)
+		self.sdRelay.send(type='set_display_size', sizes=self.slaveSession.masterDisplaySizes)
 
 	SD_CONNECT_BLOCK_TIMEOUT = 1
 	def handle_secure_desktop(self):
