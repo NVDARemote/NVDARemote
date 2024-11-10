@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,9 @@ if versionInfo.version_year >= 2024:
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory = _("NVDA Remote")
 	localScripts = set()
+	localMachine: local_machine.LocalMachine
+	masterSession: Optional[MasterSession]
+	slaveSession: Optional[SlaveSession]
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -356,7 +360,7 @@ class GlobalPlugin(_GlobalPlugin):
 		ui.message(_("Connected!"))
 		cues.connected()
 
-	def on_disconnected_as_master(self):
+	def onDisconnectedAsMaster(self):
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
@@ -367,7 +371,7 @@ class GlobalPlugin(_GlobalPlugin):
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_master)
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
 		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
-		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.on_disconnected_as_master)
+		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.onDisconnectedAsMaster)
 		self.masterTransport = transport
 		self.masterTransport.reconnector_thread.start()
 
@@ -453,8 +457,6 @@ class GlobalPlugin(_GlobalPlugin):
 				return True
 		self.masterTransport.send(type="key", **kwargs)
 		return True #Don't pass it on
-
-
 
 	@script(
 		# Translators: Documentation string for the script that toggles the control between guest and host machine.

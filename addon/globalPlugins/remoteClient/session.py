@@ -9,7 +9,7 @@ import ui
 import versionInfo
 from logHandler import log
 
-from . import configuration, connection_info, cues, nvda_patcher
+from . import configuration, connection_info, cues, local_machine, nvda_patcher
 from .transport import RelayTransport, TransportEvents
 
 addonHandler.initTranslation()
@@ -35,6 +35,7 @@ class RemoteSession:
 	"""Base class for a session that runs on either the master or slave machine."""
 
 	transport: RelayTransport
+	localMachine: local_machine.LocalMachine
 	mode: str = None
 
 	def __init__(self, local_machine, transport: RelayTransport):
