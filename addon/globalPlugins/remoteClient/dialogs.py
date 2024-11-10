@@ -156,7 +156,7 @@ class DirectConnectDialog(wx.Dialog):
 		super().__init__(parent, id, title=title)
 		main_sizer = self.main_sizer = wx.BoxSizer(wx.VERTICAL)
 		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL)
-		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
+		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.onClientOrServer)
 		self.client_or_server.SetSelection(0)
 		main_sizer.Add(self.client_or_server)
 		choices = [_("Control another machine"), _("Allow this machine to be controlled")]
@@ -172,10 +172,10 @@ class DirectConnectDialog(wx.Dialog):
 		self.SetSizer(main_sizer)
 		self.Center(wx.BOTH | WX_CENTER)
 		ok = wx.FindWindowById(wx.ID_OK, self)
-		ok.Bind(wx.EVT_BUTTON, self.on_ok)
+		ok.Bind(wx.EVT_BUTTON, self.onOk)
 		self.client_or_server.SetFocus()
 
-	def on_client_or_server(self, evt):
+	def onClientOrServer(self, evt):
 		evt.Skip()
 		self.panel.Destroy()
 		if self.client_or_server.GetSelection() == 0:
@@ -184,7 +184,7 @@ class DirectConnectDialog(wx.Dialog):
 			self.panel = ServerPanel(parent=self.container)
 		self.main_sizer.Fit(self)
 
-	def on_ok(self, evt):
+	def onOk(self, evt):
 		if self.client_or_server.GetSelection() == 0 and (not self.panel.host.GetValue() or not self.panel.key.GetValue()):
 			gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
 			self.panel.host.SetFocus()
@@ -194,7 +194,7 @@ class DirectConnectDialog(wx.Dialog):
 		else:
 			evt.Skip()
 
-	def get_key(self):
+	def getKey(self):
 		return self.panel.key.GetValue()
 		
 class OptionsDialog(wx.Dialog):
