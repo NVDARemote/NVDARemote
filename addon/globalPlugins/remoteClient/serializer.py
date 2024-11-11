@@ -1,7 +1,10 @@
 from logging import getLogger
+
 log = getLogger('serializer')
 import json
+
 import speech.commands
+
 
 class JSONSerializer:
 	SEP = B'\n'

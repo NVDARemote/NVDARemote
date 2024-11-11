@@ -1,12 +1,13 @@
-from . import callback_manager
-import tones
-import nvwave
-import speech
-import inputCore
 import braille
 import brailleInput
+import inputCore
+import nvwave
 import scriptHandler
+import speech
+import tones
 import versionInfo
+
+from . import callback_manager
 
 
 class NVDAPatcher(callback_manager.CallbackManager):
@@ -14,168 +15,168 @@ class NVDAPatcher(callback_manager.CallbackManager):
 
 	def __init__(self):
 		super().__init__()
-		self.orig_setDisplayByName = None
+		self.origSetDisplayByName = None
 
-	def patch_set_display(self):
+	def patchSetDisplay(self):
 		if versionInfo.version_year >= 2023:
 			braille.displayChanged.register(self.handle_displayChanged)
 			braille.displaySizeChanged.register(self.handle_displaySizeChanged)
 			return
-		if self.orig_setDisplayByName is not None:
+		if self.origSetDisplayByName is not None:
 			return
-		self.orig_setDisplayByName = braille.handler.setDisplayByName
+		self.origSetDisplayByName = braille.handler.setDisplayByName
 		braille.handler.setDisplayByName = self.setDisplayByName
 
-	def unpatch_set_display(self):
+	def unpatchSetDisplay(self):
 		if versionInfo.version_year >= 2023:
 			braille.displaySizeChanged.unregister(self.handle_displaySizeChanged)
 			braille.displayChanged.unregister(self.handle_displayChanged)
 			return
-		if self.orig_setDisplayByName is None:
+		if self.origSetDisplayByName is None:
 			return
-		braille.handler.setDisplayByName = self.orig_setDisplayByName
-		self.orig_setDisplayByName = None
+		braille.handler.setDisplayByName = self.origSetDisplayByName
+		self.origSetDisplayByName = None
 
 	def patch(self):
-		self.patch_set_display()
+		self.patchSetDisplay()
 
 	def unpatch(self):
-		self.unpatch_set_display()
+		self.unpatchSetDisplay()
 
 	def setDisplayByName(self, *args, **kwargs):
-		result=self.orig_setDisplayByName(*args, **kwargs)
+		result=self.origSetDisplayByName(*args, **kwargs)
 		if result:
-			self.call_callbacks('set_display')
+			self.callCallbacks('set_display')
 		return result
 
 	def handle_displayChanged(self, display):
-		self.call_callbacks('set_display', display=display)
+		self.callCallbacks('set_display', display=display)
 
 	def handle_displaySizeChanged(self, displaySize):
-		self.call_callbacks('set_display', displaySize=displaySize)
+		self.callCallbacks('set_display', displaySize=displaySize)
 
 class NVDASlavePatcher(NVDAPatcher):
 	"""Class to manage patching of synth, tones, nvwave, and braille."""
 
 	def __init__(self):
 		super().__init__()
-		self.orig_speak = None
-		self.orig_cancel = None
-		self.orig_beep = None
-		self.orig_playWaveFile = None
-		self.orig_display = None
+		self.origSpeak = None
+		self.origCancel = None
+		self.origBeep = None
+		self.origPlayWaveFile = None
+		self.origDisplay = None
 
-	def patch_speech(self):
-		if self.orig_speak  is not None:
+	def patchSpeech(self):
+		if self.origSpeak  is not None:
 			return
-		self.orig_speak = speech._manager.speak
+		self.origSpeak = speech._manager.speak
 		speech._manager.speak = self.speak
-		self.orig_cancel = speech._manager.cancel
+		self.origCancel = speech._manager.cancel
 		speech._manager.cancel = self.cancel
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
 
-	def patch_tones(self):
+	def patchTones(self):
 		if versionInfo.version_year >= 2023:
 			tones.decide_beep.register(self.handle_decide_beep)
 			return
-		if self.orig_beep is not None:
+		if self.origBeep is not None:
 			return
-		self.orig_beep = tones.beep
+		self.origBeep = tones.beep
 		tones.beep = self.beep
 
-	def patch_nvwave(self):
+	def patchNvwave(self):
 		if versionInfo.version_year >= 2023:
 			nvwave.decide_playWaveFile.register(self.handle_decide_playWaveFile)
 			return
-		if self.orig_playWaveFile is not None:
+		if self.origPlayWaveFile is not None:
 			return
-		self.orig_playWaveFile = nvwave.playWaveFile
+		self.origPlayWaveFile = nvwave.playWaveFile
 		nvwave.playWaveFile = self.playWaveFile
 
-	def patch_braille(self):
+	def patchBraille(self):
 		if versionInfo.version_year >= 2023:
 			braille.pre_writeCells.register(self.handle_pre_writeCells)
 			return
-		if self.orig_display is not None:
+		if self.origDisplay is not None:
 			return
-		self.orig_display = braille.handler._writeCells
+		self.origDisplay = braille.handler._writeCells
 		braille.handler._writeCells = self.display
 
-	def unpatch_speech(self):
-		if self.orig_speak  is None:
+	def unpatchSpeech(self):
+		if self.origSpeak  is None:
 			return
-		speech._manager.speak = self.orig_speak
-		self.orig_speak = None
-		speech._manager.cancel = self.orig_cancel
-		self.orig_cancel = None
+		speech._manager.speak = self.origSpeak
+		self.origSpeak = None
+		speech._manager.cancel = self.origCancel
+		self.origCancel = None
 		speech.pauseSpeech = self.orig_pauseSpeech
 		self.orig_pauseSpeech = None
 
-	def unpatch_tones(self):
+	def unpatchTones(self):
 		if versionInfo.version_year >= 2023:
 			tones.decide_beep.unregister(self.handle_decide_beep)
 			return
-		if self.orig_beep is None:
+		if self.origBeep is None:
 			return
-		tones.beep = self.orig_beep
-		self.orig_beep = None
+		tones.beep = self.origBeep
+		self.origBeep = None
 
-	def unpatch_nvwave(self):
+	def unpatchNvwave(self):
 		if versionInfo.version_year >= 2023:
 			nvwave.decide_playWaveFile.unregister(self.handle_decide_playWaveFile)
 			return
-		if self.orig_playWaveFile is None:
+		if self.origPlayWaveFile is None:
 			return
-		nvwave.playWaveFile = self.orig_playWaveFile
-		self.orig_playWaveFile = None
+		nvwave.playWaveFile = self.origPlayWaveFile
+		self.origPlayWaveFile = None
 
-	def unpatch_braille(self):
+	def unpatchBraille(self):
 		if versionInfo.version_year >= 2023:
 			braille.pre_writeCells.unregister(self.handle_pre_writeCells)
 			return
-		if self.orig_display is None:
+		if self.origDisplay is None:
 			return
-		braille.handler._writeCells = self.orig_display
-		self.orig_display = None
+		braille.handler._writeCells = self.origDisplay
+		self.origDisplay = None
 		braille.handler.displaySize=braille.handler.display.numCells
 		braille.handler.enabled = bool(braille.handler.displaySize)
 
 	def patch(self):
 		if versionInfo.version_year < 2023:
 			super().patch()
-		self.patch_speech()
-		self.patch_tones()
-		self.patch_nvwave()
-		self.patch_braille()
+		self.patchSpeech()
+		self.patchTones()
+		self.patchNvwave()
+		self.patchBraille()
 
 	def unpatch(self):
 		if versionInfo.version_year < 2023:
 			super().unpatch()
-		self.unpatch_speech()
-		self.unpatch_tones()
-		self.unpatch_nvwave()
-		self.unpatch_braille()
+		self.unpatchSpeech()
+		self.unpatchTones()
+		self.unpatchNvwave()
+		self.unpatchBraille()
 
 	def speak(self, speechSequence, priority):
-		self.call_callbacks('speak', speechSequence=speechSequence, priority=priority)
-		self.orig_speak(speechSequence, priority)
+		self.callCallbacks('speak', speechSequence=speechSequence, priority=priority)
+		self.origSpeak(speechSequence, priority)
 
 	def cancel(self):
-		self.call_callbacks('cancel_speech')
-		self.orig_cancel()
+		self.callCallbacks('cancel_speech')
+		self.origCancel()
 
 	def pauseSpeech(self, switch):
-		self.call_callbacks('pause_speech', switch=switch)
+		self.callCallbacks('pause_speech', switch=switch)
 		self.orig_pauseSpeech(switch)
 
 	def beep(self, hz, length, left=50, right=50):
 		"""Pre NVDA 2023.1."""
-		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right)
-		return self.orig_beep(hz=hz, length=length, left=left, right=right)
+		self.callCallbacks('beep', hz=hz, length=length, left=left, right=right)
+		return self.origBeep(hz=hz, length=length, left=left, right=right)
 
 	def handle_decide_beep(self, hz, length, left=50, right=50, isSpeechBeepCommand=False):
-		self.call_callbacks('beep', hz=hz, length=length, left=left, right=right, isSpeechBeepCommand=isSpeechBeepCommand)
+		self.callCallbacks('beep', hz=hz, length=length, left=left, right=right, isSpeechBeepCommand=isSpeechBeepCommand)
 		return True
 
 	def playWaveFile(self, fileName, asynchronous=True):
@@ -184,44 +185,44 @@ class NVDASlavePatcher(NVDAPatcher):
 		Used to instruct master to play this file also. File is then played locally.
 		Note: Signature must match nvwave.playWaveFile
 		"""
-		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous)
-		return self.orig_playWaveFile(fileName, asynchronous)
+		self.callCallbacks('wave', fileName=fileName, asynchronous=asynchronous)
+		return self.origPlayWaveFile(fileName, asynchronous)
 
 	def handle_decide_playWaveFile(self, fileName, asynchronous=True, isSpeechWaveFileCommand=False):
-		self.call_callbacks('wave', fileName=fileName, asynchronous=asynchronous, isSpeechWaveFileCommand=isSpeechWaveFileCommand)
+		self.callCallbacks('wave', fileName=fileName, asynchronous=asynchronous, isSpeechWaveFileCommand=isSpeechWaveFileCommand)
 		return True
 
 	def display(self, cells):
 		self.handle_pre_writeCells(cells=cells)
-		self.orig_display(cells)
+		self.origDisplay(cells)
 
 	def handle_pre_writeCells(self, cells):
-		self.call_callbacks('display', cells=cells)
+		self.callCallbacks('display', cells=cells)
 
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""
 
 	def __init__(self):
 		super().__init__()
-		self.orig_executeGesture = None
+		self.orig_ExecuteGesture = None
 
-	def patch_braille_input(self):
+	def patchBrailleInput(self):
 		if versionInfo.version_year >= 2023:
 			inputCore.decide_executeGesture.register(self.handle_decide_executeGesture)
 			return
-		if self.orig_executeGesture is not None:
+		if self.orig_ExecuteGesture is not None:
 			return
-		self.orig_executeGesture = inputCore.manager.executeGesture
+		self.orig_ExecuteGesture = inputCore.manager.executeGesture
 		inputCore.manager.executeGesture= self.executeGesture
 
-	def unpatch_braille_input(self):
+	def unpatchBrailleInput(self):
 		if versionInfo.version_year >= 2023:
 			inputCore.decide_executeGesture.unregister(self.handle_decide_executeGesture)
 			return
-		if self.orig_executeGesture is None:
+		if self.orig_ExecuteGesture is None:
 			return
-		inputCore.manager.executeGesture = self.orig_executeGesture
-		self.orig_executeGesture = None
+		inputCore.manager.executeGesture = self.orig_ExecuteGesture
+		self.orig_ExecuteGesture = None
 
 	def patch(self):
 		super().patch()
@@ -230,7 +231,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 	def unpatch(self):
 		super().unpatch()
 		# To be sure, unpatch braille input
-		self.unpatch_braille_input()
+		self.unpatchBrailleInput()
 
 	def handle_decide_executeGesture(self, gesture):
 		if isinstance(gesture,(braille.BrailleDisplayGesture,brailleInput.BrailleInputGesture)):
@@ -270,11 +271,11 @@ class NVDAMasterPatcher(NVDAPatcher):
 				dict["space"]=gesture.space
 			if hasattr(gesture,"routingIndex") and "routingIndex" not in dict:
 				dict["routingIndex"]=gesture.routingIndex
-			self.call_callbacks('braille_input', **dict)
+			self.callCallbacks('braille_input', **dict)
 			return False
 		else:
 			return True
 
 	def executeGesture(self, gesture):
 		if not self.handle_decide_executeGesture(gesture):
-			self.orig_executeGesture(gesture)
+			self.orig_ExecuteGesture(gesture)

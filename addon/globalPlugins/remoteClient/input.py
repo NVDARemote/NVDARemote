@@ -1,20 +1,14 @@
 import ctypes
-from ctypes import (
-	wintypes,
-	Structure,
-	c_long,
-	POINTER,
-	c_ulong,
-	Union,
-)
+from ctypes import POINTER, Structure, Union, c_long, c_ulong, wintypes
+
+import api
+import baseObject
 import braille
 import brailleInput
 import globalPluginHandler
-import scriptHandler
 import inputCore
-import api
+import scriptHandler
 import vision
-import baseObject
 
 INPUT_MOUSE = 0
 INPUT_KEYBOARD = 1

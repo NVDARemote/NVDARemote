@@ -1,7 +1,8 @@
 import collections.abc
-import time
-import tones
 import threading
+import time
+
+import tones
 
 local_beep = tones.beep
 

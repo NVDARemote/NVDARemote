@@ -1,24 +1,27 @@
-import os
-import wx
-from . import input
-from . import cues
-import api
-import nvwave
-import tones
-import speech
 import ctypes
+import os
+
+import api
 import braille
 import inputCore
+import nvwave
+import speech
+import tones
 import versionInfo
+import wx
+
+from . import cues, input
 
 try:
 	from systemUtils import hasUiAccess
 except ModuleNotFoundError:
 	from config import hasUiAccess
 
+import logging
+
 import ui
 import versionInfo
-import logging
+
 logger = logging.getLogger('local_machine')
 
 
@@ -38,19 +41,19 @@ def setSpeechCancelledToFalse():
 class LocalMachine:
 
 	def __init__(self):
-		self.is_muted = False
-		self.receiving_braille=False
-		self._cached_sizes = None
+		self.isMuted = False
+		self.receivingBraille=False
+		self._cachedSizes = None
 		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.register(self.handle_decide_enabled)
+			braille.decide_enabled.register(self.handleDecideEnabled)
 
 	def terminate(self):
 		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.unregister(self.handle_decide_enabled)
+			braille.decide_enabled.unregister(self.handleDecideEnabled)
 
-	def play_wave(self, fileName):
+	def playWave(self, fileName):
 		"""Instructed by remote machine to play a wave file."""
-		if self.is_muted:
+		if self.isMuted:
 			return
 		if os.path.exists(fileName):
 			# ignore async / asynchronous from kwargs:
@@ -58,17 +61,17 @@ class LocalMachine:
 			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz, length, left, right, **kwargs):
-		if self.is_muted:
+		if self.isMuted:
 			return
 		tones.beep(hz, length, left, right)
 
-	def cancel_speech(self, **kwargs):
-		if self.is_muted:
+	def cancelSpeech(self, **kwargs):
+		if self.isMuted:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
-	def pause_speech(self, switch, **kwargs):
-		if self.is_muted:
+	def pauseSpeech(self, switch, **kwargs):
+		if self.isMuted:
 			return
 		wx.CallAfter(speech.pauseSpeech, switch)
 
@@ -78,26 +81,26 @@ class LocalMachine:
 			priority=speech.priorities.Spri.NORMAL,
 			**kwargs
 	):
-		if self.is_muted:
+		if self.isMuted:
 			return
 		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells, **kwargs):
-		if self.receiving_braille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
+		if self.receivingBraille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
 
-	def braille_input(self, **kwargs):
+	def brailleInput(self, **kwargs):
 		try:
 			inputCore.manager.executeGesture(input.BrailleInputGesture(**kwargs))
 		except inputCore.NoInputGestureAction:
 			pass
 
-	def set_braille_display_size(self, sizes, **kwargs):
+	def setBrailleDisplay_size(self, sizes, **kwargs):
 		if versionInfo.version_year >= 2023:
-			self._cached_sizes = sizes
+			self._cachedSizes = sizes
 			return
 		sizes.append(braille.handler.display.numCells)
 		try:
@@ -107,26 +110,26 @@ class LocalMachine:
 		braille.handler.displaySize = size
 		braille.handler.enabled = bool(size)
 
-	def handle_filter_displaySize(self, value):
-		if not self._cached_sizes:
+	def handleFilterDisplaySize(self, value):
+		if not self._cachedSizes:
 			return value
-		sizes = self._cached_sizes + [value]
+		sizes = self._cachedSizes + [value]
 		try:
 			return min(i for i in sizes if i>0)
 		except ValueError:
 			return value
 
-	def handle_decide_enabled(self):
-		return not self.receiving_braille
+	def handleDecideEnabled(self):
+		return not self.receivingBraille
 
-	def send_key(self, vk_code=None, extended=None, pressed=None, **kwargs):
+	def sendKey(self, vk_code=None, extended=None, pressed=None, **kwargs):
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
-	def set_clipboard_text(self, text, **kwargs):
+	def setClipboardText(self, text, **kwargs):
 		cues.clipboard_received()
 		api.copyToClip(text=text)
 
-	def send_SAS(self, **kwargs):
+	def sendSAS(self, **kwargs):
 		"""
 		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
 		SendSAS requires UI Access, so we provide a warning when this fails.

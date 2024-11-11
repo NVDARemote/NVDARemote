@@ -1,11 +1,11 @@
-
-from io import StringIO
 import os
-import configobj
-from configobj import validate
-import globalVars
-from . import socket_utils
+from io import StringIO
 
+import configobj
+import globalVars
+from configobj import validate
+
+from . import socket_utils
 
 CONFIG_FILE_NAME = 'remote.ini'
 

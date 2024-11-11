@@ -2,14 +2,14 @@ import json
 import random
 import threading
 from urllib import request
-import wx
-import gui
-from . import serializer
-from . import server
-from . import transport
-from . import socket_utils
-from logHandler import log
+
 import addonHandler
+import gui
+import wx
+from logHandler import log
+
+from . import serializer, server, socket_utils, transport
+
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:
@@ -51,8 +51,8 @@ class ClientPanel(wx.Panel):
 	def generate_key_command(self, insecure=False):
 			address = socket_utils.address_to_hostport(self.host.GetValue())
 			self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
-			self.key_connector.callback_manager.register_callback('msg_generate_key', self.handle_key_generated)
-			self.key_connector.callback_manager.register_callback(transport.TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.handle_certificate_failed)
+			self.key_connector.callback_manager.registerCallback('msg_generate_key', self.handle_key_generated)
+			self.key_connector.callback_manager.registerCallback(transport.TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.handle_certificate_failed)
 			t = threading.Thread(target=self.key_connector.run)
 			t.start()
 
@@ -156,7 +156,7 @@ class DirectConnectDialog(wx.Dialog):
 		super().__init__(parent, id, title=title)
 		main_sizer = self.main_sizer = wx.BoxSizer(wx.VERTICAL)
 		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL)
-		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.on_client_or_server)
+		self.client_or_server.Bind(wx.EVT_RADIOBOX, self.onClientOrServer)
 		self.client_or_server.SetSelection(0)
 		main_sizer.Add(self.client_or_server)
 		choices = [_("Control another machine"), _("Allow this machine to be controlled")]
@@ -172,10 +172,10 @@ class DirectConnectDialog(wx.Dialog):
 		self.SetSizer(main_sizer)
 		self.Center(wx.BOTH | WX_CENTER)
 		ok = wx.FindWindowById(wx.ID_OK, self)
-		ok.Bind(wx.EVT_BUTTON, self.on_ok)
+		ok.Bind(wx.EVT_BUTTON, self.onOk)
 		self.client_or_server.SetFocus()
 
-	def on_client_or_server(self, evt):
+	def onClientOrServer(self, evt):
 		evt.Skip()
 		self.panel.Destroy()
 		if self.client_or_server.GetSelection() == 0:
@@ -184,7 +184,7 @@ class DirectConnectDialog(wx.Dialog):
 			self.panel = ServerPanel(parent=self.container)
 		self.main_sizer.Fit(self)
 
-	def on_ok(self, evt):
+	def onOk(self, evt):
 		if self.client_or_server.GetSelection() == 0 and (not self.panel.host.GetValue() or not self.panel.key.GetValue()):
 			gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
 			self.panel.host.SetFocus()
@@ -194,6 +194,9 @@ class DirectConnectDialog(wx.Dialog):
 		else:
 			evt.Skip()
 
+	def getKey(self):
+		return self.panel.key.GetValue()
+		
 class OptionsDialog(wx.Dialog):
 
 	def __init__(self, parent, id, title):
