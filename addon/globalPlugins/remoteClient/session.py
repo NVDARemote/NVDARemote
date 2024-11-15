@@ -1,5 +1,8 @@
 import hashlib
 from collections import defaultdict
+from typing import Dict, List, Optional, Tuple, Union, Any, Callable
+from dataclasses import dataclass
+
 
 import addonHandler
 import braille
@@ -22,14 +25,16 @@ EXCLUDED_SPEECH_COMMANDS = (
 )
 
 
+
 class RemoteSession:
 	"""Base class for a session that runs on either the master or slave machine."""
 
 	transport: RelayTransport
 	localMachine: local_machine.LocalMachine
-	mode: str = None
+	mode: Optional[str] = None
+	patcher: Optional[nvda_patcher.NVDAPatcher]
 
-	def __init__(self, local_machine, transport: RelayTransport):
+	def __init__(self, local_machine: local_machine.LocalMachine, transport: RelayTransport) -> None:
 		self.localMachine = local_machine
 		self.patcher = None
 		self.transport = transport
@@ -38,7 +43,7 @@ class RemoteSession:
 		self.transport.callback_manager.registerCallback(
 			'msg_motd', self.handleMotd)
 
-	def handleVersionMismatch(self, **kwargs):
+	def handleVersionMismatch(self, **kwargs: Any) -> None:
 		# translators: Message for version mismatch
 		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
 Please either use a different server or upgrade your version of the addon.""")
@@ -50,7 +55,7 @@ Please either use a different server or upgrade your version of the addon.""")
 			gui.messageBox(parent=gui.mainFrame, caption=_(
 				"Message of the Day"), message=motd)
 
-	def shouldDisplayMotd(self, motd: str):
+	def shouldDisplayMotd(self, motd: str) -> bool:
 		conf = configuration.get_config()
 		host, port = self.transport.address
 		host = host.lower()
@@ -73,10 +78,13 @@ Please either use a different server or upgrade your version of the addon.""")
 class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
-	mode = 'slave'
-	patcher: nvda_patcher.NVDASlavePatcher	
-	
-	def __init__(self, *args, **kwargs):
+	mode: str = 'slave'
+	patcher: nvda_patcher.NVDASlavePatcher
+	masters: Dict[int, Dict[str, Any]]
+	masterDisplaySizes: List[int]
+	patchCallbacksAdded: bool
+
+	def __init__(self, *args: Any, **kwargs: Any) -> None:
 		super().__init__(*args, **kwargs)
 		self.transport.callback_manager.registerCallback(
 			'msg_client_joined', self.handleClientConnected)
@@ -107,7 +115,7 @@ class SlaveSession(RemoteSession):
 		self.transport.callback_manager.registerCallback(
 			'msg_send_SAS', self.localMachine.sendSAS)
 
-	def handleClientConnected(self, client=None, **kwargs):
+	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
 		self.patcher.patch()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
@@ -116,13 +124,13 @@ class SlaveSession(RemoteSession):
 		if client['connection_type'] == 'master':
 			self.masters[client['id']]['active'] = True
 
-	def handleChannelJoined(self, channel=None, clients=None, origin=None, **kwargs):
+	def handleChannelJoined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None, **kwargs: Any) -> None:
 		if clients is None:
 			clients = []
 		for client in clients:
 			self.handleClientConnected(client)
 
-	def handleTransportClosing(self):
+	def handleTransportClosing(self) -> None:
 		self.patcher.unpatch()
 		if self.patchCallbacksAdded:
 			self.removePatchCallbacks()
@@ -144,14 +152,14 @@ class SlaveSession(RemoteSession):
 			info.get("braille_numCells", 0) for info in self.masters.values()]
 		self.localMachine.setBrailleDisplay_size(self.masterDisplaySizes)
 
-	def handleBrailleInfo(self, name=None, numCells=0, origin=None, **kwargs):
+	def handleBrailleInfo(self, name: Optional[str] = None, numCells: int = 0, origin: Optional[int] = None, **kwargs: Any) -> None:
 		if not self.masters.get(origin):
 			return
 		self.masters[origin]['braille_name'] = name
 		self.masters[origin]['braille_numCells'] = numCells
 		self.setDisplaySize()
 
-	def _getPatcherCallbacks(self):
+	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
 		return (
 			('speak', self.speak),
 			('beep', self.beep),
@@ -162,7 +170,7 @@ class SlaveSession(RemoteSession):
 			('set_display', self.setDisplaySize)
 		)
 
-	def addPatchCallbacks(self):
+	def addPatchCallbacks(self) -> None:
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.registerCallback(event, callback)
@@ -172,13 +180,13 @@ class SlaveSession(RemoteSession):
 		for event, callback in patcher_callbacks:
 			self.patcher.unregisterCallback(event, callback)
 
-	def _filterUnsupportedSpeechCommands(self, speechSequence):
+	def _filterUnsupportedSpeechCommands(self, speechSequence: List[Any]) -> List[Any]:
 		return list([
 			item for item in speechSequence
 			if not isinstance(item, EXCLUDED_SPEECH_COMMANDS)
 		])
 
-	def speak(self, speechSequence, priority):
+	def speak(self, speechSequence: List[Any], priority: Optional[str]) -> None:
 		self.transport.send(
 			type="speak",
 			sequence=self._filterUnsupportedSpeechCommands(speechSequence),
@@ -191,7 +199,7 @@ class SlaveSession(RemoteSession):
 	def pauseSpeech(self, switch):
 		self.transport.send(type="pause_speech", switch=switch)
 
-	def beep(self, hz, length, left=50, right=50, **kwargs):
+	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
 		self.transport.send(type='tone', hz=hz, length=length,
 							left=left, right=right, **kwargs)
 
@@ -221,10 +229,12 @@ class SlaveSession(RemoteSession):
 
 class MasterSession(RemoteSession):
 
-	mode = 'master'
+	mode: str = 'master'
 	patcher: nvda_patcher.NVDAMasterPatcher
+	slaves: Dict[int, Dict[str, Any]]
+	patchCallbacksAdded: bool
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, *args: Any, **kwargs: Any) -> None:
 		super().__init__(*args, **kwargs)
 		self.slaves = defaultdict(dict)
 		self.patcher = nvda_patcher.NVDAMasterPatcher()
@@ -271,7 +281,7 @@ class MasterSession(RemoteSession):
 		fileName = kwargs.pop("fileName")
 		self.localMachine.playWave(fileName=fileName)
 
-	def handleNVDANotConnected(self):
+	def handleNVDANotConnected(self) -> None:
 		speech.cancelSpeech()
 		ui.message(_("Remote NVDA not connected."))
 
@@ -283,7 +293,7 @@ class MasterSession(RemoteSession):
 		# speech index approach changed in 2019.3
 		pass  # nothing to do
 
-	def handleChannel_joined(self, channel=None, clients=None, origin=None, **kwargs):
+	def handleChannel_joined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None, **kwargs: Any) -> None:
 		if clients is None:
 			clients = []
 		for client in clients:
@@ -304,7 +314,7 @@ class MasterSession(RemoteSession):
 			self.patchCallbacksAdded = False
 		cues.client_disconnected()
 
-	def sendBrailleInfo(self, display=None, displaySize=None, **kwargs):
+	def sendBrailleInfo(self, display: Optional[Any] = None, displaySize: Optional[int] = None, **kwargs: Any) -> None:
 		if display is None:
 			display = braille.handler.display
 		if displaySize is None:
@@ -312,7 +322,7 @@ class MasterSession(RemoteSession):
 		self.transport.send(type="set_braille_info",
 							name=display.name, numCells=displaySize)
 
-	def brailleInput(self, **kwargs):
+	def brailleInput(self, **kwargs: Any) -> None:
 		self.transport.send(type="braille_input", **kwargs)
 
 	def addPatchCallbacks(self):

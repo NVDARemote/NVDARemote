@@ -1,5 +1,10 @@
 import logging
-from typing import Optional
+
+from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
+
+# Type aliases
+KeyModifier = Tuple[int, bool]  # (vk_code, extended)
+Address = Tuple[str, int]  # (hostname, port) 
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +58,25 @@ from winAPI.secureDesktop import post_secureDesktopStateChange
 
 
 class GlobalPlugin(_GlobalPlugin):
-	scriptCategory = _("NVDA Remote")
-	localScripts = set()
+	scriptCategory: str = _("NVDA Remote")
+	localScripts: Set[Callable]
 	localMachine: local_machine.LocalMachine
-	masterSession: Optional[MasterSession]
+	masterSession: Optional[MasterSession] 
 	slaveSession: Optional[SlaveSession]
+	keyModifiers: Set[KeyModifier]
+	hostPendingModifiers: Set[KeyModifier]
+	connecting: bool
+	masterTransport: Optional[RelayTransport]
+	slaveTransport: Optional[RelayTransport]
+	localControlServer: Optional[server.LocalRelayServer]
+	hookThread: Optional[threading.Thread]
+	sendingKeys: bool
+	sdServer: Optional[server.LocalRelayServer]
+	sdRelay: Optional[RelayTransport]
+	sdBridge: Optional[bridge.BridgeTransport]
+	tempLocation: str
+	ipcFile: str
+	sdFocused: bool
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -417,7 +436,7 @@ class GlobalPlugin(_GlobalPlugin):
 		configuration.write_connection_to_config(self.slaveTransport.address)
 
 	def startControlServer(self, server_port, channel):
-		self.localControlServer = server.Server(server_port, channel)
+		self.localControlServer = server.LocalRelayServer(server_port, channel)
 		serverThread = threading.Thread(target=self.localControlServer.run)
 		serverThread.daemon = True
 		serverThread.start()
@@ -504,8 +523,8 @@ class GlobalPlugin(_GlobalPlugin):
 		if not os.path.exists(self.tempLocation):
 			os.makedirs(self.tempLocation)
 		channel = str(uuid.uuid4())
-		self.sdServer = server.Server(port=0, password=channel, bind_host='127.0.0.1') # port = 0 means pick a random port
-		port = self.sdServer.server_socket.getsockname()[1]
+		self.sdServer = server.LocalRelayServer(port=0, password=channel, bind_host='127.0.0.1') # port = 0 means pick a random port
+		port = self.sdServer.serverSocket.getsockname()[1]
 		server_thread = threading.Thread(target=self.sdServer.run)
 		server_thread.daemon = True
 		server_thread.start()

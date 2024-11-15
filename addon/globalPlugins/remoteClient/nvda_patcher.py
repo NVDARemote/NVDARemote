@@ -13,9 +13,6 @@ from . import callback_manager
 class NVDAPatcher(callback_manager.CallbackManager):
 	"""Base class to manage patching of braille display changes."""
 
-	def __init__(self):
-		super().__init__()
-
 	def patchSetDisplay(self):
 		braille.displayChanged.register(self.handle_displayChanged)
 		braille.displaySizeChanged.register(self.handle_displaySizeChanged)

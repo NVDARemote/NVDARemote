@@ -7,10 +7,10 @@ import time
 from collections import defaultdict
 from logging import getLogger
 from queue import Queue
-from typing import Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, Union
+from enum import Enum
 
 log = getLogger('transport')
-from enum import Enum
 
 from . import configuration
 from .callback_manager import CallbackManager
@@ -30,16 +30,17 @@ class Transport:
 	connected: bool
 	successful_connects: int
 	callback_manager: CallbackManager
-	connect_event: threading.Event
+	connected_event: threading.Event
+	serializer: Any  # Type of serializer varies
 
-	def __init__(self, serializer):
+	def __init__(self, serializer: Any) -> None:
 		self.serializer = serializer
 		self.callback_manager = CallbackManager()
 		self.connected = False
 		self.successful_connects = 0
 		self.connected_event = threading.Event()
 
-	def transport_connected(self):
+	def transport_connected(self) -> None:
 		self.successful_connects += 1
 		self.connected = True
 		self.connected_event.set()
@@ -48,11 +49,17 @@ class Transport:
 class TCPTransport(Transport):
 	buffer: bytes
 	closed: bool
-	queue: Queue
+	queue: Queue[Optional[bytes]]
 	insecure: bool
 	server_sock_lock: threading.Lock
+	address: Tuple[str, int]
+	server_sock: Optional[ssl.SSLSocket]
+	queue_thread: Optional[threading.Thread]
+	timeout: int
+	reconnector_thread: 'ConnectorThread'
+	last_fail_fingerprint: Optional[str]
 	
-	def __init__(self, serializer, address: Tuple[str, int], timeout: int=0, insecure: bool=False):
+	def __init__(self, serializer: Any, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
@@ -69,7 +76,7 @@ class TCPTransport(Transport):
 		self.reconnector_thread = ConnectorThread(self)
 		self.insecure=insecure
 
-	def run(self):
+	def run(self) -> None:
 		self.closed = False
 		try:
 			self.server_sock = self.create_outbound_socket(*self.address, insecure=self.insecure)
@@ -117,7 +124,7 @@ class TCPTransport(Transport):
 		self.callback_manager.callCallbacks(TransportEvents.DISCONNECTED)
 		self._disconnect()
 
-	def create_outbound_socket(self, host, port, insecure=False):
+	def create_outbound_socket(self, host: str, port: int, insecure: bool = False) -> ssl.SSLSocket:
 		address = socket.getaddrinfo(host, port)[0]
 		server_sock = socket.socket(*address[:3])
 		if self.timeout:
@@ -131,11 +138,11 @@ class TCPTransport(Transport):
 		server_sock = ctx.wrap_socket(sock=server_sock, server_hostname=host)
 		return server_sock
 
-	def getpeercert(self, binary_form=False):
+	def getpeercert(self, binary_form: bool = False) -> Optional[Union[Dict[str, Any], bytes]]:
 		if self.server_sock is None: return None
 		return self.server_sock.getpeercert(binary_form)
 
-	def handle_server_data(self):
+	def handle_server_data(self) -> None:
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
 		buffSize = 16384
@@ -211,8 +218,20 @@ class TCPTransport(Transport):
 		self.reconnector_thread = ConnectorThread(self)
 
 class RelayTransport(TCPTransport):
+	channel: Optional[str]
+	connection_type: Optional[str]
+	protocol_version: int
 
-	def __init__(self, serializer, address, timeout=0, channel=None, connection_type=None, protocol_version=PROTOCOL_VERSION, insecure=False):
+	def __init__(
+		self,
+		serializer: Any,
+		address: Tuple[str, int],
+		timeout: int = 0,
+		channel: Optional[str] = None,
+		connection_type: Optional[str] = None,
+		protocol_version: int = PROTOCOL_VERSION,
+		insecure: bool = False
+	) -> None:
 		super().__init__(address=address, serializer=serializer, timeout=timeout, insecure=insecure)
 		log.info("Connecting to %s channel %s" % (address, channel))
 		self.channel = channel
@@ -228,8 +247,11 @@ class RelayTransport(TCPTransport):
 			self.send('generate_key')
 
 class ConnectorThread(threading.Thread):
+	running: bool
+	connector: Transport
+	connect_delay: int
 
-	def __init__(self, connector, connect_delay=5):
+	def __init__(self, connector: Transport, connect_delay: int = 5) -> None:
 		super().__init__()
 		self.connect_delay = connect_delay
 		self.running = True

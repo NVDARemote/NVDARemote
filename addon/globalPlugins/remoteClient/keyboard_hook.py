@@ -1,9 +1,9 @@
 from logging import getLogger
-
-logger = getLogger('keyboard_hook')
-
+from typing import List, Callable, Optional
 import ctypes
 from ctypes import Structure, c_int, c_long, wintypes
+
+logger = getLogger('keyboard_hook')
 
 HC_ACTION = 0
 WH_KEYBOARD_LL = 13
@@ -28,15 +28,20 @@ LowLevelKeyboardProc = ctypes.WINFUNCTYPE(LRESULT, c_int, wintypes.LPARAM, winty
 
 class KeyboardHook:
 
-	def __init__(self):
-		self.callbacks = list()
+	def __init__(self) -> None:
+		self.callbacks: List[Callable[..., bool]] = list()
 		self.proc = LowLevelKeyboardProc(self.keyboard_proc)
-		self.handle = ctypes.windll.user32.SetWindowsHookExW(WH_KEYBOARD_LL, self.proc, ctypes.windll.kernel32.GetModuleHandleW(None), 0)
+		self.handle: Optional[int] = ctypes.windll.user32.SetWindowsHookExW(
+			WH_KEYBOARD_LL, 
+			self.proc,
+			ctypes.windll.kernel32.GetModuleHandleW(None),
+			0
+		)
 
-	def register_callback(self, callback):
+	def register_callback(self, callback: Callable[..., bool]) -> None:
 		self.callbacks.append(callback)
 
-	def unregister_callback(self, callback):
+	def unregister_callback(self, callback: Callable[..., bool]) -> None:
 		self.callbacks.remove(callback)
 
 	def keyboard_proc(self, code, wParam, lParam):

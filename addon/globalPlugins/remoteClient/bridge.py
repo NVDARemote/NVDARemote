@@ -1,25 +1,25 @@
+from typing import Any, Set, Union
+from enum import Enum
 from .transport import Transport
-import enum
 
 
 class BridgeTransport:
 	"""Object to bridge two transports together,
 	passing messages to both of them.
 	We exclude transport-specific messages such as client_joined."""
-	excluded = ('client_joined', 'client_left',
-				'channel_joined', 'set_braille_info')
+	excluded: Set[str] = {'client_joined', 'client_left', 'channel_joined', 'set_braille_info'}
 
-	t1: Transport
+	t1: Transport 
 	t2: Transport
 
-	def __init__(self, t1: Transport, t2: Transport):
+	def __init__(self, t1: Transport, t2: Transport) -> None:
 		self.t1 = t1
 		self.t2 = t2
 		t1.callback_manager.registerCallback('*', self.send_to_t2)
 		t2.callback_manager.registerCallback('*', self.send_to_t1)
 
-	def send(self, transport, callback, *args, **kwargs):
-		if isinstance(callback, enum.Enum):
+	def send(self, transport: Transport, callback: Union[str, Enum], *args: Any, **kwargs: Any) -> None:
+		if isinstance(callback, Enum):
 			callback = callback.value
 		if not callback.startswith('msg_'):
 			return
