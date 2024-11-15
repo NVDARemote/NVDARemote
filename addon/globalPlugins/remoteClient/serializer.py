@@ -1,20 +1,24 @@
 from logging import getLogger
-
-log = getLogger('serializer')
+from typing import Any, Dict, List, Optional, Type, Union, TypeVar
 import json
 
 import speech.commands
 
+log = getLogger('serializer')
+
+T = TypeVar('T')
+JSONDict = Dict[str, Any]
+
 
 class JSONSerializer:
-	SEP = B'\n'
+	SEP: bytes = b'\n'
 
-	def serialize(self, type=None, **obj) -> bytes:
+	def serialize(self, type: Optional[str] = None, **obj: Any) -> bytes:
 		obj['type'] = type
 		data = json.dumps(obj, cls=CustomEncoder).encode('UTF-8') + self.SEP
 		return data
 
-	def deserialize(self, data: bytes):
+	def deserialize(self, data: bytes) -> JSONDict:
 		obj = json.loads(data, object_hook=as_sequence)
 		return obj
 
@@ -26,18 +30,18 @@ SEQUENCE_CLASSES = (
 
 class CustomEncoder(json.JSONEncoder):
 
-	def default(self, obj):
+	def default(self, obj: Any) -> Any:
 		if is_subclass_or_instance(obj, SEQUENCE_CLASSES):
 			return [obj.__class__.__name__, obj.__dict__]
 		return super().default(obj)
 
-def is_subclass_or_instance(unknown, possible):
+def is_subclass_or_instance(unknown: Any, possible: Union[Type[T], tuple[Type[T], ...]]) -> bool:
 	try:
 		return issubclass(unknown, possible)
 	except TypeError:
 		return isinstance(unknown, possible)
 
-def as_sequence(dct):
+def as_sequence(dct: JSONDict) -> JSONDict:
 	if not ('type' in dct and dct['type'] == 'speak' and 'sequence' in dct):
 		return dct
 	sequence = []
