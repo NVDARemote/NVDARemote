@@ -487,22 +487,9 @@ class GlobalPlugin(_GlobalPlugin):
 	def setReceivingBraille(self, state):
 		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
 			self.masterSession.patcher.patchBrailleInput()
-			if versionInfo.version_year < 2023:
-				braille.handler.enabled = False
-				if braille.handler._cursorBlinkTimer:
-					braille.handler._cursorBlinkTimer.Stop()
-					braille.handler._cursorBlinkTimer=None
-				if braille.handler.buffer is braille.handler.messageBuffer:
-					braille.handler.buffer.clear()
-					braille.handler.buffer = braille.handler.mainBuffer
-					if braille.handler._messageCallLater:
-						braille.handler._messageCallLater.Stop()
-						braille.handler._messageCallLater = None
 			self.localMachine.receivingBraille=True
 		elif not state:
 			self.masterSession.patcher.unpatchBrailleInput()
-			if versionInfo.version_year < 2023:
-				braille.handler.enabled = bool(braille.handler.displaySize)
 			self.localMachine.receivingBraille=False
 
 	if versionInfo.version_year < 2024:

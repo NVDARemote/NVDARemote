@@ -13,15 +13,6 @@ from . import configuration, connection_info, cues, local_machine, nvda_patcher
 from .transport import RelayTransport, TransportEvents
 
 addonHandler.initTranslation()
-if not (
-		versionInfo.version_year >= 2021 or
-		(versionInfo.version_year == 2020 and versionInfo.version_major >= 2)
-):
-	# NVDA versions newer than 2020.2 have a _CancellableSpeechCommand which should be ignored by NVDA remote
-	# For older versions, we create a dummy command that won't cause existing commands to be ignored.
-	class _DummyCommand(speech.commands.SpeechCommand):
-		pass
-	speech.commands._CancellableSpeechCommand = _DummyCommand
 
 
 EXCLUDED_SPEECH_COMMANDS = (
@@ -109,9 +100,8 @@ class SlaveSession(RemoteSession):
 			'msg_set_braille_info', self.handleBrailleInfo)
 		self.transport.callback_manager.registerCallback(
 			'msg_set_display_size', self.setDisplaySize)
-		if versionInfo.version_year >= 2023:
-			braille.filter_displaySize.register(
-				self.localMachine.handleFilterDisplaySize)
+		braille.filter_displaySize.register(
+			self.localMachine.handleFilterDisplaySize)
 		self.transport.callback_manager.registerCallback(
 			'msg_braille_input', self.localMachine.brailleInput)
 		self.transport.callback_manager.registerCallback(
