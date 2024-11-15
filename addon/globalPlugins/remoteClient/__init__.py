@@ -47,11 +47,9 @@ from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 import queueHandler
 import shlobj
-import versionInfo
 from logHandler import log
 
-if versionInfo.version_year >= 2024:
-	from winAPI.secureDesktop import post_secureDesktopStateChange
+from winAPI.secureDesktop import post_secureDesktopStateChange
 
 
 class GlobalPlugin(_GlobalPlugin):
@@ -94,8 +92,7 @@ class GlobalPlugin(_GlobalPlugin):
 		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
 			self.performAutoconnect()
 		self.sdFocused = False
-		if versionInfo.version_year >= 2024:
-			post_secureDesktopStateChange.register(self.onSecureDesktopChange)
+		post_secureDesktopStateChange.register(self.onSecureDesktopChange)
 
 	def performAutoconnect(self):
 		controlServerConfig = configuration.get_config()['controlserver']
@@ -144,8 +141,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
-		if versionInfo.version_year >= 2024:
-			post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
+		post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
 		self.disconnect()
 		self.localMachine.terminate()
 		self.localMachine = None
@@ -487,36 +483,11 @@ class GlobalPlugin(_GlobalPlugin):
 	def setReceivingBraille(self, state):
 		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
 			self.masterSession.patcher.patchBrailleInput()
-			if versionInfo.version_year < 2023:
-				braille.handler.enabled = False
-				if braille.handler._cursorBlinkTimer:
-					braille.handler._cursorBlinkTimer.Stop()
-					braille.handler._cursorBlinkTimer=None
-				if braille.handler.buffer is braille.handler.messageBuffer:
-					braille.handler.buffer.clear()
-					braille.handler.buffer = braille.handler.mainBuffer
-					if braille.handler._messageCallLater:
-						braille.handler._messageCallLater.Stop()
-						braille.handler._messageCallLater = None
 			self.localMachine.receivingBraille=True
 		elif not state:
 			self.masterSession.patcher.unpatchBrailleInput()
-			if versionInfo.version_year < 2023:
-				braille.handler.enabled = bool(braille.handler.displaySize)
 			self.localMachine.receivingBraille=False
 
-	if versionInfo.version_year < 2024:
-		def event_gainFocus(self, obj, nextHandler):
-			if isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
-				self.sdFocused = True
-				self.enterSecureDesktop()
-			elif self.sdFocused and not isinstance(obj, IAccessibleHandler.SecureDesktopNVDAObject):
-				#event_leaveFocus won't work for some reason
-				self.sdFocused = False
-				self.leaveSecureDesktop()
-			nextHandler()
-
-	# For NVDA 2024.1 and above
 	def onSecureDesktopChange(self, isSecureDesktop: bool):
 		'''
 		@param isSecureDesktop: True if the new desktop is the secure desktop.

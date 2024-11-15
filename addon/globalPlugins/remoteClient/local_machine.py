@@ -7,7 +7,6 @@ import inputCore
 import nvwave
 import speech
 import tones
-import versionInfo
 import wx
 
 from . import cues, input
@@ -20,7 +19,6 @@ except ModuleNotFoundError:
 import logging
 
 import ui
-import versionInfo
 
 logger = logging.getLogger('local_machine')
 
@@ -31,11 +29,8 @@ def setSpeechCancelledToFalse():
 	speech should not be cancelled. In the long term this is a fragile solution
 	as NVDA does not support modifying the internal state of speech.
 	"""
-	if versionInfo.version_year >= 2021:
-		# workaround as beenCanceled is readonly as of NVDA#12395
-		speech.speech._speechState.beenCanceled = False
-	else:
-		speech.beenCanceled = False
+	# workaround as beenCanceled is readonly as of NVDA#12395
+	speech.speech._speechState.beenCanceled = False
 
 
 class LocalMachine:
@@ -44,12 +39,10 @@ class LocalMachine:
 		self.isMuted = False
 		self.receivingBraille=False
 		self._cachedSizes = None
-		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.register(self.handleDecideEnabled)
+		braille.decide_enabled.register(self.handleDecideEnabled)
 
 	def terminate(self):
-		if versionInfo.version_year >= 2023:
-			braille.decide_enabled.unregister(self.handleDecideEnabled)
+		braille.decide_enabled.unregister(self.handleDecideEnabled)
 
 	def playWave(self, fileName):
 		"""Instructed by remote machine to play a wave file."""
@@ -99,16 +92,7 @@ class LocalMachine:
 			pass
 
 	def setBrailleDisplay_size(self, sizes, **kwargs):
-		if versionInfo.version_year >= 2023:
-			self._cachedSizes = sizes
-			return
-		sizes.append(braille.handler.display.numCells)
-		try:
-			size=min(i for i in sizes if i>0)
-		except ValueError:
-			size = braille.handler.display.numCells
-		braille.handler.displaySize = size
-		braille.handler.enabled = bool(size)
+		self._cachedSizes = sizes
 
 	def handleFilterDisplaySize(self, value):
 		if not self._cachedSizes:
