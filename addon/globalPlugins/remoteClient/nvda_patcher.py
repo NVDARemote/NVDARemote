@@ -1,3 +1,4 @@
+from typing import Any, Dict, List, Optional, Union, Type
 import braille
 import brailleInput
 import inputCore
@@ -13,35 +14,36 @@ from . import callback_manager
 class NVDAPatcher(callback_manager.CallbackManager):
 	"""Base class to manage patching of braille display changes."""
 
-	def patchSetDisplay(self):
+	def patchSetDisplay(self) -> None:
 		braille.displayChanged.register(self.handle_displayChanged)
 		braille.displaySizeChanged.register(self.handle_displaySizeChanged)
 
-	def unpatchSetDisplay(self):
+	def unpatchSetDisplay(self) -> None:
 		braille.displaySizeChanged.unregister(self.handle_displaySizeChanged)
 		braille.displayChanged.unregister(self.handle_displayChanged)
 
-	def patch(self):
+	def patch(self) -> None:
 		self.patchSetDisplay()
 
-	def unpatch(self):
+	def unpatch(self) -> None:
 		self.unpatchSetDisplay()
 
-	def handle_displayChanged(self, display):
+	def handle_displayChanged(self, display: Any) -> None:
 		self.callCallbacks('set_display', display=display)
 
-	def handle_displaySizeChanged(self, displaySize):
+	def handle_displaySizeChanged(self, displaySize: Any) -> None:
 		self.callCallbacks('set_display', displaySize=displaySize)
 
 class NVDASlavePatcher(NVDAPatcher):
 	"""Class to manage patching of synth, tones, nvwave, and braille."""
 
-	def __init__(self):
+	def __init__(self) -> None:
 		super().__init__()
-		self.origSpeak = None
-		self.origCancel = None
+		self.origSpeak: Optional[Any] = None
+		self.origCancel: Optional[Any] = None
+		self.orig_pauseSpeech: Optional[Any] = None
 
-	def patchSpeech(self):
+	def patchSpeech(self) -> None:
 		if self.origSpeak  is not None:
 			return
 		self.origSpeak = speech._manager.speak
@@ -51,13 +53,13 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
 
-	def patchTones(self):
+	def patchTones(self) -> None:
 		tones.decide_beep.register(self.handle_decide_beep)
 
-	def patchNvwave(self):
+	def patchNvwave(self) -> None:
 		nvwave.decide_playWaveFile.register(self.handle_decide_playWaveFile)
 
-	def patchBraille(self):
+	def patchBraille(self) -> None:
 		braille.pre_writeCells.register(self.handle_pre_writeCells)
 
 	def unpatchSpeech(self):
@@ -91,36 +93,36 @@ class NVDASlavePatcher(NVDAPatcher):
 		self.unpatchNvwave()
 		self.unpatchBraille()
 
-	def speak(self, speechSequence, priority):
+	def speak(self, speechSequence: Any, priority: Any) -> None:
 		self.callCallbacks('speak', speechSequence=speechSequence, priority=priority)
 		self.origSpeak(speechSequence, priority)
 
-	def cancel(self):
+	def cancel(self) -> None:
 		self.callCallbacks('cancel_speech')
 		self.origCancel()
 
-	def pauseSpeech(self, switch):
+	def pauseSpeech(self, switch: bool) -> None:
 		self.callCallbacks('pause_speech', switch=switch)
 		self.orig_pauseSpeech(switch)
 
-	def handle_decide_beep(self, hz, length, left=50, right=50, isSpeechBeepCommand=False):
+	def handle_decide_beep(self, hz: float, length: int, left: int = 50, right: int = 50, isSpeechBeepCommand: bool = False) -> bool:
 		self.callCallbacks('beep', hz=hz, length=length, left=left, right=right, isSpeechBeepCommand=isSpeechBeepCommand)
 		return True
 
-	def handle_decide_playWaveFile(self, fileName, asynchronous=True, isSpeechWaveFileCommand=False):
+	def handle_decide_playWaveFile(self, fileName: str, asynchronous: bool = True, isSpeechWaveFileCommand: bool = False) -> bool:
 		self.callCallbacks('wave', fileName=fileName, asynchronous=asynchronous, isSpeechWaveFileCommand=isSpeechWaveFileCommand)
 		return True
 
-	def handle_pre_writeCells(self, cells):
+	def handle_pre_writeCells(self, cells: List[int]) -> None:
 		self.callCallbacks('display', cells=cells)
 
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""
 
-	def patchBrailleInput(self):
+	def patchBrailleInput(self) -> None:
 		inputCore.decide_executeGesture.register(self.handle_decide_executeGesture)
 
-	def unpatchBrailleInput(self):
+	def unpatchBrailleInput(self) -> None:
 		inputCore.decide_executeGesture.unregister(self.handle_decide_executeGesture)
 
 	def patch(self):
@@ -132,7 +134,7 @@ class NVDAMasterPatcher(NVDAPatcher):
 		# To be sure, unpatch braille input
 		self.unpatchBrailleInput()
 
-	def handle_decide_executeGesture(self, gesture):
+	def handle_decide_executeGesture(self, gesture: Union[braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture, Any]) -> bool:
 		if isinstance(gesture,(braille.BrailleDisplayGesture,brailleInput.BrailleInputGesture)):
 			dict = { key: gesture.__dict__[key] for key in gesture.__dict__ if isinstance(gesture.__dict__[key],(int,str,bool))}
 			if gesture.script:
