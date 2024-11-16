@@ -2,6 +2,8 @@ import logging
 
 from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
 
+from .menu import RemoteMenu
+
 # Type aliases
 KeyModifier = Tuple[int, bool]  # (vk_code, extended)
 Address = Tuple[str, int]  # (hostname, port) 
@@ -86,7 +88,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.localMachine = local_machine.LocalMachine()
 		self.slaveSession = None
 		self.masterSession = None
-		self.createMenu()
+		self.menu: RemoteMenu = RemoteMenu(self)
 		self.connecting = False
 		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verifyConnect)
 		url_handler.register_url_handler()
@@ -127,72 +129,13 @@ class GlobalPlugin(_GlobalPlugin):
 		else:
 			self.connectAsMaster(address, channel)
 
-	def createMenu(self):
-		self.menu = wx.Menu()
-		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
-		# Translators: Item in NVDA Remote submenu to connect to a remote computer.
-		self.connect_item = self.menu.Append(wx.ID_ANY, _("Connect..."), _("Remotely connect to another computer running NVDA Remote Access"))
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.doConnect, self.connect_item)
-		# Translators: Item in NVDA Remote submenu to disconnect from a remote computer.
-		self.disconnect_item = self.menu.Append(wx.ID_ANY, _("Disconnect"), _("Disconnect from another computer running NVDA Remote Access"))
-		self.disconnect_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onDisconnectItem, self.disconnect_item)
-		# Translators: Menu item in NvDA Remote submenu to mute speech and sounds from the remote computer.
-		self.mute_item = self.menu.Append(wx.ID_ANY, _("Mute remote"), _("Mute speech and sounds from the remote computer"), kind=wx.ITEM_CHECK)
-		self.mute_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_MuteItem, self.mute_item)
-		# Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
-		self.push_clipboard_item = self.menu.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
-		self.push_clipboard_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_push_clipboard_item, self.push_clipboard_item)
-		# Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
-		self.copy_link_item = self.menu.Append(wx.ID_ANY, _("Copy &link"), _("Copy a link to the remote session"))
-		self.copy_link_item.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onCopyLinkItem, self.copy_link_item)
-		# Translators: Menu item in NvDA Remote submenu to open add-on options.
-		self.options_item = self.menu.Append(wx.ID_ANY, _("&Options..."), _("Options"))
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.options_item)
-		# Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
-		self.send_ctrl_alt_del_item = self.menu.Append(wx.ID_ANY, _("Send Ctrl+Alt+Del"), _("Send Ctrl+Alt+Del"))
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_send_ctrl_alt_del, self.send_ctrl_alt_del_item)
-		self.send_ctrl_alt_del_item.Enable(False)
-		# Translators: Label of menu in NVDA tools menu.
-		self.remote_item=tools_menu.AppendSubMenu(self.menu, _("R&emote"), _("NVDA Remote Access"))
 
 	def terminate(self):
 		post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
 		self.disconnect()
 		self.localMachine.terminate()
 		self.localMachine = None
-		self.menu.Remove(self.connect_item.Id)
-		self.connect_item.Destroy()
-		self.connect_item=None
-		self.menu.Remove(self.disconnect_item.Id)
-		self.disconnect_item.Destroy()
-		self.disconnect_item=None
-		self.menu.Remove(self.mute_item.Id)
-		self.mute_item.Destroy()
-		self.mute_item=None
-		self.menu.Remove(self.push_clipboard_item.Id)
-		self.push_clipboard_item.Destroy()
-		self.push_clipboard_item=None
-		self.menu.Remove(self.copy_link_item.Id)
-		self.copy_link_item.Destroy()
-		self.copy_link_item = None
-		self.menu.Remove(self.options_item.Id)
-		self.options_item.Destroy()
-		self.options_item=None
-		self.menu.Remove(self.send_ctrl_alt_del_item.Id)
-		self.send_ctrl_alt_del_item.Destroy()
-		self.send_ctrl_alt_del_item=None
-		tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
-		tools_menu.Remove(self.remote_item.Id)
-		self.remote_item.Destroy()
-		self.remote_item=None
-		try:
-			self.menu.Destroy()
-		except (RuntimeError, AttributeError):
-			pass
+		self.menu.terminate()
 		try:
 			os.unlink(self.ipcFile)
 		except FileNotFoundError:
@@ -203,12 +146,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.url_handler_window.destroy()
 		self.url_handler_window=None
 
-	def onDisconnectItem(self, evt):
-		evt.Skip()
-		self.disconnect()
-
-	def on_MuteItem(self, evt):
-		evt.Skip()
+	def toggleMute(self):
 		self.localMachine.isMuted = self.mute_item.IsChecked()
 
 	def script_toggle_remote_mute(self, gesture):
@@ -241,18 +179,17 @@ class GlobalPlugin(_GlobalPlugin):
 			ui.message(_("Unable to push clipboard"))
 	script_push_clipboard.__doc__ = _("Sends the contents of the clipboard to the remote machine")
 
-	def onCopyLinkItem(self, evt):
+	def copyLink(self):
 		session = self.masterSession or self.slaveSession
 		url = session.getConnectionInfo().get_url_to_connect()
 		api.copyToClip(str(url))
 
 	def script_copy_link(self, gesture):
-		self.onCopyLinkItem(None)
+		self.copyLink()
 		ui.message(_("Copied link"))
 	script_copy_link.__doc__ = _("Copies a link to the remote session to the clipboard")
 
-	def on_options_item(self, evt):
-		evt.Skip()
+	def displayOptionsInterface(self):
 		conf = configuration.get_config()
 		# Translators: The title of the add-on options dialog.
 		dlg = dialogs.OptionsDialog(gui.mainFrame, wx.ID_ANY, title=_("Options"))
@@ -263,7 +200,7 @@ class GlobalPlugin(_GlobalPlugin):
 			dlg.write_to_config(conf)
 		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
 
-	def on_send_ctrl_alt_del(self, evt):
+	def sendSAS(self):
 		self.masterTransport.send('send_SAS')
 
 	def disconnect(self):
@@ -277,10 +214,7 @@ class GlobalPlugin(_GlobalPlugin):
 		if self.slaveTransport is not None:
 			self.disconnectAsSlave()
 		cues.disconnected()
-		self.disconnect_item.Enable(False)
-		self.connect_item.Enable(True)
-		self.push_clipboard_item.Enable(False)
-		self.copy_link_item.Enable(False)
+		self.menu.handleConnected(False)
 
 	def disconnectAsMaster(self):
 		self.masterTransport.close()
@@ -289,13 +223,8 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def disconnectingAsMaster(self):
 		if self.menu:
-			self.connect_item.Enable(True)
-			self.disconnect_item.Enable(False)
-			self.mute_item.Check(False)
-			self.mute_item.Enable(False)
-			self.push_clipboard_item.Enable(False)
-			self.copy_link_item.Enable(False)
-			self.send_ctrl_alt_del_item.Enable(False)
+			self.menu.muteItem.Check(False)
+			self.menu.handleConnected(False)
 		if self.localMachine:
 			self.localMachine.isMuted = False
 		self.sendingKeys = False
@@ -359,12 +288,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def onConnectedAsMaster(self):
 		configuration.write_connection_to_config(self.masterTransport.address)
-		self.disconnect_item.Enable(True)
-		self.connect_item.Enable(False)
-		self.mute_item.Enable(True)
-		self.push_clipboard_item.Enable(True)
-		self.copy_link_item.Enable(True)
-		self.send_ctrl_alt_del_item.Enable(True)
+		self.menu.handleConnected(True)
 		# We might have already created a hook thread before if we're restoring an
 		# interrupted connection. We must not create another.
 		if not self.hookThread:
@@ -397,8 +321,8 @@ class GlobalPlugin(_GlobalPlugin):
 		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
 		self.slaveTransport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_slave)
 		self.slaveTransport.reconnector_thread.start()
-		self.disconnect_item.Enable(True)
-		self.connect_item.Enable(False)
+		self.menu.disconnectItem.Enable(True)
+		self.menu.connectItem.Enable(False)
 
 	def handle_certificate_failed(self, transport):
 		self.last_fail_address = transport.address
