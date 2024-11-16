@@ -147,18 +147,18 @@ class GlobalPlugin(_GlobalPlugin):
 		self.url_handler_window=None
 
 	def toggleMute(self):
-		self.localMachine.isMuted = self.mute_item.IsChecked()
+		self.localMachine.isMuted = self.menu.muteItem.IsChecked()
 
 	def script_toggle_remote_mute(self, gesture):
 		if not self.is_connected() or self.connecting: return
 		self.localMachine.isMuted = not self.localMachine.isMuted
-		self.mute_item.Check(self.localMachine.isMuted)
+		self.menu.muteItem.Check(self.localMachine.isMuted)
 		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
 		status = _("Mute speech and sounds from the remote computer") if self.localMachine.isMuted else _("Unmute speech and sounds from the remote computer")
 		ui.message(status)
 	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
-	def on_push_clipboard_item(self, evt):
+	def pushClipboard(self):
 		connector = self.slaveTransport or self.masterTransport
 		try:
 			connector.send(type='set_clipboard_text', text=api.getClipData())
@@ -355,8 +355,8 @@ class GlobalPlugin(_GlobalPlugin):
 		cues.control_server_connected()
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
-		self.push_clipboard_item.Enable(True)
-		self.copy_link_item.Enable(True)
+		self.menu.pushClipboardItem.Enable(True)
+		self.menu.copyLinkItem.Enable(True)
 		configuration.write_connection_to_config(self.slaveTransport.address)
 
 	def startControlServer(self, server_port, channel):
