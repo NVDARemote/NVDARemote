@@ -33,14 +33,14 @@ class RemoteMenu(wx.Menu):
 		# Translators: Menu item in NVDA Remote submenu to push clipboard content to the remote computer.
 		self.pushClipboardItem: wx.MenuItem = self.Append(wx.ID_ANY, _("&Push clipboard"), _("Push the clipboard to the other machine"))
 		self.pushClipboardItem.Enable(False)
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_push_clipboard_item, self.pushClipboardItem)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onPushClipboardItem, self.pushClipboardItem)
 		# Translators: Menu item in NVDA Remote submenu to copy a link to the current session.
 		self.copyLinkItem: wx.MenuItem = self.Append(wx.ID_ANY, _("Copy &link"), _("Copy a link to the remote session"))
 		self.copyLinkItem.Enable(False)
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onCopyLinkItem, self.copyLinkItem)
 		# Translators: Menu item in NvDA Remote submenu to open add-on options.
 		self.optionsItem: wx.MenuItem = self.Append(wx.ID_ANY, _("&Options..."), _("Options"))
-		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_options_item, self.optionsItem)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onOptionsItem, self.optionsItem)
 		# Translators: Menu item in NVDA Remote submenu to send Control+Alt+Delete to the remote computer.
 		self.sendCtrlAltDelItem: wx.MenuItem = self.Append(wx.ID_ANY, _("Send Ctrl+Alt+Del"), _("Send Ctrl+Alt+Del"))
 		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onSendCtrlAltDel, self.sendCtrlAltDelItem)
@@ -87,7 +87,7 @@ class RemoteMenu(wx.Menu):
 		evt.Skip()
 		self.client.toggleMute()
 
-	def on_push_clipboard_item(self, evt: wx.CommandEvent) -> None:
+	def onPushClipboardItem(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.pushClipboard()
 
@@ -95,7 +95,7 @@ class RemoteMenu(wx.Menu):
 		evt.Skip()
 		self.client.copyLink()
 
-	def on_options_item(self, evt: wx.CommandEvent) -> None:
+	def onOptionsItem(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.displayOptionsInterface()
 
