@@ -1,10 +1,23 @@
+from typing import Optional, Callable
 import wx
 
 import gui
+from . import GlobalPlugin
 
 class RemoteMenu(wx.Menu):
+	"""Menu for the NVDA Remote addon that appears in the NVDA Tools menu"""
+	
+	client: 'GlobalPlugin'
+	connectItem: wx.MenuItem
+	disconnectItem: wx.MenuItem 
+	muteItem: wx.MenuItem
+	pushClipboardItem: wx.MenuItem
+	copyLinkItem: wx.MenuItem
+	optionsItem: wx.MenuItem
+	sendCtrlAltDelItem: wx.MenuItem
+	remoteItem: wx.MenuItem
 
-	def __init__(self, client):
+	def __init__(self, client: 'GlobalPlugin') -> None:
 		super().__init__()
 		self.client = client
 		toolsMenu = gui.mainFrame.sysTrayIcon.toolsMenu
@@ -37,7 +50,7 @@ class RemoteMenu(wx.Menu):
 		# Translators: Label of menu in NVDA tools menu.
 		self.remoteItem=toolsMenu.AppendSubMenu(self, _("R&emote"), _("NVDA Remote Access"))
 
-	def terminate(self):
+	def terminate(self) -> None:
 		self.Remove(self.connectItem.Id)
 		self.connectItem.Destroy()
 		self.connectItem=None
@@ -68,31 +81,31 @@ class RemoteMenu(wx.Menu):
 		except (RuntimeError, AttributeError):
 			pass
 
-	def onDisconnectItem(self, evt):
+	def onDisconnectItem(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.disconnect()
 
-	def onMuteItem(self, evt):
+	def onMuteItem(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.toggleMute()
 
-	def on_push_clipboard_item(self, evt):
+	def on_push_clipboard_item(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.pushClipboard()
 
-	def onCopyLinkItem(self, evt):
+	def onCopyLinkItem(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.copyLink()
 
-	def on_options_item(self, evt):
+	def on_options_item(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.displayOptionsInterface()
 
-	def onSendCtrlAltDel(self, evt):
+	def onSendCtrlAltDel(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
 		self.client.sendSAS()
 
-	def handleConnected(self, connected):
+	def handleConnected(self, connected: bool) -> None:
 		self.connectItem.Enable(not connected)
 		self.disconnectItem.Enable(connected)
 		self.muteItem.Enable(connected)
