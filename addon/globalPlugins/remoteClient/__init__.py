@@ -2,6 +2,8 @@ import logging
 
 from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
 
+from .secureDesktop import SecureDesktopHandler
+
 from .menu import RemoteMenu
 
 # Type aliases
@@ -34,6 +36,7 @@ from config import isInstalledCopy
 from globalPluginHandler import GlobalPlugin as _GlobalPlugin
 from keyboardHandler import KeyboardInputGesture
 from scriptHandler import script
+from utils.security import isRunningOnSecureDesktop
 
 from . import configuration, cues, local_machine, serializer, url_handler
 from .session import MasterSession, SlaveSession
@@ -56,9 +59,6 @@ import queueHandler
 import shlobj
 from logHandler import log
 
-from winAPI.secureDesktop import post_secureDesktopStateChange
-
-
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory: str = _("NVDA Remote")
 	localScripts: Set[Callable]
@@ -73,12 +73,7 @@ class GlobalPlugin(_GlobalPlugin):
 	localControlServer: Optional[server.LocalRelayServer]
 	hookThread: Optional[threading.Thread]
 	sendingKeys: bool
-	sdServer: Optional[server.LocalRelayServer]
-	sdRelay: Optional[RelayTransport]
-	sdBridge: Optional[bridge.BridgeTransport]
-	tempLocation: str
-	ipcFile: str
-	sdFocused: bool
+
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -97,23 +92,19 @@ class GlobalPlugin(_GlobalPlugin):
 		self.localControlServer = None
 		self.hookThread = None
 		self.sendingKeys = False
-		self.sdServer = None
-		self.sdRelay = None
-		self.sdBridge = None
 		try:
 			configuration.get_config()
 		except configobj.ParseError:
 			os.remove(os.path.abspath(os.path.join(globalVars.appArgs.configPath, configuration.CONFIG_FILE_NAME)))
 			queueHandler.queueFunction(queueHandler.eventQueue, wx.CallAfter, wx.MessageBox, _("Your NVDA Remote configuration was corrupted and has been reset."), _("NVDA Remote Configuration Error"), wx.OK|wx.ICON_EXCLAMATION)
 		controlServerConfig = configuration.get_config()['controlserver']
-		self.tempLocation = getTempPath()
-		self.ipcFile = os.path.join(self.tempLocation, 'remote.ipc')
-		if globalVars.appArgs.secure:
-			self.handle_secure_desktop()
+		self.sd_handler = SecureDesktopHandler()
+		if isRunningOnSecureDesktop():
+			connection = self.sd_handler.initialize_secure_desktop()
+			if connection:
+				self.connectAsSlave(connection.address, connection.channel, insecure=True)
 		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
 			self.performAutoconnect()
-		self.sdFocused = False
-		post_secureDesktopStateChange.register(self.onSecureDesktopChange)
 
 	def performAutoconnect(self):
 		controlServerConfig = configuration.get_config()['controlserver']
@@ -131,15 +122,11 @@ class GlobalPlugin(_GlobalPlugin):
 
 
 	def terminate(self):
-		post_secureDesktopStateChange.unregister(self.onSecureDesktopChange)
+		self.sd_handler.terminate()
 		self.disconnect()
 		self.localMachine.terminate()
 		self.localMachine = None
 		self.menu.terminate()
-		try:
-			os.unlink(self.ipcFile)
-		except FileNotFoundError:
-			pass
 		self.menu=None
 		if not isInstalledCopy():
 			url_handler.unregister_url_handler()
@@ -238,6 +225,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveTransport.close()
 		self.slaveTransport = None
 		self.slaveSession = None
+		self.sd_handler.slave_session = None
 
 	def on_connected_as_master_failed(self):
 		if self.masterTransport.successful_connects == 0:
@@ -317,6 +305,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, local_machine=self.localMachine)
+		self.sd_handler.slave_session = self.slaveSession
 		self.slaveTransport = transport
 		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
 		self.slaveTransport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_slave)
@@ -431,77 +420,6 @@ class GlobalPlugin(_GlobalPlugin):
 			self.masterSession.patcher.unpatchBrailleInput()
 			self.localMachine.receivingBraille=False
 
-	def onSecureDesktopChange(self, isSecureDesktop: bool):
-		'''
-		@param isSecureDesktop: True if the new desktop is the secure desktop.
-		'''
-		if isSecureDesktop:
-			self.enterSecureDesktop()
-		else:
-			self.leaveSecureDesktop()
-
-	def enterSecureDesktop(self):
-		"""function ran when entering a secure desktop."""
-		if self.slaveTransport is None:
-			return
-		if not os.path.exists(self.tempLocation):
-			os.makedirs(self.tempLocation)
-		channel = str(uuid.uuid4())
-		self.sdServer = server.LocalRelayServer(port=0, password=channel, bind_host='127.0.0.1') # port = 0 means pick a random port
-		port = self.sdServer.serverSocket.getsockname()[1]
-		server_thread = threading.Thread(target=self.sdServer.run)
-		server_thread.daemon = True
-		server_thread.start()
-		self.sdRelay = RelayTransport(address=('127.0.0.1', port), serializer=serializer.JSONSerializer(), channel=channel, insecure=True)
-		self.sdRelay.callback_manager.registerCallback('msg_client_joined', self.on_master_display_change)
-		self.slaveTransport.callback_manager.registerCallback('msg_set_braille_info', self.on_master_display_change)
-		self.sdBridge = bridge.BridgeTransport(self.slaveTransport, self.sdRelay)
-		relay_thread = threading.Thread(target=self.sdRelay.run)
-		relay_thread.daemon = True
-		relay_thread.start()
-		data = [port, channel]
-		with open(self.ipcFile, 'w') as fp:
-			json.dump(data, fp)
-
-	def leaveSecureDesktop(self):
-		if self.sdServer is None:
-			return #Nothing to do
-		self.sdBridge.disconnect()
-		self.sdBridge = None
-		self.sdServer.close()
-		self.sdServer = None
-		self.sdRelay.close()
-		self.sdRelay = None
-		self.slaveTransport.callback_manager.unregisterCallback('msg_set_braille_info', self.on_master_display_change)
-		self.slaveSession.setDisplaySize()
-		try:
-			os.unlink(self.ipcFile)
-		except FileNotFoundError:
-			pass
-		
-	def on_master_display_change(self, **kwargs):
-		self.sdRelay.send(type='set_display_size', sizes=self.slaveSession.masterDisplaySizes)
-
-	SD_CONNECT_BLOCK_TIMEOUT = 1
-	def handle_secure_desktop(self):
-		try:
-			with open(self.ipcFile) as fp:
-				data = json.load(fp)
-			os.unlink(self.ipcFile)
-			port, channel = data
-			testSocket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			testSocket=ssl.wrap_socket(testSocket)
-			testSocket.connect(('127.0.0.1', port))
-			testSocket.close()
-			self.connectAsSlave(('127.0.0.1', port), channel, insecure=True)
-			# So we don't miss the first output when switching to a secure desktop,
-			# block the main thread until the connection is established. We're
-			# connecting to localhost, so this should be pretty fast. Use a short
-			# timeout, though.
-			self.slaveTransport.connected_event.wait(self.SD_CONNECT_BLOCK_TIMEOUT)
-		except:
-			pass
-
 	def verifyConnect(self, con_info):
 		if self.is_connected() or self.connecting:
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
@@ -533,9 +451,3 @@ class GlobalPlugin(_GlobalPlugin):
 		"kb:alt+NVDA+pageUp": "connect",
 		"kb:control+shift+NVDA+c": "push_clipboard",
 	}
-
-def getTempPath():
-		if hasattr(shlobj, 'SHGetKnownFolderPath'):
-			return os.path.join(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA), 'temp')
-		else:
-			return os.path.join(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA), 'temp')
