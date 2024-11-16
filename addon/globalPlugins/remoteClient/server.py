@@ -48,7 +48,7 @@ class LocalRelayServer:
         self._running = True
         self.lastPingTime = time.time()
         while self._running:
-            r, w, e = select.select(
+            r, w, e = select(
                 self.clientSockets+[self.serverSocket, self.serverSocket6], [], self.clientSockets, 60)
             if not self._running:
                 break
