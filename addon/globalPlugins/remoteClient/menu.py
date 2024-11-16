@@ -2,12 +2,10 @@ from typing import Optional, Callable
 import wx
 
 import gui
-from . import GlobalPlugin
 
 class RemoteMenu(wx.Menu):
 	"""Menu for the NVDA Remote addon that appears in the NVDA Tools menu"""
 	
-	client: 'GlobalPlugin'
 	connectItem: wx.MenuItem
 	disconnectItem: wx.MenuItem 
 	muteItem: wx.MenuItem
@@ -17,7 +15,7 @@ class RemoteMenu(wx.Menu):
 	sendCtrlAltDelItem: wx.MenuItem
 	remoteItem: wx.MenuItem
 
-	def __init__(self, client: 'GlobalPlugin') -> None:
+	def __init__(self, client) -> None:
 		super().__init__()
 		self.client = client
 		toolsMenu = gui.mainFrame.sysTrayIcon.toolsMenu
