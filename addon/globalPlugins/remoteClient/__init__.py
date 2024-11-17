@@ -411,11 +411,11 @@ class GlobalPlugin(_GlobalPlugin):
 		self.keyModifiers = set()
 
 	def setReceivingBraille(self, state):
-		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
-			self.masterSession.patcher.registerBrailleInputHandler()
+		if state and self.masterSession.extensionsRegistered and braille.handler.enabled:
+			self.masterSession.extensionMapper.registerBrailleInputHandler()
 			self.localMachine.receivingBraille=True
 		elif not state:
-			self.masterSession.patcher.unregisterBrailleInputHandler()
+			self.masterSession.extensionMapper.unregisterBrailleInputHandler()
 			self.localMachine.receivingBraille=False
 
 	@alwaysCallAfter
