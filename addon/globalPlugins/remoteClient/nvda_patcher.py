@@ -1,43 +1,56 @@
 from typing import Any, Dict, List, Optional, Type, Union
 
-from .transport import RelayTransport
 import braille
 import brailleInput
 import inputCore
 import nvwave
 import scriptHandler
 import speech
-from speech.extensions import speechCanceled
 import tones
+from speech.extensions import speechCanceled
 
 from . import callback_manager
+from .protocol import RemoteMessageType
+from .transport import RelayTransport
 
 
 class RemoteExtensionMapper(callback_manager.CallbackManager):
-	"""Base class to manage patching of braille display changes."""
+	"""Base class to manage forwarding of extension points to a remote client."""
 
 	def __init__(self, transport: RelayTransport) -> None:
 		super().__init__()
 		self.transport: RelayTransport = transport
-		self._registered_extensions = {}
+		self._registeredExtensions = {}
 
-	def register_outgoing(self, extension_point, message_type):
-		"""Register an NVDA extension point to forward as a remote message"""
-		handler = lambda *args, **kwargs: self.transport.send(message_type, **kwargs)
-		extension_point.register(handler)
-		self._registered_extensions[extension_point] = handler
+	def registerOutgoing(self, extensionPoint, messageType: RemoteMessageType, transform: callable = None, returnValue: Any = None):
+		"""Register an NVDA extension point to forward as a remote message
 
-	def unregister_outgoing(self, extension_point):
-		"""Unregister an NVDA extension point"""
-		if extension_point in self._registered_extensions:
-			handler = self._registered_extensions[extension_point]
+		@param extension_point: The NVDA extension point to register
+		@param message_type: The message type to send to the remote client
+		@param transform: An optional function to transform the arguments before sending
+		@param returnValue: An optional value to return to the caller of the extension point (return True for deciders)
+		"""
+		if transform is None:
+			transform = lambda *args, **kwargs: kwargs
+		def handler(*args, **kwargs):
+			self.transport.send(messageType, transform(*args, **kwargs))
+			return returnValue
+		extensionPoint.register(handler)
+		self._registeredExtensions[extensionPoint] = handler
+	
+	def unregisterOutgoing(self, extension_point):
+		"""Unregister an NVDA extension point
+		@param extension_point: The NVDA extension point to unregister  
+		"""
+		if extension_point in self._registeredExtensions:
+			handler = self._registeredExtensions[extension_point]
 			extension_point.unregister(handler)
-			del self._registered_extensions[extension_point]
+			del self._registeredExtensions[extension_point]
 
 	def unregister_all(self):
 		"""Unregister all extension points"""
-		for extension_point in list(self._registered_extensions.keys()):
-			self.unregister_outgoing(extension_point)
+		for extension_point in list(self._registeredExtensions.keys()):
+			self.unregisterOutgoing(extension_point)
 
 	def RegisterSetDisplay(self) -> None:
 		braille.displayChanged.register(self.handle_displayChanged)
@@ -64,7 +77,7 @@ class SlaveExtensionMapper(RemoteExtensionMapper):
 	"""Class to manage patching of synth, tones, nvwave, and braille."""
 
 	def __init__(self, transport: RelayTransport) -> None:
-		super().__init__(transport=	transport)
+		super().__init__(transport=transport)
 		self.origSpeak: Optional[Any] = None
 		self.orig_pauseSpeech: Optional[Any] = None
 
@@ -73,7 +86,6 @@ class SlaveExtensionMapper(RemoteExtensionMapper):
 			return
 		self.origSpeak = speech._manager.speak
 		speech._manager.speak = self.speak
-		speechCanceled.register(self.cancel)
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
 
@@ -91,7 +103,6 @@ class SlaveExtensionMapper(RemoteExtensionMapper):
 			return
 		speech._manager.speak = self.origSpeak
 		self.origSpeak = None
-		speechCanceled.unregister(self.cancel)
 		speech.pauseSpeech = self.orig_pauseSpeech
 		self.orig_pauseSpeech = None
 
@@ -106,14 +117,16 @@ class SlaveExtensionMapper(RemoteExtensionMapper):
 
 	def registerExtensionPoints(self):
 		self.patchSpeech()
-		self.registerTones()
-		self.registerNvwave()
+		self.registerOutgoing(extensionPoint=speechCanceled, messageType=RemoteMessageType.speech_canceled)
+		self.registerOutgoing(extensionPoint=tones.decide_beep, messageType=RemoteMessageType.tone, returnValue=True)
+		self.registerOutgoing(extensionPoint=nvwave.decide_playWaveFile, messageType=RemoteMessageType.wave, returnValue=True)
 		self.registerBraille()
 
 	def unregisterExtensionPoints(self):
 		self.unpatchSpeech()
-		self.unregisterTones()
-		self.unregisterNvwave()
+		self.unregisterOutgoing(extension_point=speechCanceled)
+		self.unregisterOutgoing(extension_point=tones.decide_beep)
+		self.unregisterOutgoing(extension_point=nvwave.decide_playWaveFile)
 		self.unregisterBraille()
 
 	def speak(self, speechSequence: Any, priority: Any) -> None:
