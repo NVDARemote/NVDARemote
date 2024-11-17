@@ -105,7 +105,7 @@ class SlaveSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.send_SAS, self.localMachine.sendSAS)
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
-		self.patcher.patch()
+		self.patcher.registerExtensionPoints()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
 			self.patchCallbacksAdded = True
@@ -120,21 +120,21 @@ class SlaveSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleTransportClosing(self) -> None:
-		self.patcher.unpatch()
+		self.patcher.unregisterExtensionPoints()
 		if self.patchCallbacksAdded:
 			self.removePatchCallbacks()
 			self.patchCallbacksAdded = False
 
 	def handleTransportDisconnected(self):
 		cues.client_connected()
-		self.patcher.unpatch()
+		self.patcher.unregisterExtensionPoints()
 
 	def handleClientDisconnected(self, client=None):
 		cues.client_disconnected()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
 		if not self.masters:
-			self.patcher.unpatch()
+			self.patcher.unregisterExtensionPoints()
 
 	def setDisplaySize(self, sizes=None):
 		self.masterDisplaySizes = sizes if sizes else [
@@ -176,11 +176,11 @@ class SlaveSession(RemoteSession):
 		])
 
 	def speak(self, speechSequence: List[Any], priority: Optional[str]) -> None:
-		self.transport.send(RemoteMessageType.speak,
-							sequence=self._filterUnsupportedSpeechCommands(
-								speechSequence),
-							priority=priority
-							)
+		self.transport.send(
+			type=RemoteMessageType.speak,
+			sequence=self._filterUnsupportedSpeechCommands(speechSequence),
+			priority=priority
+		)
 
 	def cancelSpeech(self):
 		self.transport.send(type=RemoteMessageType.cancel)
@@ -189,8 +189,7 @@ class SlaveSession(RemoteSession):
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
 	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
-		self.transport.send(type=RemoteMessageType.tone, hz=hz,
-		                    length=length, left=left, right=right)
+		self.transport.send(type=RemoteMessageType.tone, hz=hz, length=length, left=left, right=right)
 
 	def playWaveFile(self, **kwargs):
 		"""This machine played a sound, send it to Master machine"""
@@ -275,7 +274,7 @@ class MasterSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleClientConnected(self, client=None):
-		self.patcher.patch()
+		self.patcher.registerExtensionPoints()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
 			self.patchCallbacksAdded = True
@@ -283,7 +282,7 @@ class MasterSession(RemoteSession):
 		cues.client_connected()
 
 	def handleClientDisconnected(self, client=None):
-		self.patcher.unpatch()
+		self.patcher.unregisterExtensionPoints()
 		if self.patchCallbacksAdded:
 			self.removePatchCallbacks()
 			self.patchCallbacksAdded = False
@@ -294,7 +293,7 @@ class MasterSession(RemoteSession):
 			display = braille.handler.display
 		if displaySize is None:
 			displaySize = braille.handler.displaySize
-		self.transport.send(type="set_braille_info",
+		self.transport.send(type=RemoteMessageType.set_braille_info,
 							name=display.name, numCells=displaySize)
 
 	def brailleInput(self) -> None:
