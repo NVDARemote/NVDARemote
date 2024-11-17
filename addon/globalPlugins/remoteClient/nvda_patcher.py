@@ -5,6 +5,7 @@ import inputCore
 import nvwave
 import scriptHandler
 import speech
+from speech.extensions import speechCanceled
 import tones
 import versionInfo
 
@@ -40,7 +41,6 @@ class NVDASlavePatcher(NVDAPatcher):
 	def __init__(self) -> None:
 		super().__init__()
 		self.origSpeak: Optional[Any] = None
-		self.origCancel: Optional[Any] = None
 		self.orig_pauseSpeech: Optional[Any] = None
 
 	def patchSpeech(self) -> None:
@@ -48,8 +48,7 @@ class NVDASlavePatcher(NVDAPatcher):
 			return
 		self.origSpeak = speech._manager.speak
 		speech._manager.speak = self.speak
-		self.origCancel = speech._manager.cancel
-		speech._manager.cancel = self.cancel
+		speechCanceled.register(self.cancel)
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
 
@@ -67,8 +66,7 @@ class NVDASlavePatcher(NVDAPatcher):
 			return
 		speech._manager.speak = self.origSpeak
 		self.origSpeak = None
-		speech._manager.cancel = self.origCancel
-		self.origCancel = None
+		speechCanceled.unregister(self.cancel)
 		speech.pauseSpeech = self.orig_pauseSpeech
 		self.orig_pauseSpeech = None
 
@@ -99,7 +97,6 @@ class NVDASlavePatcher(NVDAPatcher):
 
 	def cancel(self) -> None:
 		self.callCallbacks('cancel_speech')
-		self.origCancel()
 
 	def pauseSpeech(self, switch: bool) -> None:
 		self.callCallbacks('pause_speech', switch=switch)
