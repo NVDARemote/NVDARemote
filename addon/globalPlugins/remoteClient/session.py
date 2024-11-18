@@ -1,8 +1,8 @@
+
 import hashlib
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, Union, Any, Callable
 from dataclasses import dataclass
-
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import addonHandler
 import braille
@@ -12,9 +12,7 @@ import ui
 import versionInfo
 from logHandler import log
 
-
 from . import configuration, connection_info, cues, extensionMapper, local_machine
-
 from .protocol import RemoteMessageType
 from .transport import RelayTransport 
 

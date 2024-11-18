@@ -22,7 +22,7 @@ class RemoteExtensionMapper(callback_manager.CallbackManager):
 		self.transport: RelayTransport = transport
 		self._registeredExtensions = {}
 
-	def registerOutgoing(self, extensionPoint, messageType: RemoteMessageType, transform: callable = None, returnValue: Any = None):
+	def registerOutgoing(self, extensionPoint, messageType: RemoteMessageType, argument_transformer: callable = None, returnValue: Any = None):
 		"""Register an NVDA extension point to forward as a remote message
 
 		@param extension_point: The NVDA extension point to register
@@ -30,10 +30,10 @@ class RemoteExtensionMapper(callback_manager.CallbackManager):
 		@param transform: An optional function to transform the arguments before sending
 		@param returnValue: An optional value to return to the caller of the extension point (return True for deciders)
 		"""
-		if transform is None:
-			transform = lambda *args, **kwargs: kwargs
+		if argument_transformer is None:
+			argument_transformer = lambda *args, **kwargs: kwargs
 		def handler(*args, **kwargs):
-			self.transport.send(messageType, transform(*args, **kwargs))
+			self.transport.send(messageType, argument_transformer(*args, **kwargs))
 			return returnValue
 		extensionPoint.register(handler)
 		self._registeredExtensions[extensionPoint] = handler
@@ -107,7 +107,7 @@ class SlaveExtensionMapper(RemoteExtensionMapper):
 		self.patchSpeech()
 		self.registerOutgoing(extensionPoint=speechCanceled, messageType=RemoteMessageType.speech_canceled)
 		self.registerOutgoing(extensionPoint=tones.decide_beep, messageType=RemoteMessageType.tone, returnValue=True)
-		self.registerOutgoing(extensionPoint=nvwave.decide_playWaveFile, messageType=RemoteMessageType.wave, returnValue=True, transform=self.transformPlayWave)
+		self.registerOutgoing(extensionPoint=nvwave.decide_playWaveFile, messageType=RemoteMessageType.wave, returnValue=True, argument_transformer=self.transformPlayWave)
 		self.registerBraille()
 
 	@staticmethod
