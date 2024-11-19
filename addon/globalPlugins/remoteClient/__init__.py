@@ -136,6 +136,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def toggleMute(self):
 		self.localMachine.isMuted = self.menu.muteItem.IsChecked()
 
+	@script(description=_("""Mute or unmute the speech coming from the remote computer"""))
 	def script_toggle_remote_mute(self, gesture):
 		if not self.is_connected() or self.connecting: return
 		self.localMachine.isMuted = not self.localMachine.isMuted
@@ -143,7 +144,6 @@ class GlobalPlugin(_GlobalPlugin):
 		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
 		status = _("Mute speech and sounds from the remote computer") if self.localMachine.isMuted else _("Unmute speech and sounds from the remote computer")
 		ui.message(status)
-	script_toggle_remote_mute.__doc__ = _("""Mute or unmute the speech coming from the remote computer""")
 
 	def pushClipboard(self):
 		connector = self.slaveTransport or self.masterTransport
@@ -153,6 +153,7 @@ class GlobalPlugin(_GlobalPlugin):
 		except TypeError:
 			log.exception("Unable to push clipboard")
 
+	@script(gesture="kb:control+shift+NVDA+c", description=_("Sends the contents of the clipboard to the remote machine"))
 	def script_push_clipboard(self, gesture):
 		connector = self.slaveTransport or self.masterTransport
 		if not getattr(connector,'connected',False):
@@ -164,17 +165,16 @@ class GlobalPlugin(_GlobalPlugin):
 			ui.message(_("Clipboard pushed"))
 		except TypeError:
 			ui.message(_("Unable to push clipboard"))
-	script_push_clipboard.__doc__ = _("Sends the contents of the clipboard to the remote machine")
 
 	def copyLink(self):
 		session = self.masterSession or self.slaveSession
 		url = session.getConnectionInfo().get_url_to_connect()
 		api.copyToClip(str(url))
 
+	@script(description=_("""Copies a link to the remote session to the clipboard"""))
 	def script_copy_link(self, gesture):
 		self.copyLink()
 		ui.message(_("Copied link"))
-	script_copy_link.__doc__ = _("Copies a link to the remote session to the clipboard")
 
 	def displayOptionsInterface(self):
 		conf = configuration.get_config()
@@ -235,17 +235,17 @@ class GlobalPlugin(_GlobalPlugin):
 			# Translators: Message shown when cannot connect to the remote computer.
 			message=_("Unable to connect to the remote computer"), style=wx.OK | wx.ICON_WARNING)
 
+	@script(gesture="kb:alt+NVDA+pageDown", description=_("""Disconnect a remote session"""))
 	def script_disconnect(self, gesture):
 		if self.masterTransport is None and self.slaveTransport is None:
 			ui.message(_("Not connected."))
 			return
 		self.disconnect()
-	script_disconnect.__doc__ = _("""Disconnect a remote session""")
 
+	@script(gesture="kb:alt+NVDA+pageUp", description=_("""Connect to a remote computer"""))
 	def script_connect(self, gesture):
 		if self.is_connected() or self.connecting: return
 		self.doConnect(evt = None)
-	script_connect.__doc__ = _("""Connect to a remote computer""")
 	
 	def doConnect(self, evt):
 		if evt is not None: evt.Skip()
@@ -445,9 +445,3 @@ class GlobalPlugin(_GlobalPlugin):
 		if connector is not None:
 			return connector.connected
 		return False
-
-	__gestures = {
-		"kb:alt+NVDA+pageDown": "disconnect",
-		"kb:alt+NVDA+pageUp": "connect",
-		"kb:control+shift+NVDA+c": "push_clipboard",
-	}
