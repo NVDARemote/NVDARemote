@@ -41,6 +41,7 @@ from utils.security import isRunningOnSecureDesktop
 from . import configuration, cues, local_machine, serializer, url_handler
 from .session import MasterSession, SlaveSession
 from .transport import RelayTransport, TransportEvents
+from .settings_panel import RemoteSettingsPanel
 
 try:
 	addonHandler.initTranslation()
@@ -98,6 +99,8 @@ class GlobalPlugin(_GlobalPlugin):
 			os.remove(os.path.abspath(os.path.join(globalVars.appArgs.configPath, configuration.CONFIG_FILE_NAME)))
 			queueHandler.queueFunction(queueHandler.eventQueue, wx.CallAfter, wx.MessageBox, _("Your NVDA Remote configuration was corrupted and has been reset."), _("NVDA Remote Configuration Error"), wx.OK|wx.ICON_EXCLAMATION)
 		controlServerConfig = configuration.get_config()['controlserver']
+		if not globalVars.appArgs.secure:
+			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(RemoteSettingsPanel)
 		self.sd_handler = SecureDesktopHandler()
 		if isRunningOnSecureDesktop():
 			connection = self.sd_handler.initialize_secure_desktop()
@@ -132,6 +135,9 @@ class GlobalPlugin(_GlobalPlugin):
 			url_handler.unregister_url_handler()
 		self.url_handler_window.destroy()
 		self.url_handler_window=None
+		if not globalVars.appArgs.secure:
+			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(RemoteSettingsPanel)
+
 
 	def toggleMute(self):
 		self.localMachine.isMuted = self.menu.muteItem.IsChecked()
