@@ -90,10 +90,10 @@ class RemoteSettingsPanel(SettingsPanel):
 	def isValid(self) -> bool:
 		if self.autoconnect.GetValue():
 			if not self.client_or_server.GetSelection() and (not self.host.GetValue() or not self.key.GetValue()):
-				gui.messageBox(_("Both host and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+				gui.messageBox(_("Both host and key must be set in the Remote section."), _("Remote Error"), wx.OK | wx.ICON_ERROR)
 				return False
 			elif self.client_or_server.GetSelection() and not self.port.GetValue() or not self.key.GetValue():
-				gui.messageBox(_("Both port and key must be set."), _("Error"), wx.OK | wx.ICON_ERROR)
+				gui.messageBox(_("Both port and key must be set in the Remote section."), _("Remote Error"), wx.OK | wx.ICON_ERROR)
 				return False
 		return True
 
