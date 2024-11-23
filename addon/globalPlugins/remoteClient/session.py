@@ -263,8 +263,7 @@ class MasterSession(RemoteSession):
 			'msg_set_clipboard_text', self.localMachine.setClipboardText)
 		self.transport.callback_manager.registerCallback(
 			'msg_send_braille_info', self.sendBrailleInfo)
-		self.transport.callback_manager.registerCallback(
-			TransportEvents.CONNECTED, self.handleConnected)
+		self.transport.transportConnected.register(self.handleConnected)
 		self.transport.callback_manager.registerCallback(
 			TransportEvents.DISCONNECTED, self.handleDisconnected)
 

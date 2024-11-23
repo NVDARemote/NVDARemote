@@ -10,12 +10,14 @@ from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 from enum import Enum
 
-
+from extensionPoints import Action
 
 log = getLogger('transport')
 
+
 from . import configuration
 from .callback_manager import CallbackManager
+from .serializer import Serializer
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 from .protocol import RemoteMessageType, PROTOCOL_VERSION
 from .serializer import Serializer
@@ -35,18 +37,25 @@ class Transport:
 	connected_event: threading.Event
 	serializer: Serializer
 
+
+
 	def __init__(self, serializer: Any) -> None:
 		self.serializer = serializer
-		self.callback_manager = CallbackManager()
+		self.callback_manager: CallbackManager = CallbackManager()
 		self.connected = False
 		self.successful_connects = 0
-		self.connected_event = threading.Event()
+		self.connectedEvent = threading.Event()
+		self.transportConnected = Action()
+		"""
+		Notifies when the transport is connected
+		"""
 
-	def transport_connected(self) -> None:
+
+	def onTransportConnected(self) -> None:
 		self.successful_connects += 1
 		self.connected = True
-		self.connected_event.set()
-		self.callback_manager.callCallbacks(TransportEvents.CONNECTED)
+		self.connectedEvent.set()
+		self.transportConnected.notify()
 
 class TCPTransport(Transport):
 	buffer: bytes
@@ -102,7 +111,7 @@ class TCPTransport(Transport):
 		except Exception:
 			self.callback_manager.callCallbacks(TransportEvents.CONNECTION_FAILED)
 			raise
-		self.transport_connected()
+		self.onTransportConnected()
 		self.queue_thread = threading.Thread(target=self.send_queue)
 		self.queue_thread.daemon = True
 		self.queue_thread.start()
@@ -122,7 +131,7 @@ class TCPTransport(Transport):
 					self.buffer = b''
 					break
 		self.connected = False
-		self.connected_event.clear()
+		self.connectedEvent.clear()
 		self.callback_manager.callCallbacks(TransportEvents.DISCONNECTED)
 		self._disconnect()
 
@@ -239,10 +248,13 @@ class RelayTransport(TCPTransport):
 		self.channel = channel
 		self.connection_type = connection_type
 		self.protocol_version = protocol_version
-		self.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected)
+		self.transportConnected.register(self.onConnected)
 
-	def on_connected(self) -> None:
+
+
+	def onConnected(self) -> None:
 		self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
+
 		if self.channel is not None:
 			self.send(RemoteMessageType.join, channel=self.channel, connection_type=self.connection_type)
 		else:
