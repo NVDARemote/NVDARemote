@@ -10,7 +10,7 @@ class RemoteSettingsPanel(SettingsPanel):
 	client_or_server: wx.RadioBox
 	connection_type: wx.RadioBox
 	host: wx.TextCtrl
-	port: wx.TextCtrl
+	port: wx.SpinCtrl
 	key: wx.TextCtrl
 	play_sounds: wx.CheckBox
 	delete_fingerprints: wx.Button
@@ -37,7 +37,7 @@ class RemoteSettingsPanel(SettingsPanel):
 		self.host.Enable(False)
 		sHelper.addItem(self.host)
 		sHelper.addItem(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
-		self.port = wx.TextCtrl(self, wx.ID_ANY)
+		self.port = wx.SpinCtrl(self, wx.ID_ANY, min=1, max=65535)
 		self.port.Enable(False)
 		sHelper.addItem(self.port)
 		sHelper.addItem(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
