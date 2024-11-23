@@ -57,7 +57,7 @@ class ClientPanel(wx.Panel):
 			address = socket_utils.address_to_hostport(self.host.GetValue())
 			self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
 			self.key_connector.callback_manager.registerCallback('msg_generate_key', self.handle_key_generated)
-			self.key_connector.callback_manager.registerCallback(transport.TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.handle_certificate_failed)
+			self.key_connector.transportCertificateAuthenticationFailed.register(self.handle_certificate_failed)
 			t = threading.Thread(target=self.key_connector.run)
 			t.start()
 

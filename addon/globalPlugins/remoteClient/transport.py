@@ -23,10 +23,8 @@ from .protocol import RemoteMessageType, PROTOCOL_VERSION
 from .serializer import Serializer
 
 class TransportEvents(Enum):
-	CERTIFICATE_AUTHENTICATION_FAILED = 'certificate_authentication_failed'
 	CONNECTION_FAILED = 'transport_connection_failed'
 	CLOSING = 'transport_closing'
-	DISCONNECTED = 'transport_disconnected'
 
 
 class Transport:
@@ -51,6 +49,10 @@ class Transport:
 		self.transportDisconnected = Action()
 		"""
 		Notifies when the transport is disconnected
+		"""
+		self.transportCertificateAuthenticationFailed = Action()
+		"""
+		Notifies when the transport fails to authenticate the certificate
 		"""
 
 	def onTransportConnected(self) -> None:
@@ -108,7 +110,7 @@ class TCPTransport(Transport):
 				self.insecure=True
 				return self.run()
 			self.last_fail_fingerprint = fingerprint
-			self.callback_manager.callCallbacks(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED)
+			self.transportCertificateAuthenticationFailed.notify()
 			raise
 		except Exception:
 			self.callback_manager.callCallbacks(TransportEvents.CONNECTION_FAILED)

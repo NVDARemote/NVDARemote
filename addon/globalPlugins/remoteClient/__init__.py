@@ -292,7 +292,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def connectAsMaster(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.masterSession = MasterSession(transport=transport, local_machine=self.localMachine)
-		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
+		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_master_failed)
 		transport.transportConnected.register(self.onConnectedAsMaster)
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
 		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
@@ -305,7 +305,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveSession = SlaveSession(transport=transport, local_machine=self.localMachine)
 		self.sd_handler.slave_session = self.slaveSession
 		self.slaveTransport = transport
-		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
+		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_slave_failed)
 		transport.transportConnected.register(self.on_connected_as_slave)
 		self.slaveTransport.reconnector_thread.start()
 		self.menu.disconnectItem.Enable(True)
