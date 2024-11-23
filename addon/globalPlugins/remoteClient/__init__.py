@@ -182,17 +182,6 @@ class GlobalPlugin(_GlobalPlugin):
 		self.copyLink()
 		ui.message(_("Copied link"))
 
-	def displayOptionsInterface(self):
-		conf = configuration.get_config()
-		# Translators: The title of the add-on options dialog.
-		dlg = dialogs.OptionsDialog(gui.mainFrame, wx.ID_ANY, title=_("Options"))
-		dlg.set_from_config(conf)
-		def handle_dlg_complete(dlg_result):
-			if dlg_result != wx.ID_OK:
-				return
-			dlg.write_to_config(conf)
-		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
-
 	def sendSAS(self):
 		self.masterTransport.send('send_SAS')
 
