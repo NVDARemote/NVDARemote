@@ -23,7 +23,6 @@ from .protocol import RemoteMessageType, PROTOCOL_VERSION
 from .serializer import Serializer
 
 class TransportEvents(Enum):
-	CONNECTED = 'transport_connected'
 	CERTIFICATE_AUTHENTICATION_FAILED = 'certificate_authentication_failed'
 	CONNECTION_FAILED = 'transport_connection_failed'
 	CLOSING = 'transport_closing'
@@ -49,7 +48,10 @@ class Transport:
 		"""
 		Notifies when the transport is connected
 		"""
-
+		self.transportDisconnected = Action()
+		"""
+		Notifies when the transport is disconnected
+		"""
 
 	def onTransportConnected(self) -> None:
 		self.successful_connects += 1
@@ -132,7 +134,7 @@ class TCPTransport(Transport):
 					break
 		self.connected = False
 		self.connectedEvent.clear()
-		self.callback_manager.callCallbacks(TransportEvents.DISCONNECTED)
+		self.transportDisconnected.notify()
 		self._disconnect()
 
 	def create_outbound_socket(self, host: str, port: int, insecure: bool = False) -> ssl.SSLSocket:

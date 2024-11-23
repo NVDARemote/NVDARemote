@@ -264,8 +264,7 @@ class MasterSession(RemoteSession):
 		self.transport.callback_manager.registerCallback(
 			'msg_send_braille_info', self.sendBrailleInfo)
 		self.transport.transportConnected.register(self.handleConnected)
-		self.transport.callback_manager.registerCallback(
-			TransportEvents.DISCONNECTED, self.handleDisconnected)
+		self.transport.transportDisconnected.register(self.handleDisconnected)
 
 	def handlePlayWave(self, **kwargs):
 		"""Receive instruction to play a 'wave' from the slave machine

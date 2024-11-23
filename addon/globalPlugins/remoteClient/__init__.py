@@ -296,7 +296,7 @@ class GlobalPlugin(_GlobalPlugin):
 		transport.transportConnected.register(self.onConnectedAsMaster)
 		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
 		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
-		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.onDisconnectedAsMaster)
+		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
 		self.masterTransport = transport
 		self.masterTransport.reconnector_thread.start()
 
