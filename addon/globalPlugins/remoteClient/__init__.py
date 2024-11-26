@@ -42,7 +42,7 @@ from utils.security import isRunningOnSecureDesktop
 
 from . import configuration, cues, local_machine, serializer, url_handler
 from .session import MasterSession, SlaveSession
-from .transport import RelayTransport, TransportEvents
+from .transport import RelayTransport
 from .settings_panel import RemoteSettingsPanel
 
 try:
@@ -61,6 +61,15 @@ logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 import queueHandler
 import shlobj
 from logHandler import log
+from functools import wraps
+
+def alwaysCallAfter(func):
+	"""Decorator to call a function after the current event loop has finished."""
+	@wraps(func)
+	def wrapper(*args, **kwargs):
+		wx.CallAfter(func, *args, **kwargs)
+	return wrapper
+
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory: str = _("NVDA Remote")
@@ -294,11 +303,12 @@ class GlobalPlugin(_GlobalPlugin):
 		self.masterSession = MasterSession(transport=transport, local_machine=self.localMachine)
 		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_master_failed)
 		transport.transportConnected.register(self.onConnectedAsMaster)
-		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
-		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
+		transport.transportConnectionFailed.register(self.on_connected_as_master_failed)
+		transport.transportClosing.register(self.disconnectingAsMaster)
 		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
+		transport.reconnector_thread.start()
 		self.masterTransport = transport
-		self.masterTransport.reconnector_thread.start()
+
 
 	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
@@ -307,7 +317,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveTransport = transport
 		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_slave_failed)
 		transport.transportConnected.register(self.on_connected_as_slave)
-		self.slaveTransport.reconnector_thread.start()
+		transport.reconnector_thread.start()
 		self.menu.disconnectItem.Enable(True)
 		self.menu.connectItem.Enable(False)
 
@@ -329,14 +339,17 @@ class GlobalPlugin(_GlobalPlugin):
 			log.error(ex)
 		return False
 
+	@alwaysCallAfter
 	def on_certificate_as_master_failed(self):
 		if self.handle_certificate_failed(self.masterTransport):
 			self.connectAsMaster(self.last_fail_address, self.last_fail_key, True)
 
+	@alwaysCallAfter
 	def on_certificate_as_slave_failed(self):
 		if self.handle_certificate_failed(self.slaveTransport):
 			self.connectAsSlave(self.last_fail_address, self.last_fail_key, True)
 
+	@alwaysCallAfter
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
 		cues.control_server_connected()
@@ -418,6 +431,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.masterSession.patcher.unpatchBrailleInput()
 			self.localMachine.receivingBraille=False
 
+	@alwaysCallAfter
 	def verifyConnect(self, con_info):
 		if self.is_connected() or self.connecting:
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
@@ -443,3 +457,4 @@ class GlobalPlugin(_GlobalPlugin):
 		if connector is not None:
 			return connector.connected
 		return False
+

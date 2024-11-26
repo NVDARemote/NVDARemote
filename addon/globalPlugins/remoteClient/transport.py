@@ -22,10 +22,6 @@ from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 from .protocol import RemoteMessageType, PROTOCOL_VERSION
 from .serializer import Serializer
 
-class TransportEvents(Enum):
-	CONNECTION_FAILED = 'transport_connection_failed'
-	CLOSING = 'transport_closing'
-
 
 class Transport:
 	connected: bool
@@ -53,6 +49,14 @@ class Transport:
 		self.transportCertificateAuthenticationFailed = Action()
 		"""
 		Notifies when the transport fails to authenticate the certificate
+		"""
+		self.transportConnectionFailed = Action()
+		"""
+		Notifies when the transport fails to connect
+		"""
+		self.transportClosing = Action()
+		"""
+		Notifies when the transport is closing
 		"""
 
 	def onTransportConnected(self) -> None:
@@ -113,7 +117,7 @@ class TCPTransport(Transport):
 			self.transportCertificateAuthenticationFailed.notify()
 			raise
 		except Exception:
-			self.callback_manager.callCallbacks(TransportEvents.CONNECTION_FAILED)
+			self.transportConnectionFailed.notify()
 			raise
 		self.onTransportConnected()
 		self.queue_thread = threading.Thread(target=self.send_queue)
@@ -226,7 +230,8 @@ class TCPTransport(Transport):
 			self.server_sock = None
 
 	def close(self):
-		self.callback_manager.callCallbacks(TransportEvents.CLOSING)
+		"""Close the transport."""
+		self.transportClosing.notify()
 		self.reconnector_thread.running = False
 		self._disconnect()
 		self.closed = True

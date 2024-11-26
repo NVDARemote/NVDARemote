@@ -13,8 +13,10 @@ import versionInfo
 from logHandler import log
 
 from . import configuration, connection_info, cues, local_machine, nvda_patcher
+
 from .protocol import RemoteMessageType
-from .transport import RelayTransport, TransportEvents
+from .transport import RelayTransport 
+
 
 addonHandler.initTranslation()
 
@@ -96,8 +98,7 @@ class SlaveSession(RemoteSession):
 		self.masterDisplaySizes = []
 		self.transport.callback_manager.registerCallback(
 			'msg_index', self.recvIndex)
-		self.transport.callback_manager.registerCallback(
-			TransportEvents.CLOSING, self.handleTransportClosing)
+		self.transport.transportClosing.register(self.handleTransportClosing)
 		self.patcher = nvda_patcher.NVDASlavePatcher()
 		self.patchCallbacksAdded = False
 		self.transport.callback_manager.registerCallback(
