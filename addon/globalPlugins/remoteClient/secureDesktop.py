@@ -5,16 +5,19 @@ import ssl
 import threading
 import uuid
 from typing import Optional, Tuple, Any
+
 import shlobj
 
 from pathlib import Path
 from logHandler import log
+from winAPI.secureDesktop import post_secureDesktopStateChange
 
 from . import bridge, server
+from .protocol import RemoteMessageType
 from .transport import RelayTransport
 from .session import SlaveSession
 from .serializer import JSONSerializer
-from winAPI.secureDesktop import post_secureDesktopStateChange
+
 
 def get_program_data_temp_path() -> Path:
 	"""Get the system's program data temp directory path."""
@@ -192,6 +195,6 @@ class SecureDesktopHandler:
 		"""Handle display size changes."""
 		if self.sd_relay is not None and self.slave_session is not None:
 			self.sd_relay.send(
-				type='set_display_size',
+				type=RemoteMessageType.set_display_size,
 				sizes=self.slave_session.masterDisplaySizes
 			)

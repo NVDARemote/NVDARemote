@@ -7,6 +7,7 @@ class RemoteMessageType(Enum):
     channel_joined = "channel_joined"
     client_joined = "client_joined"
     client_left = "client_left"
+    generate_key = "generate_key"
     
     # Control Messages
     key = "key"

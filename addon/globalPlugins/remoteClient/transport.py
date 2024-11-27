@@ -10,12 +10,14 @@ from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 from enum import Enum
 
+from .serializer import Serializer
+
 log = getLogger('transport')
 
 from . import configuration
 from .callback_manager import CallbackManager
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
-
+from .protocol import RemoteMessageType
 PROTOCOL_VERSION: int = 2
 
 class TransportEvents(Enum):
@@ -31,7 +33,7 @@ class Transport:
 	successful_connects: int
 	callback_manager: CallbackManager
 	connected_event: threading.Event
-	serializer: Any  # Type of serializer varies
+	serializer: Serializer
 
 	def __init__(self, serializer: Any) -> None:
 		self.serializer = serializer
@@ -59,7 +61,7 @@ class TCPTransport(Transport):
 	reconnector_thread: 'ConnectorThread'
 	last_fail_fingerprint: Optional[str]
 	
-	def __init__(self, serializer: Any, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
+	def __init__(self, serializer: Serializer, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
@@ -240,11 +242,11 @@ class RelayTransport(TCPTransport):
 		self.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected)
 
 	def on_connected(self):
-		self.send('protocol_version', version=self.protocol_version)
+		self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
 		if self.channel is not None:
-			self.send('join', channel=self.channel, connection_type=self.connection_type)
+			self.send(RemoteMessageType.join, channel=self.channel, connection_type=self.connection_type)
 		else:
-			self.send('generate_key')
+			self.send(RemoteMessageType.generate_key)
 
 class ConnectorThread(threading.Thread):
 	running: bool

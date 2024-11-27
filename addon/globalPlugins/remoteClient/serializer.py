@@ -1,3 +1,5 @@
+from abc import abstractmethod
+from enum import Enum
 from logging import getLogger
 from typing import Any, Dict, List, Optional, Type, Union, TypeVar
 import json
@@ -9,11 +11,24 @@ log = getLogger('serializer')
 T = TypeVar('T')
 JSONDict = Dict[str, Any]
 
+class Serializer:
 
-class JSONSerializer:
+	@abstractmethod
+	def serialize(self, type: Optional[str] = None, **obj: Any) -> bytes:
+		raise NotImplementedError
+	
+	@abstractmethod
+	def deserialize(self, data: bytes) -> JSONDict:
+		raise NotImplementedError
+	
+
+class JSONSerializer(Serializer):
 	SEP: bytes = b'\n'
 
 	def serialize(self, type: Optional[str] = None, **obj: Any) -> bytes:
+		if type is not None:
+			if isinstance(type, Enum):
+				type = type.value
 		obj['type'] = type
 		data = json.dumps(obj, cls=CustomEncoder).encode('UTF-8') + self.SEP
 		return data
