@@ -177,7 +177,7 @@ class TCPTransport(Transport):
 			self.parse(line)
 		self.buffer += data
 
-	def parse(self, line):
+	def parse(self, line: bytes) -> None:
 		obj = self.serializer.deserialize(line)
 		if 'type' not in obj:
 			return
@@ -185,7 +185,7 @@ class TCPTransport(Transport):
 		del obj['type']
 		self.callback_manager.callCallbacks(callback, **obj)
 
-	def send_queue(self):
+	def send_queue(self) -> None:
 		while True:
 			item = self.queue.get()
 			if item is None:
@@ -196,7 +196,7 @@ class TCPTransport(Transport):
 			except socket.error:
 				return
 
-	def send(self, type, **kwargs):
+	def send(self, type: str|Enum, **kwargs: Any) -> None:
 		obj = self.serializer.serialize(type=type, **kwargs)
 		if self.connected:
 			self.queue.put(obj)
@@ -241,7 +241,7 @@ class RelayTransport(TCPTransport):
 		self.protocol_version = protocol_version
 		self.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected)
 
-	def on_connected(self):
+	def on_connected(self) -> None:
 		self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
 		if self.channel is not None:
 			self.send(RemoteMessageType.join, channel=self.channel, connection_type=self.connection_type)
@@ -272,7 +272,7 @@ class ConnectorThread(threading.Thread):
 				time.sleep(self.connect_delay)
 		log.info("Ending control connector thread %s" % self.name)
 
-def clear_queue(queue):
+def clear_queue(queue: Queue[Optional[bytes]]) -> None:
 	try:
 		while True:
 			queue.get_nowait()
