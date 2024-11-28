@@ -10,12 +10,14 @@ from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 from enum import Enum
 
+from .serializer import Serializer
+
 log = getLogger('transport')
 
 from . import configuration
 from .callback_manager import CallbackManager
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
-
+from .protocol import RemoteMessageType
 PROTOCOL_VERSION: int = 2
 
 class TransportEvents(Enum):
@@ -31,7 +33,7 @@ class Transport:
 	successful_connects: int
 	callback_manager: CallbackManager
 	connected_event: threading.Event
-	serializer: Any  # Type of serializer varies
+	serializer: Serializer
 
 	def __init__(self, serializer: Any) -> None:
 		self.serializer = serializer
@@ -59,7 +61,7 @@ class TCPTransport(Transport):
 	reconnector_thread: 'ConnectorThread'
 	last_fail_fingerprint: Optional[str]
 	
-	def __init__(self, serializer: Any, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
+	def __init__(self, serializer: Serializer, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
 		super().__init__(serializer=serializer)
 		self.closed = False
 		#Buffer to hold partially received data
@@ -175,7 +177,7 @@ class TCPTransport(Transport):
 			self.parse(line)
 		self.buffer += data
 
-	def parse(self, line):
+	def parse(self, line: bytes) -> None:
 		obj = self.serializer.deserialize(line)
 		if 'type' not in obj:
 			return
@@ -183,7 +185,7 @@ class TCPTransport(Transport):
 		del obj['type']
 		self.callback_manager.callCallbacks(callback, **obj)
 
-	def send_queue(self):
+	def send_queue(self) -> None:
 		while True:
 			item = self.queue.get()
 			if item is None:
@@ -194,7 +196,7 @@ class TCPTransport(Transport):
 			except socket.error:
 				return
 
-	def send(self, type, **kwargs):
+	def send(self, type: str|Enum, **kwargs: Any) -> None:
 		obj = self.serializer.serialize(type=type, **kwargs)
 		if self.connected:
 			self.queue.put(obj)
@@ -239,12 +241,12 @@ class RelayTransport(TCPTransport):
 		self.protocol_version = protocol_version
 		self.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected)
 
-	def on_connected(self):
-		self.send('protocol_version', version=self.protocol_version)
+	def on_connected(self) -> None:
+		self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
 		if self.channel is not None:
-			self.send('join', channel=self.channel, connection_type=self.connection_type)
+			self.send(RemoteMessageType.join, channel=self.channel, connection_type=self.connection_type)
 		else:
-			self.send('generate_key')
+			self.send(RemoteMessageType.generate_key)
 
 class ConnectorThread(threading.Thread):
 	running: bool
@@ -270,7 +272,7 @@ class ConnectorThread(threading.Thread):
 				time.sleep(self.connect_delay)
 		log.info("Ending control connector thread %s" % self.name)
 
-def clear_queue(queue):
+def clear_queue(queue: Queue[Optional[bytes]]) -> None:
 	try:
 		while True:
 			queue.get_nowait()

@@ -13,6 +13,7 @@ import versionInfo
 from logHandler import log
 
 from . import configuration, connection_info, cues, local_machine, nvda_patcher
+from .protocol import RemoteMessageType
 from .transport import RelayTransport, TransportEvents
 
 addonHandler.initTranslation()
@@ -21,9 +22,8 @@ addonHandler.initTranslation()
 EXCLUDED_SPEECH_COMMANDS = (
 	speech.commands.BaseCallbackCommand,
 	# _CancellableSpeechCommands are not designed to be reported and are used internally by NVDA. (#230)
-	speech.commands._CancellableSpeechCommand,
+		speech.commands._CancellableSpeechCommand,
 )
-
 
 
 class RemoteSession:
@@ -162,12 +162,12 @@ class SlaveSession(RemoteSession):
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
 		return (
 			('speak', self.speak),
-			('beep', self.beep),
-			('wave', self.playWaveFile),
-			('cancel_speech', self.cancelSpeech),
-			('pause_speech', self.pauseSpeech),
-			('display', self.display),
-			('set_display', self.setDisplaySize)
+				('beep', self.beep),
+				('wave', self.playWaveFile),
+				('cancel_speech', self.cancelSpeech),
+				('pause_speech', self.pauseSpeech),
+				('display', self.display),
+				('set_display', self.setDisplaySize)
 		)
 
 	def addPatchCallbacks(self) -> None:
@@ -187,38 +187,38 @@ class SlaveSession(RemoteSession):
 		])
 
 	def speak(self, speechSequence: List[Any], priority: Optional[str]) -> None:
-		self.transport.send(
-			type="speak",
-			sequence=self._filterUnsupportedSpeechCommands(speechSequence),
-			priority=priority
-		)
+		self.transport.send(RemoteMessageType.speak,
+							sequence=self._filterUnsupportedSpeechCommands(
+								speechSequence),
+							priority=priority
+							)
 
 	def cancelSpeech(self):
-		self.transport.send(type="cancel")
+		self.transport.send(type=RemoteMessageType.cancel)
 
 	def pauseSpeech(self, switch):
-		self.transport.send(type="pause_speech", switch=switch)
+		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
 	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
-		self.transport.send(type='tone', hz=hz, length=length,
-							left=left, right=right, **kwargs)
+		self.transport.send(type=RemoteMessageType.tone, hz=hz,
+		                    length=length, left=left, right=right, **kwargs)
 
 	def playWaveFile(self, **kwargs):
 		"""This machine played a sound, send it to Master machine"""
 		kwargs.update({
 			# nvWave.playWaveFile should always be asynchronous when called from NVDA remote, so always send 'True'
-			# Version 2.2 requires 'async' keyword.
-			'async': True,
-			# Version 2.3 onwards. Not currently used, but matches arguments for nvWave.playWaveFile.
-			# Including it allows for forward compatibility if requirements change.
-			'asynchronous': True,
+				# Version 2.2 requires 'async' keyword.
+				'async': True,
+				# Version 2.3 onwards. Not currently used, but matches arguments for nvWave.playWaveFile.
+				# Including it allows for forward compatibility if requirements change.
+				'asynchronous': True,
 		})
-		self.transport.send(type='wave', **kwargs)
+		self.transport.send(type=RemoteMessageType.wave, **kwargs)
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
 		if self.hasBrailleMasters():
-			self.transport.send(type="display", cells=cells)
+			self.transport.send(type=RemoteMessageType.display, cells=cells)
 
 	def hasBrailleMasters(self):
 		return bool([i for i in self.masterDisplaySizes if i > 0])
@@ -323,7 +323,7 @@ class MasterSession(RemoteSession):
 							name=display.name, numCells=displaySize)
 
 	def brailleInput(self, **kwargs: Any) -> None:
-		self.transport.send(type="braille_input", **kwargs)
+		self.transport.send(type=RemoteMessageType.braille_input, **kwargs)
 
 	def addPatchCallbacks(self):
 		patcher_callbacks = (('braille_input', self.brailleInput),
