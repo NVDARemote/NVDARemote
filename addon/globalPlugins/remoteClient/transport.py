@@ -1,3 +1,18 @@
+"""Network transport layer for NVDA Remote.
+
+This module provides the core networking functionality for NVDA Remote:
+- Transport: Base class defining the transport interface
+- TCPTransport: Implementation of secure TCP socket transport
+- RelayTransport: Extended TCP transport for relay server connections
+- ConnectorThread: Helper class for connection management
+
+The transport layer handles:
+- Secure socket connections with SSL/TLS
+- Message serialization and deserialization
+- Connection management and reconnection
+- Event notifications for connection state changes
+"""
+
 import hashlib
 import select
 import socket
@@ -24,9 +39,18 @@ from .serializer import Serializer
 
 
 class Transport:
+	"""Base class defining the transport interface.
+	
+	Attributes:
+		connected (bool): Whether transport is currently connected
+		successful_connects (int): Number of successful connections made
+		connected_event (threading.Event): Event set when connected
+		serializer (Serializer): Message serializer/deserializer
+		inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
+	"""
 	connected: bool
 	successful_connects: int
-	connected_event: threading.Event
+	connected_event: threading.Event 
 	serializer: Serializer
 
 
@@ -72,6 +96,19 @@ class Transport:
 		self.inboundHandlers[type].unregister(handler)
 
 class TCPTransport(Transport):
+	"""Secure TCP socket transport implementation.
+	
+	Handles establishing SSL/TLS connections, sending/receiving data,
+	and managing the connection lifecycle.
+	
+	Attributes:
+		buffer (bytes): Buffer for incomplete received data
+		closed (bool): Whether transport is closed
+		queue (Queue[Optional[bytes]]): Queue of outbound messages
+		insecure (bool): Whether to skip certificate verification
+		address (Tuple[str, int]): Remote address to connect to
+		timeout (int): Connection timeout in seconds
+	"""
 	buffer: bytes
 	closed: bool
 	queue: Queue[Optional[bytes]]
@@ -253,6 +290,16 @@ class TCPTransport(Transport):
 		self.reconnector_thread = ConnectorThread(self)
 
 class RelayTransport(TCPTransport):
+	"""Transport for connecting through a relay server.
+	
+	Extends TCPTransport with relay-specific protocol handling
+	for channels and connection types.
+	
+	Attributes:
+		channel (Optional[str]): Relay channel name
+		connection_type (Optional[str]): Type of relay connection
+		protocol_version (int): Protocol version to use
+	"""
 	channel: Optional[str]
 	connection_type: Optional[str]
 	protocol_version: int
@@ -285,6 +332,15 @@ class RelayTransport(TCPTransport):
 			self.send(RemoteMessageType.generate_key)
 
 class ConnectorThread(threading.Thread):
+	"""Background thread that manages connection attempts.
+	
+	Handles automatic reconnection with delay between attempts.
+	
+	Attributes:
+		running (bool): Whether thread should continue running
+		connector (Transport): Transport to manage connections for
+		connect_delay (int): Seconds to wait between connection attempts
+	"""
 	running: bool
 	connector: Transport
 	connect_delay: int
@@ -309,6 +365,11 @@ class ConnectorThread(threading.Thread):
 		log.info("Ending control connector thread %s" % self.name)
 
 def clear_queue(queue: Queue[Optional[bytes]]) -> None:
+	"""Empty all items from a queue without blocking.
+	
+	Args:
+		queue: Queue to clear
+	"""
 	try:
 		while True:
 			queue.get_nowait()
