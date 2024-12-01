@@ -20,10 +20,8 @@ class BridgeTransport:
 			t1.registerInbound(messageType, self.send_to_t2)
 			t2.registerInbound(messageType, self.send_to_t1)
 
-	def send(self, transport: Transport, callback: Union[str, Enum], *args: Any, **kwargs: Any) -> None:
-		if isinstance(callback, Enum):
-			callback = callback.value
-		if callback in self.excluded:
+	def send(self, transport: Transport, callback: RemoteMessageType, *args: Any, **kwargs: Any) -> None:
+		if callback.value in self.excluded:
 			return
 		transport.send(callback, *args, **kwargs)
 
