@@ -1,16 +1,18 @@
 """Network transport layer for NVDA Remote.
 
-This module provides the core networking functionality for NVDA Remote:
-- Transport: Base class defining the transport interface
-- TCPTransport: Implementation of secure TCP socket transport
-- RelayTransport: Extended TCP transport for relay server connections
-- ConnectorThread: Helper class for connection management
+This module provides the core networking functionality for NVDA Remote.
+
+Classes:
+    Transport: Base class defining the transport interface
+    TCPTransport: Implementation of secure TCP socket transport  
+    RelayTransport: Extended TCP transport for relay server connections
+    ConnectorThread: Helper class for connection management
 
 The transport layer handles:
-- Secure socket connections with SSL/TLS
-- Message serialization and deserialization
-- Connection management and reconnection
-- Event notifications for connection state changes
+    * Secure socket connections with SSL/TLS
+    * Message serialization and deserialization 
+    * Connection management and reconnection
+    * Event notifications for connection state changes
 """
 
 import hashlib
@@ -41,12 +43,22 @@ from .serializer import Serializer
 class Transport:
 	"""Base class defining the transport interface.
 	
+	This class provides the core interface for network transports,
+	handling message routing and connection state.
+	
 	Attributes:
-		connected (bool): Whether transport is currently connected
-		successful_connects (int): Number of successful connections made
-		connected_event (threading.Event): Event set when connected
-		serializer (Serializer): Message serializer/deserializer
-		inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
+	    connected (bool): Whether transport is currently connected
+	    successful_connects (int): Number of successful connections made
+	    connected_event (threading.Event): Event set when connected
+	    serializer (Serializer): Message serializer/deserializer
+	    inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
+	
+	Events:
+	    transportConnected: Fired when connection is established
+	    transportDisconnected: Fired when connection is lost
+	    transportCertificateAuthenticationFailed: Fired on SSL cert verification failure
+	    transportConnectionFailed: Fired when connection attempt fails
+	    transportClosing: Fired when transport is being closed
 	"""
 	connected: bool
 	successful_connects: int
@@ -98,16 +110,27 @@ class Transport:
 class TCPTransport(Transport):
 	"""Secure TCP socket transport implementation.
 	
-	Handles establishing SSL/TLS connections, sending/receiving data,
-	and managing the connection lifecycle.
+	This class implements the Transport interface using TCP sockets with SSL/TLS
+	encryption. It handles connection establishment, data transfer, and connection
+	lifecycle management.
+	
+	Args:
+	    serializer (Serializer): Message serializer instance
+	    address (Tuple[str, int]): Remote address to connect to
+	    timeout (int, optional): Connection timeout in seconds. Defaults to 0.
+	    insecure (bool, optional): Skip certificate verification. Defaults to False.
 	
 	Attributes:
-		buffer (bytes): Buffer for incomplete received data
-		closed (bool): Whether transport is closed
-		queue (Queue[Optional[bytes]]): Queue of outbound messages
-		insecure (bool): Whether to skip certificate verification
-		address (Tuple[str, int]): Remote address to connect to
-		timeout (int): Connection timeout in seconds
+	    buffer (bytes): Buffer for incomplete received data
+	    closed (bool): Whether transport is closed
+	    queue (Queue[Optional[bytes]]): Queue of outbound messages
+	    insecure (bool): Whether to skip certificate verification
+	    address (Tuple[str, int]): Remote address to connect to
+	    timeout (int): Connection timeout in seconds
+	    server_sock (Optional[ssl.SSLSocket]): The SSL socket connection
+	    server_sock_lock (threading.Lock): Lock for thread-safe socket access
+	    queue_thread (Optional[threading.Thread]): Thread handling outbound messages
+	    reconnector_thread (ConnectorThread): Thread managing reconnection
 	"""
 	buffer: bytes
 	closed: bool
@@ -292,13 +315,22 @@ class TCPTransport(Transport):
 class RelayTransport(TCPTransport):
 	"""Transport for connecting through a relay server.
 	
-	Extends TCPTransport with relay-specific protocol handling
-	for channels and connection types.
+	Extends TCPTransport with relay-specific protocol handling for channels
+	and connection types. Manages protocol versioning and channel joining.
+	
+	Args:
+	    serializer (Any): Message serializer instance
+	    address (Tuple[str, int]): Relay server address
+	    timeout (int, optional): Connection timeout. Defaults to 0.
+	    channel (Optional[str], optional): Channel to join. Defaults to None.
+	    connection_type (Optional[str], optional): Connection type. Defaults to None.
+	    protocol_version (int, optional): Protocol version. Defaults to PROTOCOL_VERSION.
+	    insecure (bool, optional): Skip certificate verification. Defaults to False.
 	
 	Attributes:
-		channel (Optional[str]): Relay channel name
-		connection_type (Optional[str]): Type of relay connection
-		protocol_version (int): Protocol version to use
+	    channel (Optional[str]): Relay channel name
+	    connection_type (Optional[str]): Type of relay connection
+	    protocol_version (int): Protocol version to use
 	"""
 	channel: Optional[str]
 	connection_type: Optional[str]
@@ -334,12 +366,17 @@ class RelayTransport(TCPTransport):
 class ConnectorThread(threading.Thread):
 	"""Background thread that manages connection attempts.
 	
-	Handles automatic reconnection with delay between attempts.
+	Handles automatic reconnection with configurable delay between attempts.
+	Runs until explicitly stopped.
+	
+	Args:
+	    connector (Transport): Transport instance to manage connections for
+	    connect_delay (int, optional): Seconds between attempts. Defaults to 5.
 	
 	Attributes:
-		running (bool): Whether thread should continue running
-		connector (Transport): Transport to manage connections for
-		connect_delay (int): Seconds to wait between connection attempts
+	    running (bool): Whether thread should continue running
+	    connector (Transport): Transport to manage connections for
+	    connect_delay (int): Seconds to wait between connection attempts
 	"""
 	running: bool
 	connector: Transport
@@ -367,8 +404,15 @@ class ConnectorThread(threading.Thread):
 def clear_queue(queue: Queue[Optional[bytes]]) -> None:
 	"""Empty all items from a queue without blocking.
 	
+	Removes all items from the queue in a non-blocking way,
+	useful for cleaning up before disconnection.
+	
 	Args:
-		queue: Queue to clear
+	    queue (Queue[Optional[bytes]]): Queue instance to clear
+	
+	Note:
+	    This function catches and ignores any exceptions that occur
+	    while trying to get items from an empty queue.
 	"""
 	try:
 		while True:
