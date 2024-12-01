@@ -13,6 +13,10 @@ The transport layer handles:
     * Message serialization and deserialization 
     * Connection management and reconnection
     * Event notifications for connection state changes
+    * Message routing based on RemoteMessageType enum
+
+All network operations run in background threads, while message handlers
+are called on the main wxPython thread for thread-safety.
 """
 
 import hashlib
@@ -358,6 +362,19 @@ class TCPTransport(Transport):
 				return
 
 	def send(self, type: str|Enum, **kwargs: Any) -> None:
+		"""Send a message through the transport.
+
+		Serializes and queues a message for transmission. Messages are sent
+		asynchronously by the queue thread.
+
+		Args:
+			type (str|Enum): Message type, typically a RemoteMessageType enum value
+			**kwargs: Message payload data to serialize
+
+		Note:
+			This method is thread-safe and can be called from any thread.
+			If the transport is not connected, the message will be silently dropped.
+		"""
 		obj = self.serializer.serialize(type=type, **kwargs)
 		if self.connected:
 			self.queue.put(obj)
