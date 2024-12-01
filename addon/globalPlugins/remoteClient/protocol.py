@@ -1,5 +1,7 @@
 from enum import Enum
 
+PROTOCOL_VERSION: int = 2
+
 class RemoteMessageType(Enum):
     # Connection and Protocol Messages
     protocol_version = "protocol_version"
@@ -30,4 +32,5 @@ class RemoteMessageType(Enum):
     # System Messages
     ping = "ping"
     error = "error"
-    
+
+

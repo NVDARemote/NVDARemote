@@ -10,15 +10,15 @@ from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 from enum import Enum
 
-from .serializer import Serializer
+
 
 log = getLogger('transport')
 
 from . import configuration
 from .callback_manager import CallbackManager
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
-from .protocol import RemoteMessageType
-PROTOCOL_VERSION: int = 2
+from .protocol import RemoteMessageType, PROTOCOL_VERSION
+from .serializer import Serializer
 
 class TransportEvents(Enum):
 	CONNECTED = 'transport_connected'
