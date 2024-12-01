@@ -41,24 +41,49 @@ from .serializer import Serializer
 
 
 class Transport:
-	"""Base class defining the transport interface.
+	"""Base class defining the network transport interface for NVDA Remote.
 	
-	This class provides the core interface for network transports,
-	handling message routing and connection state.
+	This abstract base class defines the interface that all network transports must implement.
+	It provides core functionality for secure message passing, connection management,
+	and event handling between NVDA instances.
+	
+	The Transport class handles:
+	
+	* Message serialization and routing using a pluggable serializer
+	* Connection state management and event notifications
+	* Registration of message type handlers
+	* Thread-safe connection events
+	
+	To implement a new transport:
+	
+	1. Subclass Transport
+	2. Implement connection logic in run()
+	3. Call onTransportConnected() when connected
+	4. Use send() to transmit messages
+	5. Call appropriate event notifications
+	
+	Example:
+	    >>> serializer = JSONSerializer()
+	    >>> transport = TCPTransport(serializer, ("localhost", 8090))
+	    >>> transport.registerInbound(RemoteMessageType.key_down, handle_keydown)
+	    >>> transport.run()
+	
+	Args:
+	    serializer: The serializer instance to use for message encoding/decoding
 	
 	Attributes:
-	    connected (bool): Whether transport is currently connected
-	    successful_connects (int): Number of successful connections made
-	    connected_event (threading.Event): Event set when connected
-	    serializer (Serializer): Message serializer/deserializer
-	    inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
+	    connected (bool): True if transport has an active connection
+	    successful_connects (int): Counter of successful connection attempts
+	    connected_event (threading.Event): Event that is set when connected
+	    serializer (Serializer): The message serializer instance
+	    inboundHandlers (Dict[RemoteMessageType, Callable]): Registered message handlers
 	
 	Events:
-	    transportConnected: Fired when connection is established
-	    transportDisconnected: Fired when connection is lost
-	    transportCertificateAuthenticationFailed: Fired on SSL cert verification failure
-	    transportConnectionFailed: Fired when connection attempt fails
-	    transportClosing: Fired when transport is being closed
+	    transportConnected: Fired after connection is established and ready
+	    transportDisconnected: Fired when existing connection is lost
+	    transportCertificateAuthenticationFailed: Fired when SSL certificate validation fails
+	    transportConnectionFailed: Fired when a connection attempt fails
+	    transportClosing: Fired before transport is shut down
 	"""
 	connected: bool
 	successful_connects: int
