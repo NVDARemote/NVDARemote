@@ -9,7 +9,8 @@ import gui
 import wx
 from logHandler import log
 
-from . import serializer, server, socket_utils, transport
+from . import configuration, serializer, server, socket_utils, transport
+from .protocol import RemoteMessageType
 
 try:
 	addonHandler.initTranslation()
@@ -17,7 +18,6 @@ except addonHandler.AddonError:
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
-from . import configuration
 
 WX_VERSION = int(wx.version()[0])
 WX_CENTER = wx.Center if WX_VERSION>=4 else wx.CENTER_ON_SCREEN
@@ -56,7 +56,7 @@ class ClientPanel(wx.Panel):
 	def generate_key_command(self, insecure: bool = False) -> None:
 			address = socket_utils.address_to_hostport(self.host.GetValue())
 			self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
-			self.key_connector.callback_manager.registerCallback('msg_generate_key', self.handle_key_generated)
+			self.key_connector.registerInbound(RemoteMessageType.generate_key, self.handle_key_generated)
 			self.key_connector.transportCertificateAuthenticationFailed.register(self.handle_certificate_failed)
 			t = threading.Thread(target=self.key_connector.run)
 			t.start()

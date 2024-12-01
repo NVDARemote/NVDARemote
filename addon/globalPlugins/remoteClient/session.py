@@ -40,9 +40,7 @@ class RemoteSession:
 		self.localMachine = local_machine
 		self.patcher = None
 		self.transport = transport
-		#self.transport.callback_manager.registerCallback('msg_version_mismatch', self.handleVersionMismatch)
 		self.transport.registerInbound(RemoteMessageType.version_mismatch, self.handleVersionMismatch)
-		#self.transport.callback_manager.registerCallback('msg_motd', self.handleMotd)
 		self.transport.registerInbound(RemoteMessageType.motd, self.handleMotd)
 
 	def handleVersionMismatch(self, **kwargs: Any) -> None:
@@ -236,7 +234,7 @@ class MasterSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.tone, self.localMachine.beep)
 		self.transport.registerInbound(RemoteMessageType.wave, self.handlePlayWave)
 		self.transport.registerInbound(RemoteMessageType.display, self.localMachine.display)
-		self.transport.callback_manager.registerCallback('msg_nvda_not_connected', self.handleNVDANotConnected)
+		self.transport.registerInbound(RemoteMessageType.nvda_not_connected, self.handleNVDANotConnected)
 		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
 		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
 		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannel_joined)
