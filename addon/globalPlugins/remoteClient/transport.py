@@ -69,7 +69,7 @@ class Transport:
 	Example:
 	    >>> serializer = JSONSerializer()
 	    >>> transport = TCPTransport(serializer, ("localhost", 8090))
-	    >>> transport.registerInbound(RemoteMessageType.key_down, handle_keydown)
+	    >>> transport.registerInbound(RemoteMessageType.key, handle_key)
 	    >>> transport.run()
 	
 	Args:
