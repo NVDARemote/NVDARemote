@@ -38,6 +38,8 @@ class Transport:
 		self.connected = False
 		self.successful_connects = 0
 		self.connectedEvent = threading.Event()
+		# iterate over all the message types and create a dictionary of handlers mapping to Action()
+		self.inboundHandlers: Dict[RemoteMessageType, Callable] = {msg: Action() for msg in RemoteMessageType}
 		self.transportConnected = Action()
 		"""
 		Notifies when the transport is connected
@@ -64,6 +66,12 @@ class Transport:
 		self.connected = True
 		self.connectedEvent.set()
 		self.transportConnected.notify()
+
+	def registerInbound(self, type: RemoteMessageType, handler: Callable) -> None:
+		self.inboundHandlers[type].register(handler)
+
+	def unregisterInbound(self, type: RemoteMessageType, handler: Callable) -> None:
+		self.inboundHandlers[type].unregister(handler)
 
 class TCPTransport(Transport):
 	buffer: bytes
@@ -197,10 +205,21 @@ class TCPTransport(Transport):
 	def parse(self, line: bytes) -> None:
 		obj = self.serializer.deserialize(line)
 		if 'type' not in obj:
+			log.error("Received message without type: %r" % obj)
 			return
-		callback = "msg_"+obj['type']
+		try:
+			messageType = RemoteMessageType(obj['type'])
+		except ValueError:
+			log.error("Received message with invalid type: %r" % obj)
+			return
+		callback = "msg_"+str(messageType)
 		del obj['type']
 		self.callback_manager.callCallbacks(callback, **obj)
+		extensionPoint = self.inboundHandlers.get(messageType)
+		if not extensionPoint:
+			log.error("Received message with unhandled type: %r" % obj)
+			return
+		extensionPoint.notify(**obj)
 
 	def send_queue(self) -> None:
 		while True:
