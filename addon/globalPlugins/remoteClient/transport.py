@@ -475,7 +475,7 @@ class RelayTransport(TCPTransport):
 	and connection types. Manages protocol versioning and channel joining.
 	
 	Args:
-	    serializer (Any): Message serializer instance
+	    serializer (Serializer): Message serializer instance
 	    address (Tuple[str, int]): Relay server address
 	    timeout (int, optional): Connection timeout. Defaults to 0.
 	    channel (Optional[str], optional): Channel to join. Defaults to None.
