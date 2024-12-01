@@ -11,6 +11,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
 from enum import Enum
 
 from extensionPoints import Action
+import wx
 
 log = getLogger('transport')
 
@@ -214,7 +215,7 @@ class TCPTransport(Transport):
 		if not extensionPoint:
 			log.error("Received message with unhandled type: %r" % obj)
 			return
-		extensionPoint.notify(**obj)
+		wx.CallAfter(extensionPoint.notify, **obj)
 
 	def send_queue(self) -> None:
 		while True:
