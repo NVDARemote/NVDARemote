@@ -67,7 +67,7 @@ class Transport:
 
 
 
-	def __init__(self, serializer: Any) -> None:
+	def __init__(self, serializer: Serializer) -> None:
 		self.serializer = serializer
 		self.connected = False
 		self.successful_connects = 0
@@ -338,7 +338,7 @@ class RelayTransport(TCPTransport):
 
 	def __init__(
 		self,
-		serializer: Any,
+		serializer: Serializer,
 		address: Tuple[str, int],
 		timeout: int = 0,
 		channel: Optional[str] = None,
