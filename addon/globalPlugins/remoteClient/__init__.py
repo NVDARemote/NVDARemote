@@ -2,6 +2,8 @@ import logging
 
 from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
 
+from .alwaysCallAfter import alwaysCallAfter
+
 from .protocol import RemoteMessageType
 
 from .secureDesktop import SecureDesktopHandler
@@ -61,15 +63,6 @@ logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 import queueHandler
 import shlobj
 from logHandler import log
-from functools import wraps
-
-def alwaysCallAfter(func):
-	"""Decorator to call a function after the current event loop has finished."""
-	@wraps(func)
-	def wrapper(*args, **kwargs):
-		wx.CallAfter(func, *args, **kwargs)
-	return wrapper
-
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory: str = _("NVDA Remote")

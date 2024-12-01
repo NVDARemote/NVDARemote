@@ -10,6 +10,7 @@ import wx
 from logHandler import log
 
 from . import configuration, serializer, server, socket_utils, transport
+from .alwaysCallAfter import alwaysCallAfter
 from .protocol import RemoteMessageType
 
 try:
@@ -61,12 +62,14 @@ class ClientPanel(wx.Panel):
 			t = threading.Thread(target=self.key_connector.run)
 			t.start()
 
+	@alwaysCallAfter
 	def handle_key_generated(self, key: Optional[str] = None) -> None:
 		self.key.SetValue(key)
 		self.key.SetFocus()
 		self.key_connector.close()
 		self.key_connector = None
 
+	@alwaysCallAfter
 	def handle_certificate_failed(self) -> None:
 		try:
 			cert_hash = self.key_connector.last_fail_fingerprint
@@ -138,11 +141,11 @@ class ServerPanel(wx.Panel):
 			result = json.loads(data)
 			wx.CallAfter(self.on_get_IP_success, result)
 		except Exception as e:
-			self.on_get_IP_fail(e)
+			wx.CallAfter(self.on_get_IP_fail, e)
 			raise
 		finally:
 			temp_server.close()
-			self.get_IP.Enable(True)
+			wx.CallAfter(self.get_IP.Enable, True)
 
 	def on_get_IP_success(self, data: Dict[str, Any]) -> None:
 		ip = data['host']
@@ -155,7 +158,6 @@ class ServerPanel(wx.Panel):
 		self.external_IP.SetValue(ip)
 		self.external_IP.SetSelection(0, len(ip))
 		self.external_IP.SetFocus()
-
 
 	def on_get_IP_fail(self, exc: Exception) -> None:
 		wx.MessageBox(message=_("Unable to contact portcheck server, please manually retrieve your IP address"), caption=_("Error"), style=wx.ICON_ERROR|wx.OK)
