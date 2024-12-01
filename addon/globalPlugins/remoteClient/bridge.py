@@ -23,12 +23,9 @@ class BridgeTransport:
 	def send(self, transport: Transport, callback: Union[str, Enum], *args: Any, **kwargs: Any) -> None:
 		if isinstance(callback, Enum):
 			callback = callback.value
-		if not callback.startswith('msg_'):
+		if callback in self.excluded:
 			return
-		msg = callback.split('_', 1)[-1]
-		if msg in self.excluded:
-			return
-		transport.send(msg, *args, **kwargs)
+		transport.send(callback, *args, **kwargs)
 
 	def send_to_t2(self, callback, *args, **kwargs):
 		self.send(self.t2, callback, *args, **kwargs)
