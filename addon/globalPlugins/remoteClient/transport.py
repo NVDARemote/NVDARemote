@@ -283,6 +283,22 @@ class TCPTransport(Transport):
 		self._disconnect()
 
 	def create_outbound_socket(self, host: str, port: int, insecure: bool = False) -> ssl.SSLSocket:
+		"""Create and configure an SSL socket for outbound connections.
+
+		Creates a TCP socket with appropriate timeout and keep-alive settings,
+		then wraps it with SSL/TLS encryption.
+
+		Args:
+			host (str): Remote hostname to connect to
+			port (int): Remote port number
+			insecure (bool, optional): Skip certificate verification. Defaults to False.
+
+		Returns:
+			ssl.SSLSocket: Configured SSL socket ready for connection
+
+		Note:
+			The socket is created but not yet connected. Call connect() separately.
+		"""
 		address = socket.getaddrinfo(host, port)[0]
 		server_sock = socket.socket(*address[:3])
 		if self.timeout:
@@ -297,10 +313,34 @@ class TCPTransport(Transport):
 		return server_sock
 
 	def getpeercert(self, binary_form: bool = False) -> Optional[Union[Dict[str, Any], bytes]]:
+		"""Get the certificate from the peer.
+
+		Retrieves the certificate presented by the remote peer during SSL handshake.
+
+		Args:
+			binary_form (bool, optional): If True, return the raw certificate bytes.
+				If False, return a parsed dictionary. Defaults to False.
+
+		Returns:
+			Optional[Union[Dict[str, Any], bytes]]: The peer's certificate, or None if not connected.
+				Format depends on binary_form parameter.
+		"""
 		if self.server_sock is None: return None
 		return self.server_sock.getpeercert(binary_form)
 
 	def handle_server_data(self) -> None:
+		"""Process incoming data from the server socket.
+
+		Reads available data from the socket, buffers partial messages,
+		and processes complete messages by passing them to parse().
+
+		Messages are expected to be newline-delimited.
+		Partial messages are stored in self.buffer until complete.
+
+		Note:
+			This method handles SSL-specific socket behavior and non-blocking reads.
+			It is called when select() indicates data is available.
+		"""
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
 		buffSize = 16384
@@ -334,6 +374,18 @@ class TCPTransport(Transport):
 		self.buffer += data
 
 	def parse(self, line: bytes) -> None:
+		"""Parse and handle a complete message line.
+
+		Deserializes a message and routes it to the appropriate handler based on type.
+
+		Args:
+			line (bytes): Complete message line to parse
+
+		Note:
+			Messages must include a 'type' field matching a RemoteMessageType enum value.
+			Handler callbacks are executed asynchronously on the wx main thread.
+			Invalid or unhandled message types are logged as errors.
+		"""
 		obj = self.serializer.deserialize(line)
 		if 'type' not in obj:
 			log.error("Received message without type: %r" % obj)
@@ -351,6 +403,15 @@ class TCPTransport(Transport):
 		wx.CallAfter(extensionPoint.notify, **obj)
 
 	def send_queue(self) -> None:
+		"""Background thread that processes the outbound message queue.
+
+		Continuously pulls messages from the queue and sends them over the socket.
+		Thread exits when None is received from the queue or a socket error occurs.
+
+		Note:
+			This method runs in a separate thread and handles thread-safe socket access
+			using the server_sock_lock.
+		"""
 		while True:
 			item = self.queue.get()
 			if item is None:
@@ -379,7 +440,16 @@ class TCPTransport(Transport):
 		if self.connected:
 			self.queue.put(obj)
 
-	def _disconnect(self):
+	def _disconnect(self) -> None:
+		"""Internal method to disconnect the transport.
+
+		Cleans up the send queue thread, empties queued messages,
+		and closes the socket connection.
+
+		Note:
+			This is called internally on errors, unlike close() which is called
+			explicitly to shut down the transport.
+		"""
 		"""Disconnect the transport due to an error, without closing the connector thread."""
 		if self.queue_thread is not None:
 			self.queue.put(None)
