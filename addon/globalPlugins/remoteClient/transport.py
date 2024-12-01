@@ -121,15 +121,59 @@ class Transport:
 		"""
 
 	def onTransportConnected(self) -> None:
+		"""Handle successful transport connection.
+
+		Called internally when a connection is established. Updates connection state,
+		increments successful connection counter, and notifies listeners.
+
+		This method:
+		1. Increments successful connection counter
+		2. Sets connected flag to True
+		3. Sets the connected event
+		4. Notifies transportConnected listeners
+		"""
 		self.successful_connects += 1
 		self.connected = True
 		self.connectedEvent.set()
 		self.transportConnected.notify()
 
 	def registerInbound(self, type: RemoteMessageType, handler: Callable) -> None:
+		"""Register a handler for incoming messages of a specific type.
+
+		Adds a callback function to handle messages of the specified RemoteMessageType.
+		Multiple handlers can be registered for the same message type.
+
+		Args:
+			type (RemoteMessageType): The message type to handle
+			handler (Callable): Callback function to process messages of this type.
+				Will be called with the message payload as kwargs.
+
+		Example:
+			>>> def handle_keypress(key_code, pressed):
+			...     print(f"Key {key_code} {'pressed' if pressed else 'released'}")
+			>>> transport.registerInbound(RemoteMessageType.key_press, handle_keypress)
+
+		Note:
+			Handlers are called asynchronously on the wx main thread via wx.CallAfter
+		"""
 		self.inboundHandlers[type].register(handler)
 
 	def unregisterInbound(self, type: RemoteMessageType, handler: Callable) -> None:
+		"""Remove a previously registered message handler.
+
+		Removes a specific handler function from the list of handlers for a message type.
+		If the handler was not previously registered, this is a no-op.
+
+		Args:
+			type (RemoteMessageType): The message type to unregister from
+			handler (Callable): The handler function to remove
+
+		Example:
+			>>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
+			
+		Note:
+			Must pass the exact same handler function that was previously registered
+		"""
 		self.inboundHandlers[type].unregister(handler)
 
 class TCPTransport(Transport):
