@@ -16,7 +16,6 @@ log = getLogger('transport')
 
 
 from . import configuration
-from .callback_manager import CallbackManager
 from .serializer import Serializer
 from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
 from .protocol import RemoteMessageType, PROTOCOL_VERSION
@@ -26,7 +25,6 @@ from .serializer import Serializer
 class Transport:
 	connected: bool
 	successful_connects: int
-	callback_manager: CallbackManager
 	connected_event: threading.Event
 	serializer: Serializer
 
@@ -34,7 +32,6 @@ class Transport:
 
 	def __init__(self, serializer: Any) -> None:
 		self.serializer = serializer
-		self.callback_manager: CallbackManager = CallbackManager()
 		self.connected = False
 		self.successful_connects = 0
 		self.connectedEvent = threading.Event()
@@ -212,9 +209,7 @@ class TCPTransport(Transport):
 		except ValueError:
 			log.error("Received message with invalid type: %r" % obj)
 			return
-		callback = "msg_"+str(messageType)
 		del obj['type']
-		self.callback_manager.callCallbacks(callback, **obj)
 		extensionPoint = self.inboundHandlers.get(messageType)
 		if not extensionPoint:
 			log.error("Received message with unhandled type: %r" % obj)

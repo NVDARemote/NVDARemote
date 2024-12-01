@@ -1,5 +1,6 @@
 from typing import Any, Set, Union
 from enum import Enum
+from .protocol import RemoteMessageType
 from .transport import Transport
 
 
@@ -15,8 +16,9 @@ class BridgeTransport:
 	def __init__(self, t1: Transport, t2: Transport) -> None:
 		self.t1 = t1
 		self.t2 = t2
-		t1.callback_manager.registerCallback('*', self.send_to_t2)
-		t2.callback_manager.registerCallback('*', self.send_to_t1)
+		for messageType in RemoteMessageType:
+			t1.registerInbound(messageType, self.send_to_t2)
+			t2.registerInbound(messageType, self.send_to_t1)
 
 	def send(self, transport: Transport, callback: Union[str, Enum], *args: Any, **kwargs: Any) -> None:
 		if isinstance(callback, Enum):
@@ -35,5 +37,6 @@ class BridgeTransport:
 		self.send(self.t1, callback, *args, **kwargs)
 
 	def disconnect(self):
-		self.t1.callback_manager.unregisterCallback('*', self.send_to_t2)
-		self.t2.callback_manager.unregisterCallback('*', self.send_to_t1)
+		for messageType in RemoteMessageType:
+			self.t1.unregisterInbound(messageType, self.send_to_t2)
+			self.t2.unregisterInbound(messageType, self.send_to_t1)
