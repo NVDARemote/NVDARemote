@@ -258,11 +258,27 @@ class SlaveSession(RemoteSession):
 			self.removePatchCallbacks()
 			self.patchCallbacksAdded = False
 
-	def handleTransportDisconnected(self):
+	def handleTransportDisconnected(self) -> None:
+		"""Handle disconnection from the transport layer.
+
+		Called when the transport connection is lost. This method:
+		1. Plays a connection sound cue
+		2. Removes any NVDA patches
+		"""
 		cues.client_connected()
 		self.patcher.unpatch()
 
-	def handleClientDisconnected(self, client=None):
+	def handleClientDisconnected(self, client: Optional[Dict[str, Any]] = None) -> None:
+		"""Handle disconnection of a remote client.
+
+		Called when a client disconnects from the channel. This method:
+		1. Plays a disconnection sound cue
+		2. Removes the client from master tracking if applicable
+		3. Unpatches NVDA if no masters remain connected
+
+		Args:
+			client: Dictionary containing disconnected client information
+		"""
 		cues.client_disconnected()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
@@ -303,25 +319,62 @@ class SlaveSession(RemoteSession):
 			self.patcher.unregisterCallback(event, callback)
 
 	def _filterUnsupportedSpeechCommands(self, speechSequence: List[Any]) -> List[Any]:
+		"""Filter out unsupported speech commands from a speech sequence.
+
+		Removes commands that cannot be properly serialized or executed remotely,
+		such as callback commands and cancellable commands.
+
+		Args:
+			speechSequence: List of speech sequence items to filter
+
+		Returns:
+			List containing only supported speech commands
+		"""
 		return list([
 			item for item in speechSequence
 			if not isinstance(item, EXCLUDED_SPEECH_COMMANDS)
 		])
 
 	def speak(self, speechSequence: List[Any], priority: Optional[str]) -> None:
+		"""Forward speech output to connected master instances.
+
+		Filters the speech sequence for supported commands and sends it
+		to master instances for speaking.
+
+		Args:
+			speechSequence: The sequence of speech commands to forward
+			priority: Speech priority level ('now', 'next', or None)
+		"""
 		self.transport.send(RemoteMessageType.speak,
 							sequence=self._filterUnsupportedSpeechCommands(
 								speechSequence),
 							priority=priority
 							)
 
-	def cancelSpeech(self):
+	def cancelSpeech(self) -> None:
+		"""Cancel ongoing speech on master instances.
+
+		Sends a cancel command to stop any speech in progress.
+		"""
 		self.transport.send(type=RemoteMessageType.cancel)
 
-	def pauseSpeech(self, switch):
+	def pauseSpeech(self, switch: bool) -> None:
+		"""Toggle speech pause state on master instances.
+
+		Args:
+			switch: True to pause speech, False to resume
+		"""
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
 	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
+		"""Forward a beep tone to master instances.
+
+		Args:
+			hz: Tone frequency in hertz
+			length: Tone duration in milliseconds
+			left: Left channel volume (0-100)
+			right: Right channel volume (0-100)
+		"""
 		self.transport.send(type=RemoteMessageType.tone, hz=hz,
 		                    length=length, left=left, right=right)
 
@@ -337,12 +390,24 @@ class SlaveSession(RemoteSession):
 		})
 		self.transport.send(type=RemoteMessageType.wave)
 
-	def display(self, cells):
+	def display(self, cells: List[int]) -> None:
+		"""Forward braille display content to master instances.
+
+		Only sends braille data if there are connected masters with braille displays.
+
+		Args:
+			cells: List of braille cell values to display
+		"""
 		# Only send braille data when there are controlling machines with a braille display
 		if self.hasBrailleMasters():
 			self.transport.send(type=RemoteMessageType.display, cells=cells)
 
-	def hasBrailleMasters(self):
+	def hasBrailleMasters(self) -> bool:
+		"""Check if any connected masters have braille displays.
+
+		Returns:
+			True if at least one master has a braille display with cells > 0
+		"""
 		return bool([i for i in self.masterDisplaySizes if i > 0])
 
 	def recvIndex(self, index=None):
@@ -412,15 +477,35 @@ class MasterSession(RemoteSession):
 		speech.cancelSpeech()
 		ui.message(_("Remote NVDA not connected."))
 
-	def handleConnected(self):
-		# speech index approach changed in 2019.3
+	def handleConnected(self) -> None:
+		"""Handle successful connection to transport layer.
+
+		Note:
+			Previously handled speech index synchronization.
+			No longer needed since speech index approach changed in NVDA 2019.3.
+		"""
 		pass  # nothing to do
 
-	def handleDisconnected(self):
-		# speech index approach changed in 2019.3
+	def handleDisconnected(self) -> None:
+		"""Handle disconnection from transport layer.
+
+		Note:
+			Previously handled speech index cleanup.
+			No longer needed since speech index approach changed in NVDA 2019.3.
+		"""
 		pass  # nothing to do
 
 	def handleChannel_joined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None) -> None:
+		"""Handle joining a channel with existing clients.
+
+		Called when first connecting to a channel. Processes any clients
+		already present in the channel.
+
+		Args:
+			channel: Channel identifier
+			clients: List of client information dictionaries
+			origin: ID of originating client
+		"""
 		if clients is None:
 			clients = []
 		for client in clients:
