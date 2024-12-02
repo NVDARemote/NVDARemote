@@ -2,6 +2,8 @@ import logging
 
 from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
 
+from .alwaysCallAfter import alwaysCallAfter
+
 from .protocol import RemoteMessageType
 
 from .secureDesktop import SecureDesktopHandler
@@ -42,7 +44,7 @@ from utils.security import isRunningOnSecureDesktop
 
 from . import configuration, cues, local_machine, serializer, url_handler
 from .session import MasterSession, SlaveSession
-from .transport import RelayTransport, TransportEvents
+from .transport import RelayTransport
 from .settings_panel import RemoteSettingsPanel
 
 try:
@@ -108,7 +110,7 @@ class GlobalPlugin(_GlobalPlugin):
 			connection = self.sd_handler.initialize_secure_desktop()
 			if connection:
 				self.connectAsSlave(connection.address, connection.channel, insecure=True)
-				self.slaveSession.transport.connected_event.wait(self.sd_handler.SD_CONNECT_BLOCK_TIMEOUT)
+				self.slaveSession.transport.connectedEvent.wait(self.sd_handler.SD_CONNECT_BLOCK_TIMEOUT)
 		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
 			self.performAutoconnect()
 
@@ -292,22 +294,23 @@ class GlobalPlugin(_GlobalPlugin):
 	def connectAsMaster(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
 		self.masterSession = MasterSession(transport=transport, local_machine=self.localMachine)
-		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_master_failed)
-		transport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.onConnectedAsMaster)
-		transport.callback_manager.registerCallback(TransportEvents.CONNECTION_FAILED, self.on_connected_as_master_failed)
-		transport.callback_manager.registerCallback(TransportEvents.CLOSING, self.disconnectingAsMaster)
-		transport.callback_manager.registerCallback(TransportEvents.DISCONNECTED, self.onDisconnectedAsMaster)
+		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_master_failed)
+		transport.transportConnected.register(self.onConnectedAsMaster)
+		transport.transportConnectionFailed.register(self.on_connected_as_master_failed)
+		transport.transportClosing.register(self.disconnectingAsMaster)
+		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
+		transport.reconnector_thread.start()
 		self.masterTransport = transport
-		self.masterTransport.reconnector_thread.start()
+
 
 	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, local_machine=self.localMachine)
 		self.sd_handler.slave_session = self.slaveSession
 		self.slaveTransport = transport
-		transport.callback_manager.registerCallback(TransportEvents.CERTIFICATE_AUTHENTICATION_FAILED, self.on_certificate_as_slave_failed)
-		self.slaveTransport.callback_manager.registerCallback(TransportEvents.CONNECTED, self.on_connected_as_slave)
-		self.slaveTransport.reconnector_thread.start()
+		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_slave_failed)
+		transport.transportConnected.register(self.on_connected_as_slave)
+		transport.reconnector_thread.start()
 		self.menu.disconnectItem.Enable(True)
 		self.menu.connectItem.Enable(False)
 
@@ -329,14 +332,17 @@ class GlobalPlugin(_GlobalPlugin):
 			log.error(ex)
 		return False
 
+	@alwaysCallAfter
 	def on_certificate_as_master_failed(self):
 		if self.handle_certificate_failed(self.masterTransport):
 			self.connectAsMaster(self.last_fail_address, self.last_fail_key, True)
 
+	@alwaysCallAfter
 	def on_certificate_as_slave_failed(self):
 		if self.handle_certificate_failed(self.slaveTransport):
 			self.connectAsSlave(self.last_fail_address, self.last_fail_key, True)
 
+	@alwaysCallAfter
 	def on_connected_as_slave(self):
 		log.info("Control connector connected")
 		cues.control_server_connected()
@@ -418,6 +424,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.masterSession.patcher.unpatchBrailleInput()
 			self.localMachine.receivingBraille=False
 
+	@alwaysCallAfter
 	def verifyConnect(self, con_info):
 		if self.is_connected() or self.connecting:
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
@@ -443,3 +450,4 @@ class GlobalPlugin(_GlobalPlugin):
 		if connector is not None:
 			return connector.connected
 		return False
+

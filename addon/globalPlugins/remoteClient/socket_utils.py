@@ -3,7 +3,7 @@ import urllib.parse
 SERVER_PORT = 6837
 
 def address_to_hostport(addr):
-	"""Converts an address such as google.com:80 into an address adn port tuple.
+	"""Converts an address such as google.com:80 into a tuple of (address, port).
 	If no port is given, use SERVER_PORT."""
 	addr = urllib.parse.urlparse('//'+addr)
 	port = addr.port or SERVER_PORT
