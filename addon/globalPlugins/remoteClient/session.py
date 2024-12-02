@@ -1,3 +1,25 @@
+"""Session management for NVDA Remote connections.
+
+This module implements the core session management functionality for NVDA Remote,
+handling both master and slave connections. It provides classes that manage the
+state and behavior of remote NVDA instances connected through a relay server.
+
+The module defines two main session types:
+
+- MasterSession: Runs on the controlling NVDA instance
+- SlaveSession: Runs on the controlled NVDA instance 
+
+Sessions handle:
+- Connection state management
+- Message routing between instances
+- Speech/braille/input synchronization
+- Display size coordination
+- NVDA feature patching
+
+The session layer sits between the transport layer (handling network communication)
+and the local machine layer (interfacing with NVDA).
+"""
+
 import hashlib
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, Union, Any, Callable
@@ -29,7 +51,26 @@ EXCLUDED_SPEECH_COMMANDS = (
 
 
 class RemoteSession:
-	"""Base class for a session that runs on either the master or slave machine."""
+	"""Base class for a session that runs on either the master or slave machine.
+	
+	This abstract base class defines the core functionality shared between master and slave
+	sessions. It handles basic session management tasks like:
+	
+	- Version compatibility checking
+	- Message of the day handling 
+	- Connection info management
+	- Transport registration
+	
+	Args:
+		local_machine (LocalMachine): Interface to local NVDA instance
+		transport (RelayTransport): Network transport layer instance
+	
+	Attributes:
+		transport (RelayTransport): The transport layer handling network communication
+		localMachine (LocalMachine): Interface to control the local NVDA instance
+		mode (Optional[str]): Session mode - either 'master' or 'slave'
+		patcher (Optional[NVDAPatcher]): Patcher instance for NVDA modifications
+	"""
 
 	transport: RelayTransport
 	localMachine: local_machine.LocalMachine
@@ -76,7 +117,26 @@ Please either use a different server or upgrade your version of the addon.""")
 
 
 class SlaveSession(RemoteSession):
-	"""Session that runs on the slave and manages state."""
+	"""Session that runs on the controlled (slave) NVDA instance.
+	
+	This class implements the slave side of an NVDA Remote connection. It handles:
+	
+	- Receiving and executing commands from master(s)
+	- Forwarding speech/braille/audio output to master(s)
+	- Managing connected master clients
+	- Coordinating braille display sizes
+	- Patching NVDA functionality for remote control
+	
+	The slave session allows multiple master connections simultaneously and manages
+	state for each connected master separately.
+	
+	Attributes:
+		mode (str): Always 'slave' for this class
+		masters (Dict[int, Dict[str, Any]]): Information about connected master clients
+		masterDisplaySizes (List[int]): Braille display sizes of connected masters
+		patchCallbacksAdded (bool): Whether callbacks are currently registered
+		patcher (NVDASlavePatcher): Patcher for slave-specific NVDA modifications
+	"""
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
 	patcher: nvda_patcher.NVDASlavePatcher
@@ -217,6 +277,25 @@ class SlaveSession(RemoteSession):
 
 
 class MasterSession(RemoteSession):
+	"""Session that runs on the controlling (master) NVDA instance.
+	
+	This class implements the master side of an NVDA Remote connection. It handles:
+	
+	- Sending control commands to slaves
+	- Receiving and playing speech/braille/audio from slaves
+	- Managing connected slave clients
+	- Synchronizing braille display information
+	- Patching NVDA for remote input handling
+	
+	The master session takes input from the local NVDA instance and forwards
+	appropriate commands to control the remote slave instance.
+	
+	Attributes:
+		mode (str): Always 'master' for this class
+		slaves (Dict[int, Dict[str, Any]]): Information about connected slave clients
+		patchCallbacksAdded (bool): Whether callbacks are currently registered
+		patcher (NVDAMasterPatcher): Patcher for master-specific NVDA modifications
+	"""
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
 	patcher: nvda_patcher.NVDAMasterPatcher
