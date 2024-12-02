@@ -32,7 +32,7 @@ Core Responsibilities:
    - Speech output routing
    - Braille display coordination
    - Input command processing
-   - System audio forwarding
+   - NVWave  forwarding
 
 3. Security:
    - Connection validation
@@ -56,7 +56,6 @@ Slave instance:
 See Also:
     - transport.py: For network communication implementation
     - local_machine.py: For NVDA interface implementation
-    - nvda_patcher.py: For NVDA feature modification details
 """
 
 import hashlib
@@ -195,11 +194,9 @@ class SlaveSession(RemoteSession):
 	This class implements the slave side of an NVDA Remote connection. It handles:
 	
 	- Receiving and executing commands from master(s)
-	- Forwarding speech/braille/audio output to master(s)
+	- Forwarding speech/braille/tones/NVWave output to master(s)
 	- Managing connected master clients
 	- Coordinating braille display sizes
-	- Patching NVDA functionality for remote control
-	
 	The slave session allows multiple master connections simultaneously and manages
 	state for each connected master separately.
 	
