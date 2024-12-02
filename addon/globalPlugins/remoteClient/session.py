@@ -4,20 +4,59 @@ This module implements the core session management functionality for NVDA Remote
 handling both master and slave connections. It provides classes that manage the
 state and behavior of remote NVDA instances connected through a relay server.
 
-The module defines two main session types:
+Key Components:
+--------------
+MasterSession
+    Runs on the controlling NVDA instance. Sends commands and receives feedback.
+    Handles keyboard input, braille routing, and display synchronization.
 
-- MasterSession: Runs on the controlling NVDA instance
-- SlaveSession: Runs on the controlled NVDA instance 
+SlaveSession
+    Runs on the controlled NVDA instance. Executes received commands and forwards
+    speech/braille output back to master(s).
 
-Sessions handle:
-- Connection state management
-- Message routing between instances
-- Speech/braille/input synchronization
-- Display size coordination
-- NVDA feature patching
+Architecture:
+------------
+The session layer sits between:
+- Transport layer (below): Handles encrypted network communication
+- Local Machine layer (above): Interfaces with the local NVDA instance
 
-The session layer sits between the transport layer (handling network communication)
-and the local machine layer (interfacing with NVDA).
+Core Responsibilities:
+--------------------
+1. Connection Management:
+   - Version compatibility checking
+   - Connection state tracking
+   - Multiple client support
+   - Message of the day handling
+
+2. Feature Synchronization:
+   - Speech output routing
+   - Braille display coordination
+   - Input command processing
+   - System audio forwarding
+
+3. Security:
+   - Connection validation
+   - Safe NVDA feature patching
+   - Secure message routing
+
+Example Usage:
+-------------
+Master instance:
+    >>> transport = RelayTransport(address=("nvdaremote.com", 6837))
+    >>> local = LocalMachine()
+    >>> session = MasterSession(local_machine=local, transport=transport)
+    >>> session.transport.connect()
+
+Slave instance:
+    >>> transport = RelayTransport(address=("nvdaremote.com", 6837))
+    >>> local = LocalMachine()
+    >>> session = SlaveSession(local_machine=local, transport=transport)
+    >>> session.transport.connect()
+
+See Also:
+    - transport.py: For network communication implementation
+    - local_machine.py: For NVDA interface implementation
+    - nvda_patcher.py: For NVDA feature modification details
 """
 
 import hashlib
@@ -84,14 +123,48 @@ class RemoteSession:
 		self.transport.registerInbound(RemoteMessageType.version_mismatch, self.handleVersionMismatch)
 		self.transport.registerInbound(RemoteMessageType.motd, self.handleMotd)
 
+
 	def handleVersionMismatch(self) -> None:
+		"""Handle protocol version mismatch between client and server.
+
+		This method is called when the relay server detects that the client's
+		protocol version is not compatible. It:
+		1. Displays a localized error message to the user
+		2. Closes the transport connection
+		3. Prevents further communication attempts
+
+		Note:
+			Version compatibility is checked during initial handshake.
+			The connection is immediately terminated if versions mismatch.
+		"""
 		# translators: Message for version mismatch
 		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
 Please either use a different server or upgrade your version of the addon.""")
 		ui.message(message)
 		self.transport.close()
 
-	def handleMotd(self, motd: str, force_display=False):
+	def handleMotd(self, motd: str, force_display: bool = False) -> None:
+		"""Handle Message of the Day from relay server.
+
+		Displays server MOTD to user if:
+		1. It hasn't been shown before (tracked by SHA1 hash), or
+		2. force_display is True (for important announcements)
+
+		The MOTD system allows server operators to communicate important
+		information to users like:
+		- Service announcements
+		- Maintenance windows
+		- Version update notifications
+		- Security advisories
+
+		Args:
+			motd: The message text to display
+			force_display: If True, always show message regardless of previous views
+
+		Note:
+			MOTD hashes are stored per-server in the config file to track
+			which messages have already been shown to the user.
+		"""
 		if force_display or self.shouldDisplayMotd(motd):
 			gui.messageBox(parent=gui.mainFrame, caption=_(
 				"Message of the Day"), message=motd)
