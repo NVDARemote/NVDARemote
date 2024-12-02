@@ -1,17 +1,35 @@
 """Local machine interface for NVDA Remote.
 
 This module provides functionality for controlling the local NVDA instance
-in response to commands received from remote connections. It handles:
+in response to commands received from remote connections. It serves as the
+execution endpoint for remote control operations, translating network commands
+into local NVDA actions.
 
-* Speech output and cancellation
-* Braille display management
-* Audio playback
-* Keyboard input simulation
-* Clipboard operations
-* System functions like Secure Attention Sequence (SAS)
+Key Features:
+    * Speech output and cancellation with priority handling
+    * Braille display sharing and input routing
+    * Audio feedback through wave files and tones
+    * Keyboard and system input simulation
+    * Secure clipboard text transfer
+    * System functions like Secure Attention Sequence (SAS)
 
 The main class :class:`LocalMachine` implements all the local control operations
-that can be triggered by remote NVDA instances.
+that can be triggered by remote NVDA instances. It includes safety features like
+muting and proper thread synchronization through wxPython's CallAfter.
+
+Example:
+    A typical usage from the remote connection handler::
+
+        local = LocalMachine()
+        # Handle incoming remote speech
+        local.speak(["Hello from remote"], priority=Spri.NORMAL)
+        # Share braille display
+        local.receivingBraille = True
+        local.display([0x28, 0x28]) # Show dots 1,2,3,4 in cell
+
+Note:
+    This module is part of the NVDA Remote protocol implementation and should
+    not be used directly outside of the remote connection infrastructure.
 """
 
 from typing import List, Optional, Union, Sequence, Any, Dict
@@ -65,16 +83,33 @@ class LocalMachine:
 	"""Controls the local NVDA instance based on remote commands.
 	
 	This class implements the local side of remote control functionality,
-	managing speech, braille, input and other local NVDA features based on
-	commands received from remote connections.
+	serving as the bridge between network commands and local NVDA operations.
+	It ensures thread-safe execution of commands and proper state management
+	for features like speech queuing and braille display sharing.
 	
-	The local machine can be muted to ignore remote commands, and handles
-	coordination of braille display sharing between local and remote instances.
+	The class provides safety mechanisms like muting to temporarily disable
+	remote control, and handles coordination of braille display sharing between
+	local and remote instances, including automatic display size negotiation.
+	
+	All methods that interact with NVDA are wrapped with wx.CallAfter to ensure
+	thread-safe execution, as remote commands arrive on network threads.
 	
 	Attributes:
-		isMuted (bool): If True, most remote commands will be ignored
-		receivingBraille (bool): If True, braille output comes from remote machine
+		isMuted (bool): When True, most remote commands will be ignored, providing
+			a way to temporarily disable remote control while maintaining the connection
+		receivingBraille (bool): When True, braille output comes from the remote
+			machine instead of local NVDA. This affects both display output and input routing
 		_cachedSizes (Optional[List[int]]): Cached braille display sizes from remote
+			machines, used to negotiate the optimal display size for sharing
+	
+	Note:
+		This class is instantiated by the remote session manager and should not
+		be created directly. All its methods are called in response to remote
+		protocol messages.
+	
+	See Also:
+		:class:`session.SlaveSession`: The session class that manages remote connections
+		:mod:`transport`: The network transport layer that delivers remote commands
 	"""
 
 	def __init__(self) -> None:
@@ -121,12 +156,57 @@ class LocalMachine:
 			priority: Spri = Spri.NORMAL,
 			**kwargs: Any
 	) -> None:
+		"""Process a speech sequence from a remote machine.
+
+		Safely queues speech from remote NVDA instances into the local speech
+		subsystem, handling priority and ensuring proper cancellation state.
+
+		Args:
+			sequence: List of speech sequences (text and commands) to speak
+			priority: Speech priority level, defaults to NORMAL
+			**kwargs: Additional speech parameters (ignored for compatibility)
+
+		Note:
+			Speech is always queued asynchronously via wx.CallAfter to ensure
+			thread safety, as this may be called from network threads.
+
+		Example:
+			Speaking text with commands::
+				machine.speak([
+					"Hello",
+					speech.PitchCommand(offset=20),
+					"with higher pitch"
+				])
+		"""
 		if self.isMuted:
 			return
 		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
 	def display(self, cells: List[int], **kwargs: Any) -> None:
+		"""Update the local braille display with cells from remote.
+
+		Safely writes braille cells from a remote machine to the local braille
+		display, handling display size differences and padding.
+
+		Args:
+			cells: List of braille cells as integers (0-255)
+			**kwargs: Additional display parameters (ignored for compatibility)
+
+		Note:
+			Only processes cells when:
+			- receivingBraille is True (display sharing is enabled)
+			- Local display is connected (displaySize > 0)
+			- Remote cells fit on local display
+			
+			Cells are padded with zeros if remote data is shorter than local display.
+			Uses thread-safe _writeCells method for compatibility with all displays.
+
+		Example:
+			Displaying "AB" in braille::
+				# ASCII 65,66 in 8-dot braille
+				machine.display([0x41, 0x42])
+		"""
 		if self.receivingBraille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
