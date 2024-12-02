@@ -43,14 +43,14 @@ class RemoteSession:
 		self.transport.registerInbound(RemoteMessageType.version_mismatch, self.handleVersionMismatch)
 		self.transport.registerInbound(RemoteMessageType.motd, self.handleMotd)
 
-	def handleVersionMismatch(self, **kwargs: Any) -> None:
+	def handleVersionMismatch(self) -> None:
 		# translators: Message for version mismatch
 		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
 Please either use a different server or upgrade your version of the addon.""")
 		ui.message(message)
 		self.transport.close()
 
-	def handleMotd(self, motd: str, force_display=False, **kwargs):
+	def handleMotd(self, motd: str, force_display=False):
 		if force_display or self.shouldDisplayMotd(motd):
 			gui.messageBox(parent=gui.mainFrame, caption=_(
 				"Message of the Day"), message=motd)
@@ -84,8 +84,8 @@ class SlaveSession(RemoteSession):
 	masterDisplaySizes: List[int]
 	patchCallbacksAdded: bool
 
-	def __init__(self, *args: Any, **kwargs: Any) -> None:
-		super().__init__(*args, **kwargs)
+	def __init__(self, *args: Any) -> None:
+		super().__init__(*args)
 		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
 		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
 		self.transport.registerInbound(RemoteMessageType.key, self.localMachine.sendKey)
@@ -104,7 +104,7 @@ class SlaveSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.braille_input, self.localMachine.brailleInput)
 		self.transport.registerInbound(RemoteMessageType.send_SAS, self.localMachine.sendSAS)
 
-	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
+	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
 		self.patcher.patch()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
@@ -113,7 +113,7 @@ class SlaveSession(RemoteSession):
 		if client['connection_type'] == 'master':
 			self.masters[client['id']]['active'] = True
 
-	def handleChannelJoined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None, **kwargs: Any) -> None:
+	def handleChannelJoined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None) -> None:
 		if clients is None:
 			clients = []
 		for client in clients:
@@ -129,19 +129,19 @@ class SlaveSession(RemoteSession):
 		cues.client_connected()
 		self.patcher.unpatch()
 
-	def handleClientDisconnected(self, client=None, **kwargs):
+	def handleClientDisconnected(self, client=None):
 		cues.client_disconnected()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
 		if not self.masters:
 			self.patcher.unpatch()
 
-	def setDisplaySize(self, sizes=None, **kwargs):
+	def setDisplaySize(self, sizes=None):
 		self.masterDisplaySizes = sizes if sizes else [
 			info.get("braille_numCells", 0) for info in self.masters.values()]
 		self.localMachine.setBrailleDisplay_size(self.masterDisplaySizes)
 
-	def handleBrailleInfo(self, name: Optional[str] = None, numCells: int = 0, origin: Optional[int] = None, **kwargs: Any) -> None:
+	def handleBrailleInfo(self, name: Optional[str] = None, numCells: int = 0, origin: Optional[int] = None) -> None:
 		if not self.masters.get(origin):
 			return
 		self.masters[origin]['braille_name'] = name
@@ -188,9 +188,9 @@ class SlaveSession(RemoteSession):
 	def pauseSpeech(self, switch):
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
-	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
+	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
 		self.transport.send(type=RemoteMessageType.tone, hz=hz,
-		                    length=length, left=left, right=right, **kwargs)
+		                    length=length, left=left, right=right)
 
 	def playWaveFile(self, **kwargs):
 		"""This machine played a sound, send it to Master machine"""
@@ -202,7 +202,7 @@ class SlaveSession(RemoteSession):
 				# Including it allows for forward compatibility if requirements change.
 				'asynchronous': True,
 		})
-		self.transport.send(type=RemoteMessageType.wave, **kwargs)
+		self.transport.send(type=RemoteMessageType.wave)
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
@@ -212,7 +212,7 @@ class SlaveSession(RemoteSession):
 	def hasBrailleMasters(self):
 		return bool([i for i in self.masterDisplaySizes if i > 0])
 
-	def recvIndex(self, index=None, **kwargs):
+	def recvIndex(self, index=None):
 		pass  # speech index approach changed in 2019.3
 
 
@@ -223,8 +223,8 @@ class MasterSession(RemoteSession):
 	slaves: Dict[int, Dict[str, Any]]
 	patchCallbacksAdded: bool
 
-	def __init__(self, *args: Any, **kwargs: Any) -> None:
-		super().__init__(*args, **kwargs)
+	def __init__(self, *args: Any) -> None:
+		super().__init__(*args)
 		self.slaves = defaultdict(dict)
 		self.patcher = nvda_patcher.NVDAMasterPatcher()
 		self.patchCallbacksAdded = False
@@ -268,13 +268,13 @@ class MasterSession(RemoteSession):
 		# speech index approach changed in 2019.3
 		pass  # nothing to do
 
-	def handleChannel_joined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None, **kwargs: Any) -> None:
+	def handleChannel_joined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None) -> None:
 		if clients is None:
 			clients = []
 		for client in clients:
 			self.handleClientConnected(client)
 
-	def handleClientConnected(self, client=None, **kwargs):
+	def handleClientConnected(self, client=None):
 		self.patcher.patch()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
@@ -282,14 +282,14 @@ class MasterSession(RemoteSession):
 		self.sendBrailleInfo()
 		cues.client_connected()
 
-	def handleClientDisconnected(self, client=None, **kwargs):
+	def handleClientDisconnected(self, client=None):
 		self.patcher.unpatch()
 		if self.patchCallbacksAdded:
 			self.removePatchCallbacks()
 			self.patchCallbacksAdded = False
 		cues.client_disconnected()
 
-	def sendBrailleInfo(self, display: Optional[Any] = None, displaySize: Optional[int] = None, **kwargs: Any) -> None:
+	def sendBrailleInfo(self, display: Optional[Any] = None, displaySize: Optional[int] = None) -> None:
 		if display is None:
 			display = braille.handler.display
 		if displaySize is None:
@@ -297,8 +297,8 @@ class MasterSession(RemoteSession):
 		self.transport.send(type="set_braille_info",
 							name=display.name, numCells=displaySize)
 
-	def brailleInput(self, **kwargs: Any) -> None:
-		self.transport.send(type=RemoteMessageType.braille_input, **kwargs)
+	def brailleInput(self) -> None:
+		self.transport.send(type=RemoteMessageType.braille_input)
 
 	def addPatchCallbacks(self):
 		patcher_callbacks = (('braille_input', self.brailleInput),
