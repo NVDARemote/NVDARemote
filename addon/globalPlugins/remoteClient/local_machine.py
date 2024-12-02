@@ -1,3 +1,19 @@
+"""Local machine interface for NVDA Remote.
+
+This module provides functionality for controlling the local NVDA instance
+in response to commands received from remote connections. It handles:
+
+* Speech output and cancellation
+* Braille display management
+* Audio playback
+* Keyboard input simulation
+* Clipboard operations
+* System functions like Secure Attention Sequence (SAS)
+
+The main class :class:`LocalMachine` implements all the local control operations
+that can be triggered by remote NVDA instances.
+"""
+
 from typing import List, Optional, Union, Sequence, Any, Dict
 import ctypes
 import os
@@ -28,18 +44,45 @@ logger = logging.getLogger('local_machine')
 
 
 def setSpeechCancelledToFalse() -> None:
-	"""
-	This function updates the state of speech so that it is aware that future
-	speech should not be cancelled. In the long term this is a fragile solution
-	as NVDA does not support modifying the internal state of speech.
+	"""Reset the speech cancellation flag to allow new speech.
+	
+	This function updates NVDA's internal speech state to ensure future
+	speech will not be cancelled. This is necessary when receiving remote
+	speech commands to ensure they are properly processed.
+	
+	Warning:
+		This is a temporary workaround that modifies internal NVDA state.
+		It may break in future NVDA versions if the speech subsystem changes.
+	
+	See Also:
+		:meth:`LocalMachine.speak`
 	"""
 	# workaround as beenCanceled is readonly as of NVDA#12395
 	speech.speech._speechState.beenCanceled = False
 
 
 class LocalMachine:
+	"""Controls the local NVDA instance based on remote commands.
+	
+	This class implements the local side of remote control functionality,
+	managing speech, braille, input and other local NVDA features based on
+	commands received from remote connections.
+	
+	The local machine can be muted to ignore remote commands, and handles
+	coordination of braille display sharing between local and remote instances.
+	
+	Attributes:
+		isMuted (bool): If True, most remote commands will be ignored
+		receivingBraille (bool): If True, braille output comes from remote machine
+		_cachedSizes (Optional[List[int]]): Cached braille display sizes from remote
+	"""
 
 	def __init__(self) -> None:
+		"""Initialize the local machine controller.
+		
+		Sets up initial state and registers braille display handlers.
+		The local machine starts unmuted with local braille enabled.
+		"""
 		self.isMuted: bool = False
 		self.receivingBraille: bool = False
 		self._cachedSizes: Optional[List[int]] = None
