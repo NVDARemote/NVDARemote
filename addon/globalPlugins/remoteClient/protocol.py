@@ -19,6 +19,7 @@ class RemoteMessageType(Enum):
     tone = "tone"
     wave = "wave"
     send_SAS = "send_SAS"  # Send Secure Attention Sequence
+    index = "index"
     
     # Display and Braille Messages
     display = "display"
@@ -30,7 +31,10 @@ class RemoteMessageType(Enum):
     set_clipboard_text = "set_clipboard_text"
     
     # System Messages
+    motd = "motd"
+    version_mismatch = "version_mismatch"
     ping = "ping"
     error = "error"
+    nvda_not_connected = "nvda_not_connected" # This was added in version 2 but never implemented on the server
 
 

@@ -81,13 +81,8 @@ class SecureDesktopHandler:
 			self.leave_secure_desktop()
 			
 		if self._slave_session is not None and self._slave_session.transport is not None:
-			try:
-				self._slave_session.transport.callback_manager.unregisterCallback(
-				'msg_set_braille_info',
-				self._on_master_display_change
-			)
-			except ValueError:
-				pass
+			transport = self._slave_session.transport
+			transport.unregisterInbound(RemoteMessageType.set_braille_info, self._on_master_display_change)
 		self._slave_session = session
 
 	def _on_secure_desktop_change(self, isSecureDesktop: Optional[bool] = None) -> None:
@@ -124,8 +119,8 @@ class SecureDesktopHandler:
 			channel=channel,
 			insecure=True
 		)
-		self.sd_relay.callback_manager.registerCallback('msg_client_joined', self._on_master_display_change)
-		self.slave_session.transport.callback_manager.registerCallback('msg_set_braille_info', self._on_master_display_change)
+		self.sd_relay.registerInbound(RemoteMessageType.client_joined, self._on_master_display_change)
+		self.slave_session.transport.registerInbound(RemoteMessageType.set_braille_info, self._on_master_display_change)
 		
 		self.sd_bridge = bridge.BridgeTransport(self.slave_session.transport, self.sd_relay)
 		
@@ -154,10 +149,7 @@ class SecureDesktopHandler:
 			self.sd_relay = None
 
 		if self.slave_session is not None and self.slave_session.transport is not None:
-			self.slave_session.transport.callback_manager.unregisterCallback(
-				'msg_set_braille_info',
-				self._on_master_display_change
-			)
+			self.slave_session.transport.unregisterInbound(RemoteMessageType.set_braille_info, self._on_master_display_change)
 			self.slave_session.setDisplaySize()
 		
 		try:

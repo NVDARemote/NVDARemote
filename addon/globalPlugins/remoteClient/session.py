@@ -13,8 +13,10 @@ import versionInfo
 from logHandler import log
 
 from . import configuration, connection_info, cues, local_machine, nvda_patcher
+
 from .protocol import RemoteMessageType
-from .transport import RelayTransport, TransportEvents
+from .transport import RelayTransport 
+
 
 addonHandler.initTranslation()
 
@@ -38,10 +40,8 @@ class RemoteSession:
 		self.localMachine = local_machine
 		self.patcher = None
 		self.transport = transport
-		self.transport.callback_manager.registerCallback(
-			'msg_version_mismatch', self.handleVersionMismatch)
-		self.transport.callback_manager.registerCallback(
-			'msg_motd', self.handleMotd)
+		self.transport.registerInbound(RemoteMessageType.version_mismatch, self.handleVersionMismatch)
+		self.transport.registerInbound(RemoteMessageType.motd, self.handleMotd)
 
 	def handleVersionMismatch(self, **kwargs: Any) -> None:
 		# translators: Message for version mismatch
@@ -86,34 +86,23 @@ class SlaveSession(RemoteSession):
 
 	def __init__(self, *args: Any, **kwargs: Any) -> None:
 		super().__init__(*args, **kwargs)
-		self.transport.callback_manager.registerCallback(
-			'msg_client_joined', self.handleClientConnected)
-		self.transport.callback_manager.registerCallback(
-			'msg_client_left', self.handleClientDisconnected)
-		self.transport.callback_manager.registerCallback(
-			'msg_key', self.localMachine.sendKey)
+		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
+		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
+		self.transport.registerInbound(RemoteMessageType.key, self.localMachine.sendKey)
 		self.masters = defaultdict(dict)
 		self.masterDisplaySizes = []
-		self.transport.callback_manager.registerCallback(
-			'msg_index', self.recvIndex)
-		self.transport.callback_manager.registerCallback(
-			TransportEvents.CLOSING, self.handleTransportClosing)
+		self.transport.registerInbound(RemoteMessageType.index, self.recvIndex)
+		self.transport.transportClosing.register(self.handleTransportClosing)
 		self.patcher = nvda_patcher.NVDASlavePatcher()
 		self.patchCallbacksAdded = False
-		self.transport.callback_manager.registerCallback(
-			'msg_channel_joined', self.handleChannelJoined)
-		self.transport.callback_manager.registerCallback(
-			'msg_set_clipboard_text', self.localMachine.setClipboardText)
-		self.transport.callback_manager.registerCallback(
-			'msg_set_braille_info', self.handleBrailleInfo)
-		self.transport.callback_manager.registerCallback(
-			'msg_set_display_size', self.setDisplaySize)
+		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannelJoined)
+		self.transport.registerInbound(RemoteMessageType.set_clipboard_text, self.localMachine.setClipboardText)
+		self.transport.registerInbound(RemoteMessageType.set_braille_info, self.handleBrailleInfo)
+		self.transport.registerInbound(RemoteMessageType.set_display_size, self.setDisplaySize)
 		braille.filter_displaySize.register(
 			self.localMachine.handleFilterDisplaySize)
-		self.transport.callback_manager.registerCallback(
-			'msg_braille_input', self.localMachine.brailleInput)
-		self.transport.callback_manager.registerCallback(
-			'msg_send_SAS', self.localMachine.sendSAS)
+		self.transport.registerInbound(RemoteMessageType.braille_input, self.localMachine.brailleInput)
+		self.transport.registerInbound(RemoteMessageType.send_SAS, self.localMachine.sendSAS)
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
 		self.patcher.patch()
@@ -239,34 +228,20 @@ class MasterSession(RemoteSession):
 		self.slaves = defaultdict(dict)
 		self.patcher = nvda_patcher.NVDAMasterPatcher()
 		self.patchCallbacksAdded = False
-		self.transport.callback_manager.registerCallback(
-			'msg_speak', self.localMachine.speak)
-		self.transport.callback_manager.registerCallback(
-			'msg_cancel', self.localMachine.cancelSpeech)
-		self.transport.callback_manager.registerCallback(
-			'msg_pause_speech', self.localMachine.pauseSpeech)
-		self.transport.callback_manager.registerCallback(
-			'msg_tone', self.localMachine.beep)
-		self.transport.callback_manager.registerCallback(
-			'msg_wave', self.handlePlayWave)
-		self.transport.callback_manager.registerCallback(
-			'msg_display', self.localMachine.display)
-		self.transport.callback_manager.registerCallback(
-			'msg_nvda_not_connected', self.handleNVDANotConnected)
-		self.transport.callback_manager.registerCallback(
-			'msg_client_joined', self.handleClientConnected)
-		self.transport.callback_manager.registerCallback(
-			'msg_client_left', self.handleClientDisconnected)
-		self.transport.callback_manager.registerCallback(
-			'msg_channel_joined', self.handleChannel_joined)
-		self.transport.callback_manager.registerCallback(
-			'msg_set_clipboard_text', self.localMachine.setClipboardText)
-		self.transport.callback_manager.registerCallback(
-			'msg_send_braille_info', self.sendBrailleInfo)
-		self.transport.callback_manager.registerCallback(
-			TransportEvents.CONNECTED, self.handleConnected)
-		self.transport.callback_manager.registerCallback(
-			TransportEvents.DISCONNECTED, self.handleDisconnected)
+		self.transport.registerInbound(RemoteMessageType.speak, self.localMachine.speak)
+		self.transport.registerInbound(RemoteMessageType.cancel, self.localMachine.cancelSpeech)
+		self.transport.registerInbound(RemoteMessageType.pause_speech, self.localMachine.pauseSpeech)
+		self.transport.registerInbound(RemoteMessageType.tone, self.localMachine.beep)
+		self.transport.registerInbound(RemoteMessageType.wave, self.handlePlayWave)
+		self.transport.registerInbound(RemoteMessageType.display, self.localMachine.display)
+		self.transport.registerInbound(RemoteMessageType.nvda_not_connected, self.handleNVDANotConnected)
+		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
+		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
+		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannel_joined)
+		self.transport.registerInbound(RemoteMessageType.set_clipboard_text, self.localMachine.setClipboardText)
+		self.transport.registerInbound(RemoteMessageType.set_braille_info, self.sendBrailleInfo)
+		self.transport.transportConnected.register(self.handleConnected)
+		self.transport.transportDisconnected.register(self.handleDisconnected)
 
 	def handlePlayWave(self, **kwargs):
 		"""Receive instruction to play a 'wave' from the slave machine
