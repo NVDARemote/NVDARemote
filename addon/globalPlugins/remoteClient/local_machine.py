@@ -124,6 +124,11 @@ class LocalMachine:
 		braille.decide_enabled.register(self.handleDecideEnabled)
 
 	def terminate(self) -> None:
+		"""Clean up resources when the local machine controller is terminated.
+		
+		Unregisters the braille display handler to prevent memory leaks and
+		ensure proper cleanup when the remote connection ends.
+		"""
 		braille.decide_enabled.unregister(self.handleDecideEnabled)
 
 	def playWave(self, fileName: str) -> None:
@@ -136,16 +141,47 @@ class LocalMachine:
 			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
+		"""Play a beep sound on the local machine.
+
+		Args:
+			hz: Frequency of the beep in Hertz
+			length: Duration of the beep in milliseconds
+			left: Left channel volume (0-100), defaults to 50%
+			right: Right channel volume (0-100), defaults to 50%
+			**kwargs: Additional parameters (ignored for compatibility)
+
+		Note:
+			Beeps are ignored if the local machine is muted.
+		"""
 		if self.isMuted:
 			return
 		tones.beep(hz, length, left, right)
 
 	def cancelSpeech(self, **kwargs: Any) -> None:
+		"""Cancel any ongoing speech on the local machine.
+		
+		Args:
+			**kwargs: Additional parameters (ignored for compatibility)
+			
+		Note:
+			Speech cancellation is ignored if the local machine is muted.
+			Uses wx.CallAfter to ensure thread-safe execution.
+		"""
 		if self.isMuted:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
 	def pauseSpeech(self, switch: bool, **kwargs: Any) -> None:
+		"""Pause or resume speech on the local machine.
+		
+		Args:
+			switch: True to pause speech, False to resume
+			**kwargs: Additional parameters (ignored for compatibility)
+			
+		Note:
+			Speech control is ignored if the local machine is muted.
+			Uses wx.CallAfter to ensure thread-safe execution.
+		"""
 		if self.isMuted:
 			return
 		wx.CallAfter(speech.pauseSpeech, switch)
@@ -213,15 +249,51 @@ class LocalMachine:
 			wx.CallAfter(braille.handler._writeCells, cells)
 
 	def brailleInput(self, **kwargs: Dict[str, Any]) -> None:
+		"""Process braille input gestures from a remote machine.
+		
+		Executes braille input commands locally using NVDA's input gesture system.
+		Handles both display routing and braille keyboard input.
+		
+		Args:
+			**kwargs: Gesture parameters passed to BrailleInputGesture
+				
+		Note:
+			Silently ignores gestures that have no associated action.
+			See :class:`input.BrailleInputGesture` for supported parameters.
+		"""
 		try:
 			inputCore.manager.executeGesture(input.BrailleInputGesture(**kwargs))
 		except inputCore.NoInputGestureAction:
 			pass
 
 	def setBrailleDisplay_size(self, sizes: List[int], **kwargs: Any) -> None:
+		"""Cache remote braille display sizes for size negotiation.
+		
+		Args:
+			sizes: List of display sizes (cells) from remote machines
+			**kwargs: Additional parameters (ignored for compatibility)
+			
+		Note:
+			The cached sizes are used by handleFilterDisplaySize to negotiate
+			the optimal display size when sharing braille output.
+		"""
 		self._cachedSizes = sizes
 
 	def handleFilterDisplaySize(self, value: int) -> int:
+		"""Filter the local display size based on remote display sizes.
+		
+		Determines the optimal display size when sharing braille output by
+		finding the smallest positive size among local and remote displays.
+		
+		Args:
+			value: Local display size in cells
+			
+		Returns:
+			int: The negotiated display size to use
+			
+		Note:
+			Returns the original size if no remote sizes are cached.
+		"""
 		if not self._cachedSizes:
 			return value
 		sizes = self._cachedSizes + [value]
@@ -231,6 +303,15 @@ class LocalMachine:
 			return value
 
 	def handleDecideEnabled(self) -> bool:
+		"""Determine if the local braille display should be enabled.
+		
+		Returns:
+			bool: False if receiving remote braille, True otherwise
+			
+		Note:
+			This is registered as a callback with braille.decide_enabled to
+			automatically disable local braille when receiving remote output.
+		"""
 		return not self.receivingBraille
 
 	def sendKey(
@@ -240,9 +321,31 @@ class LocalMachine:
 		pressed: Optional[bool] = None,
 		**kwargs: Any
 	) -> None:
+		"""Simulate a keyboard event on the local machine.
+		
+		Args:
+			vk_code: Virtual key code to simulate
+			extended: Whether this is an extended key
+			pressed: True for key press, False for key release
+			**kwargs: Additional parameters (ignored for compatibility)
+			
+		Note:
+			Uses wx.CallAfter to ensure thread-safe execution.
+			See :func:`input.send_key` for details on key simulation.
+		"""
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
 	def setClipboardText(self, text: str, **kwargs: Any) -> None:
+		"""Set the local clipboard text from a remote machine.
+		
+		Args:
+			text: Text to copy to the clipboard
+			**kwargs: Additional parameters (ignored for compatibility)
+			
+		Note:
+			Plays an audio cue to indicate clipboard content was received.
+			Uses NVDA's api.copyToClip for safe clipboard access.
+		"""
 		cues.clipboard_received()
 		api.copyToClip(text=text)
 
