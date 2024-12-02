@@ -108,6 +108,7 @@ class GlobalPlugin(_GlobalPlugin):
 			connection = self.sd_handler.initialize_secure_desktop()
 			if connection:
 				self.connectAsSlave(connection.address, connection.channel, insecure=True)
+				self.slaveSession.transport.connected_event.wait(self.sd_handler.SD_CONNECT_BLOCK_TIMEOUT)
 		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
 			self.performAutoconnect()
 
