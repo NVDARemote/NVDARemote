@@ -51,7 +51,7 @@ class Transport:
 	Attributes:
 	    connected (bool): Connection state
 	    successful_connects (int): Connection attempt counter
-	    connected_event (threading.Event): Set when connected
+	    connectedEvent (threading.Event): Set when connected
 	    serializer (Serializer): Message serializer
 	    inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
 	
@@ -494,15 +494,8 @@ class ConnectorThread(threading.Thread):
 def clear_queue(queue: Queue[Optional[bytes]]) -> None:
 	"""Empty all items from a queue without blocking.
 	
-	Removes all items from the queue in a non-blocking way,
-	useful for cleaning up before disconnection.
-	
 	Args:
-	    queue (Queue[Optional[bytes]]): Queue instance to clear
-	
-	Note:
-	    This function catches and ignores any exceptions that occur
-	    while trying to get items from an empty queue.
+	    queue (Queue[Optional[bytes]]): Queue to clear
 	"""
 	try:
 		while True:
