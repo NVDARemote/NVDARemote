@@ -1,22 +1,14 @@
 """Network transport layer for NVDA Remote.
 
-This module provides the core networking functionality for NVDA Remote.
+Provides secure network communication between NVDA instances using SSL/TLS.
+Handles connection management, message serialization, and event notifications.
 
-Classes:
-    Transport: Base class defining the transport interface
-    TCPTransport: Implementation of secure TCP socket transport  
-    RelayTransport: Extended TCP transport for relay server connections
-    ConnectorThread: Helper class for connection management
-
-The transport layer handles:
-    * Secure socket connections with SSL/TLS
-    * Message serialization and deserialization 
-    * Connection management and reconnection
-    * Event notifications for connection state changes
-    * Message routing based on RemoteMessageType enum
-
-All network operations run in background threads, while message handlers
-are called on the main wxPython thread for thread-safety.
+Key features:
+    * SSL/TLS encrypted connections
+    * Automatic reconnection
+    * Message type-based routing
+    * Background socket operations
+    * Main thread message handling for UI safety
 """
 
 import hashlib
@@ -45,49 +37,30 @@ from .serializer import Serializer
 
 
 class Transport:
-	"""Base class defining the network transport interface for NVDA Remote.
+	"""Base class for network transport implementations.
 	
-	This abstract base class defines the interface that all network transports must implement.
-	It provides core functionality for secure message passing, connection management,
-	and event handling between NVDA instances.
-	
-	The Transport class handles:
-	
-	* Message serialization and routing using a pluggable serializer
-	* Connection state management and event notifications
-	* Registration of message type handlers
-	* Thread-safe connection events
-	
-	To implement a new transport:
-	
-	1. Subclass Transport
-	2. Implement connection logic in run()
-	3. Call onTransportConnected() when connected
-	4. Use send() to transmit messages
-	5. Call appropriate event notifications
-	
-	Example:
-	    >>> serializer = JSONSerializer()
-	    >>> transport = TCPTransport(serializer, ("localhost", 8090))
-	    >>> transport.registerInbound(RemoteMessageType.key, handle_key)
-	    >>> transport.run()
+	Subclass this to implement a new transport type. Key requirements:
+	1. Implement run() for connection logic
+	2. Call onTransportConnected() when connected
+	3. Use send() for outbound messages
+	4. Fire appropriate events for connection state changes
 	
 	Args:
-	    serializer: The serializer instance to use for message encoding/decoding
+	    serializer: Message serializer for encoding/decoding
 	
 	Attributes:
-	    connected (bool): True if transport has an active connection
-	    successful_connects (int): Counter of successful connection attempts
-	    connected_event (threading.Event): Event that is set when connected
-	    serializer (Serializer): The message serializer instance
-	    inboundHandlers (Dict[RemoteMessageType, Callable]): Registered message handlers
+	    connected (bool): Connection state
+	    successful_connects (int): Connection attempt counter
+	    connected_event (threading.Event): Set when connected
+	    serializer (Serializer): Message serializer
+	    inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
 	
 	Events:
-	    transportConnected: Fired after connection is established and ready
-	    transportDisconnected: Fired when existing connection is lost
-	    transportCertificateAuthenticationFailed: Fired when SSL certificate validation fails
-	    transportConnectionFailed: Fired when a connection attempt fails
-	    transportClosing: Fired before transport is shut down
+	    transportConnected: Connection established
+	    transportDisconnected: Connection lost
+	    transportCertificateAuthenticationFailed: SSL validation failed  
+	    transportConnectionFailed: Connection attempt failed
+	    transportClosing: Transport shutting down
 	"""
 	connected: bool
 	successfulConnects: int
@@ -124,85 +97,53 @@ class Transport:
 		"""
 
 	def onTransportConnected(self) -> None:
-		"""Handle successful transport connection.
-
-		Called internally when a connection is established. Updates connection state,
-		increments successful connection counter, and notifies listeners.
-
-		This method:
-		1. Increments successful connection counter
-		2. Sets connected flag to True
-		3. Sets the connected event
-		4. Notifies transportConnected listeners
-		"""
-		self.successfulConnects += 1
+		"""Update state and notify listeners on successful connection."""
+		self.successful_connects += 1
 		self.connected = True
 		self.connectedEvent.set()
 		self.transportConnected.notify()
 
 	def registerInbound(self, type: RemoteMessageType, handler: Callable) -> None:
-		"""Register a handler for incoming messages of a specific type.
-
-		Adds a callback function to handle messages of the specified RemoteMessageType.
-		Multiple handlers can be registered for the same message type.
+		"""Register a message handler.
 
 		Args:
-			type (RemoteMessageType): The message type to handle
-			handler (Callable): Callback function to process messages of this type.
-				Will be called with the message payload as kwargs.
-
-		Example:
-			>>> def handle_keypress(key_code, pressed):
-			...     print(f"Key {key_code} {'pressed' if pressed else 'released'}")
-			>>> transport.registerInbound(RemoteMessageType.key_press, handle_keypress)
-
-		Note:
-			Handlers are called asynchronously on the wx main thread via wx.CallAfter
+			type (RemoteMessageType): Message type to handle
+			handler (Callable): Handler function called with message kwargs
+			
+		Note: Handlers run on wx main thread via CallAfter
 		"""
 		self.inboundHandlers[type].register(handler)
 
 	def unregisterInbound(self, type: RemoteMessageType, handler: Callable) -> None:
-		"""Remove a previously registered message handler.
-
-		Removes a specific handler function from the list of handlers for a message type.
-		If the handler was not previously registered, this is a no-op.
+		"""Remove a message handler.
 
 		Args:
-			type (RemoteMessageType): The message type to unregister from
-			handler (Callable): The handler function to remove
-
-		Example:
-			>>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
-			
-		Note:
-			Must pass the exact same handler function that was previously registered
+			type (RemoteMessageType): Message type to unregister from
+			handler (Callable): Handler function to remove
 		"""
 		self.inboundHandlers[type].unregister(handler)
 
 class TCPTransport(Transport):
-	"""Secure TCP socket transport implementation.
-	
-	This class implements the Transport interface using TCP sockets with SSL/TLS
-	encryption. It handles connection establishment, data transfer, and connection
-	lifecycle management.
+	"""SSL/TLS encrypted TCP transport.
 	
 	Args:
-	    serializer (Serializer): Message serializer instance
-	    address (Tuple[str, int]): Remote address to connect to
-	    timeout (int, optional): Connection timeout in seconds. Defaults to 0.
-	    insecure (bool, optional): Skip certificate verification. Defaults to False.
+	    serializer (Serializer): Message serializer
+	    address (Tuple[str, int]): Remote address
+	    timeout (int, optional): Connection timeout seconds. Default 0
+	    insecure (bool, optional): Skip cert verification. Default False
 	
 	Attributes:
-	    buffer (bytes): Buffer for incomplete received data
-	    closed (bool): Whether transport is closed
-	    queue (Queue[Optional[bytes]]): Queue of outbound messages
-	    insecure (bool): Whether to skip certificate verification
-	    address (Tuple[str, int]): Remote address to connect to
-	    timeout (int): Connection timeout in seconds
-	    server_sock (Optional[ssl.SSLSocket]): The SSL socket connection
-	    server_sock_lock (threading.Lock): Lock for thread-safe socket access
-	    queue_thread (Optional[threading.Thread]): Thread handling outbound messages
-	    reconnector_thread (ConnectorThread): Thread managing reconnection
+	    buffer (bytes): Incomplete received data
+	    closed (bool): Transport closed state
+	    queue (Queue[Optional[bytes]]): Outbound messages
+	    insecure (bool): Skip cert verification
+	    address (Tuple[str, int]): Remote address
+	    timeout (int): Connection timeout
+	    server_sock (Optional[ssl.SSLSocket]): SSL socket
+	    server_sock_lock (threading.Lock): Socket access lock
+	    queue_thread (Optional[threading.Thread]): Outbound message thread
+	    reconnector_thread (ConnectorThread): Reconnection manager
+	    last_fail_fingerprint (Optional[str]): Last failed cert fingerprint
 	"""
 	buffer: bytes
 	closed: bool
@@ -312,17 +253,13 @@ class TCPTransport(Transport):
 		return server_sock
 
 	def getpeercert(self, binary_form: bool = False) -> Optional[Union[Dict[str, Any], bytes]]:
-		"""Get the certificate from the peer.
-
-		Retrieves the certificate presented by the remote peer during SSL handshake.
+		"""Get peer's SSL certificate.
 
 		Args:
-			binary_form (bool, optional): If True, return the raw certificate bytes.
-				If False, return a parsed dictionary. Defaults to False.
+			binary_form (bool): Return raw bytes if True, dict if False
 
 		Returns:
-			Optional[Union[Dict[str, Any], bytes]]: The peer's certificate, or None if not connected.
-				Format depends on binary_form parameter.
+			Optional[Union[Dict[str, Any], bytes]]: Certificate or None
 		"""
 		if self.serverSock is None: return None
 		return self.serverSock.getpeercert(binary_form)
