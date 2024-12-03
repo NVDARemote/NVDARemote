@@ -30,9 +30,9 @@ Core Responsibilities:
 
 2. Feature Synchronization:
    - Speech output routing
-   - Braille display coordination
+   - Braille display coordination 
    - Input command processing
-   - NVWave  forwarding
+   - Basic notification sounds
 
 3. Security:
    - Connection validation
@@ -43,12 +43,14 @@ Example Usage:
 -------------
 Master instance:
     >>> transport = RelayTransport(address=("nvdaremote.com", 6837))
+    >>> transport.channel = "mysessionkey" 
     >>> local = LocalMachine()
     >>> session = MasterSession(local_machine=local, transport=transport)
     >>> session.transport.connect()
 
 Slave instance:
     >>> transport = RelayTransport(address=("nvdaremote.com", 6837))
+    >>> transport.channel = "mysessionkey"
     >>> local = LocalMachine()
     >>> session = SlaveSession(local_machine=local, transport=transport)
     >>> session.transport.connect()
@@ -417,8 +419,9 @@ class MasterSession(RemoteSession):
 	This class implements the master side of an NVDA Remote connection. It handles:
 	
 	- Sending control commands to slaves
-	- Receiving and playing speech/braille/audio from slaves
-	- Managing connected slave clients
+	- Receiving and playing speech/braille from slaves
+	- Playing basic notification sounds from slaves
+	- Managing connected slave clients  
 	- Synchronizing braille display information
 	- Patching NVDA for remote input handling
 	
