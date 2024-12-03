@@ -1,63 +1,61 @@
-"""Session management for NVDA Remote connections.
+"""NVDA Remote session management and message routing.
 
-This module implements the core session management functionality for NVDA Remote,
-handling both master and slave connections. It provides classes that manage the
-state and behavior of remote NVDA instances connected through a relay server.
+Implements the session layer for NVDA Remote, handling message routing,
+connection roles, and NVDA feature coordination between instances.
+
+Core Operation:
+-------------
+1. Transport layer delivers typed messages (RemoteMessageType)
+2. Session routes messages to registered handlers
+3. Handlers execute on wx main thread via CallAfter
+4. Results flow back through transport layer
+
+Connection Roles:
+--------------
+Master (Controlling)
+    - Captures and forwards input
+    - Receives remote output (speech/braille)
+    - Manages connection state
+    - Patches input handling
+
+Slave (Controlled) 
+    - Executes received commands
+    - Forwards output to master(s)
+    - Tracks connected masters
+    - Patches output handling
 
 Key Components:
---------------
+------------
+RemoteSession
+    Base session managing shared functionality:
+    - Message handler registration
+    - Connection validation
+    - Version compatibility
+    - MOTD handling
+
 MasterSession
-    Runs on the controlling NVDA instance. Sends commands and receives feedback.
-    Handles keyboard input, braille routing, and display synchronization.
+    Controls remote instance:
+    - Input capture/forwarding
+    - Remote output reception
+    - Connection management
+    - Master-specific patches
 
 SlaveSession
-    Runs on the controlled NVDA instance. Executes received commands and forwards
-    speech/braille output back to master(s).
+    Controlled by remote instance:
+    - Command execution
+    - Output forwarding
+    - Multi-master support
+    - Slave-specific patches
 
-Architecture:
+Thread Safety:
 ------------
-The session layer sits between:
-- Transport layer (below): Handles encrypted network communication
-- Local Machine layer (above): Interfaces with the local NVDA instance
-
-Core Responsibilities:
---------------------
-1. Connection Management:
-   - Version compatibility checking
-   - Connection state tracking
-   - Multiple client support
-   - Message of the day handling
-
-2. Feature Synchronization:
-   - Speech output routing
-   - Braille display coordination 
-   - Input command processing
-   - Basic notification sounds
-
-3. Security:
-   - Connection validation
-   - Safe NVDA feature patching
-   - Secure message routing
-
-Example Usage:
--------------
-Master instance:
-    >>> transport = RelayTransport(address=("nvdaremote.com", 6837))
-    >>> transport.channel = "mysessionkey" 
-    >>> local = LocalMachine()
-    >>> session = MasterSession(local_machine=local, transport=transport)
-    >>> session.transport.connect()
-
-Slave instance:
-    >>> transport = RelayTransport(address=("nvdaremote.com", 6837))
-    >>> transport.channel = "mysessionkey"
-    >>> local = LocalMachine()
-    >>> session = SlaveSession(local_machine=local, transport=transport)
-    >>> session.transport.connect()
+All message handlers execute on wx main thread via CallAfter
+to ensure thread-safe NVDA operations.
 
 See Also:
-    - transport.py: For network communication implementation
-    - local_machine.py: For NVDA interface implementation
+    transport.py: Network communication
+    local_machine.py: NVDA interface
+    nvda_patcher.py: Feature patches
 """
 
 import hashlib
