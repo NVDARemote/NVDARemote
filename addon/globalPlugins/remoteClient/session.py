@@ -452,7 +452,7 @@ class MasterSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.nvda_not_connected, self.handleNVDANotConnected)
 		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
 		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
-		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannel_joined)
+		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handle_channel_joined)
 		self.transport.registerInbound(RemoteMessageType.set_clipboard_text, self.localMachine.setClipboardText)
 		self.transport.registerInbound(RemoteMessageType.set_braille_info, self.sendBrailleInfo)
 		self.transport.transportConnected.register(self.handleConnected)
@@ -493,14 +493,14 @@ class MasterSession(RemoteSession):
 		"""
 		pass  # nothing to do
 
-	def handleChannel_joined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None) -> None:
+	def handle_channel_joined(self, channel: Optional[str] = None, clients: Optional[List[Dict[str, Any]]] = None, origin: Optional[int] = None) -> None:
 		"""Handle joining a channel with existing clients.
 
 		Called when first connecting to a channel. Processes any clients
 		already present in the channel.
 
 		Args:
-			channel: Channel identifier
+			channel: Channel identifier 
 			clients: List of client information dictionaries
 			origin: ID of originating client
 		"""
