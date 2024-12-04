@@ -1,20 +1,21 @@
+from dataclasses import dataclass
 from urllib.parse import parse_qs, urlencode, urlparse
 
-
 from .protocol import SERVER_PORT, URL_PREFIX
-
 from . import socket_utils
 
 class URLParsingError(Exception):
 	"""Raised if it's impossible to parse out the URL"""
 
+@dataclass
 class ConnectionInfo:
+	hostname: str
+	mode: str
+	key: str
+	port: int = SERVER_PORT
 
-	def __init__(self, hostname, mode, key, port=SERVER_PORT):
-		self.hostname = hostname
-		self.mode = mode
-		self.key = key
-		self.port = port or SERVER_PORT
+	def __post_init__(self):
+		self.port = self.port or SERVER_PORT
 
 	@classmethod
 	def fromURL(cls, url):
@@ -34,8 +35,6 @@ class ConnectionInfo:
 			raise URLParsingError("Invalud mode provided: %r" % mode)
 		return cls(hostname=hostname, mode=mode, key=key, port=port)
 
-	def __repr__(self):
-		return "{classname} (hostname={hostname}, port={port}, mode={mode}, key={key})".format(classname=self.__class__.__name__, hostname=self.hostname, port=self.port, mode=self.mode, key=self.key)
 
 	def getAddress(self):
 		hostname = (self.hostname if ':' not in self.hostname else '[' + self.hostname + ']')
