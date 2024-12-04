@@ -39,8 +39,8 @@ log = getLogger('transport')
 
 from . import configuration
 from .serializer import Serializer
-from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
-from .protocol import RemoteMessageType, PROTOCOL_VERSION
+from .socket_utils import addressToHostPort, hostPortToAddress
+from .protocol import SERVER_PORT, RemoteMessageType, PROTOCOL_VERSION
 from .serializer import Serializer
 
 
@@ -90,16 +90,15 @@ class Transport:
 	    transportClosing: Fired before transport is shut down
 	"""
 	connected: bool
-	successful_connects: int
-	connected_event: threading.Event 
+	successfulConnects: int
+	connectedEvent: threading.Event 
 	serializer: Serializer
-
 
 
 	def __init__(self, serializer: Serializer) -> None:
 		self.serializer = serializer
 		self.connected = False
-		self.successful_connects = 0
+		self.successfulConnects = 0
 		self.connectedEvent = threading.Event()
 		# iterate over all the message types and create a dictionary of handlers mapping to Action()
 		self.inboundHandlers: Dict[RemoteMessageType, Callable] = {msg: Action() for msg in RemoteMessageType}
@@ -136,7 +135,7 @@ class Transport:
 		3. Sets the connected event
 		4. Notifies transportConnected listeners
 		"""
-		self.successful_connects += 1
+		self.successfulConnects += 1
 		self.connected = True
 		self.connectedEvent.set()
 		self.transportConnected.notify()
@@ -209,13 +208,13 @@ class TCPTransport(Transport):
 	closed: bool
 	queue: Queue[Optional[bytes]]
 	insecure: bool
-	server_sock_lock: threading.Lock
+	serverSockLock: threading.Lock
 	address: Tuple[str, int]
-	server_sock: Optional[ssl.SSLSocket]
+	serverSock: Optional[ssl.SSLSocket]
 	queue_thread: Optional[threading.Thread]
 	timeout: int
 	reconnector_thread: 'ConnectorThread'
-	last_fail_fingerprint: Optional[str]
+	lastFailFingerprint: Optional[str]
 	
 	def __init__(self, serializer: Serializer, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
 		super().__init__(serializer=serializer)
@@ -224,11 +223,11 @@ class TCPTransport(Transport):
 		self.buffer = B''
 		self.queue = Queue()
 		self.address = address
-		self.server_sock = None
+		self.serverSock = None
 		# Reading/writing from an SSL socket is not thread safe.
 		# See https://bugs.python.org/issue41597#msg375692
 		# Guard access to the socket with a lock.
-		self.server_sock_lock = threading.Lock()
+		self.serverSockLock = threading.Lock()
 		self.queue_thread = None
 		self.timeout = timeout
 		self.reconnector_thread = ConnectorThread(self)
@@ -237,8 +236,8 @@ class TCPTransport(Transport):
 	def run(self) -> None:
 		self.closed = False
 		try:
-			self.server_sock = self.create_outbound_socket(*self.address, insecure=self.insecure)
-			self.server_sock.connect(self.address)
+			self.serverSock = self.create_outbound_socket(*self.address, insecure=self.insecure)
+			self.serverSock.connect(self.address)
 		except ssl.SSLCertVerificationError as ex:
 			fingerprint=None
 			try:
@@ -249,10 +248,10 @@ class TCPTransport(Transport):
 				fingerprint = hashlib.sha256(certBin).hexdigest().lower()
 			except Exception: pass
 			config = configuration.get_config()
-			if hostport_to_address(self.address) in config['trusted_certs'] and config['trusted_certs'][hostport_to_address(self.address)]==fingerprint:
+			if hostPortToAddress(self.address) in config['trusted_certs'] and config['trusted_certs'][hostPortToAddress(self.address)]==fingerprint:
 				self.insecure=True
 				return self.run()
-			self.last_fail_fingerprint = fingerprint
+			self.lastFailFingerprint = fingerprint
 			self.transportCertificateAuthenticationFailed.notify()
 			raise
 		except Exception:
@@ -262,16 +261,16 @@ class TCPTransport(Transport):
 		self.queue_thread = threading.Thread(target=self.send_queue)
 		self.queue_thread.daemon = True
 		self.queue_thread.start()
-		while self.server_sock is not None:
+		while self.serverSock is not None:
 			try:
-				readers, writers, error = select.select([self.server_sock], [], [self.server_sock])
+				readers, writers, error = select.select([self.serverSock], [], [self.serverSock])
 			except socket.error:
 				self.buffer = b''
 				break
-			if self.server_sock in error:
+			if self.serverSock in error:
 				self.buffer = b""
 				break
-			if self.server_sock in readers:
+			if self.serverSock in readers:
 				try:
 					self.handle_server_data()
 				except socket.error:
@@ -325,8 +324,8 @@ class TCPTransport(Transport):
 			Optional[Union[Dict[str, Any], bytes]]: The peer's certificate, or None if not connected.
 				Format depends on binary_form parameter.
 		"""
-		if self.server_sock is None: return None
-		return self.server_sock.getpeercert(binary_form)
+		if self.serverSock is None: return None
+		return self.serverSock.getpeercert(binary_form)
 
 	def handle_server_data(self) -> None:
 		"""Process incoming data from the server socket.
@@ -344,7 +343,7 @@ class TCPTransport(Transport):
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
 		buffSize = 16384
-		with self.server_sock_lock:
+		with self.serverSockLock:
 			# select operates on the raw socket. Even though it said there was data to
 			# read, that might be SSL data which might not result in actual data for
 			# us. Therefore, do a non-blocking read so SSL doesn't try to wait for
@@ -353,14 +352,14 @@ class TCPTransport(Transport):
 			# handle retries during the SSL handshake.
 			# See https://stackoverflow.com/questions/3187565/select-and-ssl-in-python
 			# and https://docs.python.org/3/library/ssl.html#notes-on-non-blocking-sockets
-			self.server_sock.setblocking(False)
+			self.serverSock.setblocking(False)
 			try:
-				data = self.buffer + self.server_sock.recv(buffSize)
+				data = self.buffer + self.serverSock.recv(buffSize)
 			except ssl.SSLWantReadError:
 				# There's no data for us.
 				return
 			finally:
-				self.server_sock.setblocking(True)
+				self.serverSock.setblocking(True)
 		self.buffer = b''
 		if not data:
 			self._disconnect()
@@ -417,8 +416,8 @@ class TCPTransport(Transport):
 			if item is None:
 				return
 			try:
-				with self.server_sock_lock:
-					self.server_sock.sendall(item)
+				with self.serverSockLock:
+					self.serverSock.sendall(item)
 			except socket.error:
 				return
 
@@ -456,9 +455,9 @@ class TCPTransport(Transport):
 			self.queue_thread.join()
 			self.queue_thread = None
 		clear_queue(self.queue)
-		if self.server_sock:
-			self.server_sock.close()
-			self.server_sock = None
+		if self.serverSock:
+			self.serverSock.close()
+			self.serverSock = None
 
 	def close(self):
 		"""Close the transport."""

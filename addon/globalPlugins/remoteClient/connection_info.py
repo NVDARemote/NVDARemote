@@ -1,28 +1,29 @@
 from urllib.parse import parse_qs, urlencode, urlparse
 
-from . import socket_utils
 
-URL_PREFIX = 'nvdaremote://'
+from .protocol import SERVER_PORT, URL_PREFIX
+
+from . import socket_utils
 
 class URLParsingError(Exception):
 	"""Raised if it's impossible to parse out the URL"""
 
 class ConnectionInfo:
 
-	def __init__(self, hostname, mode, key, port=socket_utils.SERVER_PORT):
+	def __init__(self, hostname, mode, key, port=SERVER_PORT):
 		self.hostname = hostname
 		self.mode = mode
 		self.key = key
-		self.port = port or socket_utils.SERVER_PORT
+		self.port = port or SERVER_PORT
 
 	@classmethod
-	def from_url(cls, url):
-		parsed_url = urlparse(url)
-		parsed_query = parse_qs(parsed_url.query)
-		hostname = parsed_url.hostname
-		port = parsed_url.port
-		key = parsed_query.get('key', [""])[0]
-		mode = parsed_query.get('mode', [""])[0].lower()
+	def fromURL(cls, url):
+		parsedUrl = urlparse(url)
+		parsedQuery = parse_qs(parsedUrl.query)
+		hostname = parsedUrl.hostname
+		port = parsedUrl.port
+		key = parsedQuery.get('key', [""])[0]
+		mode = parsedQuery.get('mode', [""])[0].lower()
 		if not hostname:
 			raise URLParsingError("No hostname provided")
 		if not key:
@@ -36,12 +37,12 @@ class ConnectionInfo:
 	def __repr__(self):
 		return "{classname} (hostname={hostname}, port={port}, mode={mode}, key={key})".format(classname=self.__class__.__name__, hostname=self.hostname, port=self.port, mode=self.mode, key=self.key)
 
-	def get_address(self):
+	def getAddress(self):
 		hostname = (self.hostname if ':' not in self.hostname else '[' + self.hostname + ']')
 		return '{hostname}:{port}'.format(hostname=hostname, port=self.port)
 
-	def get_url_to_connect(self):
-		result = URL_PREFIX + socket_utils.hostport_to_address((self.hostname, self.port))
+	def getURLToConnect(self):
+		result = URL_PREFIX + socket_utils.hostPortToAddress((self.hostname, self.port))
 		result += '?'
 		mode = self.mode
 		if mode == 'master':
@@ -51,8 +52,8 @@ class ConnectionInfo:
 		result += urlencode(dict(key=self.key, mode=mode))
 		return result
 
-	def get_url(self):
-		result = URL_PREFIX + socket_utils.hostport_to_address((self.hostname, self.port))
+	def getURL(self):
+		result = URL_PREFIX + socket_utils.hostPortToAddress((self.hostname, self.port))
 		result += '?'
 		mode = self.mode
 		result += urlencode(dict(key=self.key, mode=mode))

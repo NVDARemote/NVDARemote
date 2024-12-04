@@ -36,8 +36,8 @@ class RemoteSession:
 	mode: Optional[str] = None
 	patcher: Optional[nvda_patcher.NVDAPatcher]
 
-	def __init__(self, local_machine: local_machine.LocalMachine, transport: RelayTransport) -> None:
-		self.localMachine = local_machine
+	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
+		self.localMachine = localMachine
 		self.patcher = None
 		self.transport = transport
 		self.transport.registerInbound(RemoteMessageType.version_mismatch, self.handleVersionMismatch)
@@ -84,8 +84,8 @@ class SlaveSession(RemoteSession):
 	masterDisplaySizes: List[int]
 	patchCallbacksAdded: bool
 
-	def __init__(self, *args: Any) -> None:
-		super().__init__(*args)
+	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
+		super().__init__(localMachine, transport)
 		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
 		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
 		self.transport.registerInbound(RemoteMessageType.key, self.localMachine.sendKey)
@@ -223,8 +223,8 @@ class MasterSession(RemoteSession):
 	slaves: Dict[int, Dict[str, Any]]
 	patchCallbacksAdded: bool
 
-	def __init__(self, *args: Any) -> None:
-		super().__init__(*args)
+	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
+		super().__init__(localMachine, transport)
 		self.slaves = defaultdict(dict)
 		self.patcher = nvda_patcher.NVDAMasterPatcher()
 		self.patchCallbacksAdded = False

@@ -50,7 +50,7 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 		url = ctypes.wstring_at(message_data.contents.lpData)
 		log.info("Received url: %s" % url)
 		try:
-			con_info = connection_info.ConnectionInfo.from_url(url)
+			con_info = connection_info.ConnectionInfo.fromURL(url)
 		except connection_info.URLParsingError:
 			wx.CallLater(50, gui.messageBox, parent=gui.mainFrame, caption=_("Invalid URL"),
 						 # Translators: Message shown when an invalid URL has been provided.

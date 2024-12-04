@@ -10,24 +10,24 @@ class BridgeTransport:
 		self.t1 = t1
 		self.t2 = t2
 		# Store callbacks for each message type
-		self.t1_callbacks: Dict[RemoteMessageType, callable] = {}
-		self.t2_callbacks: Dict[RemoteMessageType, callable] = {}
+		self.t1Callbacks: Dict[RemoteMessageType, callable] = {}
+		self.t2Callbacks: Dict[RemoteMessageType, callable] = {}
 		
 		for messageType in RemoteMessageType:
 			# Create and store callbacks
-			self.t1_callbacks[messageType] = self.make_callback(self.t1, messageType)
-			self.t2_callbacks[messageType] = self.make_callback(self.t2, messageType)
+			self.t1Callbacks[messageType] = self.makeCallback(self.t1, messageType)
+			self.t2Callbacks[messageType] = self.makeCallback(self.t2, messageType)
 			# Register with stored references
-			t1.registerInbound(messageType, self.t2_callbacks[messageType])
-			t2.registerInbound(messageType, self.t1_callbacks[messageType])
+			t1.registerInbound(messageType, self.t2Callbacks[messageType])
+			t2.registerInbound(messageType, self.t1Callbacks[messageType])
 
-	def make_callback(self, target_transport: Transport, message_type: RemoteMessageType):
+	def makeCallback(self, targetTransport: Transport, messageType: RemoteMessageType):
 		def callback(*args, **kwargs):
-			if message_type.value not in self.excluded:
-				target_transport.send(message_type, *args, **kwargs)
+			if messageType.value not in self.excluded:
+				targetTransport.send(messageType, *args, **kwargs)
 		return callback
 
 	def disconnect(self):
 		for messageType in RemoteMessageType:
-			self.t1.unregisterInbound(messageType, self.t2_callbacks[messageType])
-			self.t2.unregisterInbound(messageType, self.t1_callbacks[messageType])
+			self.t1.unregisterInbound(messageType, self.t2Callbacks[messageType])
+			self.t2.unregisterInbound(messageType, self.t1Callbacks[messageType])

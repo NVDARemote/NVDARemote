@@ -2,13 +2,13 @@ import logging
 
 from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
 
+
+
 from .alwaysCallAfter import alwaysCallAfter
-
-from .protocol import RemoteMessageType
-
-from .secureDesktop import SecureDesktopHandler
-
+from .connection_info import ConnectionInfo
 from .menu import RemoteMenu
+from .protocol import SERVER_PORT, RemoteMessageType
+from .secureDesktop import SecureDesktopHandler
 
 # Type aliases
 KeyModifier = Tuple[int, bool]  # (vk_code, extended)
@@ -57,7 +57,7 @@ except addonHandler.AddonError:
 from winUser import WM_QUIT  # provided by NVDA
 
 from . import bridge, dialogs, keyboard_hook, server
-from .socket_utils import SERVER_PORT, address_to_hostport, hostport_to_address
+from .socket_utils import addressToHostPort, hostPortToAddress
 
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 import queueHandler
@@ -90,7 +90,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.masterSession = None
 		self.menu: RemoteMenu = RemoteMenu(self)
 		self.connecting = False
-		self.url_handler_window = url_handler.URLHandlerWindow(callback=self.verifyConnect)
+		self.URLHandlerWindow = url_handler.URLHandlerWindow(callback=self.verifyConnect)
 		url_handler.register_url_handler()
 		self.masterTransport = None
 		self.slaveTransport = None
@@ -105,12 +105,12 @@ class GlobalPlugin(_GlobalPlugin):
 		controlServerConfig = configuration.get_config()['controlserver']
 		if not globalVars.appArgs.secure:
 			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(RemoteSettingsPanel)
-		self.sd_handler = SecureDesktopHandler()
+		self.sdHandler = SecureDesktopHandler()
 		if isRunningOnSecureDesktop():
-			connection = self.sd_handler.initialize_secure_desktop()
+			connection = self.sdHandler.initialize_secure_desktop()
 			if connection:
 				self.connectAsSlave(connection.address, connection.channel, insecure=True)
-				self.slaveSession.transport.connectedEvent.wait(self.sd_handler.SD_CONNECT_BLOCK_TIMEOUT)
+				self.slaveSession.transport.connectedEvent.wait(self.sdHandler.SD_CONNECT_BLOCK_TIMEOUT)
 		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
 			self.performAutoconnect()
 
@@ -122,7 +122,7 @@ class GlobalPlugin(_GlobalPlugin):
 			address = ('localhost',port)
 			self.startControlServer(port, channel)
 		else:
-			address = address_to_hostport(controlServerConfig['host'])
+			address = addressToHostPort(controlServerConfig['host'])
 		if controlServerConfig['connection_type']==0:
 			self.connectAsSlave(address, channel)
 		else:
@@ -130,7 +130,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 
 	def terminate(self):
-		self.sd_handler.terminate()
+		self.sdHandler.terminate()
 		self.disconnect()
 		self.localMachine.terminate()
 		self.localMachine = None
@@ -138,8 +138,8 @@ class GlobalPlugin(_GlobalPlugin):
 		self.menu=None
 		if not isInstalledCopy():
 			url_handler.unregister_url_handler()
-		self.url_handler_window.destroy()
-		self.url_handler_window=None
+		self.URLHandlerWindow.destroy()
+		self.URLHandlerWindow=None
 		if not globalVars.appArgs.secure:
 			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(RemoteSettingsPanel)
 
@@ -149,7 +149,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	@script(description=_("""Mute or unmute the speech coming from the remote computer"""))
 	def script_toggle_remote_mute(self, gesture):
-		if not self.is_connected() or self.connecting: return
+		if not self.isConnected() or self.connecting: return
 		self.localMachine.isMuted = not self.localMachine.isMuted
 		self.menu.muteItem.Check(self.localMachine.isMuted)
 		# Translators: Report when using gestures to mute or unmute the speech coming from the remote computer.
@@ -179,7 +179,7 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def copyLink(self):
 		session = self.masterSession or self.slaveSession
-		url = session.getConnectionInfo().get_url_to_connect()
+		url = session.getConnectionInfo().getURLToConnect()
 		api.copyToClip(str(url))
 
 	@script(description=_("""Copies a link to the remote session to the clipboard"""))
@@ -225,10 +225,10 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveTransport.close()
 		self.slaveTransport = None
 		self.slaveSession = None
-		self.sd_handler.slave_session = None
+		self.sdHandler.slave_session = None
 
-	def on_connected_as_master_failed(self):
-		if self.masterTransport.successful_connects == 0:
+	def onConnectAsMasterFailed(self):
+		if self.masterTransport.successfulConnects == 0:
 			self.disconnectAsMaster()
 			# Translators: Title of the connection error dialog.
 			gui.messageBox(parent=gui.mainFrame, caption=_("Error Connecting"),
@@ -244,27 +244,27 @@ class GlobalPlugin(_GlobalPlugin):
 
 	@script(gesture="kb:alt+NVDA+pageUp", description=_("""Connect to a remote computer"""))
 	def script_connect(self, gesture):
-		if self.is_connected() or self.connecting: return
+		if self.isConnected() or self.connecting: return
 		self.doConnect(evt = None)
 	
-	def doConnect(self, evt):
+	def doConnect(self, evt=None):
 		if evt is not None: evt.Skip()
 		previousConnections = configuration.get_config()['connections']['last_connected']
 		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
 		dlg.panel.host.SetItems(list(reversed(previousConnections)))
 		dlg.panel.host.SetSelection(0)
-		def handle_dlg_complete(dlg_result):
+		def handleDialogCompletion(dlg_result):
 			if dlg_result != wx.ID_OK:
 				return
 			if dlg.client_or_server.GetSelection() == 0: #client
 				host = dlg.panel.host.GetValue()
-				server_addr, port = address_to_hostport(host)
+				serverAddr, port = addressToHostPort(host)
 				channel = dlg.getKey()
 				if dlg.connection_type.GetSelection() == 0:
-					self.connectAsMaster((server_addr, port), channel)
+					self.connectAsMaster((serverAddr, port), channel)
 				else:
-					self.connectAsSlave((server_addr, port), channel)
+					self.connectAsSlave((serverAddr, port), channel)
 			else: #We want a server
 				channel = dlg.getKey()
 				self.startControlServer(int(dlg.panel.port.GetValue()), channel)
@@ -272,7 +272,7 @@ class GlobalPlugin(_GlobalPlugin):
 					self.connectAsMaster(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
 				else:
 					self.connectAsSlave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
-		gui.runScriptModalDialog(dlg, callback=handle_dlg_complete)
+		gui.runScriptModalDialog(dlg, callback=handleDialogCompletion)
 
 	def onConnectedAsMaster(self):
 		configuration.write_connection_to_config(self.masterTransport.address)
@@ -293,10 +293,10 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def connectAsMaster(self, address, key, insecure=False):
 		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
-		self.masterSession = MasterSession(transport=transport, local_machine=self.localMachine)
-		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_master_failed)
+		self.masterSession = MasterSession(transport=transport, localMachine=self.localMachine)
+		transport.transportCertificateAuthenticationFailed.register(self.onMasterCertificateFailed)
 		transport.transportConnected.register(self.onConnectedAsMaster)
-		transport.transportConnectionFailed.register(self.on_connected_as_master_failed)
+		transport.transportConnectionFailed.register(self.onConnectAsMasterFailed)
 		transport.transportClosing.register(self.disconnectingAsMaster)
 		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
 		transport.reconnector_thread.start()
@@ -305,27 +305,27 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
-		self.slaveSession = SlaveSession(transport=transport, local_machine=self.localMachine)
-		self.sd_handler.slave_session = self.slaveSession
+		self.slaveSession = SlaveSession(transport=transport, localMachine=self.localMachine)
+		self.sdHandler.slave_session = self.slaveSession
 		self.slaveTransport = transport
-		transport.transportCertificateAuthenticationFailed.register(self.on_certificate_as_slave_failed)
+		transport.transportCertificateAuthenticationFailed.register(self.onSlaveCertificateFailed)
 		transport.transportConnected.register(self.on_connected_as_slave)
 		transport.reconnector_thread.start()
 		self.menu.disconnectItem.Enable(True)
 		self.menu.connectItem.Enable(False)
 
-	def handle_certificate_failed(self, transport):
+	def handleCertificateFailure(self, transport: RelayTransport):
 		self.last_fail_address = transport.address
 		self.last_fail_key = transport.channel
 		self.disconnect()
 		try:
-			cert_hash = transport.last_fail_fingerprint
+			cert_hash = transport.lastFailFingerprint
 
 			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
 			a = wnd.ShowModal()
 			if a == wx.ID_YES:
 				config = configuration.get_config()
-				config['trusted_certs'][hostport_to_address(self.last_fail_address)]=cert_hash
+				config['trusted_certs'][hostPortToAddress(self.last_fail_address)]=cert_hash
 				config.write()
 			if a == wx.ID_YES or a == wx.ID_NO: return True
 		except Exception as ex:
@@ -333,13 +333,13 @@ class GlobalPlugin(_GlobalPlugin):
 		return False
 
 	@alwaysCallAfter
-	def on_certificate_as_master_failed(self):
-		if self.handle_certificate_failed(self.masterTransport):
+	def onMasterCertificateFailed(self):
+		if self.handleCertificateFailure(self.masterTransport):
 			self.connectAsMaster(self.last_fail_address, self.last_fail_key, True)
 
 	@alwaysCallAfter
-	def on_certificate_as_slave_failed(self):
-		if self.handle_certificate_failed(self.slaveTransport):
+	def onSlaveCertificateFailed(self):
+		if self.handleCertificateFailure(self.slaveTransport):
 			self.connectAsSlave(self.last_fail_address, self.last_fail_key, True)
 
 	@alwaysCallAfter
@@ -425,27 +425,27 @@ class GlobalPlugin(_GlobalPlugin):
 			self.localMachine.receivingBraille=False
 
 	@alwaysCallAfter
-	def verifyConnect(self, con_info):
-		if self.is_connected() or self.connecting:
+	def verifyConnect(self, conInfo: ConnectionInfo):
+		if self.isConnected() or self.connecting:
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
 			return
 		self.connecting = True
-		server_addr = con_info.get_address()
-		key = con_info.key
-		if con_info.mode == 'master':
-			message = _("Do you wish to control the machine on server {server} with key {key}?").format(server=server_addr, key=key)
-		elif con_info.mode == 'slave':
-			message = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=server_addr, key=key)
-		if gui.messageBox(message, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
+		serverAddr = conInfo.getAddress()
+		key = conInfo.key
+		if conInfo.mode == 'master':
+			question = _("Do you wish to control the machine on server {server} with key {key}?").format(server=serverAddr, key=key)
+		elif conInfo.mode == 'slave':
+			question = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=serverAddr, key=key)
+		if gui.messageBox(question, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
 			self.connecting = False
 			return
-		if con_info.mode == 'master':
-			self.connectAsMaster((con_info.hostname, con_info.port), key=key)
-		elif con_info.mode == 'slave':
-			self.connectAsSlave((con_info.hostname, con_info.port), key=key)
+		if conInfo.mode == 'master':
+			self.connectAsMaster((conInfo.hostname, conInfo.port), key=key)
+		elif conInfo.mode == 'slave':
+			self.connectAsSlave((conInfo.hostname, conInfo.port), key=key)
 		self.connecting = False
 
-	def is_connected(self):
+	def isConnected(self):
 		connector = self.slaveTransport or self.masterTransport
 		if connector is not None:
 			return connector.connected

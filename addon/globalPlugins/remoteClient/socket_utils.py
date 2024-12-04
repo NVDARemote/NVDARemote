@@ -1,16 +1,16 @@
 import urllib.parse
 
-SERVER_PORT = 6837
+from .protocol import SERVER_PORT
 
-def address_to_hostport(addr):
+def addressToHostPort(addr):
 	"""Converts an address such as google.com:80 into a tuple of (address, port).
 	If no port is given, use SERVER_PORT."""
 	addr = urllib.parse.urlparse('//'+addr)
 	port = addr.port or SERVER_PORT
 	return (addr.hostname, port)
 
-def hostport_to_address(hostport):
-	host, port = hostport
+def hostPortToAddress(hostPort):
+	host, port = hostPort
 	if ':' in host:
 		host = '[' + host + ']'
 	if port != SERVER_PORT:
