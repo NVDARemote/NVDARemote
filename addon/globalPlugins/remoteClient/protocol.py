@@ -38,3 +38,7 @@ class RemoteMessageType(Enum):
     nvda_not_connected = "nvda_not_connected" # This was added in version 2 but never implemented on the server
 
 
+SERVER_PORT = 6837
+URL_PREFIX = 'nvdaremote://'
+
+

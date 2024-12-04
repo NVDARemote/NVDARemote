@@ -11,7 +11,7 @@ from logHandler import log
 
 from . import configuration, serializer, server, socket_utils, transport
 from .alwaysCallAfter import alwaysCallAfter
-from .protocol import RemoteMessageType
+from .protocol import RemoteMessageType, SERVER_PORT
 
 try:
 	addonHandler.initTranslation()
@@ -27,7 +27,7 @@ class ClientPanel(wx.Panel):
 	host: wx.ComboBox
 	key: wx.TextCtrl
 	generate_key: wx.Button
-	key_connector: Optional['transport.RelayTransport']
+	keyConnector: Optional['transport.RelayTransport']
 
 	def __init__(self, parent: Optional[wx.Window] = None, id: int = wx.ID_ANY):
 		super().__init__(parent, id)
@@ -55,24 +55,24 @@ class ClientPanel(wx.Panel):
 			self.generate_key_command()
 
 	def generate_key_command(self, insecure: bool = False) -> None:
-			address = socket_utils.address_to_hostport(self.host.GetValue())
-			self.key_connector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
-			self.key_connector.registerInbound(RemoteMessageType.generate_key, self.handle_key_generated)
-			self.key_connector.transportCertificateAuthenticationFailed.register(self.handle_certificate_failed)
-			t = threading.Thread(target=self.key_connector.run)
+			address = socket_utils.addressToHostPort(self.host.GetValue())
+			self.keyConnector = transport.RelayTransport(address=address, serializer=serializer.JSONSerializer(), insecure=insecure)
+			self.keyConnector.registerInbound(RemoteMessageType.generate_key, self.handle_key_generated)
+			self.keyConnector.transportCertificateAuthenticationFailed.register(self.handle_certificate_failed)
+			t = threading.Thread(target=self.keyConnector.run)
 			t.start()
 
 	@alwaysCallAfter
 	def handle_key_generated(self, key: Optional[str] = None) -> None:
 		self.key.SetValue(key)
 		self.key.SetFocus()
-		self.key_connector.close()
-		self.key_connector = None
+		self.keyConnector.close()
+		self.keyConnector = None
 
 	@alwaysCallAfter
 	def handle_certificate_failed(self) -> None:
 		try:
-			cert_hash = self.key_connector.last_fail_fingerprint
+			cert_hash = self.keyConnector.lastFailFingerprint
 				
 			wnd = CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
 			a = wnd.ShowModal()
@@ -84,8 +84,8 @@ class ClientPanel(wx.Panel):
 		except Exception as ex:
 			log.error(ex)
 			return
-		self.key_connector.close()
-		self.key_connector = None
+		self.keyConnector.close()
+		self.keyConnector = None
 		self.generate_key_command(True)
 
 class ServerPanel(wx.Panel):
@@ -108,7 +108,7 @@ class ServerPanel(wx.Panel):
 		sizer.Add(self.external_IP)
 		# Translators: The label of an edit field in connect dialog to enter the port the server will listen on.
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Port:")))
-		self.port = wx.TextCtrl(self, wx.ID_ANY, value=str(socket_utils.SERVER_PORT))
+		self.port = wx.TextCtrl(self, wx.ID_ANY, value=str(SERVER_PORT))
 		sizer.Add(self.port)
 		sizer.Add(wx.StaticText(self, wx.ID_ANY, label=_("&Key:")))
 		self.key = wx.TextCtrl(self, wx.ID_ANY)

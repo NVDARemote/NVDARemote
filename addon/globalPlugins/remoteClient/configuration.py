@@ -44,7 +44,7 @@ def write_connection_to_config(address):
 	If the address is already in the config, move it to the end."""
 	conf = get_config()
 	last_cons = conf['connections']['last_connected']
-	address = socket_utils.hostport_to_address(address)
+	address = socket_utils.hostPortToAddress(address)
 	if address in last_cons:
 		conf['connections']['last_connected'].remove(address)
 	conf['connections']['last_connected'].append(address)
