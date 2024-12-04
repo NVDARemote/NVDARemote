@@ -37,23 +37,29 @@ class ConnectionInfo:
 
 
 	def getAddress(self):
-		hostname = (self.hostname if ':' not in self.hostname else '[' + self.hostname + ']')
-		return '{hostname}:{port}'.format(hostname=hostname, port=self.port)
+		# Handle IPv6 addresses by adding brackets if needed
+		hostname = f'[{self.hostname}]' if ':' in self.hostname else self.hostname
+		return f'{hostname}:{self.port}'
+
+	def _build_url(self, mode):
+		# Build URL components
+		netloc = socket_utils.hostPortToAddress((self.hostname, self.port))
+		query = urlencode({'key': self.key, 'mode': mode})
+		
+		# Use urlunparse for proper URL construction
+		return urlparse.urlunparse((
+			'nvdaremote',  # scheme from URL_PREFIX
+			netloc,        # network location
+			'',           # path
+			'',           # params
+			query,        # query string
+			''            # fragment
+		))
 
 	def getURLToConnect(self):
-		result = URL_PREFIX + socket_utils.hostPortToAddress((self.hostname, self.port))
-		result += '?'
-		mode = self.mode
-		if mode == 'master':
-			mode = 'slave'
-		elif mode == 'slave':
-			mode = 'master'
-		result += urlencode(dict(key=self.key, mode=mode))
-		return result
+		# Flip master/slave for connection URL
+		connect_mode = 'slave' if self.mode == 'master' else 'master'
+		return self._build_url(connect_mode)
 
 	def getURL(self):
-		result = URL_PREFIX + socket_utils.hostPortToAddress((self.hostname, self.port))
-		result += '?'
-		mode = self.mode
-		result += urlencode(dict(key=self.key, mode=mode))
-		return result
+		return self._build_url(self.mode)
