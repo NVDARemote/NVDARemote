@@ -50,7 +50,7 @@ class Transport:
 	
 	Attributes:
 	    connected (bool): Connection state
-	    successful_connects (int): Connection attempt counter
+	    successfulConnects (int): Connection attempt counter
 	    connectedEvent (threading.Event): Set when connected
 	    serializer (Serializer): Message serializer
 	    inboundHandlers (Dict[RemoteMessageType, Callable]): Message handlers
@@ -139,11 +139,11 @@ class TCPTransport(Transport):
 	    insecure (bool): Skip cert verification
 	    address (Tuple[str, int]): Remote address
 	    timeout (int): Connection timeout
-	    server_sock (Optional[ssl.SSLSocket]): SSL socket
-	    server_sock_lock (threading.Lock): Socket access lock
+	    serverSock (Optional[ssl.SSLSocket]): SSL socket
+	    serverSockLock (threading.Lock): Socket access lock
 	    queue_thread (Optional[threading.Thread]): Outbound message thread
 	    reconnector_thread (ConnectorThread): Reconnection manager
-	    last_fail_fingerprint (Optional[str]): Last failed cert fingerprint
+	    lastFailFingerprint (Optional[str]): Last failed cert fingerprint
 	"""
 	buffer: bytes
 	closed: bool
