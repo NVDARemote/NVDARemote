@@ -48,7 +48,7 @@ class ConnectionInfo:
 		
 		# Use urlunparse for proper URL construction
 		return urlparse.urlunparse((
-			'nvdaremote',  # scheme from URL_PREFIX
+			URL_PREFIX.split('://')[0],  # scheme from URL_PREFIX
 			netloc,        # network location
 			'',           # path
 			'',           # params
