@@ -11,6 +11,7 @@ from logHandler import log
 
 from . import configuration, serializer, server, socket_utils, transport
 from .alwaysCallAfter import alwaysCallAfter
+from .connection_info import ConnectionInfo
 from .protocol import RemoteMessageType, SERVER_PORT
 
 try:
@@ -213,7 +214,28 @@ class DirectConnectDialog(wx.Dialog):
 
 	def getKey(self) -> str:
 		return self.panel.key.GetValue()
-
+	
+	def getConnectionInfo(self) -> ConnectionInfo:
+		if self.client_or_server.GetSelection() == 0:  # client
+			host = self.panel.host.GetValue()
+			serverAddr, port = socket_utils.addressToHostPort(host)
+			mode = 'master' if self.connection_type.GetSelection() == 0 else 'slave'
+			return ConnectionInfo(
+				hostname=serverAddr, 
+				mode=mode, 
+				key=self.getKey(), 
+				port=port
+			)
+		else:  # server
+			port = int(self.panel.port.GetValue())
+			mode = 'master' if self.connection_type.GetSelection() == 0 else 'slave'
+			return ConnectionInfo(
+				hostname='127.0.0.1',
+				mode=mode,
+				key=self.getKey(),
+				port=port
+			)
+	
 class CertificateUnauthorizedDialog(wx.MessageDialog):
 	def __init__(self, parent: Optional[wx.Window], fingerprint: Optional[str] = None):
 		# Translators: A title bar of a window presented when an attempt has been made to connect with a server with unauthorized certificate.
