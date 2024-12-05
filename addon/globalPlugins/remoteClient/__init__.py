@@ -246,7 +246,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def script_connect(self, gesture):
 		if self.isConnected() or self.connecting: return
 		self.doConnect(evt = None)
-	
+
 	def doConnect(self, evt=None):
 		if evt is not None: evt.Skip()
 		previousConnections = configuration.get_config()['connections']['last_connected']
@@ -254,24 +254,19 @@ class GlobalPlugin(_GlobalPlugin):
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
 		dlg.panel.host.SetItems(list(reversed(previousConnections)))
 		dlg.panel.host.SetSelection(0)
+		
 		def handleDialogCompletion(dlg_result):
 			if dlg_result != wx.ID_OK:
 				return
-			if dlg.client_or_server.GetSelection() == 0: #client
-				host = dlg.panel.host.GetValue()
-				serverAddr, port = addressToHostPort(host)
-				channel = dlg.getKey()
-				if dlg.connection_type.GetSelection() == 0:
-					self.connectAsMaster((serverAddr, port), channel)
-				else:
-					self.connectAsSlave((serverAddr, port), channel)
-			else: #We want a server
-				channel = dlg.getKey()
-				self.startControlServer(int(dlg.panel.port.GetValue()), channel)
-				if dlg.connection_type.GetSelection() == 0:
-					self.connectAsMaster(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
-				else:
-					self.connectAsSlave(('127.0.0.1', int(dlg.panel.port.GetValue())), channel, insecure=True)
+			connection_info = dlg.getConnectionInfo()
+			if dlg.client_or_server.GetSelection() == 1:  # server
+				self.startControlServer(connection_info.port, connection_info.key)
+			connect_method = self.connectAsMaster if connection_info.mode == 'master' else self.connectAsSlave
+			connect_method(
+				(connection_info.hostname, connection_info.port),
+				connection_info.key,
+				insecure=dlg.client_or_server.GetSelection() == 1
+			)
 		gui.runScriptModalDialog(dlg, callback=handleDialogCompletion)
 
 	def onConnectedAsMaster(self):
