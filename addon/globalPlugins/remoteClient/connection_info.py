@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from .protocol import SERVER_PORT, URL_PREFIX
 from . import socket_utils
@@ -63,7 +63,7 @@ class ConnectionInfo:
 		query = urlencode({'key': self.key, 'mode': mode if isinstance(mode, str) else mode.value})
 		
 		# Use urlunparse for proper URL construction
-		return urlparse.urlunparse((
+		return urlunparse((
 			URL_PREFIX.split('://')[0],  # scheme from URL_PREFIX
 			netloc,        # network location
 			'',           # path

@@ -5,7 +5,7 @@ from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
 
 
 from .alwaysCallAfter import alwaysCallAfter
-from .connection_info import ConnectionInfo
+from .connection_info import ConnectionInfo, ConnectionMode
 from .menu import RemoteMenu
 from .protocol import SERVER_PORT, RemoteMessageType
 from .secureDesktop import SecureDesktopHandler
@@ -116,18 +116,17 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def performAutoconnect(self):
 		controlServerConfig = configuration.get_config()['controlserver']
-		channel = controlServerConfig['key']
+		key  = controlServerConfig['key']
 		if controlServerConfig['self_hosted']:
 			port = controlServerConfig['port']
-			address = ('localhost',port)
-			self.startControlServer(port, channel)
+			hostname = 'localhost'
+			self.startControlServer(port, key )
 		else:
 			address = addressToHostPort(controlServerConfig['host'])
-		if controlServerConfig['connection_type']==0:
-			self.connectAsSlave(address, channel)
-		else:
-			self.connectAsMaster(address, channel)
-
+			hostname, port = address
+		mode = ConnectionMode.SLAVE if controlServerConfig['connection_type']==0 else ConnectionMode.MASTER
+		conInfo = ConnectionInfo(mode=mode, hostname=hostname, port=port, key=key)
+		self.connect(conInfo)
 
 	def terminate(self):
 		self.sdHandler.terminate()
@@ -190,6 +189,12 @@ class GlobalPlugin(_GlobalPlugin):
 	def sendSAS(self):
 		self.masterTransport.send(RemoteMessageType.send_SAS)
 
+	def connect(self, connectionInfo, insecure=False):
+		if connectionInfo.mode == ConnectionMode.MASTER:
+			self.connectAsMaster((connectionInfo.hostname, connectionInfo.port), connectionInfo.key, insecure)
+		elif connectionInfo.mode == ConnectionMode.SLAVE:
+			self.connectAsSlave((connectionInfo.hostname, connectionInfo.port), connectionInfo.key, insecure)
+
 	def disconnect(self):
 		if self.masterTransport is None and self.slaveTransport is None:
 			return
@@ -210,7 +215,6 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def disconnectingAsMaster(self):
 		if self.menu:
-			self.menu.muteItem.Check(False)
 			self.menu.handleConnected(False)
 		if self.localMachine:
 			self.localMachine.isMuted = False
@@ -258,15 +262,10 @@ class GlobalPlugin(_GlobalPlugin):
 		def handleDialogCompletion(dlg_result):
 			if dlg_result != wx.ID_OK:
 				return
-			connection_info = dlg.getConnectionInfo()
+			connectionInfo = dlg.getConnectionInfo()
 			if dlg.client_or_server.GetSelection() == 1:  # server
-				self.startControlServer(connection_info.port, connection_info.key)
-			connect_method = self.connectAsMaster if connection_info.mode == 'master' else self.connectAsSlave
-			connect_method(
-				(connection_info.hostname, connection_info.port),
-				connection_info.key,
-				insecure=dlg.client_or_server.GetSelection() == 1
-			)
+				self.startControlServer(connectionInfo.port, connectionInfo.key)
+			self.connect(connectionInfo=connectionInfo, insecure=dlg.client_or_server.GetSelection() == 1)
 		gui.runScriptModalDialog(dlg, callback=handleDialogCompletion)
 
 	def onConnectedAsMaster(self):
@@ -427,17 +426,14 @@ class GlobalPlugin(_GlobalPlugin):
 		self.connecting = True
 		serverAddr = conInfo.getAddress()
 		key = conInfo.key
-		if conInfo.mode == 'master':
+		if conInfo.mode == ConnectionMode.MASTER:
 			question = _("Do you wish to control the machine on server {server} with key {key}?").format(server=serverAddr, key=key)
-		elif conInfo.mode == 'slave':
+		elif conInfo.mode == ConnectionMode.SLAVE:
 			question = _("Do you wish to allow this machine to be controlled on server {server} with key {key}?").format(server=serverAddr, key=key)
 		if gui.messageBox(question, _("NVDA Remote Connection Request"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) != wx.YES:
 			self.connecting = False
 			return
-		if conInfo.mode == 'master':
-			self.connectAsMaster((conInfo.hostname, conInfo.port), key=key)
-		elif conInfo.mode == 'slave':
-			self.connectAsSlave((conInfo.hostname, conInfo.port), key=key)
+		self.connect(conInfo)
 		self.connecting = False
 
 	def isConnected(self):

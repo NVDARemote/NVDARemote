@@ -78,7 +78,7 @@ Please either use a different server or upgrade your version of the addon.""")
 class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
-	mode: str = 'slave'
+	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
 	patcher: nvda_patcher.NVDASlavePatcher
 	masters: Dict[int, Dict[str, Any]]
 	masterDisplaySizes: List[int]
@@ -218,7 +218,7 @@ class SlaveSession(RemoteSession):
 
 class MasterSession(RemoteSession):
 
-	mode: str = 'master'
+	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
 	patcher: nvda_patcher.NVDAMasterPatcher
 	slaves: Dict[int, Dict[str, Any]]
 	patchCallbacksAdded: bool

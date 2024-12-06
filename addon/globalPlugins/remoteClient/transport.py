@@ -509,10 +509,8 @@ class RelayTransport(TCPTransport):
 		self.transportConnected.register(self.onConnected)
 
 
-
 	def onConnected(self) -> None:
 		self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
-
 		if self.channel is not None:
 			self.send(RemoteMessageType.join, channel=self.channel, connection_type=self.connection_type)
 		else:
