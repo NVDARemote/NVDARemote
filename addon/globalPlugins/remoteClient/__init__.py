@@ -189,7 +189,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def sendSAS(self):
 		self.masterTransport.send(RemoteMessageType.send_SAS)
 
-	def connect(self, connectionInfo, insecure=False):
+	def connect(self, connectionInfo: ConnectionInfo, insecure=False):
 		if connectionInfo.mode == ConnectionMode.MASTER:
 			self.connectAsMaster((connectionInfo.hostname, connectionInfo.port), connectionInfo.key, insecure)
 		elif connectionInfo.mode == ConnectionMode.SLAVE:
