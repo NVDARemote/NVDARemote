@@ -1,8 +1,8 @@
+
 import hashlib
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, Union, Any, Callable
 from dataclasses import dataclass
-
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import addonHandler
 import braille
@@ -12,8 +12,8 @@ import ui
 import versionInfo
 from logHandler import log
 
-from . import configuration, connection_info, cues, local_machine, nvda_patcher
-
+from . import configuration, connection_info, cues, local_machine
+from .extensionMapper import RemoteExtensionMapper, MasterExtensionMapper, SlaveExtensionMapper
 from .protocol import RemoteMessageType
 from .transport import RelayTransport 
 
@@ -34,11 +34,11 @@ class RemoteSession:
 	transport: RelayTransport
 	localMachine: local_machine.LocalMachine
 	mode: Optional[str] = None
-	patcher: Optional[nvda_patcher.NVDAPatcher]
+	extensionMapper: Optional[RemoteExtensionMapper]
 
 	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
 		self.localMachine = localMachine
-		self.patcher = None
+		self.extensionMapper = None
 		self.transport = transport
 		self.transport.registerInbound(RemoteMessageType.version_mismatch, self.handleVersionMismatch)
 		self.transport.registerInbound(RemoteMessageType.motd, self.handleMotd)
@@ -79,10 +79,10 @@ class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
-	patcher: nvda_patcher.NVDASlavePatcher
+	extensionMapper: SlaveExtensionMapper
 	masters: Dict[int, Dict[str, Any]]
 	masterDisplaySizes: List[int]
-	patchCallbacksAdded: bool
+	extensionsRegistered: bool
 
 	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
 		super().__init__(localMachine, transport)
@@ -93,8 +93,8 @@ class SlaveSession(RemoteSession):
 		self.masterDisplaySizes = []
 		self.transport.registerInbound(RemoteMessageType.index, self.recvIndex)
 		self.transport.transportClosing.register(self.handleTransportClosing)
-		self.patcher = nvda_patcher.NVDASlavePatcher()
-		self.patchCallbacksAdded = False
+		self.extensionMapper = SlaveExtensionMapper(self.transport)
+		self.extensionsRegistered = False
 		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannelJoined)
 		self.transport.registerInbound(RemoteMessageType.set_clipboard_text, self.localMachine.setClipboardText)
 		self.transport.registerInbound(RemoteMessageType.set_braille_info, self.handleBrailleInfo)
@@ -105,10 +105,10 @@ class SlaveSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.send_SAS, self.localMachine.sendSAS)
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
-		self.patcher.patch()
-		if not self.patchCallbacksAdded:
-			self.addPatchCallbacks()
-			self.patchCallbacksAdded = True
+		self.extensionMapper.registerExtensionPoints()
+		if not self.extensionsRegistered:
+			self.addMapperCallbacks()
+			self.extensionsRegistered = True
 		cues.client_connected()
 		if client['connection_type'] == 'master':
 			self.masters[client['id']]['active'] = True
@@ -120,21 +120,21 @@ class SlaveSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleTransportClosing(self) -> None:
-		self.patcher.unpatch()
-		if self.patchCallbacksAdded:
-			self.removePatchCallbacks()
-			self.patchCallbacksAdded = False
+		self.extensionMapper.unregisterExtensionPoints()
+		if self.extensionsRegistered:
+			self.removeMapperCallbacks()
+			self.extensionsRegistered = False
 
 	def handleTransportDisconnected(self):
 		cues.client_connected()
-		self.patcher.unpatch()
+		self.extensionMapper.unregisterExtensionPoints()
 
 	def handleClientDisconnected(self, client=None):
 		cues.client_disconnected()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
 		if not self.masters:
-			self.patcher.unpatch()
+			self.extensionMapper.unregisterExtensionPoints()
 
 	def setDisplaySize(self, sizes=None):
 		self.masterDisplaySizes = sizes if sizes else [
@@ -148,26 +148,23 @@ class SlaveSession(RemoteSession):
 		self.masters[origin]['braille_numCells'] = numCells
 		self.setDisplaySize()
 
-	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
+	def _getMapperCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
 		return (
 			('speak', self.speak),
-				('beep', self.beep),
-				('wave', self.playWaveFile),
-				('cancel_speech', self.cancelSpeech),
-				('pause_speech', self.pauseSpeech),
-				('display', self.display),
-				('set_display', self.setDisplaySize)
+			('pause_speech', self.pauseSpeech),
+			('display', self.display),
+			('set_display', self.setDisplaySize)
 		)
 
-	def addPatchCallbacks(self) -> None:
-		patcher_callbacks = self._getPatcherCallbacks()
-		for event, callback in patcher_callbacks:
-			self.patcher.registerCallback(event, callback)
+	def addMapperCallbacks(self) -> None:
+		mapperCallbacks = self._getMapperCallbacks()
+		for event, callback in mapperCallbacks:
+			self.extensionMapper.registerCallback(event, callback)
 
-	def removePatchCallbacks(self):
-		patcher_callbacks = self._getPatcherCallbacks()
-		for event, callback in patcher_callbacks:
-			self.patcher.unregisterCallback(event, callback)
+	def removeMapperCallbacks(self):
+		mapperCallbacks = self._getMapperCallbacks()
+		for event, callback in mapperCallbacks:
+			self.extensionMapper.unregisterCallback(event, callback)
 
 	def _filterUnsupportedSpeechCommands(self, speechSequence: List[Any]) -> List[Any]:
 		return list([
@@ -176,33 +173,14 @@ class SlaveSession(RemoteSession):
 		])
 
 	def speak(self, speechSequence: List[Any], priority: Optional[str]) -> None:
-		self.transport.send(RemoteMessageType.speak,
-							sequence=self._filterUnsupportedSpeechCommands(
-								speechSequence),
-							priority=priority
-							)
-
-	def cancelSpeech(self):
-		self.transport.send(type=RemoteMessageType.cancel)
+		self.transport.send(
+			type=RemoteMessageType.speak,
+			sequence=self._filterUnsupportedSpeechCommands(speechSequence),
+			priority=priority
+		)
 
 	def pauseSpeech(self, switch):
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
-
-	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
-		self.transport.send(type=RemoteMessageType.tone, hz=hz,
-		                    length=length, left=left, right=right)
-
-	def playWaveFile(self, **kwargs):
-		"""This machine played a sound, send it to Master machine"""
-		kwargs.update({
-			# nvWave.playWaveFile should always be asynchronous when called from NVDA remote, so always send 'True'
-				# Version 2.2 requires 'async' keyword.
-				'async': True,
-				# Version 2.3 onwards. Not currently used, but matches arguments for nvWave.playWaveFile.
-				# Including it allows for forward compatibility if requirements change.
-				'asynchronous': True,
-		})
-		self.transport.send(type=RemoteMessageType.wave)
 
 	def display(self, cells):
 		# Only send braille data when there are controlling machines with a braille display
@@ -219,15 +197,15 @@ class SlaveSession(RemoteSession):
 class MasterSession(RemoteSession):
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
-	patcher: nvda_patcher.NVDAMasterPatcher
+	extensionMapper: MasterExtensionMapper
 	slaves: Dict[int, Dict[str, Any]]
-	patchCallbacksAdded: bool
+	extensionsRegistered: bool
 
 	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
 		super().__init__(localMachine, transport)
 		self.slaves = defaultdict(dict)
-		self.patcher = nvda_patcher.NVDAMasterPatcher()
-		self.patchCallbacksAdded = False
+		self.extensionMapper = MasterExtensionMapper(transport=self.transport)
+		self.extensionsRegistered = False
 		self.transport.registerInbound(RemoteMessageType.speak, self.localMachine.speak)
 		self.transport.registerInbound(RemoteMessageType.cancel, self.localMachine.cancelSpeech)
 		self.transport.registerInbound(RemoteMessageType.pause_speech, self.localMachine.pauseSpeech)
@@ -275,18 +253,18 @@ class MasterSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleClientConnected(self, client=None):
-		self.patcher.patch()
-		if not self.patchCallbacksAdded:
-			self.addPatchCallbacks()
-			self.patchCallbacksAdded = True
+		self.extensionMapper.registerExtensionPoints()
+		if not self.extensionsRegistered:
+			self.addMapperCallbacks()
+			self.extensionsRegistered = True
 		self.sendBrailleInfo()
 		cues.client_connected()
 
 	def handleClientDisconnected(self, client=None):
-		self.patcher.unpatch()
-		if self.patchCallbacksAdded:
-			self.removePatchCallbacks()
-			self.patchCallbacksAdded = False
+		self.extensionMapper.unregisterExtensionPoints()
+		if self.extensionsRegistered:
+			self.removeMapperCallbacks()
+			self.extensionsRegistered = False
 		cues.client_disconnected()
 
 	def sendBrailleInfo(self, display: Optional[Any] = None, displaySize: Optional[int] = None) -> None:
@@ -294,20 +272,19 @@ class MasterSession(RemoteSession):
 			display = braille.handler.display
 		if displaySize is None:
 			displaySize = braille.handler.displaySize
-		self.transport.send(type="set_braille_info",
+		self.transport.send(type=RemoteMessageType.set_braille_info,
 							name=display.name, numCells=displaySize)
 
 	def brailleInput(self) -> None:
 		self.transport.send(type=RemoteMessageType.braille_input)
 
-	def addPatchCallbacks(self):
-		patcher_callbacks = (('braille_input', self.brailleInput),
-							 ('set_display', self.sendBrailleInfo))
+	def addMapperCallbacks(self):
+		patcher_callbacks = (('braille_input', self.brailleInput), ('set_display', self.sendBrailleInfo))
 		for event, callback in patcher_callbacks:
-			self.patcher.registerCallback(event, callback)
+			self.extensionMapper.registerCallback(event, callback)
 
-	def removePatchCallbacks(self):
-		patcher_callbacks = (('braille_input', self.brailleInput),
+	def removeMapperCallbacks(self):
+		mapperCallbacks = (('braille_input', self.brailleInput),
 							 ('set_display', self.sendBrailleInfo))
-		for event, callback in patcher_callbacks:
-			self.patcher.unregisterCallback(event, callback)
+		for event, callback in mapperCallbacks:
+			self.extensionMapper.unregisterCallback(event, callback)

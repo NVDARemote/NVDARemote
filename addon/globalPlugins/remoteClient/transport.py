@@ -421,7 +421,7 @@ class TCPTransport(Transport):
 			except socket.error:
 				return
 
-	def send(self, type: str|Enum, **kwargs: Any) -> None:
+	def send(self, type: RemoteMessageType, **kwargs: Any) -> None:
 		"""Send a message through the transport.
 
 		Serializes and queues a message for transmission. Messages are sent
