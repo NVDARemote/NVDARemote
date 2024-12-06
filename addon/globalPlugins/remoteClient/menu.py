@@ -96,6 +96,8 @@ class RemoteMenu(wx.Menu):
 		self.connectItem.Enable(not connected)
 		self.disconnectItem.Enable(connected)
 		self.muteItem.Enable(connected)
+		if not connected:
+			self.muteItem.Check(False)
 		self.pushClipboardItem.Enable(connected)
 		self.copyLinkItem.Enable(connected)
 		self.sendCtrlAltDelItem.Enable(connected)
