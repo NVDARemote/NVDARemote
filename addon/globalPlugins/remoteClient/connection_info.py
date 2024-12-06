@@ -45,8 +45,10 @@ class ConnectionInfo:
 			raise URLParsingError("No key provided")
 		if not mode:
 			raise URLParsingError("No mode provided")
-		if mode not in ('master', 'slave'):
-			raise URLParsingError("Invalud mode provided: %r" % mode)
+		try:
+			ConnectionMode(mode)
+		except ValueError:
+			raise URLParsingError("Invalid mode provided: %r" % mode)
 		return cls(hostname=hostname, mode=mode, key=key, port=port)
 
 
@@ -58,7 +60,7 @@ class ConnectionInfo:
 	def _build_url(self, mode: ConnectionMode):
 		# Build URL components
 		netloc = socket_utils.hostPortToAddress((self.hostname, self.port))
-		query = urlencode({'key': self.key, 'mode': mode})
+		query = urlencode({'key': self.key, 'mode': mode if isinstance(mode, str) else mode.value})
 		
 		# Use urlunparse for proper URL construction
 		return urlparse.urlunparse((
@@ -72,8 +74,8 @@ class ConnectionInfo:
 
 	def getURLToConnect(self):
 		# Flip master/slave for connection URL
-		connect_mode = 'slave' if self.mode == 'master' else 'master'
-		return self._build_url(connect_mode)
+		connect_mode = ConnectionMode.SLAVE if self.mode == ConnectionMode.MASTER else ConnectionMode.MASTER
+		return self._build_url(connect_mode.value)
 
 	def getURL(self):
 		return self._build_url(self.mode)
