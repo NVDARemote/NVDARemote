@@ -12,7 +12,8 @@ import ui
 import versionInfo
 from logHandler import log
 
-from . import configuration, connection_info, cues, extensionMapper, local_machine
+from . import configuration, connection_info, cues, local_machine
+from .extensionMapper import RemoteExtensionMapper, MasterExtensionMapper, SlaveExtensionMapper
 from .protocol import RemoteMessageType
 from .transport import RelayTransport 
 
@@ -33,7 +34,7 @@ class RemoteSession:
 	transport: RelayTransport
 	localMachine: local_machine.LocalMachine
 	mode: Optional[str] = None
-	extensionMapper: Optional[extensionMapper.RemoteExtensionMapper]
+	extensionMapper: Optional[RemoteExtensionMapper]
 
 	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
 		self.localMachine = localMachine
@@ -78,7 +79,7 @@ class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
-	extensionMapper: extensionMapper.SlaveExtensionMapper
+	extensionMapper: SlaveExtensionMapper
 	masters: Dict[int, Dict[str, Any]]
 	masterDisplaySizes: List[int]
 	extensionsRegistered: bool
@@ -92,7 +93,7 @@ class SlaveSession(RemoteSession):
 		self.masterDisplaySizes = []
 		self.transport.registerInbound(RemoteMessageType.index, self.recvIndex)
 		self.transport.transportClosing.register(self.handleTransportClosing)
-		self.extensionMapper = extensionMapper.SlaveExtensionMapper(self.transport)
+		self.extensionMapper = SlaveExtensionMapper(self.transport)
 		self.extensionsRegistered = False
 		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannelJoined)
 		self.transport.registerInbound(RemoteMessageType.set_clipboard_text, self.localMachine.setClipboardText)
@@ -196,14 +197,14 @@ class SlaveSession(RemoteSession):
 class MasterSession(RemoteSession):
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
-	extensionMapper: extensionMapper.MasterExtensionMapper
+	extensionMapper: MasterExtensionMapper
 	slaves: Dict[int, Dict[str, Any]]
 	extensionsRegistered: bool
 
 	def __init__(self, localMachine: local_machine.LocalMachine, transport: RelayTransport) -> None:
 		super().__init__(localMachine, transport)
 		self.slaves = defaultdict(dict)
-		self.extensionMapper = extensionMapper.MasterExtensionMapper(transport=self.transport)
+		self.extensionMapper = MasterExtensionMapper(transport=self.transport)
 		self.extensionsRegistered = False
 		self.transport.registerInbound(RemoteMessageType.speak, self.localMachine.speak)
 		self.transport.registerInbound(RemoteMessageType.cancel, self.localMachine.cancelSpeech)
