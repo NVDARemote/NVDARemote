@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from .protocol import SERVER_PORT, URL_PREFIX
@@ -7,15 +8,28 @@ from . import socket_utils
 class URLParsingError(Exception):
 	"""Raised if it's impossible to parse out the URL"""
 
+
+class ConnectionMode(Enum):
+	MASTER = 'master'
+	SLAVE = 'slave'
+
+
+class ConnectionState(Enum):
+	CONNECTED = 'connected'
+	DISCONNECTED = 'disconnected'
+	CONNECTING = 'connecting'
+	DISCONNECTING = 'disconnecting'
+
 @dataclass
 class ConnectionInfo:
 	hostname: str
-	mode: str
+	mode: ConnectionMode
 	key: str
 	port: int = SERVER_PORT
 
 	def __post_init__(self):
 		self.port = self.port or SERVER_PORT
+		self.mode = ConnectionMode(self.mode)
 
 	@classmethod
 	def fromURL(cls, url):
@@ -41,7 +55,7 @@ class ConnectionInfo:
 		hostname = f'[{self.hostname}]' if ':' in self.hostname else self.hostname
 		return f'{hostname}:{self.port}'
 
-	def _build_url(self, mode):
+	def _build_url(self, mode: ConnectionMode):
 		# Build URL components
 		netloc = socket_utils.hostPortToAddress((self.hostname, self.port))
 		query = urlencode({'key': self.key, 'mode': mode})
