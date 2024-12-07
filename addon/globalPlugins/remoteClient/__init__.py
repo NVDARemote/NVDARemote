@@ -293,7 +293,7 @@ class GlobalPlugin(_GlobalPlugin):
 		transport.transportConnectionFailed.register(self.onConnectAsMasterFailed)
 		transport.transportClosing.register(self.disconnectingAsMaster)
 		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
-		transport.reconnector_thread.start()
+		transport.reconnectorThread.start()
 		self.masterTransport = transport
 
 
@@ -304,7 +304,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveTransport = transport
 		transport.transportCertificateAuthenticationFailed.register(self.onSlaveCertificateFailed)
 		transport.transportConnected.register(self.on_connected_as_slave)
-		transport.reconnector_thread.start()
+		transport.reconnectorThread.start()
 		self.menu.disconnectItem.Enable(True)
 		self.menu.connectItem.Enable(False)
 
@@ -441,4 +441,3 @@ class GlobalPlugin(_GlobalPlugin):
 		if connector is not None:
 			return connector.connected
 		return False
-

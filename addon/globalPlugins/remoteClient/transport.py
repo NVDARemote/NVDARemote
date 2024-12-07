@@ -199,10 +199,10 @@ class TCPTransport(Transport):
 	    insecure (bool): Whether to skip certificate verification
 	    address (Tuple[str, int]): Remote address to connect to
 	    timeout (int): Connection timeout in seconds
-	    server_sock (Optional[ssl.SSLSocket]): The SSL socket connection
-	    server_sock_lock (threading.Lock): Lock for thread-safe socket access
-	    queue_thread (Optional[threading.Thread]): Thread handling outbound messages
-	    reconnector_thread (ConnectorThread): Thread managing reconnection
+	    serverSock (Optional[ssl.SSLSocket]): The SSL socket connection
+	    serverSockLock (threading.Lock): Lock for thread-safe socket access
+	    queueThread (Optional[threading.Thread]): Thread handling outbound messages
+	    reconnectorThread (ConnectorThread): Thread managing reconnection
 	"""
 	buffer: bytes
 	closed: bool
@@ -211,9 +211,9 @@ class TCPTransport(Transport):
 	serverSockLock: threading.Lock
 	address: Tuple[str, int]
 	serverSock: Optional[ssl.SSLSocket]
-	queue_thread: Optional[threading.Thread]
+	queueThread: Optional[threading.Thread]
 	timeout: int
-	reconnector_thread: 'ConnectorThread'
+	reconnectorThread: 'ConnectorThread'
 	lastFailFingerprint: Optional[str]
 	
 	def __init__(self, serializer: Serializer, address: Tuple[str, int], timeout: int = 0, insecure: bool = False) -> None:
@@ -228,9 +228,9 @@ class TCPTransport(Transport):
 		# See https://bugs.python.org/issue41597#msg375692
 		# Guard access to the socket with a lock.
 		self.serverSockLock = threading.Lock()
-		self.queue_thread = None
+		self.queueThread = None
 		self.timeout = timeout
-		self.reconnector_thread = ConnectorThread(self)
+		self.reconnectorThread = ConnectorThread(self)
 		self.insecure=insecure
 
 	def run(self) -> None:
@@ -258,9 +258,9 @@ class TCPTransport(Transport):
 			self.transportConnectionFailed.notify()
 			raise
 		self.onTransportConnected()
-		self.queue_thread = threading.Thread(target=self.send_queue)
-		self.queue_thread.daemon = True
-		self.queue_thread.start()
+		self.queueThread = threading.Thread(target=self.send_queue)
+		self.queueThread.daemon = True
+		self.queueThread.start()
 		while self.serverSock is not None:
 			try:
 				readers, writers, error = select.select([self.serverSock], [], [self.serverSock])
@@ -450,10 +450,10 @@ class TCPTransport(Transport):
 			explicitly to shut down the transport.
 		"""
 		"""Disconnect the transport due to an error, without closing the connector thread."""
-		if self.queue_thread is not None:
+		if self.queueThread is not None:
 			self.queue.put(None)
-			self.queue_thread.join()
-			self.queue_thread = None
+			self.queueThread.join()
+			self.queueThread = None
 		clear_queue(self.queue)
 		if self.serverSock:
 			self.serverSock.close()
@@ -462,10 +462,10 @@ class TCPTransport(Transport):
 	def close(self):
 		"""Close the transport."""
 		self.transportClosing.notify()
-		self.reconnector_thread.running = False
+		self.reconnectorThread.running = False
 		self._disconnect()
 		self.closed = True
-		self.reconnector_thread = ConnectorThread(self)
+		self.reconnectorThread = ConnectorThread(self)
 
 class RelayTransport(TCPTransport):
 	"""Transport for connecting through a relay server.
