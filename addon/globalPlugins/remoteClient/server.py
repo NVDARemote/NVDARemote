@@ -1,15 +1,14 @@
-from enum import Enum
 import logging
-from .protocol import RemoteMessageType
-from .serializer import JSONSerializer
-
 import os
 import socket
 import ssl
-import sys
 import time
+from enum import Enum
 from select import select
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
+
+from .protocol import RemoteMessageType
+from .serializer import JSONSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +130,7 @@ class Client:
 			# [2] https://docs.python.org/3.7/library/socket.html#socket.socket.recv
 			buffSize = 16384
 			sock_Data = self.socket.recv(buffSize)
-		except:
+		except Exception:
 			self.close()
 			return
 		if not sock_Data:  # Disconnect
@@ -212,7 +211,7 @@ class Client:
 		try:
 			data = self.serializer.serialize(type=type, **msg)
 			self.socket.sendall(data)
-		except:
+		except Exception:
 			self.close()
 
 	def send_to_others(self, origin: Optional[int] = None, **obj: Any) -> None:
