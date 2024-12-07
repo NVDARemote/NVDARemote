@@ -1,7 +1,7 @@
 import json
 import random
 import threading
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 from urllib import request
 
 import addonHandler
@@ -12,7 +12,7 @@ from logHandler import log
 from . import configuration, serializer, server, socket_utils, transport
 from .alwaysCallAfter import alwaysCallAfter
 from .connection_info import ConnectionInfo, ConnectionMode
-from .protocol import RemoteMessageType, SERVER_PORT
+from .protocol import SERVER_PORT, RemoteMessageType
 
 try:
 	addonHandler.initTranslation()
