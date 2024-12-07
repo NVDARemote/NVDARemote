@@ -220,6 +220,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveSession = None
 		self.sdHandler.slave_session = None
 
+	@alwaysCallAfter
 	def onConnectAsMasterFailed(self):
 		if self.masterTransport.successfulConnects == 0:
 			self.disconnectAsMaster()
@@ -230,23 +231,24 @@ class GlobalPlugin(_GlobalPlugin):
 
 	@script(gesture="kb:alt+NVDA+pageDown", description=_("""Disconnect a remote session"""))
 	def script_disconnect(self, gesture):
-		if self.masterTransport is None and self.slaveTransport is None:
+		if not self.isConnected:
 			ui.message(_("Not connected."))
 			return
 		self.disconnect()
 
 	@script(gesture="kb:alt+NVDA+pageUp", description=_("""Connect to a remote computer"""))
 	def script_connect(self, gesture):
-		if self.isConnected() or self.connecting: return
+		if self.isConnected() or self.connecting:
+			return
 		self.doConnect(evt = None)
 
 	def doConnect(self, evt=None):
-		if evt is not None: evt.Skip()
+		if evt is not None:
+			evt.Skip()
 		previousConnections = configuration.get_config()['connections']['last_connected']
+		hostnames = list(reversed(previousConnections))
 		# Translators: Title of the connect dialog.
-		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
-		dlg.panel.host.SetItems(list(reversed(previousConnections)))
-		dlg.panel.host.SetSelection(0)
+		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"), hostnames=hostnames)
 		
 		def handleDialogCompletion(dlg_result):
 			if dlg_result != wx.ID_OK:

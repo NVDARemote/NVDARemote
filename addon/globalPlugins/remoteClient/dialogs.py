@@ -1,7 +1,7 @@
 import json
 import random
 import threading
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from urllib import request
 
 import addonHandler
@@ -170,7 +170,7 @@ class DirectConnectDialog(wx.Dialog):
 	panel: Union[ClientPanel, ServerPanel]
 	main_sizer: wx.BoxSizer
 
-	def __init__(self, parent: wx.Window, id: int, title: str):
+	def __init__(self, parent: wx.Window, id: int, title: str, hostnames: Optional[List[str]] = None):
 		super().__init__(parent, id, title=title)
 		main_sizer = self.main_sizer = wx.BoxSizer(wx.VERTICAL)
 		self.client_or_server = wx.RadioBox(self, wx.ID_ANY, choices=(_("Client"), _("Server")), style=wx.RA_VERTICAL)
@@ -192,6 +192,9 @@ class DirectConnectDialog(wx.Dialog):
 		ok = wx.FindWindowById(wx.ID_OK, self)
 		ok.Bind(wx.EVT_BUTTON, self.onOk)
 		self.client_or_server.SetFocus()
+		if hostnames:
+			self.panel.host.AppendItems(hostnames)
+			self.panel.host.SetSelection(0)
 
 	def onClientOrServer(self, evt: wx.CommandEvent) -> None:
 		evt.Skip()
