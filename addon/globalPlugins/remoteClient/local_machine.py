@@ -1,7 +1,7 @@
-from typing import List, Optional, Union, Sequence, Any, Dict
 import ctypes
-import os
 import logging
+import os
+from typing import Any, Dict, List, Optional 
 
 import api
 import braille
@@ -10,8 +10,8 @@ import nvwave
 import speech
 import tones
 import wx
-from speech.types import SpeechSequence
 from speech.priorities import Spri
+from speech.types import SpeechSequence
 
 from . import cues, input
 
@@ -20,7 +20,6 @@ try:
 except ModuleNotFoundError:
     from config import hasUiAccess
 
-import logging
 
 import ui
 
