@@ -31,11 +31,10 @@ from .secureDesktop import SecureDesktopHandler
 from .session import MasterSession, SlaveSession
 from .settings_panel import RemoteSettingsPanel
 from .transport import RelayTransport
-
+from logHandler import log
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:
-	from logHandler import log
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
@@ -49,8 +48,6 @@ logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
 # Type aliases
 KeyModifier = Tuple[int, bool]  # (vk_code, extended)
 Address = Tuple[str, int]  # (hostname, port) 
-
-logger = logging.getLogger(__name__)
 
 
 
