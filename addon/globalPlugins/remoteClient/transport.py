@@ -258,7 +258,7 @@ class TCPTransport(Transport):
 			self.transportConnectionFailed.notify()
 			raise
 		self.onTransportConnected()
-		self.queueThread = threading.Thread(target=self.send_queue)
+		self.queueThread = threading.Thread(target=self.sendQueue)
 		self.queueThread.daemon = True
 		self.queueThread.start()
 		while self.serverSock is not None:
@@ -272,7 +272,7 @@ class TCPTransport(Transport):
 				break
 			if self.serverSock in readers:
 				try:
-					self.handle_server_data()
+					self.processIncomingSocketData()
 				except socket.error:
 					self.buffer = b''
 					break
@@ -299,17 +299,17 @@ class TCPTransport(Transport):
 			The socket is created but not yet connected. Call connect() separately.
 		"""
 		address = socket.getaddrinfo(host, port)[0]
-		server_sock = socket.socket(*address[:3])
+		serverSock = socket.socket(*address[:3])
 		if self.timeout:
-			server_sock.settimeout(self.timeout)
-		server_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-		server_sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, 60000, 2000))
+			serverSock.settimeout(self.timeout)
+		serverSock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+		serverSock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, 60000, 2000))
 		ctx = (ssl.SSLContext())
 		if insecure: ctx.verify_mode = ssl.CERT_NONE
 		ctx.check_hostname = not insecure
 		ctx.load_default_certs()
-		server_sock = ctx.wrap_socket(sock=server_sock, server_hostname=host)
-		return server_sock
+		serverSock = ctx.wrap_socket(sock=serverSock, server_hostname=host)
+		return serverSock
 
 	def getpeercert(self, binary_form: bool = False) -> Optional[Union[Dict[str, Any], bytes]]:
 		"""Get the certificate from the peer.
@@ -324,10 +324,11 @@ class TCPTransport(Transport):
 			Optional[Union[Dict[str, Any], bytes]]: The peer's certificate, or None if not connected.
 				Format depends on binary_form parameter.
 		"""
-		if self.serverSock is None: return None
+		if self.serverSock is None:
+			return None
 		return self.serverSock.getpeercert(binary_form)
 
-	def handle_server_data(self) -> None:
+	def processIncomingSocketData(self) -> None:
 		"""Process incoming data from the server socket.
 
 		Reads available data from the socket, buffers partial messages,
@@ -401,7 +402,7 @@ class TCPTransport(Transport):
 			return
 		wx.CallAfter(extensionPoint.notify, **obj)
 
-	def send_queue(self) -> None:
+	def sendQueue(self) -> None:
 		"""Background thread that processes the outbound message queue.
 
 		Continuously pulls messages from the queue and sends them over the socket.
@@ -409,7 +410,7 @@ class TCPTransport(Transport):
 
 		Note:
 			This method runs in a separate thread and handles thread-safe socket access
-			using the server_sock_lock.
+			using the serverSockLock.
 		"""
 		while True:
 			item = self.queue.get()
@@ -435,8 +436,8 @@ class TCPTransport(Transport):
 			This method is thread-safe and can be called from any thread.
 			If the transport is not connected, the message will be silently dropped.
 		"""
-		obj = self.serializer.serialize(type=type, **kwargs)
 		if self.connected:
+			obj = self.serializer.serialize(type=type, **kwargs)
 			self.queue.put(obj)
 
 	def _disconnect(self) -> None:
