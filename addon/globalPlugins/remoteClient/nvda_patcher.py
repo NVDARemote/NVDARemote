@@ -1,13 +1,13 @@
-from typing import Any, Dict, List, Optional, Union, Type
+from typing import Any, List, Optional, Union
+
 import braille
 import brailleInput
 import inputCore
 import nvwave
 import scriptHandler
 import speech
-from speech.extensions import speechCanceled
 import tones
-import versionInfo
+from speech.extensions import speechCanceled
 
 from . import callback_manager
 
