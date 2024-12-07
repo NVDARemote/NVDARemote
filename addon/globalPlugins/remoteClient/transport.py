@@ -533,11 +533,11 @@ class ConnectorThread(threading.Thread):
 	"""
 	running: bool
 	connector: Transport
-	connect_delay: int
+	reconnectDelay: int
 
-	def __init__(self, connector: Transport, connect_delay: int = 5) -> None:
+	def __init__(self, connector: Transport, reconnectDelay: int = 5) -> None:
 		super().__init__()
-		self.connect_delay = connect_delay
+		self.reconnectDelay = reconnectDelay
 		self.running = True
 		self.connector = connector
 		self.name = self.name + "_connector_loop"
@@ -548,10 +548,10 @@ class ConnectorThread(threading.Thread):
 			try:
 				self.connector.run()
 			except socket.error:
-				time.sleep(self.connect_delay)
+				time.sleep(self.reconnectDelay)
 				continue
 			else:
-				time.sleep(self.connect_delay)
+				time.sleep(self.reconnectDelay)
 		log.info("Ending control connector thread %s" % self.name)
 
 def clear_queue(queue: Queue[Optional[bytes]]) -> None:
