@@ -10,6 +10,7 @@ import addonHandler
 import api
 import braille
 import configobj
+import core
 import globalVars
 import gui
 import queueHandler
@@ -89,7 +90,6 @@ class GlobalPlugin(_GlobalPlugin):
 		except configobj.ParseError:
 			os.remove(os.path.abspath(os.path.join(globalVars.appArgs.configPath, configuration.CONFIG_FILE_NAME)))
 			queueHandler.queueFunction(queueHandler.eventQueue, wx.CallAfter, wx.MessageBox, _("Your NVDA Remote configuration was corrupted and has been reset."), _("NVDA Remote Configuration Error"), wx.OK|wx.ICON_EXCLAMATION)
-		controlServerConfig = configuration.get_config()['controlserver']
 		if not globalVars.appArgs.secure:
 			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(RemoteSettingsPanel)
 		self.sdHandler = SecureDesktopHandler()
@@ -98,11 +98,13 @@ class GlobalPlugin(_GlobalPlugin):
 			if connection:
 				self.connectAsSlave(connection.address, connection.channel, insecure=True)
 				self.slaveSession.transport.connectedEvent.wait(self.sdHandler.SD_CONNECT_BLOCK_TIMEOUT)
-		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
-			self.performAutoconnect()
+		core.postNvdaStartup.register(self.performAutoconnect)
 
 	def performAutoconnect(self):
 		controlServerConfig = configuration.get_config()['controlserver']
+		if not controlServerConfig['autoconnect'] or self.masterSession or self.slaveSession:
+			log.debug("Autoconnect disabled or already connected")
+			return
 		key  = controlServerConfig['key']
 		if controlServerConfig['self_hosted']:
 			port = controlServerConfig['port']
