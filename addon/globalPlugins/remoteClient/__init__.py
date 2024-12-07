@@ -1,30 +1,10 @@
-import logging
-
-from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
-
-
-
-from .alwaysCallAfter import alwaysCallAfter
-from .connection_info import ConnectionInfo, ConnectionMode
-from .menu import RemoteMenu
-from .protocol import SERVER_PORT, RemoteMessageType
-from .secureDesktop import SecureDesktopHandler
-
-# Type aliases
-KeyModifier = Tuple[int, bool]  # (vk_code, extended)
-Address = Tuple[str, int]  # (hostname, port) 
-
-logger = logging.getLogger(__name__)
-
 import ctypes
 import ctypes.wintypes
-import json
+import logging
 import os
-import socket
-import ssl
 import sys
 import threading
-import uuid
+from typing import Callable, Optional, Set, Tuple
 
 import addonHandler
 import api
@@ -32,7 +12,7 @@ import braille
 import configobj
 import globalVars
 import gui
-import IAccessibleHandler
+import queueHandler
 import speech
 import ui
 import wx
@@ -43,9 +23,14 @@ from scriptHandler import script
 from utils.security import isRunningOnSecureDesktop
 
 from . import configuration, cues, local_machine, serializer, url_handler
+from .alwaysCallAfter import alwaysCallAfter
+from .connection_info import ConnectionInfo, ConnectionMode
+from .menu import RemoteMenu
+from .protocol import RemoteMessageType
+from .secureDesktop import SecureDesktopHandler
 from .session import MasterSession, SlaveSession
-from .transport import RelayTransport
 from .settings_panel import RemoteSettingsPanel
+from .transport import RelayTransport
 
 try:
 	addonHandler.initTranslation()
@@ -56,13 +41,18 @@ except addonHandler.AddonError:
 	)
 from winUser import WM_QUIT  # provided by NVDA
 
-from . import bridge, dialogs, keyboard_hook, server
+from . import dialogs, keyboard_hook, server
 from .socket_utils import addressToHostPort, hostPortToAddress
 
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
-import queueHandler
-import shlobj
-from logHandler import log
+
+# Type aliases
+KeyModifier = Tuple[int, bool]  # (vk_code, extended)
+Address = Tuple[str, int]  # (hostname, port) 
+
+logger = logging.getLogger(__name__)
+
+
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory: str = _("NVDA Remote")
