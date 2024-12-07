@@ -402,10 +402,10 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def setReceivingBraille(self, state):
 		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
-			self.masterSession.patcher.patchBrailleInput()
+			self.masterSession.patcher.registerBrailleInput()
 			self.localMachine.receivingBraille=True
 		elif not state:
-			self.masterSession.patcher.unpatchBrailleInput()
+			self.masterSession.patcher.unregisterBrailleInput()
 			self.localMachine.receivingBraille=False
 
 	@alwaysCallAfter

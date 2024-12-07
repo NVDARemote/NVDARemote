@@ -105,7 +105,7 @@ class SlaveSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.send_SAS, self.localMachine.sendSAS)
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
-		self.patcher.patch()
+		self.patcher.register()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
 			self.patchCallbacksAdded = True
@@ -120,21 +120,21 @@ class SlaveSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleTransportClosing(self) -> None:
-		self.patcher.unpatch()
+		self.patcher.unregister()
 		if self.patchCallbacksAdded:
 			self.removePatchCallbacks()
 			self.patchCallbacksAdded = False
 
 	def handleTransportDisconnected(self):
 		cues.client_connected()
-		self.patcher.unpatch()
+		self.patcher.unregister()
 
 	def handleClientDisconnected(self, client=None):
 		cues.client_disconnected()
 		if client['connection_type'] == 'master':
 			del self.masters[client['id']]
 		if not self.masters:
-			self.patcher.unpatch()
+			self.patcher.unregister()
 
 	def setDisplaySize(self, sizes=None):
 		self.masterDisplaySizes = sizes if sizes else [
@@ -275,7 +275,7 @@ class MasterSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleClientConnected(self, client=None):
-		self.patcher.patch()
+		self.patcher.register()
 		if not self.patchCallbacksAdded:
 			self.addPatchCallbacks()
 			self.patchCallbacksAdded = True
@@ -283,7 +283,7 @@ class MasterSession(RemoteSession):
 		cues.client_connected()
 
 	def handleClientDisconnected(self, client=None):
-		self.patcher.unpatch()
+		self.patcher.unregister()
 		if self.patchCallbacksAdded:
 			self.removePatchCallbacks()
 			self.patchCallbacksAdded = False
