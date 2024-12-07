@@ -43,8 +43,8 @@ def get_config():
 			val = validate.Validator()
 			_config.validate(val, copy=True)
 			# Save the config spec to NVDA's config
-			nvdaConf.spec[configRoot] = _config.configspec.copy()
-			nvdaConf[configRoot] = _config.copy()
+			nvdaConf.spec[configRoot] = _config.configspec.dict()
+			nvdaConf[configRoot] = _config.dict()
 			save_config()
 			# os.remove(path)
 	_config = nvdaConf[configRoot]
