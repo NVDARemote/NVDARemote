@@ -1,22 +1,21 @@
-from dataclasses import dataclass
 import json
 import socket
 import ssl
 import threading
 import uuid
-from typing import Optional, Tuple, Any
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
 import shlobj
-
-from pathlib import Path
 from logHandler import log
 from winAPI.secureDesktop import post_secureDesktopStateChange
 
 from . import bridge, server
 from .protocol import RemoteMessageType
-from .transport import RelayTransport
-from .session import SlaveSession
 from .serializer import JSONSerializer
+from .session import SlaveSession
+from .transport import RelayTransport
 
 
 def get_program_data_temp_path() -> Path:
