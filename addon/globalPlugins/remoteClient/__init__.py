@@ -310,7 +310,7 @@ class GlobalPlugin(_GlobalPlugin):
 			if a == wx.ID_YES:
 				config = configuration.get_config()
 				config['trusted_certs'][hostPortToAddress(self.last_fail_address)]=cert_hash
-				config.write()
+				configuration.save_config()
 			if a == wx.ID_YES or a == wx.ID_NO: return True
 		except Exception as ex:
 			log.error(ex)
