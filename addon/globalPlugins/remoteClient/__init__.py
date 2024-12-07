@@ -283,7 +283,6 @@ class GlobalPlugin(_GlobalPlugin):
 		transport.reconnectorThread.start()
 		self.masterTransport = transport
 
-
 	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, localMachine=self.localMachine)
