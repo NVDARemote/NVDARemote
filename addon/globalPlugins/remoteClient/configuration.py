@@ -13,6 +13,29 @@ nvdaConf.BASE_ONLY_SECTIONS.add(configRoot)
 CONFIG_FILE_NAME = 'remote.ini'
 
 _config = None
+configspec2 = {
+	'connections': {
+		'last_connected': 'list(default=list())'
+	}, 
+	'controlserver': {
+		'autoconnect': 'boolean(default=False)',
+		'self_hosted': 'boolean(default=False)',
+		'connection_type': 'integer(default=0)', 
+		'host': 'string(default="")', 
+		'port': 'integer(default=6837)', 
+		'key': 'string(default="")'
+	},
+	'seen_motds': {
+		'__many__': 'string(default="")'
+	}, 
+	'trusted_certs': {
+		'__many__': 'string(default="")'
+	}, 
+	'ui': {
+		'play_sounds': 'boolean(default=True)'
+	}
+}
+
 configspec = StringIO("""
 [connections]
 	last_connected = list(default=list())
@@ -34,19 +57,20 @@ configspec = StringIO("""
 	play_sounds = boolean(default=True)
 """)
 
+
 def get_config():
 	global _config
 	if not _config:
+		# Save the config spec to NVDA's config
+		nvdaConf.spec[configRoot] = configspec2
 		path = os.path.abspath(os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME))
 		if os.path.exists(path):
 			_config = configobj.ConfigObj(infile=path, configspec=configspec, create_empty=True)
 			val = validate.Validator()
 			_config.validate(val, copy=True)
-			# Save the config spec to NVDA's config
-			nvdaConf.spec[configRoot] = _config.configspec.dict()
 			nvdaConf[configRoot] = _config.dict()
-			save_config()
-			# os.remove(path)
+			os.remove(path)
+		save_config()
 	_config = nvdaConf[configRoot]
 	return _config
 
