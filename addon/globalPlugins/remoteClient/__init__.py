@@ -94,7 +94,7 @@ class GlobalPlugin(_GlobalPlugin):
 			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(RemoteSettingsPanel)
 		self.sdHandler = SecureDesktopHandler()
 		if isRunningOnSecureDesktop():
-			connection = self.sdHandler.initialize_secure_desktop()
+			connection = self.sdHandler.initializeSecureDesktop()
 			if connection:
 				self.connectAsSlave(connection.address, connection.channel, insecure=True)
 				self.slaveSession.transport.connectedEvent.wait(self.sdHandler.SD_CONNECT_BLOCK_TIMEOUT)
@@ -218,7 +218,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveTransport.close()
 		self.slaveTransport = None
 		self.slaveSession = None
-		self.sdHandler.slave_session = None
+		self.sdHandler.slaveSession = None
 
 	@alwaysCallAfter
 	def onConnectAsMasterFailed(self):
@@ -290,7 +290,7 @@ class GlobalPlugin(_GlobalPlugin):
 	def connectAsSlave(self, address, key, insecure=False):
 		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, localMachine=self.localMachine)
-		self.sdHandler.slave_session = self.slaveSession
+		self.sdHandler.slaveSession = self.slaveSession
 		self.slaveTransport = transport
 		transport.transportCertificateAuthenticationFailed.register(self.onSlaveCertificateFailed)
 		transport.transportConnected.register(self.on_connected_as_slave)
