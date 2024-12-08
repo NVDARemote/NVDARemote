@@ -250,8 +250,8 @@ class GlobalPlugin(_GlobalPlugin):
 		# Translators: Title of the connect dialog.
 		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"), hostnames=hostnames)
 		
-		def handleDialogCompletion(dlg_result):
-			if dlg_result != wx.ID_OK:
+		def handleDialogCompletion(dlgResult):
+			if dlgResult != wx.ID_OK:
 				return
 			connectionInfo = dlg.getConnectionInfo()
 			if dlg.client_or_server.GetSelection() == 1:  # server
@@ -277,7 +277,7 @@ class GlobalPlugin(_GlobalPlugin):
 		ui.message(_("Connection interrupted"))
 
 	def connectAsMaster(self, address, key, insecure=False):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
+		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connectionType='master', insecure=insecure)
 		self.masterSession = MasterSession(transport=transport, localMachine=self.localMachine)
 		transport.transportCertificateAuthenticationFailed.register(self.onMasterCertificateFailed)
 		transport.transportConnected.register(self.onConnectedAsMaster)
@@ -288,28 +288,28 @@ class GlobalPlugin(_GlobalPlugin):
 		self.masterTransport = transport
 
 	def connectAsSlave(self, address, key, insecure=False):
-		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
+		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connectionType='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, localMachine=self.localMachine)
 		self.sdHandler.slaveSession = self.slaveSession
 		self.slaveTransport = transport
 		transport.transportCertificateAuthenticationFailed.register(self.onSlaveCertificateFailed)
-		transport.transportConnected.register(self.on_connected_as_slave)
+		transport.transportConnected.register(self.onConnectedAsSlave)
 		transport.reconnectorThread.start()
 		self.menu.disconnectItem.Enable(True)
 		self.menu.connectItem.Enable(False)
 
 	def handleCertificateFailure(self, transport: RelayTransport):
-		self.last_fail_address = transport.address
-		self.last_fail_key = transport.channel
+		self.lastFailAddress = transport.address
+		self.lastFailKey = transport.channel
 		self.disconnect()
 		try:
-			cert_hash = transport.lastFailFingerprint
+			certHash = transport.lastFailFingerprint
 
-			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
+			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=certHash)
 			a = wnd.ShowModal()
 			if a == wx.ID_YES:
 				config = configuration.get_config()
-				config['trusted_certs'][hostPortToAddress(self.last_fail_address)]=cert_hash
+				config['trusted_certs'][hostPortToAddress(self.lastFailAddress)]=certHash
 				config.write()
 			if a == wx.ID_YES or a == wx.ID_NO: return True
 		except Exception as ex:
@@ -319,15 +319,15 @@ class GlobalPlugin(_GlobalPlugin):
 	@alwaysCallAfter
 	def onMasterCertificateFailed(self):
 		if self.handleCertificateFailure(self.masterTransport):
-			self.connectAsMaster(self.last_fail_address, self.last_fail_key, True)
+			self.connectAsMaster(self.lastFailAddress, self.lastFailKey, True)
 
 	@alwaysCallAfter
 	def onSlaveCertificateFailed(self):
 		if self.handleCertificateFailure(self.slaveTransport):
-			self.connectAsSlave(self.last_fail_address, self.last_fail_key, True)
+			self.connectAsSlave(self.lastFailAddress, self.lastFailKey, True)
 
 	@alwaysCallAfter
-	def on_connected_as_slave(self):
+	def onConnectedAsSlave(self):
 		log.info("Control connector connected")
 		cues.control_server_connected()
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
@@ -336,8 +336,8 @@ class GlobalPlugin(_GlobalPlugin):
 		self.menu.copyLinkItem.Enable(True)
 		configuration.write_connection_to_config(self.slaveTransport.address)
 
-	def startControlServer(self, server_port, channel):
-		self.localControlServer = server.LocalRelayServer(server_port, channel)
+	def startControlServer(self, serverPort, channel):
+		self.localControlServer = server.LocalRelayServer(serverPort, channel)
 		serverThread = threading.Thread(target=self.localControlServer.run)
 		serverThread.daemon = True
 		serverThread.start()

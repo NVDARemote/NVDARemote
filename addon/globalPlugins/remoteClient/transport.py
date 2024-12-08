@@ -243,14 +243,14 @@ class TCPTransport(Transport):
     def run(self) -> None:
         self.closed = False
         try:
-            self.serverSock = self.create_outbound_socket(
+            self.serverSock = self.createOutboundSocket(
                 *self.address, insecure=self.insecure
             )
             self.serverSock.connect(self.address)
         except ssl.SSLCertVerificationError:
             fingerprint = None
             try:
-                tmp_con = self.create_outbound_socket(*self.address, insecure=True)
+                tmp_con = self.createOutboundSocket(*self.address, insecure=True)
                 tmp_con.connect(self.address)
                 certBin = tmp_con.getpeercert(True)
                 tmp_con.close()
@@ -297,7 +297,7 @@ class TCPTransport(Transport):
         self.transportDisconnected.notify()
         self._disconnect()
 
-    def create_outbound_socket(
+    def createOutboundSocket(
         self, host: str, port: int, insecure: bool = False
     ) -> ssl.SSLSocket:
         """Create and configure an SSL socket for outbound connections.
@@ -478,7 +478,7 @@ class TCPTransport(Transport):
             self.queue.put(None)
             self.queueThread.join()
             self.queueThread = None
-        clear_queue(self.queue)
+        clearQueue(self.queue)
         if self.serverSock:
             self.serverSock.close()
             self.serverSock = None
@@ -503,18 +503,18 @@ class RelayTransport(TCPTransport):
         address (Tuple[str, int]): Relay server address
         timeout (int, optional): Connection timeout. Defaults to 0.
         channel (Optional[str], optional): Channel to join. Defaults to None.
-        connection_type (Optional[str], optional): Connection type. Defaults to None.
+        connectionType (Optional[str], optional): Connection type. Defaults to None.
         protocol_version (int, optional): Protocol version. Defaults to PROTOCOL_VERSION.
         insecure (bool, optional): Skip certificate verification. Defaults to False.
 
     Attributes:
         channel (Optional[str]): Relay channel name
-        connection_type (Optional[str]): Type of relay connection
+        connectionType (Optional[str]): Type of relay connection
         protocol_version (int): Protocol version to use
     """
 
     channel: Optional[str]
-    connection_type: Optional[str]
+    connectionType: Optional[str]
     protocol_version: int
 
     def __init__(
@@ -523,7 +523,7 @@ class RelayTransport(TCPTransport):
         address: Tuple[str, int],
         timeout: int = 0,
         channel: Optional[str] = None,
-        connection_type: Optional[str] = None,
+        connectionType: Optional[str] = None,
         protocol_version: int = PROTOCOL_VERSION,
         insecure: bool = False,
     ) -> None:
@@ -532,7 +532,7 @@ class RelayTransport(TCPTransport):
         )
         log.info("Connecting to %s channel %s" % (address, channel))
         self.channel = channel
-        self.connection_type = connection_type
+        self.connectionType = connectionType
         self.protocol_version = protocol_version
         self.transportConnected.register(self.onConnected)
 
@@ -542,7 +542,7 @@ class RelayTransport(TCPTransport):
             self.send(
                 RemoteMessageType.join,
                 channel=self.channel,
-                connection_type=self.connection_type,
+                connection_type=self.connectionType,
             )
         else:
             self.send(RemoteMessageType.generate_key)
@@ -556,12 +556,12 @@ class ConnectorThread(threading.Thread):
 
     Args:
         connector (Transport): Transport instance to manage connections for
-        connect_delay (int, optional): Seconds between attempts. Defaults to 5.
+        reconnectDelay (int, optional): Seconds between attempts. Defaults to 5.
 
     Attributes:
         running (bool): Whether thread should continue running
         connector (Transport): Transport to manage connections for
-        connect_delay (int): Seconds to wait between connection attempts
+        reconnectDelay (int): Seconds to wait between connection attempts
     """
 
     running: bool
@@ -588,7 +588,7 @@ class ConnectorThread(threading.Thread):
         log.info("Ending control connector thread %s" % self.name)
 
 
-def clear_queue(queue: Queue[Optional[bytes]]) -> None:
+def clearQueue(queue: Queue[Optional[bytes]]) -> None:
     """Empty all items from a queue without blocking.
 
     Removes all items from the queue in a non-blocking way,
