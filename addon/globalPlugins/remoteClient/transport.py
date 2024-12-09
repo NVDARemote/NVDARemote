@@ -30,7 +30,7 @@ from logging import getLogger
 from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 
-from attr import dataclass
+from dataclasses import dataclass
 import wx
 from extensionPoints import Action, HandlerRegistrar
 
