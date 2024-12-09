@@ -53,9 +53,10 @@ class RemoteExtensionPoint:
         if self.filter:
             kwargs = self.filter(*args, **kwargs)
         self.transport.send(self.messageType, **kwargs)
+        return True
 
-        def register(self, ttransport: "Transport"):
-            self.transport = ttransport
+        def register(self, transport: "Transport"):
+            self.transport = transport
             self.extensionPoint.register(self.remoteBridge)
 
         def unregister(self):

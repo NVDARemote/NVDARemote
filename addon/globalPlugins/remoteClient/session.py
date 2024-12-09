@@ -232,24 +232,11 @@ class MasterSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.cancel, self.localMachine.cancelSpeech)
 		self.transport.registerInbound(RemoteMessageType.pause_speech, self.localMachine.pauseSpeech)
 		self.transport.registerInbound(RemoteMessageType.tone, self.localMachine.beep)
-		self.transport.registerInbound(RemoteMessageType.wave, self.handlePlayWave)
+		self.transport.registerInbound(RemoteMessageType.wave, self.localMachine.playWave)
 		self.transport.registerInbound(RemoteMessageType.display, self.localMachine.display)
 		self.transport.registerInbound(RemoteMessageType.nvda_not_connected, self.handleNVDANotConnected)
 		self.transport.registerInbound(RemoteMessageType.channel_joined, self.handleChannel_joined)
 		self.transport.registerInbound(RemoteMessageType.set_braille_info, self.sendBrailleInfo)
-
-	def handlePlayWave(self, **kwargs):
-		"""Receive instruction to play a 'wave' from the slave machine
-		This method handles translation (between versions of NVDA Remote) of arguments required for 'msg_wave'
-		"""
-		# Note:
-		# Version 2.2 will send only 'async' in kwargs
-		# Version 2.3 will send 'asynchronous' and 'async' in kwargs
-		if "fileName" not in kwargs:
-			log.error("'fileName' missing from kwargs.")
-			return
-		fileName = kwargs.pop("fileName")
-		self.localMachine.playWave(fileName=fileName)
 
 	def handleNVDANotConnected(self) -> None:
 		speech.cancelSpeech()
