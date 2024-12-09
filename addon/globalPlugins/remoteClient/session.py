@@ -7,6 +7,7 @@ import addonHandler
 import braille
 import gui
 import speech
+import tones
 import ui
 from logHandler import log
 
@@ -47,14 +48,13 @@ class RemoteSession:
 		self.transport.registerInbound(RemoteMessageType.client_joined, self.handleClientConnected)
 		self.transport.registerInbound(RemoteMessageType.client_left, self.handleClientDisconnected)
 
-
-	def addPatchCallbacks(self) -> None:
+	def registerCallbacks(self) -> None:
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.registerCallback(event, callback)
 		self.patchCallbacksAdded = True
 
-	def removePatchCallbacks(self):
+	def unregisterCallbacks(self):
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.unregisterCallback(event, callback)
@@ -89,12 +89,11 @@ Please either use a different server or upgrade your version of the addon.""")
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
 		self.patcher.register()
 		if not self.patchCallbacksAdded:
-			self.addPatchCallbacks()
+			self.registerCallbacks()
 		cues.client_connected()
 
 	def handleClientDisconnected(self, client=None):
 		cues.client_disconnected()
-
 
 	def getConnectionInfo(self) -> connection_info.ConnectionInfo:
 		hostname, port = self.transport.address
@@ -124,6 +123,14 @@ class SlaveSession(RemoteSession):
 		self.transport.registerInbound(RemoteMessageType.braille_input, self.localMachine.brailleInput)
 		self.transport.registerInbound(RemoteMessageType.send_SAS, self.localMachine.sendSAS)
 
+	def registerCallbacks(self) -> None:
+		super().registerCallbacks()
+		self.transport.registerOutbound(tones.decide_beep, RemoteMessageType.tone)
+
+	def unregisterCallbacks(self) -> None:
+		super().unregisterCallbacks()
+		self.transport.unregisterOutbound(tones.decide_beep)
+		
 	def handleClientConnected(self, client: Dict[str, Any]) -> None:
 		super().handleClientConnected(client)
 		if client['connection_type'] == 'master':
@@ -138,7 +145,7 @@ class SlaveSession(RemoteSession):
 	def handleTransportClosing(self) -> None:
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
-			self.removePatchCallbacks()
+			self.unregisterCallbacks()
 
 	def handleTransportDisconnected(self):
 		cues.client_connected()
@@ -256,7 +263,7 @@ class MasterSession(RemoteSession):
 		super().handleClientDisconnected(client)
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
-			self.removePatchCallbacks()
+			self.unregisterCallbacks()
 
 	def sendBrailleInfo(self, display: Optional[Any] = None, displaySize: Optional[int] = None) -> None:
 		if display is None:
