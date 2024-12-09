@@ -6,10 +6,12 @@ from typing import Dict, List, Optional, Tuple, Any, Callable
 import addonHandler
 import braille
 import gui
+import nvwave
 import speech
 import tones
 import ui
 from logHandler import log
+from speech.extensions import speechCanceled
 
 from . import configuration, connection_info, cues, local_machine, nvda_patcher
 
@@ -126,11 +128,15 @@ class SlaveSession(RemoteSession):
 	def registerCallbacks(self) -> None:
 		super().registerCallbacks()
 		self.transport.registerOutbound(tones.decide_beep, RemoteMessageType.tone)
+		self.transport.registerOutbound(speechCanceled, RemoteMessageType.cancel)
+		self.transport.registerOutbound(nvwave.decide_playWaveFile, RemoteMessageType.wave)
 
 	def unregisterCallbacks(self) -> None:
 		super().unregisterCallbacks()
-		self.transport.unregisterOutbound(tones.decide_beep)
-		
+		self.transport.unregisterOutbound(RemoteMessageType.tone)
+		self.transport.unregisterOutbound(RemoteMessageType.cancel)
+		self.transport.unregisterOutbound(RemoteMessageType.wave)
+
 	def handleClientConnected(self, client: Dict[str, Any]) -> None:
 		super().handleClientConnected(client)
 		if client['connection_type'] == 'master':
