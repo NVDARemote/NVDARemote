@@ -30,8 +30,9 @@ from logging import getLogger
 from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 
+from attr import dataclass
 import wx
-from extensionPoints import Action
+from extensionPoints import Action, HandlerRegistrar
 
 from . import configuration
 from .protocol import PROTOCOL_VERSION, RemoteMessageType
@@ -39,6 +40,26 @@ from .serializer import Serializer
 from .socket_utils import hostPortToAddress
 
 log = getLogger("transport")
+
+
+@dataclass
+class RemoteExtensionPoint:
+    extensionPoint: HandlerRegistrar = None
+    messageType: RemoteMessageType = None
+    filter: Optional[Callable] = None
+    transport: "Transport" = None
+
+    def remoteBridge(self, *args, **kwargs):
+        if self.filter:
+            kwargs = self.filter(*args, **kwargs)
+        self.transport.send(self.messageType, **kwargs)
+
+        def register(self, ttransport: "Transport"):
+            self.transport = ttransport
+            self.extensionPoint.register(self.remoteBridge)
+
+        def unregister(self):
+            self.extensionPoint.unregister(self.remoteBridge)
 
 
 class Transport:
@@ -101,6 +122,7 @@ class Transport:
         self.inboundHandlers: Dict[RemoteMessageType, Callable] = {
             msg: Action() for msg in RemoteMessageType
         }
+        self.outboundHandlers: Dict[RemoteMessageType, RemoteExtensionPoint] = {}
         self.transportConnected = Action()
         """
 		Notifies when the transport is connected
@@ -177,6 +199,35 @@ class Transport:
                 Must pass the exact same handler function that was previously registered
         """
         self.inboundHandlers[type].unregister(handler)
+
+    def registerOutbound(
+        self,
+        extensionPoint: HandlerRegistrar,
+        messageType: RemoteMessageType,
+        filter: Optional[Callable] = None,
+    ):
+        """Register an extension point to a message type.
+
+        Args:
+            extensionPoint (HandlerRegistrar): The extension point to register
+            messageType (RemoteMessageType): The message type to register the extension point to
+            filter (Optional[Callable], optional): A filter function to apply to the message before sending. Defaults to None.
+        """
+        remoteExtension = RemoteExtensionPoint(
+            extensionPoint=extensionPoint, messageType=messageType, filter=filter
+        )
+        remoteExtension.register(self)
+        self.outboundHandlers[messageType] = remoteExtension
+
+    def unregisterOutbound(self, messageType: RemoteMessageType):
+        """Unregister an extension point from a message type.
+
+        Args:
+            messageType (RemoteMessageType): The message type to unregister the extension point from
+        """
+        self.outboundHandlers[messageType].unregister()
+        del self.outboundHandlers[messageType]
+
 
 
 class TCPTransport(Transport):
