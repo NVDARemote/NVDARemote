@@ -6,7 +6,6 @@ import inputCore
 import nvwave
 import scriptHandler
 import speech
-import tones
 from speech.extensions import speechCanceled
 
 from . import callback_manager
@@ -36,7 +35,7 @@ class NVDAPatcher(callback_manager.CallbackManager):
 		self.callCallbacks('set_display', displaySize=displaySize)
 
 class NVDASlavePatcher(NVDAPatcher):
-	"""Class to manage patching of synth, tones, nvwave, and braille."""
+	"""Class to manage patching of synth, nvwave, and braille."""
 
 	def __init__(self) -> None:
 		super().__init__()
@@ -51,9 +50,6 @@ class NVDASlavePatcher(NVDAPatcher):
 		speechCanceled.register(self.cancel)
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
-
-	def registerTones(self) -> None:
-		tones.decide_beep.register(self.handle_decide_beep)
 
 	def registerNvwave(self) -> None:
 		nvwave.decide_playWaveFile.register(self.handle_decide_playWaveFile)
@@ -70,9 +66,6 @@ class NVDASlavePatcher(NVDAPatcher):
 		speech.pauseSpeech = self.orig_pauseSpeech
 		self.orig_pauseSpeech = None
 
-	def unregisterTones(self):
-		tones.decide_beep.unregister(self.handle_decide_beep)
-
 	def unregisterNvwave(self):
 		nvwave.decide_playWaveFile.unregister(self.handle_decide_playWaveFile)
 
@@ -81,13 +74,11 @@ class NVDASlavePatcher(NVDAPatcher):
 
 	def register(self):
 		self.patchSpeech()
-		self.registerTones()
 		self.registerNvwave()
 		self.registerBraille()
 
 	def unregister(self):
 		self.unpatchSpeech()
-		self.unregisterTones()
 		self.unregisterNvwave()
 		self.unregisterBraille()
 
