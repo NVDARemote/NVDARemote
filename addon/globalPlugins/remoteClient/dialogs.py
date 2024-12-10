@@ -80,7 +80,7 @@ class ClientPanel(wx.Panel):
 			if a == wx.ID_YES:
 				config = configuration.get_config()
 				config['trusted_certs'][self.host.GetValue()]=cert_hash
-				config.write()
+				configuration.save_config()
 			if a != wx.ID_YES and a != wx.ID_NO: return
 		except Exception as ex:
 			log.error(ex)
