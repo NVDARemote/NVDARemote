@@ -1,10 +1,11 @@
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 import braille
 import brailleInput
 import inputCore
 import scriptHandler
 import speech
+
 from . import callback_manager
 
 
@@ -46,9 +47,6 @@ class NVDASlavePatcher(NVDAPatcher):
 		speech._manager.speak = self.speak
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
-	
-	def registerBraille(self) -> None:
-		braille.pre_writeCells.register(self.handle_pre_writeCells)
 
 	def unpatchSpeech(self):
 		if self.origSpeak  is None:
@@ -58,16 +56,11 @@ class NVDASlavePatcher(NVDAPatcher):
 		speech.pauseSpeech = self.orig_pauseSpeech
 		self.orig_pauseSpeech = None
 
-	def unregisterBraille(self):
-		braille.pre_writeCells.unregister(self.handle_pre_writeCells)
-
 	def register(self):
 		self.patchSpeech()
-		self.registerBraille()
 
 	def unregister(self):
 		self.unpatchSpeech()
-		self.unregisterBraille()
 
 	def speak(self, speechSequence: Any, priority: Any) -> None:
 		self.callCallbacks('speak', speechSequence=speechSequence, priority=priority)
@@ -76,10 +69,7 @@ class NVDASlavePatcher(NVDAPatcher):
 	def pauseSpeech(self, switch: bool) -> None:
 		self.callCallbacks('pause_speech', switch=switch)
 		self.orig_pauseSpeech(switch)
-
-	def handle_pre_writeCells(self, cells: List[int]) -> None:
-		self.callCallbacks('display', cells=cells)
-
+		
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""
 
