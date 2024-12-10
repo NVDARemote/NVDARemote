@@ -10,7 +10,6 @@ import nvwave
 import speech
 import tones
 import ui
-from logHandler import log
 from speech.extensions import speechCanceled
 
 from . import configuration, connection_info, cues, local_machine, nvda_patcher
@@ -86,9 +85,8 @@ Please either use a different server or upgrade your version of the addon.""")
 
 	def shouldDisplayMotd(self, motd: str) -> bool:
 		conf = configuration.get_config()
-		host, port = self.transport.address
-		host = host.lower()
-		address = "{host}:{port}".format(host=host, port=port)
+		connection = self.getConnectionInfo()
+		address = "{host}:{port}".format(host=connection.host, port=connection.port)
 		motdBytes = motd.encode("utf-8", errors="surrogatepass")
 		hashed = hashlib.sha1(motdBytes).hexdigest()
 		current = conf["seen_motds"].get(address, "")
@@ -156,6 +154,7 @@ class SlaveSession(RemoteSession):
 		self.transport.registerOutbound(
 			nvwave.decide_playWaveFile, RemoteMessageType.wave
 		)
+		braille.pre_writeCells.register(self.display)
 
 	def unregisterCallbacks(self) -> None:
 		super().unregisterCallbacks()
@@ -219,7 +218,6 @@ class SlaveSession(RemoteSession):
 		return (
 			("speak", self.speak),
 			("pause_speech", self.pauseSpeech),
-			("display", self.display),
 			("set_display", self.setDisplaySize),
 		)
 
@@ -242,7 +240,7 @@ class SlaveSession(RemoteSession):
 	def pauseSpeech(self, switch):
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
-	def display(self, cells):
+	def display(self, cells: List[int]=None):
 		# Only send braille data when there are controlling machines with a braille display
 		if self.hasBrailleMasters():
 			self.transport.send(type=RemoteMessageType.display, cells=cells)
