@@ -1,3 +1,18 @@
+"""
+URL Handler Module for NVDARemote
+This module provides functionality for launching NVDARemote connections via custom 'nvdaremote://' URLs.
+
+Key Components:
+- URLHandlerWindow: A custom window class that intercepts and processes NVDARemote URLs
+- URL registration and unregistration utilities for Windows registry
+- Parsing and handling of NVDARemote connection URLs
+
+Main Functions:
+- register_url_handler(): Registers the NVDARemote URL protocol in the Windows Registry
+- unregister_url_handler(): Removes the NVDARemote URL protocol registration
+- url_handler_path(): Returns the path to the URL handler executable
+"""
+
 import os
 import winreg
 
@@ -62,8 +77,6 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 		log.info("Connection info: %r" % con_info)
 		if callable(self.callback):
 			wx.CallLater(50, self.callback, con_info)
-
-
 
 def _create_registry_structure(key_handle, data):
     """Creates a nested registry structure from a dictionary.
