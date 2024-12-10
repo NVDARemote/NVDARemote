@@ -4,12 +4,16 @@ from io import StringIO
 import configobj
 import globalVars
 from configobj import validate
-
+from config import conf as nvdaConf
 from . import socket_utils
 
+configRoot = "Remote"
+# Ensure this config is only in base sections, not sub profiles
+#nvdaConf.BASE_ONLY_SECTIONS.add(configRoot)
 CONFIG_FILE_NAME = 'remote.ini'
 
 _config = None
+
 configspec = StringIO("""
 [connections]
 	last_connected = list(default=list())
@@ -30,14 +34,28 @@ configspec = StringIO("""
 [ui]
 	play_sounds = boolean(default=True)
 """)
+
 def get_config():
 	global _config
 	if not _config:
 		path = os.path.abspath(os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME))
-		_config = configobj.ConfigObj(infile=path, configspec=configspec, create_empty=True)
-		val = validate.Validator()
-		_config.validate(val, copy=True)
+		if os.path.isfile(path):
+			_config = configobj.ConfigObj(infile=path, configspec=configspec)
+			nvdaConf.spec[configRoot] = _config.configspec.dict()
+			save_config()
+			nvdaConf[configRoot] = _config.dict()
+			save_config()
+			os.remove(path)
+		else:
+			_config = configobj.ConfigObj(configspec=configspec)
+			nvdaConf.spec[configRoot] = _config.configspec.dict()
+			save_config()
+	_config = nvdaConf[configRoot]
 	return _config
+
+def save_config():
+	nvdaConf.save()
+	return True
 
 def write_connection_to_config(address):
 	"""Writes an address to the last connected section of the config.
@@ -48,4 +66,4 @@ def write_connection_to_config(address):
 	if address in last_cons:
 		conf['connections']['last_connected'].remove(address)
 	conf['connections']['last_connected'].append(address)
-	conf.write()
+	save_config()

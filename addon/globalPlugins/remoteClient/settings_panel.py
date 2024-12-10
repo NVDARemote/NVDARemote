@@ -84,7 +84,7 @@ class RemoteSettingsPanel(SettingsPanel):
 	def on_delete_fingerprints(self, evt: wx.CommandEvent) -> None:
 		if gui.messageBox(_("When connecting to an unauthorized server, you will again be prompted to accepts its certificate."), _("Are you sure you want to delete all stored trusted fingerprints?"), wx.YES|wx.NO|wx.NO_DEFAULT|wx.ICON_WARNING) == wx.YES:
 			self.config['trusted_certs'].clear()
-			self.config.write()
+			configuration.save_config()
 		evt.Skip()
 
 	def isValid(self) -> bool:
@@ -110,7 +110,7 @@ class RemoteSettingsPanel(SettingsPanel):
 			cs['port'] = int(self.port.GetValue())
 		cs['key'] = self.key.GetValue()
 		self.config['ui']['play_sounds'] = self.play_sounds.GetValue()
-		self.config.write()
+		configuration.save_config()
 
 	def onSave(self):
 		self.write_to_config()
