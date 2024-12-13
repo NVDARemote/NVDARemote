@@ -78,7 +78,7 @@ class GlobalPlugin(_GlobalPlugin):
 		self.masterSession = None
 		self.menu: RemoteMenu = RemoteMenu(self)
 		self.connecting = False
-		self.URLHandlerWindow = url_handler.URLHandlerWindow(callback=self.verifyConnect)
+		self.URLHandlerWindow = url_handler.URLHandlerWindow(callback=self.verifyAndConnect)
 		url_handler.register_url_handler()
 		self.masterTransport = None
 		self.slaveTransport = None
@@ -146,15 +146,6 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def pushClipboard(self):
 		connector = self.slaveTransport or self.masterTransport
-		try:
-			connector.send(RemoteMessageType.set_clipboard_text, text=api.getClipData())
-			cues.clipboard_pushed()
-		except TypeError:
-			log.exception("Unable to push clipboard")
-
-	@script(gesture="kb:control+shift+NVDA+c", description=_("Sends the contents of the clipboard to the remote machine"))
-	def script_push_clipboard(self, gesture):
-		connector = self.slaveTransport or self.masterTransport
 		if not getattr(connector,'connected',False):
 			ui.message(_("Not connected."))
 			return
@@ -163,7 +154,11 @@ class GlobalPlugin(_GlobalPlugin):
 			cues.clipboard_pushed()
 			ui.message(_("Clipboard pushed"))
 		except TypeError:
-			ui.message(_("Unable to push clipboard"))
+			log.exception("Unable to push clipboard")
+
+	@script(gesture="kb:control+shift+NVDA+c", description=_("Sends the contents of the clipboard to the remote machine"))
+	def script_push_clipboard(self, gesture):
+		self.pushClipboard()
 
 	def copyLink(self):
 		session = self.masterSession or self.slaveSession
@@ -409,7 +404,7 @@ class GlobalPlugin(_GlobalPlugin):
 			self.localMachine.receivingBraille=False
 
 	@alwaysCallAfter
-	def verifyConnect(self, conInfo: ConnectionInfo):
+	def verifyAndConnect(self, conInfo: ConnectionInfo):
 		if self.isConnected() or self.connecting:
 			gui.messageBox(_("NVDA Remote is already connected. Disconnect before opening a new connection."), _("NVDA Remote Already Connected"), wx.OK|wx.ICON_WARNING)
 			return
