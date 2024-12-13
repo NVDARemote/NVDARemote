@@ -44,23 +44,46 @@ log = getLogger("transport")
 
 @dataclass
 class RemoteExtensionPoint:
-    extensionPoint: HandlerRegistrar = None
-    messageType: RemoteMessageType = None
-    filter: Optional[Callable] = None
-    transport: "Transport" = None
+    """Bridges local extension points to remote message sending.
+    
+    This class connects local NVDA extension points to the remote transport layer,
+    allowing local events to trigger remote messages with optional argument transformation.
+    
+    Args:
+        extensionPoint: The NVDA extension point to bridge
+        messageType: The remote message type to send
+        filter: Optional function to transform arguments before sending
+        transport: The transport instance (set on registration)
+        
+    The filter function, if provided, should take (*args, **kwargs) and return
+    a new kwargs dict to be sent in the message.
+    """
+    extensionPoint: HandlerRegistrar
+    messageType: RemoteMessageType  
+    filter: Optional[Callable[..., Dict[str, Any]]] = None
+    transport: Optional["Transport"] = None
 
-    def remoteBridge(self, *args, **kwargs):
+    def remoteBridge(self, *args: Any, **kwargs: Any) -> bool:
+        """Bridge function that gets registered to the extension point.
+        
+        Handles calling the filter if present and sending the message.
+        Always returns True to allow other handlers to process the event.
+        """
         if self.filter:
+            # Filter should transform args/kwargs into just the kwargs needed for the message
             kwargs = self.filter(*args, **kwargs)
-        self.transport.send(self.messageType, **kwargs)
+        if self.transport:
+            self.transport.send(self.messageType, **kwargs)
         return True
 
-        def register(self, transport: "Transport"):
-            self.transport = transport
-            self.extensionPoint.register(self.remoteBridge)
+    def register(self, transport: "Transport") -> None:
+        """Register this bridge with a transport and the extension point."""
+        self.transport = transport
+        self.extensionPoint.register(self.remoteBridge)
 
-        def unregister(self):
-            self.extensionPoint.unregister(self.remoteBridge)
+    def unregister(self) -> None:
+        """Unregister this bridge from the extension point."""
+        self.extensionPoint.unregister(self.remoteBridge)
 
 
 class Transport:
