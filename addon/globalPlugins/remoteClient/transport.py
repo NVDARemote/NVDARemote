@@ -352,15 +352,22 @@ class TCPTransport(Transport):
     def processIncomingSocketData(self) -> None:
         """Process incoming data from the server socket.
 
-        Reads available data from the socket, buffers partial messages,
-        and processes complete messages by passing them to parse().
+        Reads available data from the socket in chunks, handling both complete and partial
+        messages. Messages must be newline-delimited. Any incomplete message (without a newline)
+        is stored in self.buffer until the rest arrives in subsequent reads.
 
-        Messages are expected to be newline-delimited.
-        Partial messages are stored in self.buffer until complete.
+        The method:
+        1. Reads up to 16KB of data using non-blocking socket operations
+        2. Combines with any previously buffered partial data
+        3. Splits on newlines to get complete messages
+        4. Processes each complete message through parse()
+        5. Stores any remaining partial message in buffer
 
         Note:
-                This method handles SSL-specific socket behavior and non-blocking reads.
-                It is called when select() indicates data is available.
+            This method handles SSL-specific socket behavior and non-blocking reads.
+            It is called when select() indicates data is available on the socket.
+            Socket access is protected by serverSockLock for thread safety.
+            An empty read indicates connection loss and triggers disconnect.
         """
         # This approach may be problematic:
         # See also server.py handle_data in class Client.
