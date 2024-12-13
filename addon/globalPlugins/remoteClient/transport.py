@@ -490,8 +490,21 @@ class TCPTransport(Transport):
             self.serverSock.close()
             self.serverSock = None
 
-    def close(self):
-        """Close the transport."""
+    def close(self) -> None:
+        """Close the transport and clean up resources.
+
+        Performs orderly shutdown of the transport:
+        1. Notifies listeners that transport is closing
+        2. Stops the reconnector thread
+        3. Disconnects any active connection
+        4. Marks transport as closed
+        5. Resets reconnector thread
+
+        Note:
+            This is the proper way to shut down a transport.
+            Unlike _disconnect() which handles connection errors,
+            this method ensures complete cleanup of all resources.
+        """
         self.transportClosing.notify()
         self.reconnectorThread.running = False
         self._disconnect()
@@ -544,6 +557,16 @@ class RelayTransport(TCPTransport):
         self.transportConnected.register(self.onConnected)
 
     def onConnected(self) -> None:
+        """Handle successful connection to relay server.
+
+        Performs initial protocol handshake:
+        1. Sends protocol version to server
+        2. Either joins specified channel or requests new channel key
+        
+        The behavior depends on whether a channel was specified:
+        - With channel: Joins that channel with specified connection type
+        - Without channel: Requests generation of new channel key
+        """
         self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
         if self.channel is not None:
             self.send(
