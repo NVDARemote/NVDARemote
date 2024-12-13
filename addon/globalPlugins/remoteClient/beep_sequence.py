@@ -1,7 +1,7 @@
-from typing import Union, Tuple, Sequence
 import collections.abc
 import threading
 import time
+from typing import Tuple, Union
 
 import tones
 
@@ -19,7 +19,7 @@ def beep_sequence(*sequence: BeepElement) -> None:
 		if not isinstance(element, collections.abc.Sequence):
 			time.sleep(float(element) / 1000)
 		else:
-			tone, duration = element  # type: int, int
+			tone, duration = element
 			time.sleep(float(duration) / 1000)
 			local_beep(tone, duration)
 

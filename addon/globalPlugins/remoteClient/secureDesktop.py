@@ -16,33 +16,26 @@ import socket
 import ssl
 import threading
 import uuid
-from typing import Optional, Tuple, Any
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
 import shlobj
-
-from pathlib import Path
 from logHandler import log
 from winAPI.secureDesktop import post_secureDesktopStateChange
 
 from . import bridge, server
 from .protocol import RemoteMessageType
-from .transport import RelayTransport
-from .session import SlaveSession
 from .serializer import JSONSerializer
+from .session import SlaveSession
+from .transport import RelayTransport
 
 
-def get_program_data_temp_path() -> Path:
-	"""Get the system's program data temporary directory path.
-	
-	This function determines the appropriate temporary directory path based on the 
-	Windows version, falling back to older API calls if newer ones aren't available.
-	
-	Returns:
-		Path: A Path object pointing to the ProgramData/temp directory
-	"""
+def getProgramDataTempPath() -> Path:
+	"""Get the system's program data temp directory path."""
 	if hasattr(shlobj, 'SHGetKnownFolderPath'):
 		return Path(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA)) / 'temp'
 	return Path(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA)) / 'temp'
+
 
 @dataclass(frozen=True)
 class SecureDesktopConnection:
@@ -58,6 +51,7 @@ class SecureDesktopConnection:
 	"""
 	address: Tuple[str, int]
 	channel: str
+
 
 class SecureDesktopHandler:
 	"""Manages transitions between regular and secure desktop environments.
@@ -77,56 +71,56 @@ class SecureDesktopHandler:
 	
 	SD_CONNECT_BLOCK_TIMEOUT: int = 1
 
-	def __init__(self, temp_path: Path = get_program_data_temp_path()) -> None:
+	def __init__(self, temp_path: Path = getProgramDataTempPath()) -> None:
 		"""
 		Initialize secure desktop handler.
 		
 		Args:
 			temp_path: Path to temporary directory for IPC file. Defaults to program data temp path.
 		"""
-		self.temp_path = temp_path
-		self.ipc_file = temp_path / 'remote.ipc'
+		self.tempPath = temp_path
+		self.IPCFile = temp_path / 'remote.ipc'
 		
-		self._slave_session: Optional[SlaveSession] = None
-		self.sd_server: Optional[server.LocalRelayServer] = None
-		self.sd_relay: Optional[RelayTransport] = None
-		self.sd_bridge: Optional[bridge.BridgeTransport] = None
+		self._slaveSession: Optional[SlaveSession] = None
+		self.sdServer: Optional[server.LocalRelayServer] = None
+		self.sdRelay: Optional[RelayTransport] = None
+		self.sdBridge: Optional[bridge.BridgeTransport] = None
 
-		post_secureDesktopStateChange.register(self._on_secure_desktop_change)
+		post_secureDesktopStateChange.register(self._onSecureDesktopChange)
 
 	def terminate(self) -> None:
 		"""Clean up handler resources."""
-		post_secureDesktopStateChange.unregister(self._on_secure_desktop_change)
-		self.leave_secure_desktop()
+		post_secureDesktopStateChange.unregister(self._onSecureDesktopChange)
+		self.leaveSecureDesktop()
 		try:
-			self.ipc_file.unlink()
+			self.IPCFile.unlink()
 		except FileNotFoundError:
 			pass
 
 	@property
-	def slave_session(self) -> Optional[SlaveSession]:
-		return self._slave_session
+	def slaveSession(self) -> Optional[SlaveSession]:
+		return self._slaveSession
 
-	@slave_session.setter
-	def slave_session(self, session: Optional[SlaveSession]) -> None:
+	@slaveSession.setter
+	def slaveSession(self, session: Optional[SlaveSession]) -> None:
 		"""
 		Update slave session reference and handle necessary cleanup/setup.
 		
 		Args:
 			session: New SlaveSession instance or None to clear
 		"""
-		if self._slave_session == session:
+		if self._slaveSession == session:
 			return
 			
-		if self.sd_server is not None:
-			self.leave_secure_desktop()
+		if self.sdServer is not None:
+			self.leaveSecureDesktop()
 			
-		if self._slave_session is not None and self._slave_session.transport is not None:
-			transport = self._slave_session.transport
-			transport.unregisterInbound(RemoteMessageType.set_braille_info, self._on_master_display_change)
-		self._slave_session = session
+		if self._slaveSession is not None and self._slaveSession.transport is not None:
+			transport = self._slaveSession.transport
+			transport.unregisterInbound(RemoteMessageType.set_braille_info, self._onMasterDisplayChange)
+		self._slaveSession = session
 
-	def _on_secure_desktop_change(self, isSecureDesktop: Optional[bool] = None) -> None:
+	def _onSecureDesktopChange(self, isSecureDesktop: Optional[bool] = None) -> None:
 		"""
 		Internal callback for secure desktop state changes.
 		
@@ -134,71 +128,71 @@ class SecureDesktopHandler:
 			isSecureDesktop: True if transitioning to secure desktop, False otherwise
 		"""
 		if isSecureDesktop:
-			self.enter_secure_desktop()
+			self.enterSecureDesktop()
 		else:
-			self.leave_secure_desktop()
+			self.leaveSecureDesktop()
 
-	def enter_secure_desktop(self) -> None:
+	def enterSecureDesktop(self) -> None:
 		"""Set up necessary components when entering secure desktop."""
-		if self.slave_session is None or self.slave_session.transport is None:
+		if self.slaveSession is None or self.slaveSession.transport is None:
 			log.warning("No slave session connected, not entering secure desktop.")
 			return
-		if not self.temp_path.exists():
-			self.temp_path.mkdir(parents=True, exist_ok=True)
+		if not self.tempPath.exists():
+			self.tempPath.mkdir(parents=True, exist_ok=True)
 
 		channel = str(uuid.uuid4())
-		self.sd_server = server.LocalRelayServer(port=0, password=channel, bind_host='127.0.0.1')
-		port = self.sd_server.serverSocket.getsockname()[1]
+		self.sdServer = server.LocalRelayServer(port=0, password=channel, bind_host='127.0.0.1')
+		port = self.sdServer.serverSocket.getsockname()[1]
 		
-		server_thread = threading.Thread(target=self.sd_server.run)
-		server_thread.daemon = True
-		server_thread.start()
+		serverThread = threading.Thread(target=self.sdServer.run)
+		serverThread.daemon = True
+		serverThread.start()
 
-		self.sd_relay = RelayTransport(
+		self.sdRelay = RelayTransport(
 			address=('127.0.0.1', port),
 			serializer=JSONSerializer(),
 			channel=channel,
 			insecure=True
 		)
-		self.sd_relay.registerInbound(RemoteMessageType.client_joined, self._on_master_display_change)
-		self.slave_session.transport.registerInbound(RemoteMessageType.set_braille_info, self._on_master_display_change)
+		self.sdRelay.registerInbound(RemoteMessageType.client_joined, self._onMasterDisplayChange)
+		self.slaveSession.transport.registerInbound(RemoteMessageType.set_braille_info, self._onMasterDisplayChange)
 		
-		self.sd_bridge = bridge.BridgeTransport(self.slave_session.transport, self.sd_relay)
+		self.sdBridge = bridge.BridgeTransport(self.slaveSession.transport, self.sdRelay)
 		
-		relay_thread = threading.Thread(target=self.sd_relay.run)
-		relay_thread.daemon = True
-		relay_thread.start()
+		relayThread = threading.Thread(target=self.sdRelay.run)
+		relayThread.daemon = True
+		relayThread.start()
 
 		data = [port, channel]
-		self.ipc_file.write_text(json.dumps(data))
+		self.IPCFile.write_text(json.dumps(data))
 
-	def leave_secure_desktop(self) -> None:
+	def leaveSecureDesktop(self) -> None:
 		"""Clean up when leaving secure desktop."""
-		if self.sd_server is None:
+		if self.sdServer is None:
 			return
 
-		if self.sd_bridge is not None:
-			self.sd_bridge.disconnect()
-			self.sd_bridge = None
+		if self.sdBridge is not None:
+			self.sdBridge.disconnect()
+			self.sdBridge = None
 		
-		if self.sd_server is not None:
-			self.sd_server.close()
-			self.sd_server = None
+		if self.sdServer is not None:
+			self.sdServer.close()
+			self.sdServer = None
 		
-		if self.sd_relay is not None:
-			self.sd_relay.close()
-			self.sd_relay = None
+		if self.sdRelay is not None:
+			self.sdRelay.close()
+			self.sdRelay = None
 
-		if self.slave_session is not None and self.slave_session.transport is not None:
-			self.slave_session.transport.unregisterInbound(RemoteMessageType.set_braille_info, self._on_master_display_change)
-			self.slave_session.setDisplaySize()
+		if self.slaveSession is not None and self.slaveSession.transport is not None:
+			self.slaveSession.transport.unregisterInbound(RemoteMessageType.set_braille_info, self._onMasterDisplayChange)
+			self.slaveSession.setDisplaySize()
 		
 		try:
-			self.ipc_file.unlink()
+			self.IPCFile.unlink()
 		except FileNotFoundError:
 			pass
 
-	def initialize_secure_desktop(self) -> Optional[SecureDesktopConnection]:
+	def initializeSecureDesktop(self) -> Optional[SecureDesktopConnection]:
 		"""
 		Initialize connection when starting in secure desktop.
 		
@@ -206,14 +200,14 @@ class SecureDesktopHandler:
 			SecureDesktopConnection if successful, None if not
 		"""
 		try:
-			data = json.loads(self.ipc_file.read_text())
-			self.ipc_file.unlink()
+			data = json.loads(self.IPCFile.read_text())
+			self.IPCFile.unlink()
 			port, channel = data
 
-			test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			test_socket = ssl.wrap_socket(test_socket)
-			test_socket.connect(('127.0.0.1', port))
-			test_socket.close()
+			testSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			testSocket = ssl.wrap_socket(testSocket)
+			testSocket.connect(('127.0.0.1', port))
+			testSocket.close()
 
 			return SecureDesktopConnection(
 				address=('127.0.0.1', port),
@@ -224,10 +218,10 @@ class SecureDesktopHandler:
 			log.exception("Failed to initialize secure desktop connection.")
 			return None
 
-	def _on_master_display_change(self, **kwargs: Any) -> None:
+	def _onMasterDisplayChange(self, **kwargs: Any) -> None:
 		"""Handle display size changes."""
-		if self.sd_relay is not None and self.slave_session is not None:
-			self.sd_relay.send(
+		if self.sdRelay is not None and self.slaveSession is not None:
+			self.sdRelay.send(
 				type=RemoteMessageType.set_display_size,
-				sizes=self.slave_session.masterDisplaySizes
+				sizes=self.slaveSession.masterDisplaySizes
 			)

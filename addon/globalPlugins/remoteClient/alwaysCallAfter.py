@@ -5,6 +5,7 @@ which is necessary when updating the interface from background threads.
 """
 
 from functools import wraps
+
 import wx
 
 

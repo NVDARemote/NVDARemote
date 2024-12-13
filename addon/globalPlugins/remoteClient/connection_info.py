@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from enum import Enum
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-from .protocol import SERVER_PORT, URL_PREFIX
 from . import socket_utils
+from .protocol import SERVER_PORT, URL_PREFIX
+
 
 class URLParsingError(Exception):
 	"""Raised if it's impossible to parse out the URL"""

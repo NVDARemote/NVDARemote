@@ -1,38 +1,19 @@
-import logging
-
-from typing import Optional, Set, Dict, List, Any, Callable, Union, Type, Tuple
-
-
-
-from .alwaysCallAfter import alwaysCallAfter
-from .connection_info import ConnectionInfo, ConnectionMode
-from .menu import RemoteMenu
-from .protocol import SERVER_PORT, RemoteMessageType
-from .secureDesktop import SecureDesktopHandler
-
-# Type aliases
-KeyModifier = Tuple[int, bool]  # (vk_code, extended)
-Address = Tuple[str, int]  # (hostname, port) 
-
-logger = logging.getLogger(__name__)
-
 import ctypes
 import ctypes.wintypes
-import json
+import logging
 import os
-import socket
-import ssl
 import sys
 import threading
-import uuid
+from typing import Callable, Optional, Set, Tuple
 
 import addonHandler
 import api
 import braille
 import configobj
+import core
 import globalVars
 import gui
-import IAccessibleHandler
+import queueHandler
 import speech
 import ui
 import wx
@@ -43,26 +24,33 @@ from scriptHandler import script
 from utils.security import isRunningOnSecureDesktop
 
 from . import configuration, cues, local_machine, serializer, url_handler
+from .alwaysCallAfter import alwaysCallAfter
+from .connection_info import ConnectionInfo, ConnectionMode
+from .menu import RemoteMenu
+from .protocol import RemoteMessageType
+from .secureDesktop import SecureDesktopHandler
 from .session import MasterSession, SlaveSession
-from .transport import RelayTransport
 from .settings_panel import RemoteSettingsPanel
-
+from .transport import RelayTransport
+from logHandler import log
 try:
 	addonHandler.initTranslation()
 except addonHandler.AddonError:
-	from logHandler import log
 	log.warning(
 		"Unable to initialise translations. This may be because the addon is running from NVDA scratchpad."
 	)
 from winUser import WM_QUIT  # provided by NVDA
 
-from . import bridge, dialogs, keyboard_hook, server
+from . import dialogs, keyboard_hook, server
 from .socket_utils import addressToHostPort, hostPortToAddress
 
 logging.getLogger("keyboard_hook").addHandler(logging.StreamHandler(sys.stdout))
-import queueHandler
-import shlobj
-from logHandler import log
+
+# Type aliases
+KeyModifier = Tuple[int, bool]  # (vk_code, extended)
+Address = Tuple[str, int]  # (hostname, port) 
+
+
 
 class GlobalPlugin(_GlobalPlugin):
 	scriptCategory: str = _("NVDA Remote")
@@ -102,20 +90,21 @@ class GlobalPlugin(_GlobalPlugin):
 		except configobj.ParseError:
 			os.remove(os.path.abspath(os.path.join(globalVars.appArgs.configPath, configuration.CONFIG_FILE_NAME)))
 			queueHandler.queueFunction(queueHandler.eventQueue, wx.CallAfter, wx.MessageBox, _("Your NVDA Remote configuration was corrupted and has been reset."), _("NVDA Remote Configuration Error"), wx.OK|wx.ICON_EXCLAMATION)
-		controlServerConfig = configuration.get_config()['controlserver']
 		if not globalVars.appArgs.secure:
 			gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(RemoteSettingsPanel)
 		self.sdHandler = SecureDesktopHandler()
 		if isRunningOnSecureDesktop():
-			connection = self.sdHandler.initialize_secure_desktop()
+			connection = self.sdHandler.initializeSecureDesktop()
 			if connection:
 				self.connectAsSlave(connection.address, connection.channel, insecure=True)
 				self.slaveSession.transport.connectedEvent.wait(self.sdHandler.SD_CONNECT_BLOCK_TIMEOUT)
-		if controlServerConfig['autoconnect'] and not self.masterSession and not self.slaveSession:
-			self.performAutoconnect()
+		core.postNvdaStartup.register(self.performAutoconnect)
 
 	def performAutoconnect(self):
 		controlServerConfig = configuration.get_config()['controlserver']
+		if not controlServerConfig['autoconnect'] or self.masterSession or self.slaveSession:
+			log.debug("Autoconnect disabled or already connected")
+			return
 		key  = controlServerConfig['key']
 		if controlServerConfig['self_hosted']:
 			port = controlServerConfig['port']
@@ -229,8 +218,9 @@ class GlobalPlugin(_GlobalPlugin):
 		self.slaveTransport.close()
 		self.slaveTransport = None
 		self.slaveSession = None
-		self.sdHandler.slave_session = None
+		self.sdHandler.slaveSession = None
 
+	@alwaysCallAfter
 	def onConnectAsMasterFailed(self):
 		if self.masterTransport.successfulConnects == 0:
 			self.disconnectAsMaster()
@@ -241,26 +231,27 @@ class GlobalPlugin(_GlobalPlugin):
 
 	@script(gesture="kb:alt+NVDA+pageDown", description=_("""Disconnect a remote session"""))
 	def script_disconnect(self, gesture):
-		if self.masterTransport is None and self.slaveTransport is None:
+		if not self.isConnected:
 			ui.message(_("Not connected."))
 			return
 		self.disconnect()
 
 	@script(gesture="kb:alt+NVDA+pageUp", description=_("""Connect to a remote computer"""))
 	def script_connect(self, gesture):
-		if self.isConnected() or self.connecting: return
+		if self.isConnected() or self.connecting:
+			return
 		self.doConnect(evt = None)
 
 	def doConnect(self, evt=None):
-		if evt is not None: evt.Skip()
+		if evt is not None:
+			evt.Skip()
 		previousConnections = configuration.get_config()['connections']['last_connected']
+		hostnames = list(reversed(previousConnections))
 		# Translators: Title of the connect dialog.
-		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"))
-		dlg.panel.host.SetItems(list(reversed(previousConnections)))
-		dlg.panel.host.SetSelection(0)
+		dlg = dialogs.DirectConnectDialog(parent=gui.mainFrame, id=wx.ID_ANY, title=_("Connect"), hostnames=hostnames)
 		
-		def handleDialogCompletion(dlg_result):
-			if dlg_result != wx.ID_OK:
+		def handleDialogCompletion(dlgResult):
+			if dlgResult != wx.ID_OK:
 				return
 			connectionInfo = dlg.getConnectionInfo()
 			if dlg.client_or_server.GetSelection() == 1:  # server
@@ -286,40 +277,39 @@ class GlobalPlugin(_GlobalPlugin):
 		ui.message(_("Connection interrupted"))
 
 	def connectAsMaster(self, address, key, insecure=False):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connection_type='master', insecure=insecure)
+		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connectionType='master', insecure=insecure)
 		self.masterSession = MasterSession(transport=transport, localMachine=self.localMachine)
 		transport.transportCertificateAuthenticationFailed.register(self.onMasterCertificateFailed)
 		transport.transportConnected.register(self.onConnectedAsMaster)
 		transport.transportConnectionFailed.register(self.onConnectAsMasterFailed)
 		transport.transportClosing.register(self.disconnectingAsMaster)
 		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
-		transport.reconnector_thread.start()
+		transport.reconnectorThread.start()
 		self.masterTransport = transport
 
-
 	def connectAsSlave(self, address, key, insecure=False):
-		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connection_type='slave', insecure=insecure)
+		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connectionType='slave', insecure=insecure)
 		self.slaveSession = SlaveSession(transport=transport, localMachine=self.localMachine)
-		self.sdHandler.slave_session = self.slaveSession
+		self.sdHandler.slaveSession = self.slaveSession
 		self.slaveTransport = transport
 		transport.transportCertificateAuthenticationFailed.register(self.onSlaveCertificateFailed)
-		transport.transportConnected.register(self.on_connected_as_slave)
-		transport.reconnector_thread.start()
+		transport.transportConnected.register(self.onConnectedAsSlave)
+		transport.reconnectorThread.start()
 		self.menu.disconnectItem.Enable(True)
 		self.menu.connectItem.Enable(False)
 
 	def handleCertificateFailure(self, transport: RelayTransport):
-		self.last_fail_address = transport.address
-		self.last_fail_key = transport.channel
+		self.lastFailAddress = transport.address
+		self.lastFailKey = transport.channel
 		self.disconnect()
 		try:
-			cert_hash = transport.lastFailFingerprint
+			certHash = transport.lastFailFingerprint
 
-			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=cert_hash)
+			wnd = dialogs.CertificateUnauthorizedDialog(None, fingerprint=certHash)
 			a = wnd.ShowModal()
 			if a == wx.ID_YES:
 				config = configuration.get_config()
-				config['trusted_certs'][hostPortToAddress(self.last_fail_address)]=cert_hash
+				config['trusted_certs'][hostPortToAddress(self.lastFailAddress)]=certHash
 				config.write()
 			if a == wx.ID_YES or a == wx.ID_NO: return True
 		except Exception as ex:
@@ -329,15 +319,15 @@ class GlobalPlugin(_GlobalPlugin):
 	@alwaysCallAfter
 	def onMasterCertificateFailed(self):
 		if self.handleCertificateFailure(self.masterTransport):
-			self.connectAsMaster(self.last_fail_address, self.last_fail_key, True)
+			self.connectAsMaster(self.lastFailAddress, self.lastFailKey, True)
 
 	@alwaysCallAfter
 	def onSlaveCertificateFailed(self):
 		if self.handleCertificateFailure(self.slaveTransport):
-			self.connectAsSlave(self.last_fail_address, self.last_fail_key, True)
+			self.connectAsSlave(self.lastFailAddress, self.lastFailKey, True)
 
 	@alwaysCallAfter
-	def on_connected_as_slave(self):
+	def onConnectedAsSlave(self):
 		log.info("Control connector connected")
 		cues.control_server_connected()
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
@@ -346,8 +336,8 @@ class GlobalPlugin(_GlobalPlugin):
 		self.menu.copyLinkItem.Enable(True)
 		configuration.write_connection_to_config(self.slaveTransport.address)
 
-	def startControlServer(self, server_port, channel):
-		self.localControlServer = server.LocalRelayServer(server_port, channel)
+	def startControlServer(self, serverPort, channel):
+		self.localControlServer = server.LocalRelayServer(serverPort, channel)
 		serverThread = threading.Thread(target=self.localControlServer.run)
 		serverThread.daemon = True
 		serverThread.start()
@@ -412,10 +402,10 @@ class GlobalPlugin(_GlobalPlugin):
 
 	def setReceivingBraille(self, state):
 		if state and self.masterSession.patchCallbacksAdded and braille.handler.enabled:
-			self.masterSession.patcher.patchBrailleInput()
+			self.masterSession.patcher.registerBrailleInput()
 			self.localMachine.receivingBraille=True
 		elif not state:
-			self.masterSession.patcher.unpatchBrailleInput()
+			self.masterSession.patcher.unregisterBrailleInput()
 			self.localMachine.receivingBraille=False
 
 	@alwaysCallAfter
@@ -441,4 +431,3 @@ class GlobalPlugin(_GlobalPlugin):
 		if connector is not None:
 			return connector.connected
 		return False
-

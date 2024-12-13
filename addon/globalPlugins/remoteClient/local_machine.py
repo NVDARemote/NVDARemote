@@ -32,10 +32,10 @@ Note:
     not be used directly outside of the remote connection infrastructure.
 """
 
-from typing import List, Optional, Union, Sequence, Any, Dict
 import ctypes
-import os
 import logging
+import os
+from typing import Any, Dict, List, Optional
 
 import api
 import braille
@@ -44,8 +44,8 @@ import nvwave
 import speech
 import tones
 import wx
-from speech.types import SpeechSequence
 from speech.priorities import Spri
+from speech.types import SpeechSequence
 
 from . import cues, input
 
@@ -53,8 +53,6 @@ try:
     from systemUtils import hasUiAccess
 except ModuleNotFoundError:
     from config import hasUiAccess
-
-import logging
 
 import ui
 
@@ -136,8 +134,6 @@ class LocalMachine:
 		if self.isMuted:
 			return
 		if os.path.exists(fileName):
-			# ignore async / asynchronous from kwargs:
-			# playWaveFile should play asynchronously from NVDA remote.
 			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
 	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
@@ -234,17 +230,11 @@ class LocalMachine:
 			- receivingBraille is True (display sharing is enabled)
 			- Local display is connected (displaySize > 0)
 			- Remote cells fit on local display
-			
+
 			Cells are padded with zeros if remote data is shorter than local display.
 			Uses thread-safe _writeCells method for compatibility with all displays.
-
-		Example:
-			Displaying "AB" in braille::
-				# ASCII 65,66 in 8-dot braille
-				machine.display([0x41, 0x42])
 		"""
 		if self.receivingBraille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
-			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
 			wx.CallAfter(braille.handler._writeCells, cells)
 
@@ -256,10 +246,9 @@ class LocalMachine:
 		
 		Args:
 			**kwargs: Gesture parameters passed to BrailleInputGesture
-				
+		
 		Note:
 			Silently ignores gestures that have no associated action.
-			See :class:`input.BrailleInputGesture` for supported parameters.
 		"""
 		try:
 			inputCore.manager.executeGesture(input.BrailleInputGesture(**kwargs))
@@ -272,10 +261,6 @@ class LocalMachine:
 		Args:
 			sizes: List of display sizes (cells) from remote machines
 			**kwargs: Additional parameters (ignored for compatibility)
-			
-		Note:
-			The cached sizes are used by handleFilterDisplaySize to negotiate
-			the optimal display size when sharing braille output.
 		"""
 		self._cachedSizes = sizes
 
@@ -290,15 +275,12 @@ class LocalMachine:
 			
 		Returns:
 			int: The negotiated display size to use
-			
-		Note:
-			Returns the original size if no remote sizes are cached.
 		"""
 		if not self._cachedSizes:
 			return value
 		sizes = self._cachedSizes + [value]
 		try:
-			return min(i for i in sizes if i>0)
+			return min(i for i in sizes if i > 0)
 		except ValueError:
 			return value
 
@@ -307,10 +289,6 @@ class LocalMachine:
 		
 		Returns:
 			bool: False if receiving remote braille, True otherwise
-			
-		Note:
-			This is registered as a callback with braille.decide_enabled to
-			automatically disable local braille when receiving remote output.
 		"""
 		return not self.receivingBraille
 
@@ -328,10 +306,6 @@ class LocalMachine:
 			extended: Whether this is an extended key
 			pressed: True for key press, False for key release
 			**kwargs: Additional parameters (ignored for compatibility)
-			
-		Note:
-			Uses wx.CallAfter to ensure thread-safe execution.
-			See :func:`input.send_key` for details on key simulation.
 		"""
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
@@ -341,23 +315,18 @@ class LocalMachine:
 		Args:
 			text: Text to copy to the clipboard
 			**kwargs: Additional parameters (ignored for compatibility)
-			
-		Note:
-			Plays an audio cue to indicate clipboard content was received.
-			Uses NVDA's api.copyToClip for safe clipboard access.
 		"""
 		cues.clipboard_received()
 		api.copyToClip(text=text)
 
 	def sendSAS(self, **kwargs: Any) -> None:
 		"""
-		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
-		SendSAS requires UI Access, so we provide a warning when this fails.
-		This warning will only be read by the remote NVDA if it is currently connected to the machine.
+		Simulate a secure attention sequence (e.g. CTRL+ALT+DEL).
+
+		SendSAS requires UI Access. If this fails, a warning is displayed.
 		"""
 		if hasUiAccess():
 			ctypes.windll.sas.SendSAS(0)
 		else:
-			# Translators: Sent when a user fails to send CTRL+ALT+DEL from a remote NVDA instance
 			ui.message(_("No permission on device to trigger CTRL+ALT+DEL from remote"))
 			logger.warning("UI Access is disabled on this machine so cannot trigger CTRL+ALT+DEL")

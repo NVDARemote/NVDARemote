@@ -14,7 +14,7 @@ The serialization format supports:
 from abc import abstractmethod
 from enum import Enum
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Type, Union, TypeVar
+from typing import Any, Dict, Optional, Type, Union, TypeVar
 import json
 
 import speech.commands

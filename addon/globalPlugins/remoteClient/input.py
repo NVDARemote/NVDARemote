@@ -6,7 +6,6 @@ import baseObject
 import braille
 import brailleInput
 import globalPluginHandler
-import inputCore
 import scriptHandler
 import vision
 
