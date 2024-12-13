@@ -128,11 +128,21 @@ class Transport:
         Called internally when a connection is established. Updates connection state,
         increments successful connection counter, and notifies listeners.
 
-        This method:
-        1. Increments successful connection counter
-        2. Sets connected flag to True
-        3. Sets the connected event
-        4. Notifies transportConnected listeners
+        State changes:
+            - Increments successfulConnects counter
+            - Sets connected flag to True 
+            - Sets connectedEvent threading.Event
+            - Notifies all transportConnected listeners
+
+        Threading:
+            - Can be called from any thread
+            - Thread-safe due to atomic operations
+            - Listeners are called on the same thread
+
+        Note:
+            This is an internal method called by transport implementations
+            after establishing a connection. External code should register
+            for transportConnected notifications instead.
         """
         self.successfulConnects += 1
         self.connected = True
@@ -143,20 +153,29 @@ class Transport:
         """Register a handler for incoming messages of a specific type.
 
         Adds a callback function to handle messages of the specified RemoteMessageType.
-        Multiple handlers can be registered for the same message type.
+        Multiple handlers can be registered for the same message type. Handlers are
+        called in registration order when messages arrive.
 
         Args:
-                type (RemoteMessageType): The message type to handle
-                handler (Callable): Callback function to process messages of this type.
-                        Will be called with the message payload as kwargs.
+            type (RemoteMessageType): The message type to handle
+            handler (Callable): Callback function to process messages of this type.
+                Will be called with the message payload as kwargs.
+
+        Threading:
+            - Registration is thread-safe
+            - Handlers are called asynchronously on wx main thread
+            - Handler execution order is preserved
 
         Example:
-                >>> def handle_keypress(key_code, pressed):
-                ...     print(f"Key {key_code} {'pressed' if pressed else 'released'}")
-                >>> transport.registerInbound(RemoteMessageType.key_press, handle_keypress)
+            >>> def handle_keypress(key_code: int, pressed: bool) -> None:
+            ...     print(f"Key {key_code} {'pressed' if pressed else 'released'}")
+            >>> transport.registerInbound(RemoteMessageType.key_press, handle_keypress)
 
         Note:
-                Handlers are called asynchronously on the wx main thread via wx.CallAfter
+            - Handlers must accept **kwargs for forward compatibility
+            - Exceptions in handlers are caught and logged
+            - Handlers can be unregistered with unregisterInbound()
+            - Same handler can be registered multiple times
         """
         self.inboundHandlers[type].register(handler)
 
@@ -167,14 +186,22 @@ class Transport:
         If the handler was not previously registered, this is a no-op.
 
         Args:
-                type (RemoteMessageType): The message type to unregister from
-                handler (Callable): The handler function to remove
+            type (RemoteMessageType): The message type to unregister from
+            handler (Callable): The handler function to remove
+
+        Threading:
+            - Unregistration is thread-safe
+            - Can be called while handlers are executing
+            - Removed handler won't receive future messages
 
         Example:
-                >>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
+            >>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
 
         Note:
-                Must pass the exact same handler function that was previously registered
+            - Must pass the exact same handler function that was registered
+            - Removing a handler multiple times is safe
+            - Other handlers for same type are unaffected
+            - In-flight messages may still reach the handler
         """
         self.inboundHandlers[type].unregister(handler)
 
