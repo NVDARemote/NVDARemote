@@ -405,14 +405,24 @@ class TCPTransport(Transport):
         """Parse and handle a complete message line.
 
         Deserializes a message and routes it to the appropriate handler based on type.
+        Messages are expected to be JSON-encoded with a 'type' field identifying the message type.
+        The handler for that message type is called with the remaining fields as kwargs.
 
         Args:
-                line (bytes): Complete message line to parse
+            line (bytes): Complete message line to parse, must be valid JSON
 
-        Note:
-                Messages must include a 'type' field matching a RemoteMessageType enum value.
-                Handler callbacks are executed asynchronously on the wx main thread.
-                Invalid or unhandled message types are logged as errors.
+        Error handling:
+            - Messages without a 'type' field are logged and ignored
+            - Messages with invalid/unknown types are logged and ignored
+            - Messages with no registered handler are logged and ignored
+            - Deserialization errors are logged and the message is dropped
+
+        Threading:
+            Handler callbacks are executed asynchronously on the wx main thread
+            via wx.CallAfter() to ensure thread-safety with the NVDA UI.
+
+        Example message format:
+            {"type": "key_press", "key": "ctrl", "pressed": true}
         """
         obj = self.serializer.deserialize(line)
         if "type" not in obj:
@@ -434,11 +444,25 @@ class TCPTransport(Transport):
         """Background thread that processes the outbound message queue.
 
         Continuously pulls messages from the queue and sends them over the socket.
-        Thread exits when None is received from the queue or a socket error occurs.
+        Messages are expected to be serialized and newline-terminated.
+        
+        Thread lifecycle:
+        1. Waits for message on queue
+        2. Exits if None received (shutdown signal)
+        3. Acquires socket lock
+        4. Sends message with sendall()
+        5. Releases lock
+        6. Repeats until error or shutdown
 
-        Note:
-                This method runs in a separate thread and handles thread-safe socket access
-                using the serverSockLock.
+        Error handling:
+            - Socket errors cause thread to exit
+            - Parent transport handles reconnection
+            - Unsent messages remain in queue
+
+        Thread safety:
+            - Uses serverSockLock to synchronize socket access
+            - Queue handles thread-safe message passing
+            - Safe to call send() from any thread
         """
         while True:
             item = self.queue.get()
@@ -621,15 +645,24 @@ class ConnectorThread(threading.Thread):
 def clearQueue(queue: Queue[Optional[bytes]]) -> None:
     """Empty all items from a queue without blocking.
 
-    Removes all items from the queue in a non-blocking way,
-    useful for cleaning up before disconnection.
+    Removes all pending items from a queue in a non-blocking way.
+    Used during transport shutdown to prevent memory leaks from
+    unsent messages.
 
     Args:
         queue (Queue[Optional[bytes]]): Queue instance to clear
 
-    Note:
-        This function catches and ignores any exceptions that occur
-        while trying to get items from an empty queue.
+    Implementation:
+        - Uses get_nowait() to avoid blocking
+        - Continues until queue.Empty exception
+        - Ignores all exceptions during cleanup
+        - Does not wait for queue consumers
+
+    When to use:
+        - Before closing a transport
+        - When abandoning a connection
+        - During error recovery
+        - Any time pending messages should be discarded
     """
     try:
         while True:
