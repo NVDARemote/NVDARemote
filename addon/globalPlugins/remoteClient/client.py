@@ -67,8 +67,7 @@ class RemoteClient:
 	sendingKeys: bool
 
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, ):
 		self.keyModifiers = set()
 		self.hostPendingModifiers = set()
 		self.localScripts = {self.toggleRemoteKeyControl}
