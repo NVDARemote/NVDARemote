@@ -136,7 +136,8 @@ class LocalMachine:
 		if os.path.exists(fileName):
 			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
-	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
+
+	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
 		"""Play a beep sound on the local machine.
 
 		Args:
@@ -144,7 +145,6 @@ class LocalMachine:
 			length: Duration of the beep in milliseconds
 			left: Left channel volume (0-100), defaults to 50%
 			right: Right channel volume (0-100), defaults to 50%
-			**kwargs: Additional parameters (ignored for compatibility)
 
 		Note:
 			Beeps are ignored if the local machine is muted.
@@ -153,12 +153,9 @@ class LocalMachine:
 			return
 		tones.beep(hz, length, left, right)
 
-	def cancelSpeech(self, **kwargs: Any) -> None:
+	def cancelSpeech(self) -> None:
 		"""Cancel any ongoing speech on the local machine.
-		
-		Args:
-			**kwargs: Additional parameters (ignored for compatibility)
-			
+	
 		Note:
 			Speech cancellation is ignored if the local machine is muted.
 			Uses wx.CallAfter to ensure thread-safe execution.
@@ -167,13 +164,12 @@ class LocalMachine:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
-	def pauseSpeech(self, switch: bool, **kwargs: Any) -> None:
+	def pauseSpeech(self, switch: bool) -> None:
 		"""Pause or resume speech on the local machine.
 		
 		Args:
 			switch: True to pause speech, False to resume
-			**kwargs: Additional parameters (ignored for compatibility)
-			
+
 		Note:
 			Speech control is ignored if the local machine is muted.
 			Uses wx.CallAfter to ensure thread-safe execution.
@@ -185,8 +181,7 @@ class LocalMachine:
 	def speak(
 			self,
 			sequence: SpeechSequence,
-			priority: Spri = Spri.NORMAL,
-			**kwargs: Any
+			priority: Spri = Spri.NORMAL
 	) -> None:
 		"""Process a speech sequence from a remote machine.
 
@@ -196,26 +191,19 @@ class LocalMachine:
 		Args:
 			sequence: List of speech sequences (text and commands) to speak
 			priority: Speech priority level, defaults to NORMAL
-			**kwargs: Additional speech parameters (ignored for compatibility)
 
 		Note:
 			Speech is always queued asynchronously via wx.CallAfter to ensure
 			thread safety, as this may be called from network threads.
 
-		Example:
-			Speaking text with commands::
-				machine.speak([
-					"Hello",
-					speech.PitchCommand(offset=20),
-					"with higher pitch"
-				])
 		"""
 		if self.isMuted:
 			return
 		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
-	def display(self, cells: List[int], **kwargs: Any) -> None:
+
+	def display(self, cells: List[int]) -> None:
 		"""Update the local braille display with cells from remote.
 
 		Safely writes braille cells from a remote machine to the local braille
@@ -223,7 +211,6 @@ class LocalMachine:
 
 		Args:
 			cells: List of braille cells as integers (0-255)
-			**kwargs: Additional display parameters (ignored for compatibility)
 
 		Note:
 			Only processes cells when:
@@ -255,12 +242,12 @@ class LocalMachine:
 		except inputCore.NoInputGestureAction:
 			pass
 
-	def setBrailleDisplay_size(self, sizes: List[int], **kwargs: Any) -> None:
+
+	def setBrailleDisplay_size(self, sizes: List[int]) -> None:
 		"""Cache remote braille display sizes for size negotiation.
 		
 		Args:
 			sizes: List of display sizes (cells) from remote machines
-			**kwargs: Additional parameters (ignored for compatibility)
 		"""
 		self._cachedSizes = sizes
 
@@ -296,8 +283,7 @@ class LocalMachine:
 		self,
 		vk_code: Optional[int] = None,
 		extended: Optional[bool] = None,
-		pressed: Optional[bool] = None,
-		**kwargs: Any
+		pressed: Optional[bool] = None
 	) -> None:
 		"""Simulate a keyboard event on the local machine.
 		
@@ -305,11 +291,10 @@ class LocalMachine:
 			vk_code: Virtual key code to simulate
 			extended: Whether this is an extended key
 			pressed: True for key press, False for key release
-			**kwargs: Additional parameters (ignored for compatibility)
 		"""
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
-	def setClipboardText(self, text: str, **kwargs: Any) -> None:
+	def setClipboardText(self, text: str) -> None:
 		"""Set the local clipboard text from a remote machine.
 		
 		Args:
@@ -319,7 +304,7 @@ class LocalMachine:
 		cues.clipboard_received()
 		api.copyToClip(text=text)
 
-	def sendSAS(self, **kwargs: Any) -> None:
+	def sendSAS(self) -> None:
 		"""
 		Simulate a secure attention sequence (e.g. CTRL+ALT+DEL).
 
