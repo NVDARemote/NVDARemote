@@ -56,17 +56,17 @@ class LocalMachine:
 			# playWaveFile should play asynchronously from NVDA remote.
 			nvwave.playWaveFile(fileName=fileName, asynchronous=True)
 
-	def beep(self, hz: float, length: int, left: int = 50, right: int = 50, **kwargs: Any) -> None:
+	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
 		if self.isMuted:
 			return
 		tones.beep(hz, length, left, right)
 
-	def cancelSpeech(self, **kwargs: Any) -> None:
+	def cancelSpeech(self) -> None:
 		if self.isMuted:
 			return
 		wx.CallAfter(speech._manager.cancel)
 
-	def pauseSpeech(self, switch: bool, **kwargs: Any) -> None:
+	def pauseSpeech(self, switch: bool) -> None:
 		if self.isMuted:
 			return
 		wx.CallAfter(speech.pauseSpeech, switch)
@@ -74,15 +74,14 @@ class LocalMachine:
 	def speak(
 			self,
 			sequence: SpeechSequence,
-			priority: Spri = Spri.NORMAL,
-			**kwargs: Any
-	) -> None:
+			priority: Spri = Spri.NORMAL
+		) -> None:
 		if self.isMuted:
 			return
 		setSpeechCancelledToFalse()
 		wx.CallAfter(speech._manager.speak, sequence, priority)
 
-	def display(self, cells: List[int], **kwargs: Any) -> None:
+	def display(self, cells: List[int]) -> None:
 		if self.receivingBraille and braille.handler.displaySize > 0 and len(cells) <= braille.handler.displaySize:
 			# We use braille.handler._writeCells since this respects thread safe displays and automatically falls back to noBraille if desired
 			cells = cells + [0] * (braille.handler.displaySize - len(cells))
@@ -94,7 +93,7 @@ class LocalMachine:
 		except inputCore.NoInputGestureAction:
 			pass
 
-	def setBrailleDisplay_size(self, sizes: List[int], **kwargs: Any) -> None:
+	def setBrailleDisplay_size(self, sizes: List[int]) -> None:
 		self._cachedSizes = sizes
 
 	def handleFilterDisplaySize(self, value: int) -> int:
@@ -113,16 +112,15 @@ class LocalMachine:
 		self,
 		vk_code: Optional[int] = None,
 		extended: Optional[bool] = None,
-		pressed: Optional[bool] = None,
-		**kwargs: Any
-	) -> None:
+		pressed: Optional[bool] = None
+			) -> None:
 		wx.CallAfter(input.send_key, vk_code, None, extended, pressed)
 
-	def setClipboardText(self, text: str, **kwargs: Any) -> None:
+	def setClipboardText(self, text: str) -> None:
 		cues.clipboard_received()
 		api.copyToClip(text=text)
 
-	def sendSAS(self, **kwargs: Any) -> None:
+	def sendSAS(self) -> None:
 		"""
 		This function simulates as "a secure attention sequence" such as CTRL+ALT+DEL.
 		SendSAS requires UI Access, so we provide a warning when this fails.
