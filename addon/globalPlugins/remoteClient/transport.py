@@ -527,6 +527,17 @@ class RelayTransport(TCPTransport):
         protocol_version: int = PROTOCOL_VERSION,
         insecure: bool = False,
     ) -> None:
+        """Initialize a new RelayTransport instance.
+
+        Args:
+            serializer: Serializer for encoding/decoding messages
+            address: Tuple of (host, port) to connect to
+            timeout: Connection timeout in seconds
+            channel: Optional channel name to join
+            connectionType: Optional connection type identifier
+            protocol_version: Protocol version to use
+            insecure: Whether to skip certificate verification
+        """
         super().__init__(
             address=address, serializer=serializer, timeout=timeout, insecure=insecure
         )
@@ -535,6 +546,25 @@ class RelayTransport(TCPTransport):
         self.connectionType = connectionType
         self.protocol_version = protocol_version
         self.transportConnected.register(self.onConnected)
+
+    @classmethod
+    def create(cls, connection_info: "ConnectionInfo", serializer: Serializer) -> "RelayTransport":
+        """Create a RelayTransport from a ConnectionInfo object.
+        
+        Args:
+            connection_info: ConnectionInfo instance containing connection details
+            serializer: Serializer instance for message encoding/decoding
+            
+        Returns:
+            Configured RelayTransport instance ready for connection
+        """
+        return cls(
+            serializer=serializer,
+            address=(connection_info.hostname, connection_info.port),
+            channel=connection_info.key,
+            connectionType=connection_info.mode.value,
+            insecure=connection_info.insecure
+        )
 
     def onConnected(self) -> None:
         self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
