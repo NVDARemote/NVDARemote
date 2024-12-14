@@ -156,11 +156,11 @@ class RemoteClient:
 	def sendSAS(self):
 		self.masterTransport.send(RemoteMessageType.send_SAS)
 
-	def connect(self, connectionInfo: ConnectionInfo, insecure=False):
+	def connect(self, connectionInfo: ConnectionInfo):
 		if connectionInfo.mode == ConnectionMode.MASTER:
-			self.connectAsMaster((connectionInfo.hostname, connectionInfo.port), connectionInfo.key, insecure)
+			self.connectAsMaster(connectionInfo)
 		elif connectionInfo.mode == ConnectionMode.SLAVE:
-			self.connectAsSlave((connectionInfo.hostname, connectionInfo.port), connectionInfo.key, insecure)
+			self.connectAsSlave(connectionInfo)
 
 	def disconnect(self):
 		if self.masterTransport is None and self.slaveTransport is None:
@@ -241,8 +241,8 @@ class RemoteClient:
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
-	def connectAsMaster(self, address, key, insecure=False):
-		transport = RelayTransport(address=address, serializer=serializer.JSONSerializer(), channel=key, connectionType='master', insecure=insecure)
+	def connectAsMaster(self, connectionInfo: ConnectionInfo):
+		transport = RelayTransport.create(connection_info=connectionInfo, serializer=serializer.JSONSerializer())
 		self.masterSession = MasterSession(transport=transport, localMachine=self.localMachine)
 		transport.transportCertificateAuthenticationFailed.register(self.onMasterCertificateFailed)
 		transport.transportConnected.register(self.onConnectedAsMaster)
@@ -252,8 +252,8 @@ class RemoteClient:
 		transport.reconnectorThread.start()
 		self.masterTransport = transport
 
-	def connectAsSlave(self, address, key, insecure=False):
-		transport = RelayTransport(serializer=serializer.JSONSerializer(), address=address, channel=key, connectionType='slave', insecure=insecure)
+	def connectAsSlave(self, connectionInfo: ConnectionInfo):
+		transport = RelayTransport.create(connection_info=connectionInfo, serializer=serializer.JSONSerializer())
 		self.slaveSession = SlaveSession(transport=transport, localMachine=self.localMachine)
 		self.sdHandler.slaveSession = self.slaveSession
 		self.slaveTransport = transport
@@ -284,7 +284,8 @@ class RemoteClient:
 	@alwaysCallAfter
 	def onMasterCertificateFailed(self):
 		if self.handleCertificateFailure(self.masterTransport):
-			self.connectAsMaster(self.lastFailAddress, self.lastFailKey, True)
+			connectionInfo = ConnectionInfo(mode=ConnectionMode.MASTER, hostname=self.lastFailAddress[0], port=self.lastFailAddress[1], key=self.lastFailKey, insecure=True)
+			self.connectAsMaster(connectionInfo=connectionInfo)
 
 	@alwaysCallAfter
 	def onSlaveCertificateFailed(self):
