@@ -172,7 +172,8 @@ class SecureDesktopHandler:
 				hostname='127.0.0.1',
 				mode=ConnectionMode.SLAVE,
 				key=channel,
-				port=port
+				port=port,
+				insecure=True
 			)
 			
 		except Exception:

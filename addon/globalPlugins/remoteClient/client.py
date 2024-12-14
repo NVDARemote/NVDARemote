@@ -93,7 +93,7 @@ class RemoteClient:
 		if isRunningOnSecureDesktop():
 			connection = self.sdHandler.initializeSecureDesktop()
 			if connection:
-				self.connectAsSlave(connection.address, connection.channel, insecure=True)
+				self.connectAsSlave(connection)
 				self.slaveSession.transport.connectedEvent.wait(self.sdHandler.SD_CONNECT_BLOCK_TIMEOUT)
 		core.postNvdaStartup.register(self.performAutoconnect)
 
