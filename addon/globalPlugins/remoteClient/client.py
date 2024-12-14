@@ -18,7 +18,6 @@ import speech
 import ui
 import wx
 from config import isInstalledCopy
-from globalPluginHandler import GlobalPlugin as _GlobalPlugin
 from keyboardHandler import KeyboardInputGesture
 from logHandler import log
 from utils.security import isRunningOnSecureDesktop
@@ -70,7 +69,7 @@ class RemoteClient:
 	def __init__(self, ):
 		self.keyModifiers = set()
 		self.hostPendingModifiers = set()
-		self.localScripts = {self.toggleRemoteKeyControl}
+		self.localScripts = set()
 		self.localMachine = local_machine.LocalMachine()
 		self.slaveSession = None
 		self.masterSession = None
@@ -340,7 +339,7 @@ class RemoteClient:
 		self.masterTransport.send(RemoteMessageType.key, **kwargs)
 		return True #Don't pass it on
 
-	def toggleRemoteKeyControl(self, gesture):
+	def toggleRemoteKeyControl(self, gesture: KeyboardInputGesture):
 		if not self.masterTransport:
 			gesture.send()
 			return
@@ -392,3 +391,9 @@ class RemoteClient:
 		if connector is not None:
 			return connector.connected
 		return False
+
+	def registerLocalScript(self, script):
+		self.localScripts.add(script)
+
+	def unregisterLocalScript(self, script):
+		self.localScripts.discard(script)

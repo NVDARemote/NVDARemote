@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Tuple
 
 import addonHandler
 import ui
@@ -27,6 +26,7 @@ class GlobalPlugin(_GlobalPlugin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = RemoteClient()
+        self.client.registerLocalScript(self.script_sendKeys)
 
     def terminate(self):
         self.client.terminate()
