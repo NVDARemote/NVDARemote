@@ -163,23 +163,23 @@ class RemoteClient:
 			self.connectAsSlave(connectionInfo)
 
 	def disconnect(self):
-		if self.masterTransport is None and self.slaveTransport is None:
+		if self.masterSession is None and self.slaveSession is None:
 			return
 		if self.localControlServer is not None:
 			self.localControlServer.close()
 			self.localControlServer = None
-		if self.masterTransport is not None:
+		if self.masterSession is not None:
 			self.disconnectAsMaster()
-		if self.slaveTransport is not None:
+		if self.slaveSession is not None:
 			self.disconnectAsSlave()
 		cues.disconnected()
 		self.menu.handleConnected(False)
 
 	def disconnectAsMaster(self):
-		self.masterTransport.close()
-		self.masterTransport = None
+		self.masterSession.close()
 		self.masterSession = None
-
+		self.masterTransport = None
+		
 	def disconnectingAsMaster(self):
 		if self.menu:
 			self.menu.handleConnected(False)
@@ -193,9 +193,9 @@ class RemoteClient:
 		self.keyModifiers = set()
 
 	def disconnectAsSlave(self):
-		self.slaveTransport.close()
-		self.slaveTransport = None
+		self.slaveSession.close()
 		self.slaveSession = None
+		self.slaveTransport = None
 		self.sdHandler.slaveSession = None
 
 	@alwaysCallAfter
@@ -225,7 +225,7 @@ class RemoteClient:
 		gui.runScriptModalDialog(dlg, callback=handleDialogCompletion)
 
 	def onConnectedAsMaster(self):
-		configuration.write_connection_to_config(self.masterTransport.address)
+		configuration.write_connection_to_config(self.masterSession.getConnectionInfo())
 		self.menu.handleConnected(True)
 		# We might have already created a hook thread before if we're restoring an
 		# interrupted connection. We must not create another.
@@ -283,13 +283,13 @@ class RemoteClient:
 
 	@alwaysCallAfter
 	def onMasterCertificateFailed(self):
-		if self.handleCertificateFailure(self.masterTransport):
+		if self.handleCertificateFailure(self.masterSession.Transport):
 			connectionInfo = ConnectionInfo(mode=ConnectionMode.MASTER, hostname=self.lastFailAddress[0], port=self.lastFailAddress[1], key=self.lastFailKey, insecure=True)
 			self.connectAsMaster(connectionInfo=connectionInfo)
 
 	@alwaysCallAfter
 	def onSlaveCertificateFailed(self):
-		if self.handleCertificateFailure(self.slaveTransport):
+		if self.handleCertificateFailure(self.slaveSession.transport):
 			connectionInfo = ConnectionInfo(mode=ConnectionMode.SLAVE, hostname=self.lastFailAddress[0], port=self.lastFailAddress[1], key=self.lastFailKey, insecure=True)
 			self.connectAsSlave(connectionInfo=connectionInfo)
 
@@ -301,7 +301,7 @@ class RemoteClient:
 		speech.speakMessage(_("Connected to control server"))
 		self.menu.pushClipboardItem.Enable(True)
 		self.menu.copyLinkItem.Enable(True)
-		configuration.write_connection_to_config(self.slaveTransport.address)
+		configuration.write_connection_to_config(self.slaveSession.getConnectionInfo())
 
 	def startControlServer(self, serverPort, channel):
 		self.localControlServer = server.LocalRelayServer(serverPort, channel)
