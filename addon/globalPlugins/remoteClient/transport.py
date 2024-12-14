@@ -34,6 +34,7 @@ import wx
 from extensionPoints import Action
 
 from . import configuration
+from .connection_info import ConnectionInfo
 from .protocol import PROTOCOL_VERSION, RemoteMessageType
 from .serializer import Serializer
 from .socket_utils import hostPortToAddress
@@ -548,7 +549,7 @@ class RelayTransport(TCPTransport):
         self.transportConnected.register(self.onConnected)
 
     @classmethod
-    def create(cls, connection_info: "ConnectionInfo", serializer: Serializer) -> "RelayTransport":
+    def create(cls, connection_info: ConnectionInfo, serializer: Serializer) -> "RelayTransport":
         """Create a RelayTransport from a ConnectionInfo object.
         
         Args:
