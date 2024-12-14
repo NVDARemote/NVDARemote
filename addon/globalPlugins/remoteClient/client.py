@@ -290,7 +290,8 @@ class RemoteClient:
 	@alwaysCallAfter
 	def onSlaveCertificateFailed(self):
 		if self.handleCertificateFailure(self.slaveTransport):
-			self.connectAsSlave(self.lastFailAddress, self.lastFailKey, True)
+			connectionInfo = ConnectionInfo(mode=ConnectionMode.SLAVE, hostname=self.lastFailAddress[0], port=self.lastFailAddress[1], key=self.lastFailKey, insecure=True)
+			self.connectAsSlave(connectionInfo=connectionInfo)
 
 	@alwaysCallAfter
 	def onConnectedAsSlave(self):
