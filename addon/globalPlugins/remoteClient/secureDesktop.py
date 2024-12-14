@@ -151,7 +151,7 @@ class SecureDesktopHandler:
 		except FileNotFoundError:
 			pass
 
-	def initializeSecureDesktop(self) -> Optional[SecureDesktopConnection]:
+	def initializeSecureDesktop(self) -> Optional[ConnectionInfo]:
 		"""
 		Initialize connection when starting in secure desktop.
 		
