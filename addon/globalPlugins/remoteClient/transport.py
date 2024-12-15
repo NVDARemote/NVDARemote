@@ -157,8 +157,8 @@ class Transport:
         called in registration order when messages arrive.
 
         Args:
-            type (RemoteMessageType): The message type to handle
-            handler (Callable): Callback function to process messages of this type.
+            type: The message type to handle
+            handler: Callback function to process messages of this type.
                 Will be called with the message payload as kwargs.
 
         Threading:
@@ -186,8 +186,8 @@ class Transport:
         If the handler was not previously registered, this is a no-op.
 
         Args:
-            type (RemoteMessageType): The message type to unregister from
-            handler (Callable): The handler function to remove
+            type: The message type to unregister from
+            handler: The handler function to remove
 
         Threading:
             - Unregistration is thread-safe
@@ -214,22 +214,22 @@ class TCPTransport(Transport):
     lifecycle management.
 
     Args:
-        serializer (Serializer): Message serializer instance
-        address (Tuple[str, int]): Remote address to connect to
-        timeout (int, optional): Connection timeout in seconds. Defaults to 0.
-        insecure (bool, optional): Skip certificate verification. Defaults to False.
+        serializer: Message serializer instance
+        address: Remote address to connect to
+        timeout: Connection timeout in seconds. Defaults to 0.
+        insecure: Skip certificate verification. Defaults to False.
 
     Attributes:
-        buffer (bytes): Buffer for incomplete received data
-        closed (bool): Whether transport is closed
-        queue (Queue[Optional[bytes]]): Queue of outbound messages
-        insecure (bool): Whether to skip certificate verification
-        address (Tuple[str, int]): Remote address to connect to
-        timeout (int): Connection timeout in seconds
-        serverSock (Optional[ssl.SSLSocket]): The SSL socket connection
-        serverSockLock (threading.Lock): Lock for thread-safe socket access
-        queueThread (Optional[threading.Thread]): Thread handling outbound messages
-        reconnectorThread (ConnectorThread): Thread managing reconnection
+        buffer: Buffer for incomplete received data
+        closed: Whether transport is closed
+        queue: Queue of outbound messages
+        insecure: Whether to skip certificate verification
+        address: Remote address to connect to
+        timeout: Connection timeout in seconds
+        serverSock: The SSL socket connection
+        serverSockLock: Lock for thread-safe socket access
+        queueThread: Thread handling outbound messages
+        reconnectorThread: Thread managing reconnection
     """
 
     buffer: bytes
@@ -333,12 +333,12 @@ class TCPTransport(Transport):
         then wraps it with SSL/TLS encryption.
 
         Args:
-                host (str): Remote hostname to connect to
-                port (int): Remote port number
-                insecure (bool, optional): Skip certificate verification. Defaults to False.
+                host: Remote hostname to connect to
+                port: Remote port number
+                insecure: Skip certificate verification. Defaults to False.
 
         Returns:
-                ssl.SSLSocket: Configured SSL socket ready for connection
+                Configured SSL socket ready for connection
 
         Note:
                 The socket is created but not yet connected. Call connect() separately.
@@ -570,18 +570,18 @@ class RelayTransport(TCPTransport):
     and connection types. Manages protocol versioning and channel joining.
 
     Args:
-        serializer (Serializer): Message serializer instance
-        address (Tuple[str, int]): Relay server address
-        timeout (int, optional): Connection timeout. Defaults to 0.
-        channel (Optional[str], optional): Channel to join. Defaults to None.
-        connectionType (Optional[str], optional): Connection type. Defaults to None.
-        protocol_version (int, optional): Protocol version. Defaults to PROTOCOL_VERSION.
-        insecure (bool, optional): Skip certificate verification. Defaults to False.
+        serializer: Message serializer instance
+        address: Relay server address
+        timeout: Connection timeout. Defaults to 0.
+        channel: Channel to join. Defaults to None.
+        connectionType: Connection type. Defaults to None.
+        protocol_version: Protocol version. Defaults to PROTOCOL_VERSION.
+        insecure: Skip certificate verification. Defaults to False.
 
     Attributes:
-        channel (Optional[str]): Relay channel name
-        connectionType (Optional[str]): Type of relay connection
-        protocol_version (int): Protocol version to use
+        channel: Relay channel name
+        connectionType: Type of relay connection
+        protocol_version: Protocol version to use
     """
 
     channel: Optional[str]
@@ -636,13 +636,13 @@ class ConnectorThread(threading.Thread):
     Runs until explicitly stopped.
 
     Args:
-        connector (Transport): Transport instance to manage connections for
-        reconnectDelay (int, optional): Seconds between attempts. Defaults to 5.
+        connector: Transport instance to manage connections for
+        reconnectDelay: Seconds between attempts. Defaults to 5.
 
     Attributes:
-        running (bool): Whether thread should continue running
-        connector (Transport): Transport to manage connections for
-        reconnectDelay (int): Seconds to wait between connection attempts
+        running: Whether thread should continue running
+        connector: Transport to manage connections for
+        reconnectDelay: Seconds to wait between connection attempts
     """
 
     running: bool
@@ -677,7 +677,7 @@ def clearQueue(queue: Queue[Optional[bytes]]) -> None:
     unsent messages.
 
     Args:
-        queue (Queue[Optional[bytes]]): Queue instance to clear
+        queue: Queue instance to clear
 
     Implementation:
         - Uses get_nowait() to avoid blocking
