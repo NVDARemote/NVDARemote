@@ -87,12 +87,21 @@ class Transport:
         transportClosing: Fired before transport is shut down
     """
 
+    # Whether transport has an active connection
     connected: bool
+    # Counter of successful connection attempts
     successfulConnects: int
+    # Event that is set when connected, cleared when disconnected
     connectedEvent: threading.Event
+    # Message serializer instance for encoding/decoding network messages
     serializer: Serializer
 
     def __init__(self, serializer: Serializer) -> None:
+        """Initialize transport with message serializer.
+        
+        Args:
+            serializer: Handles message encoding/decoding
+        """
         self.serializer = serializer
         self.connected = False
         self.successfulConnects = 0
@@ -232,16 +241,27 @@ class TCPTransport(Transport):
         reconnectorThread: Thread managing reconnection
     """
 
+    # Buffer for incomplete received data
     buffer: bytes
+    # Whether transport is intentionally closed
     closed: bool
+    # Queue of outbound messages pending send
     queue: Queue[Optional[bytes]]
+    # Whether to skip SSL certificate verification
     insecure: bool
+    # Lock for thread-safe socket access
     serverSockLock: threading.Lock
+    # Remote (host, port) to connect to
     address: Tuple[str, int]
+    # Active SSL socket connection
     serverSock: Optional[ssl.SSLSocket]
+    # Thread handling outbound message queue
     queueThread: Optional[threading.Thread]
+    # Connection timeout in seconds
     timeout: int
+    # Thread managing reconnection attempts
     reconnectorThread: "ConnectorThread"
+    # Last failed certificate fingerprint
     lastFailFingerprint: Optional[str]
 
     def __init__(
@@ -584,8 +604,11 @@ class RelayTransport(TCPTransport):
         protocol_version: Protocol version to use
     """
 
+    # Relay channel name to join
     channel: Optional[str]
+    # Type of relay connection (master/slave)
     connectionType: Optional[str]
+    # Protocol version for compatibility
     protocol_version: int
 
     def __init__(
