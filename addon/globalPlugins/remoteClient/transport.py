@@ -395,24 +395,11 @@ class TCPTransport(Transport):
         return self.serverSock.getpeercert(binary_form)
 
     def processIncomingSocketData(self) -> None:
-        """Process incoming data from the server socket.
+        """Process incoming socket data in chunks.
 
-        Reads available data from the socket in chunks, handling both complete and partial
-        messages. Messages must be newline-delimited. Any incomplete message (without a newline)
-        is stored in self.buffer until the rest arrives in subsequent reads.
-
-        The method:
-        1. Reads up to 16KB of data using non-blocking socket operations
-        2. Combines with any previously buffered partial data
-        3. Splits on newlines to get complete messages
-        4. Processes each complete message through parse()
-        5. Stores any remaining partial message in buffer
-
-        Note:
-            This method handles SSL-specific socket behavior and non-blocking reads.
-            It is called when select() indicates data is available on the socket.
-            Socket access is protected by serverSockLock for thread safety.
-            An empty read indicates connection loss and triggers disconnect.
+        Handles newline-delimited messages with partial buffering.
+        Uses non-blocking SSL socket reads with thread safety.
+        Empty reads trigger disconnect.
         """
         # This approach may be problematic:
         # See also server.py handle_data in class Client.
@@ -490,18 +477,10 @@ class TCPTransport(Transport):
                 return
 
     def send(self, type: str | Enum, **kwargs: Any) -> None:
-        """Send a message through the transport.
-
-        Serializes and queues a message for transmission. Messages are sent
-        asynchronously by the queue thread.
-
-        Args:
-            type: Message type, typically a RemoteMessageType enum value
-            **kwargs: Message payload data to serialize
-
-        Note:
-            This method is thread-safe and can be called from any thread.
-            If the transport is not connected, the message will be silently dropped.
+        """Queue a message for asynchronous transmission.
+        
+        Thread-safe method to send messages.
+        Drops messages if transport not connected.
         """
         if self.connected:
             obj = self.serializer.serialize(type=type, **kwargs)
