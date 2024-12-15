@@ -1,7 +1,7 @@
-"""Decorator for thread-safe GUI updates in wxPython.
+"""Thread-safe GUI updates for wxPython.
 
-Ensures decorated functions run in the main GUI thread using wx.CallAfter,
-which is necessary when updating the interface from background threads.
+Provides a decorator that ensures functions execute in the main GUI thread
+using wx.CallAfter, required for safe interface updates from background threads.
 """
 
 from functools import wraps
@@ -10,18 +10,12 @@ import wx
 
 
 def alwaysCallAfter(func):
-    """Decorator that makes functions thread-safe for GUI updates.
-    
-    Args:
-        func: The function to wrap
-    
-    Returns:
-        A wrapped version that always executes in the main thread
+    """Makes GUI updates thread-safe by running in the main thread.
     
     Example:
         @alwaysCallAfter
         def update_label(text):
-            label.SetLabel(text)  # Safely updates GUI from any thread
+            label.SetLabel(text)  # Safe GUI update from any thread
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
