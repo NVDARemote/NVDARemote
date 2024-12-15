@@ -4,7 +4,7 @@ import ssl
 import threading
 import uuid
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import shlobj
 from .connection_info import ConnectionInfo, ConnectionMode
@@ -156,7 +156,7 @@ class SecureDesktopHandler:
 		Initialize connection when starting in secure desktop.
 		
 		Returns:
-			SecureDesktopConnection if successful, None if not
+			ConnectionInfo instance if successful, None otherwise
 		"""
 		try:
 			data = json.loads(self.IPCFile.read_text())
