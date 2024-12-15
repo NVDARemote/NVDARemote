@@ -1,7 +1,14 @@
+from typing import TYPE_CHECKING
+
 import wx
 
-from .connection_info import ConnectionMode
+if TYPE_CHECKING:
+	from .client import RemoteClient
+
+
 import gui
+
+from .connection_info import ConnectionMode
 
 
 class RemoteMenu(wx.Menu):
@@ -15,7 +22,7 @@ class RemoteMenu(wx.Menu):
 	sendCtrlAltDelItem: wx.MenuItem
 	remoteItem: wx.MenuItem
 
-	def __init__(self, client) -> None:
+	def __init__(self, client: "RemoteClient") -> None:
 		super().__init__()
 		self.client = client
 		toolsMenu = gui.mainFrame.sysTrayIcon.toolsMenu
