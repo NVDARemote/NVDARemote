@@ -1,5 +1,4 @@
-from typing import Any, Set, Dict
-from enum import Enum
+from typing import Dict, Set
 from .protocol import RemoteMessageType
 from .transport import Transport
 

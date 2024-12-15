@@ -5,7 +5,6 @@ import configobj
 import globalVars
 from configobj import validate
 
-from . import socket_utils
 from .connection_info import ConnectionInfo
 
 CONFIG_FILE_NAME = 'remote.ini'
