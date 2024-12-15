@@ -173,7 +173,6 @@ class RemoteClient:
 		if self.slaveSession is not None:
 			self.disconnectAsSlave()
 		cues.disconnected()
-		self.menu.handleConnected(False)
 
 	def disconnectAsMaster(self):
 		self.masterSession.close()
@@ -182,7 +181,7 @@ class RemoteClient:
 		
 	def disconnectingAsMaster(self):
 		if self.menu:
-			self.menu.handleConnected(False)
+			self.menu.handleConnected(ConnectionMode.MASTER, False)
 		if self.localMachine:
 			self.localMachine.isMuted = False
 		self.sendingKeys = False
@@ -226,7 +225,7 @@ class RemoteClient:
 
 	def onConnectedAsMaster(self):
 		configuration.write_connection_to_config(self.masterSession.getConnectionInfo())
-		self.menu.handleConnected(True)
+		self.menu.handleConnected(ConnectionMode.MASTER, True)
 		# We might have already created a hook thread before if we're restoring an
 		# interrupted connection. We must not create another.
 		if not self.hookThread:
@@ -251,6 +250,7 @@ class RemoteClient:
 		transport.transportDisconnected.register(self.onDisconnectedAsMaster)
 		transport.reconnectorThread.start()
 		self.masterTransport = transport
+		self.menu.handleConnecting(connectionInfo.mode)
 
 	def connectAsSlave(self, connectionInfo: ConnectionInfo):
 		transport = RelayTransport.create(connection_info=connectionInfo, serializer=serializer.JSONSerializer())
@@ -260,8 +260,7 @@ class RemoteClient:
 		transport.transportCertificateAuthenticationFailed.register(self.onSlaveCertificateFailed)
 		transport.transportConnected.register(self.onConnectedAsSlave)
 		transport.reconnectorThread.start()
-		self.menu.disconnectItem.Enable(True)
-		self.menu.connectItem.Enable(False)
+		self.menu.handleConnecting(connectionInfo.mode)
 
 	def handleCertificateFailure(self, transport: RelayTransport):
 		self.lastFailAddress = transport.address
@@ -299,8 +298,7 @@ class RemoteClient:
 		cues.control_server_connected()
 		# Translators: Presented in direct (client to server) remote connection when the controlled computer is ready.
 		speech.speakMessage(_("Connected to control server"))
-		self.menu.pushClipboardItem.Enable(True)
-		self.menu.copyLinkItem.Enable(True)
+		self.menu.handleConnected(ConnectionMode.SLAVE, True)
 		configuration.write_connection_to_config(self.slaveSession.getConnectionInfo())
 
 	def startControlServer(self, serverPort, channel):
