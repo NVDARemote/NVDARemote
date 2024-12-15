@@ -284,6 +284,15 @@ class TCPTransport(Transport):
         self.insecure = insecure
 
     def run(self) -> None:
+        """Main connection loop for the transport.
+        
+        Establishes connection, handles certificate verification,
+        processes incoming data, and manages reconnection.
+        
+        Raises:
+            ssl.SSLCertVerificationError: If certificate verification fails
+            socket.error: For other connection failures
+        """
         self.closed = False
         try:
             self.serverSock = self.createOutboundSocket(
@@ -348,17 +357,15 @@ class TCPTransport(Transport):
         Creates a TCP socket with appropriate timeout and keep-alive settings,
         then wraps it with SSL/TLS encryption.
 
-        Args:
-                host: Remote hostname to connect to
-                port: Remote port number
-                insecure: Skip certificate verification. Defaults to False.
-
-        Returns:
-                Configured SSL socket ready for connection
-
         Note:
-                The socket is created but not yet connected. Call connect() separately.
+            The socket is created but not yet connected. Call connect() separately.
         """
+        # Remote hostname to connect to
+        self.host = host
+        # Remote port number
+        self.port = port
+        # Whether to skip certificate verification
+        self.insecure = insecure
         address = socket.getaddrinfo(host, port)[0]
         serverSock = socket.socket(*address[:3])
         if self.timeout:
@@ -379,13 +386,10 @@ class TCPTransport(Transport):
         """Get the certificate from the peer.
 
         Retrieves the certificate presented by the remote peer during SSL handshake.
-
-        Args:
-            binary_form: Return raw certificate bytes if True, parsed dictionary if False
-
-        Returns:
-            The peer's certificate, or None if not connected
+        Returns None if not connected.
         """
+        # Whether to return raw certificate bytes instead of parsed dictionary
+        self.binary_form = binary_form
         if self.serverSock is None:
             return None
         return self.serverSock.getpeercert(binary_form)
