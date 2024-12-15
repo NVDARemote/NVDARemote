@@ -449,25 +449,12 @@ class TCPTransport(Transport):
     def parse(self, line: bytes) -> None:
         """Parse and handle a complete message line.
 
-        Deserializes a message and routes it to the appropriate handler based on type.
-        Messages are expected to be JSON-encoded with a 'type' field identifying the message type.
-        The handler for that message type is called with the remaining fields as kwargs.
+        Deserializes JSON message and routes to appropriate handler.
+        Messages must have a 'type' field identifying the message type.
+        Remaining fields are passed as kwargs to the handler.
 
-        Args:
-            line: Complete message line to parse, must be valid JSON
-
-        Error handling:
-            - Messages without a 'type' field are logged and ignored
-            - Messages with invalid/unknown types are logged and ignored
-            - Messages with no registered handler are logged and ignored
-            - Deserialization errors are logged and the message is dropped
-
-        Threading:
-            Handler callbacks are executed asynchronously on the wx main thread
-            via wx.CallAfter() to ensure thread-safety with the NVDA UI.
-
-        Example message format:
-            {"type": "key_press", "key": "ctrl", "pressed": true}
+        Handler callbacks run asynchronously on wx main thread.
+        Invalid messages are logged and ignored.
         """
         obj = self.serializer.deserialize(line)
         if "type" not in obj:
@@ -486,28 +473,11 @@ class TCPTransport(Transport):
         wx.CallAfter(extensionPoint.notify, **obj)
 
     def sendQueue(self) -> None:
-        """Background thread that processes the outbound message queue.
+        """Process outbound message queue in background thread.
 
-        Continuously pulls messages from the queue and sends them over the socket.
-        Messages are expected to be serialized and newline-terminated.
-        
-        Thread lifecycle:
-        1. Waits for message on queue
-        2. Exits if None received (shutdown signal)
-        3. Acquires socket lock
-        4. Sends message with sendall()
-        5. Releases lock
-        6. Repeats until error or shutdown
-
-        Error handling:
-            - Socket errors cause thread to exit
-            - Parent transport handles reconnection
-            - Unsent messages remain in queue
-
-        Thread safety:
-            - Uses serverSockLock to synchronize socket access
-            - Queue handles thread-safe message passing
-            - Safe to call send() from any thread
+        Continuously sends queued messages over socket.
+        Thread exits on None message or socket error.
+        Uses lock for thread-safe socket access.
         """
         while True:
             item = self.queue.get()
@@ -540,16 +510,11 @@ class TCPTransport(Transport):
             log.error("Attempted to send message %r while not connected", type)
 
     def _disconnect(self) -> None:
-        """Internal method to disconnect the transport.
-
-        Cleans up the send queue thread, empties queued messages,
-        and closes the socket connection.
-
-        Note:
-                This is called internally on errors, unlike close() which is called
-                explicitly to shut down the transport.
+        """Internal method to handle transport disconnection.
+        
+        Cleans up queue thread and socket on errors.
+        Unlike close(), does not shut down connector thread.
         """
-        """Disconnect the transport due to an error, without closing the connector thread."""
         if self.queueThread is not None:
             self.queue.put(None)
             self.queueThread.join()
