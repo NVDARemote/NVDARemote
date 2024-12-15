@@ -385,12 +385,10 @@ class TCPTransport(Transport):
         Retrieves the certificate presented by the remote peer during SSL handshake.
 
         Args:
-                binary_form (bool, optional): If True, return the raw certificate bytes.
-                        If False, return a parsed dictionary. Defaults to False.
+            binary_form: Return raw certificate bytes if True, parsed dictionary if False
 
         Returns:
-                Optional[Union[Dict[str, Any], bytes]]: The peer's certificate, or None if not connected.
-                        Format depends on binary_form parameter.
+            The peer's certificate, or None if not connected
         """
         if self.serverSock is None:
             return None
@@ -456,7 +454,7 @@ class TCPTransport(Transport):
         The handler for that message type is called with the remaining fields as kwargs.
 
         Args:
-            line (bytes): Complete message line to parse, must be valid JSON
+            line: Complete message line to parse, must be valid JSON
 
         Error handling:
             - Messages without a 'type' field are logged and ignored
@@ -528,12 +526,12 @@ class TCPTransport(Transport):
         asynchronously by the queue thread.
 
         Args:
-                type (str|Enum): Message type, typically a RemoteMessageType enum value
-                **kwargs: Message payload data to serialize
+            type: Message type, typically a RemoteMessageType enum value
+            **kwargs: Message payload data to serialize
 
         Note:
-                This method is thread-safe and can be called from any thread.
-                If the transport is not connected, the message will be silently dropped.
+            This method is thread-safe and can be called from any thread.
+            If the transport is not connected, the message will be silently dropped.
         """
         if self.connected:
             obj = self.serializer.serialize(type=type, **kwargs)
