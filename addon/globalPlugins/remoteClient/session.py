@@ -201,7 +201,7 @@ class SlaveSession(RemoteSession):
 
 	def beep(self, hz: float, length: int, left: int = 50, right: int = 50) -> None:
 		self.transport.send(type=RemoteMessageType.tone, hz=hz,
-		                    length=length, left=left, right=right)
+							length=length, left=left, right=right)
 
 	def playWaveFile(self, **kwargs):
 		"""This machine played a sound, send it to Master machine"""
