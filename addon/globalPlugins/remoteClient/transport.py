@@ -504,19 +504,10 @@ class TCPTransport(Transport):
             self.serverSock = None
 
     def close(self) -> None:
-        """Close the transport and clean up resources.
-
-        Performs orderly shutdown of the transport:
-        1. Notifies listeners that transport is closing
-        2. Stops the reconnector thread
-        3. Disconnects any active connection
-        4. Marks transport as closed
-        5. Resets reconnector thread
-
-        Note:
-            This is the proper way to shut down a transport.
-            Unlike _disconnect() which handles connection errors,
-            this method ensures complete cleanup of all resources.
+        """Perform orderly shutdown of the transport.
+        
+        Notifies listeners, stops reconnection, and cleans up resources.
+        Use this method rather than _disconnect() for proper shutdown.
         """
         self.transportClosing.notify()
         self.reconnectorThread.running = False
@@ -573,15 +564,9 @@ class RelayTransport(TCPTransport):
         self.transportConnected.register(self.onConnected)
 
     def onConnected(self) -> None:
-        """Handle successful connection to relay server.
-
-        Performs initial protocol handshake:
-        1. Sends protocol version to server
-        2. Either joins specified channel or requests new channel key
+        """Handle relay server connection and protocol handshake.
         
-        The behavior depends on whether a channel was specified:
-        - With channel: Joins that channel with specified connection type
-        - Without channel: Requests generation of new channel key
+        Sends version and either joins channel or requests new key.
         """
         self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
         if self.channel is not None:
@@ -635,26 +620,10 @@ class ConnectorThread(threading.Thread):
 
 
 def clearQueue(queue: Queue[Optional[bytes]]) -> None:
-    """Empty all items from a queue without blocking.
-
-    Removes all pending items from a queue in a non-blocking way.
-    Used during transport shutdown to prevent memory leaks from
-    unsent messages.
-
-    Args:
-        queue: Queue instance to clear
-
-    Implementation:
-        - Uses get_nowait() to avoid blocking
-        - Continues until queue.Empty exception
-        - Ignores all exceptions during cleanup
-        - Does not wait for queue consumers
-
-    When to use:
-        - Before closing a transport
-        - When abandoning a connection
-        - During error recovery
-        - Any time pending messages should be discarded
+    """Empty queue without blocking to prevent memory leaks.
+    
+    Non-blocking removal of all pending items.
+    Used during shutdown and error recovery.
     """
     try:
         while True:
