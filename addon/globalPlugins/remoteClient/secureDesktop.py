@@ -39,34 +39,19 @@ def getProgramDataTempPath() -> Path:
 
 @dataclass(frozen=True)
 class SecureDesktopConnection:
-	"""Immutable container for secure desktop connection details.
+	"""Connection details for secure desktop session.
 	
-	This class stores the connection information needed to establish
-	a connection to a secure desktop session. The frozen=True decorator
-	ensures instances are immutable after creation.
-	
-	Attributes:
-		address (Tuple[str, int]): The (host, port) tuple for the connection
-		channel (str): Unique channel identifier/password for the secure connection
+	Immutable container for relay server address and channel.
 	"""
 	address: Tuple[str, int]
 	channel: str
 
 
 class SecureDesktopHandler:
-	"""Manages transitions between regular and secure desktop environments.
+	"""Maintains remote connections during secure desktop transitions.
 	
-	This class coordinates the complex process of maintaining NVDA Remote
-	connections when Windows switches between regular and secure desktop
-	sessions. It handles:
-	
-	* Setting up local relay servers for secure desktop communication
-	* Managing IPC between regular and secure desktop NVDA instances
-	* Bridging connections between the secure desktop and remote partner
-	* Cleaning up resources when transitioning between desktop states
-	
-	The handler uses a temporary file for IPC and creates local relay servers
-	to maintain connection state across desktop transitions.
+	Handles relay servers, IPC, and connection bridging between
+	regular and secure desktop sessions.
 	"""
 	
 	SD_CONNECT_BLOCK_TIMEOUT: int = 1
