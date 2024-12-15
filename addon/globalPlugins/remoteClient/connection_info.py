@@ -27,6 +27,7 @@ class ConnectionInfo:
 	mode: ConnectionMode
 	key: str
 	port: int = SERVER_PORT
+	insecure: bool = False
 
 	def __post_init__(self):
 		self.port = self.port or SERVER_PORT
@@ -40,6 +41,7 @@ class ConnectionInfo:
 		port = parsedUrl.port
 		key = parsedQuery.get('key', [""])[0]
 		mode = parsedQuery.get('mode', [""])[0].lower()
+		insecure = parsedQuery.get('insecure', ["false"])[0].lower() == "true"
 		if not hostname:
 			raise URLParsingError("No hostname provided")
 		if not key:
@@ -50,7 +52,7 @@ class ConnectionInfo:
 			ConnectionMode(mode)
 		except ValueError:
 			raise URLParsingError("Invalid mode provided: %r" % mode)
-		return cls(hostname=hostname, mode=mode, key=key, port=port)
+		return cls(hostname=hostname, mode=mode, key=key, port=port, insecure=insecure)
 
 
 	def getAddress(self):
@@ -61,7 +63,11 @@ class ConnectionInfo:
 	def _build_url(self, mode: ConnectionMode):
 		# Build URL components
 		netloc = socket_utils.hostPortToAddress((self.hostname, self.port))
-		query = urlencode({'key': self.key, 'mode': mode if isinstance(mode, str) else mode.value})
+		query = urlencode({
+			'key': self.key,
+			'mode': mode if isinstance(mode, str) else mode.value,
+			'insecure': str(self.insecure).lower()
+		})
 		
 		# Use urlunparse for proper URL construction
 		return urlunparse((
