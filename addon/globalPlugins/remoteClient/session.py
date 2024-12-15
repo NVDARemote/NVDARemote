@@ -214,6 +214,12 @@ Please either use a different server or upgrade your version of the addon.""")
 		key = self.transport.channel
 		return connection_info.ConnectionInfo(hostname=hostname, port=port, key=key, mode=self.mode)
 
+	def close(self) -> None:
+		self.transport.close()
+		
+	def __del__(self) -> None:
+		self.close()
+
 class SlaveSession(RemoteSession):
 	"""Session that runs on the controlled (slave) NVDA instance.
 	
@@ -368,7 +374,7 @@ class SlaveSession(RemoteSession):
 			right: Right channel volume (0-100)
 		"""
 		self.transport.send(type=RemoteMessageType.tone, hz=hz,
-		                    length=length, left=left, right=right)
+							length=length, left=left, right=right)
 
 	def playWaveFile(self, **kwargs):
 		"""This machine played a sound, send it to Master machine"""

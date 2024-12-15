@@ -34,6 +34,7 @@ import wx
 from extensionPoints import Action
 
 from . import configuration
+from .connection_info import ConnectionInfo
 from .protocol import PROTOCOL_VERSION, RemoteMessageType
 from .serializer import Serializer
 from .socket_utils import hostPortToAddress
@@ -73,11 +74,11 @@ class Transport:
 		serializer: The serializer instance to use for message encoding/decoding
 
 	Attributes:
-		connected: True if transport has an active connection
-		successful_connects: Counter of successful connection attempts
-		connected_event: Event that is set when connected
-		serializer: The message serializer instance
-		inboundHandlers: Registered message handlers
+		connected (bool): True if transport has an active connection
+		successful_connects (int): Counter of successful connection attempts
+		connected_event (threading.Event): Event that is set when connected
+		serializer (Serializer): The message serializer instance
+		inboundHandlers (Dict[RemoteMessageType, Callable]): Registered message handlers
 
 	Events:
 		transportConnected: Fired after connection is established and ready
@@ -87,18 +88,12 @@ class Transport:
 		transportClosing: Fired before transport is shut down
 	"""
 
-	# Whether transport has an active connection
 	connected: bool
-	# Counter of successful connection attempts
 	successfulConnects: int
-	# Event that is set when connected, cleared when disconnected
 	connectedEvent: threading.Event
-	# Message serializer instance for encoding/decoding network messages
 	serializer: Serializer
 
 	def __init__(self, serializer: Serializer) -> None:
-		"""Initialize transport with message serializer."""
-		# Handles message encoding/decoding for network transmission
 		self.serializer = serializer
 		self.connected = False
 		self.successfulConnects = 0
@@ -134,21 +129,11 @@ class Transport:
 		Called internally when a connection is established. Updates connection state,
 		increments successful connection counter, and notifies listeners.
 
-		State changes:
-			- Increments successfulConnects counter
-			- Sets connected flag to True 
-			- Sets connectedEvent threading.Event
-			- Notifies all transportConnected listeners
-
-		Threading:
-			- Can be called from any thread
-			- Thread-safe due to atomic operations
-			- Listeners are called on the same thread
-
-		Note:
-			This is an internal method called by transport implementations
-			after establishing a connection. External code should register
-			for transportConnected notifications instead.
+		This method:
+		1. Increments successful connection counter
+		2. Sets connected flag to True
+		3. Sets the connected event
+		4. Notifies transportConnected listeners
 		"""
 		self.successfulConnects += 1
 		self.connected = True
@@ -158,30 +143,22 @@ class Transport:
 	def registerInbound(self, type: RemoteMessageType, handler: Callable) -> None:
 		"""Register a handler for incoming messages of a specific type.
 
-		Adds a callback function to handle messages of the specified type.
+		Adds a callback function to handle messages of the specified RemoteMessageType.
 		Multiple handlers can be registered for the same message type.
-		Handlers are called in registration order when messages arrive.
 
-		Threading:
-			- Registration is thread-safe
-			- Handlers are called asynchronously on wx main thread
-			- Handler execution order is preserved
+		Args:
+				type (RemoteMessageType): The message type to handle
+				handler (Callable): Callback function to process messages of this type.
+						Will be called with the message payload as kwargs.
 
 		Example:
-			>>> def handle_keypress(key_code: int, pressed: bool) -> None:
-			...     print(f"Key {key_code} {'pressed' if pressed else 'released'}")
-			>>> transport.registerInbound(RemoteMessageType.key_press, handle_keypress)
+				>>> def handle_keypress(key_code, pressed):
+				...     print(f"Key {key_code} {'pressed' if pressed else 'released'}")
+				>>> transport.registerInbound(RemoteMessageType.key_press, handle_keypress)
 
 		Note:
-			- Handlers must accept **kwargs for forward compatibility
-			- Exceptions in handlers are caught and logged
-			- Handlers can be unregistered with unregisterInbound()
-			- Same handler can be registered multiple times
+				Handlers are called asynchronously on the wx main thread via wx.CallAfter
 		"""
-		# The message type to handle
-		self.type = type
-		# Callback function to process messages, called with payload as kwargs
-		self.handler = handler
 		self.inboundHandlers[type].register(handler)
 
 	def unregisterInbound(self, type: RemoteMessageType, handler: Callable) -> None:
@@ -190,24 +167,16 @@ class Transport:
 		Removes a specific handler function from the list of handlers for a message type.
 		If the handler was not previously registered, this is a no-op.
 
-		Threading:
-			- Unregistration is thread-safe
-			- Can be called while handlers are executing
-			- Removed handler won't receive future messages
+		Args:
+				type (RemoteMessageType): The message type to unregister from
+				handler (Callable): The handler function to remove
 
 		Example:
-			>>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
+				>>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
 
 		Note:
-			- Must pass the exact same handler function that was registered
-			- Removing a handler multiple times is safe
-			- Other handlers for same type are unaffected
-			- In-flight messages may still reach the handler
+				Must pass the exact same handler function that was previously registered
 		"""
-		# The message type to unregister from
-		self.type = type
-		# The handler function to remove from the registry
-		self.handler = handler
 		self.inboundHandlers[type].unregister(handler)
 
 
@@ -219,45 +188,34 @@ class TCPTransport(Transport):
 	lifecycle management.
 
 	Args:
-		serializer: Message serializer instance
-		address: Remote address to connect to
-		timeout: Connection timeout in seconds. Defaults to 0.
-		insecure: Skip certificate verification. Defaults to False.
+		serializer (Serializer): Message serializer instance
+		address (Tuple[str, int]): Remote address to connect to
+		timeout (int, optional): Connection timeout in seconds. Defaults to 0.
+		insecure (bool, optional): Skip certificate verification. Defaults to False.
 
 	Attributes:
-		buffer: Buffer for incomplete received data
-		closed: Whether transport is closed
-		queue: Queue of outbound messages
-		insecure: Whether to skip certificate verification
-		address: Remote address to connect to
-		timeout: Connection timeout in seconds
-		serverSock: The SSL socket connection
-		serverSockLock: Lock for thread-safe socket access
-		queueThread: Thread handling outbound messages
-		reconnectorThread: Thread managing reconnection
+		buffer (bytes): Buffer for incomplete received data
+		closed (bool): Whether transport is closed
+		queue (Queue[Optional[bytes]]): Queue of outbound messages
+		insecure (bool): Whether to skip certificate verification
+		address (Tuple[str, int]): Remote address to connect to
+		timeout (int): Connection timeout in seconds
+		serverSock (Optional[ssl.SSLSocket]): The SSL socket connection
+		serverSockLock (threading.Lock): Lock for thread-safe socket access
+		queueThread (Optional[threading.Thread]): Thread handling outbound messages
+		reconnectorThread (ConnectorThread): Thread managing reconnection
 	"""
 
-	# Buffer for incomplete received data
 	buffer: bytes
-	# Whether transport is intentionally closed
 	closed: bool
-	# Queue of outbound messages pending send
 	queue: Queue[Optional[bytes]]
-	# Whether to skip SSL certificate verification
 	insecure: bool
-	# Lock for thread-safe socket access
 	serverSockLock: threading.Lock
-	# Remote (host, port) to connect to
 	address: Tuple[str, int]
-	# Active SSL socket connection
 	serverSock: Optional[ssl.SSLSocket]
-	# Thread handling outbound message queue
 	queueThread: Optional[threading.Thread]
-	# Connection timeout in seconds
 	timeout: int
-	# Thread managing reconnection attempts
 	reconnectorThread: "ConnectorThread"
-	# Last failed certificate fingerprint
 	lastFailFingerprint: Optional[str]
 
 	def __init__(
@@ -284,15 +242,6 @@ class TCPTransport(Transport):
 		self.insecure = insecure
 
 	def run(self) -> None:
-		"""Main connection loop for the transport.
-		
-		Establishes connection, handles certificate verification,
-		processes incoming data, and manages reconnection.
-		
-		Raises:
-			ssl.SSLCertVerificationError: If certificate verification fails
-			socket.error: For other connection failures
-		"""
 		self.closed = False
 		try:
 			self.serverSock = self.createOutboundSocket(
@@ -357,15 +306,17 @@ class TCPTransport(Transport):
 		Creates a TCP socket with appropriate timeout and keep-alive settings,
 		then wraps it with SSL/TLS encryption.
 
+		Args:
+				host (str): Remote hostname to connect to
+				port (int): Remote port number
+				insecure (bool, optional): Skip certificate verification. Defaults to False.
+
+		Returns:
+				ssl.SSLSocket: Configured SSL socket ready for connection
+
 		Note:
-			The socket is created but not yet connected. Call connect() separately.
+				The socket is created but not yet connected. Call connect() separately.
 		"""
-		# Remote hostname to connect to
-		self.host = host
-		# Remote port number
-		self.port = port
-		# Whether to skip certificate verification
-		self.insecure = insecure
 		address = socket.getaddrinfo(host, port)[0]
 		serverSock = socket.socket(*address[:3])
 		if self.timeout:
@@ -386,20 +337,31 @@ class TCPTransport(Transport):
 		"""Get the certificate from the peer.
 
 		Retrieves the certificate presented by the remote peer during SSL handshake.
-		Returns None if not connected.
+
+		Args:
+				binary_form (bool, optional): If True, return the raw certificate bytes.
+						If False, return a parsed dictionary. Defaults to False.
+
+		Returns:
+				Optional[Union[Dict[str, Any], bytes]]: The peer's certificate, or None if not connected.
+						Format depends on binary_form parameter.
 		"""
-		# Whether to return raw certificate bytes instead of parsed dictionary
-		self.binary_form = binary_form
 		if self.serverSock is None:
 			return None
 		return self.serverSock.getpeercert(binary_form)
 
 	def processIncomingSocketData(self) -> None:
-		"""Process incoming socket data in chunks.
+		"""Process incoming data from the server socket.
 
-		Handles newline-delimited messages with partial buffering.
-		Uses non-blocking SSL socket reads with thread safety.
-		Empty reads trigger disconnect.
+		Reads available data from the socket, buffers partial messages,
+		and processes complete messages by passing them to parse().
+
+		Messages are expected to be newline-delimited.
+		Partial messages are stored in self.buffer until complete.
+
+		Note:
+				This method handles SSL-specific socket behavior and non-blocking reads.
+				It is called when select() indicates data is available.
 		"""
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.
@@ -436,12 +398,15 @@ class TCPTransport(Transport):
 	def parse(self, line: bytes) -> None:
 		"""Parse and handle a complete message line.
 
-		Deserializes JSON message and routes to appropriate handler.
-		Messages must have a 'type' field identifying the message type.
-		Remaining fields are passed as kwargs to the handler.
+		Deserializes a message and routes it to the appropriate handler based on type.
 
-		Handler callbacks run asynchronously on wx main thread.
-		Invalid messages are logged and ignored.
+		Args:
+				line (bytes): Complete message line to parse
+
+		Note:
+				Messages must include a 'type' field matching a RemoteMessageType enum value.
+				Handler callbacks are executed asynchronously on the wx main thread.
+				Invalid or unhandled message types are logged as errors.
 		"""
 		obj = self.serializer.deserialize(line)
 		if "type" not in obj:
@@ -460,11 +425,14 @@ class TCPTransport(Transport):
 		wx.CallAfter(extensionPoint.notify, **obj)
 
 	def sendQueue(self) -> None:
-		"""Process outbound message queue in background thread.
+		"""Background thread that processes the outbound message queue.
 
-		Continuously sends queued messages over socket.
-		Thread exits on None message or socket error.
-		Uses lock for thread-safe socket access.
+		Continuously pulls messages from the queue and sends them over the socket.
+		Thread exits when None is received from the queue or a socket error occurs.
+
+		Note:
+				This method runs in a separate thread and handles thread-safe socket access
+				using the serverSockLock.
 		"""
 		while True:
 			item = self.queue.get()
@@ -477,10 +445,18 @@ class TCPTransport(Transport):
 				return
 
 	def send(self, type: str | Enum, **kwargs: Any) -> None:
-		"""Queue a message for asynchronous transmission.
-		
-		Thread-safe method to send messages.
-		Drops messages if transport not connected.
+		"""Send a message through the transport.
+
+		Serializes and queues a message for transmission. Messages are sent
+		asynchronously by the queue thread.
+
+		Args:
+				type (str|Enum): Message type, typically a RemoteMessageType enum value
+				**kwargs: Message payload data to serialize
+
+		Note:
+				This method is thread-safe and can be called from any thread.
+				If the transport is not connected, the message will be silently dropped.
 		"""
 		if self.connected:
 			obj = self.serializer.serialize(type=type, **kwargs)
@@ -489,11 +465,16 @@ class TCPTransport(Transport):
 			log.error("Attempted to send message %r while not connected", type)
 
 	def _disconnect(self) -> None:
-		"""Internal method to handle transport disconnection.
-		
-		Cleans up queue thread and socket on errors.
-		Unlike close(), does not shut down connector thread.
+		"""Internal method to disconnect the transport.
+
+		Cleans up the send queue thread, empties queued messages,
+		and closes the socket connection.
+
+		Note:
+				This is called internally on errors, unlike close() which is called
+				explicitly to shut down the transport.
 		"""
+		"""Disconnect the transport due to an error, without closing the connector thread."""
 		if self.queueThread is not None:
 			self.queue.put(None)
 			self.queueThread.join()
@@ -503,12 +484,8 @@ class TCPTransport(Transport):
 			self.serverSock.close()
 			self.serverSock = None
 
-	def close(self) -> None:
-		"""Perform orderly shutdown of the transport.
-		
-		Notifies listeners, stops reconnection, and cleans up resources.
-		Use this method rather than _disconnect() for proper shutdown.
-		"""
+	def close(self):
+		"""Close the transport."""
 		self.transportClosing.notify()
 		self.reconnectorThread.running = False
 		self._disconnect()
@@ -523,25 +500,22 @@ class RelayTransport(TCPTransport):
 	and connection types. Manages protocol versioning and channel joining.
 
 	Args:
-		serializer: Message serializer instance
-		address: Relay server address
-		timeout: Connection timeout. Defaults to 0.
-		channel: Channel to join. Defaults to None.
-		connectionType: Connection type. Defaults to None.
-		protocol_version: Protocol version. Defaults to PROTOCOL_VERSION.
-		insecure: Skip certificate verification. Defaults to False.
+		serializer (Serializer): Message serializer instance
+		address (Tuple[str, int]): Relay server address
+		timeout (int, optional): Connection timeout. Defaults to 0.
+		channel (Optional[str], optional): Channel to join. Defaults to None.
+		connectionType (Optional[str], optional): Connection type. Defaults to None.
+		protocol_version (int, optional): Protocol version. Defaults to PROTOCOL_VERSION.
+		insecure (bool, optional): Skip certificate verification. Defaults to False.
 
 	Attributes:
-		channel: Relay channel name
-		connectionType: Type of relay connection
-		protocol_version: Protocol version to use
+		channel (Optional[str]): Relay channel name
+		connectionType (Optional[str]): Type of relay connection
+		protocol_version (int): Protocol version to use
 	"""
 
-	# Relay channel name to join
 	channel: Optional[str]
-	# Type of relay connection (master/slave)
 	connectionType: Optional[str]
-	# Protocol version for compatibility
 	protocol_version: int
 
 	def __init__(
@@ -554,6 +528,17 @@ class RelayTransport(TCPTransport):
 		protocol_version: int = PROTOCOL_VERSION,
 		insecure: bool = False,
 	) -> None:
+		"""Initialize a new RelayTransport instance.
+
+		Args:
+			serializer: Serializer for encoding/decoding messages
+			address: Tuple of (host, port) to connect to
+			timeout: Connection timeout in seconds
+			channel: Optional channel name to join
+			connectionType: Optional connection type identifier
+			protocol_version: Protocol version to use
+			insecure: Whether to skip certificate verification
+		"""
 		super().__init__(
 			address=address, serializer=serializer, timeout=timeout, insecure=insecure
 		)
@@ -563,11 +548,26 @@ class RelayTransport(TCPTransport):
 		self.protocol_version = protocol_version
 		self.transportConnected.register(self.onConnected)
 
-	def onConnected(self) -> None:
-		"""Handle relay server connection and protocol handshake.
+	@classmethod
+	def create(cls, connection_info: ConnectionInfo, serializer: Serializer) -> "RelayTransport":
+		"""Create a RelayTransport from a ConnectionInfo object.
 		
-		Sends version and either joins channel or requests new key.
+		Args:
+			connection_info: ConnectionInfo instance containing connection details
+			serializer: Serializer instance for message encoding/decoding
+			
+		Returns:
+			Configured RelayTransport instance ready for connection
 		"""
+		return cls(
+			serializer=serializer,
+			address=(connection_info.hostname, connection_info.port),
+			channel=connection_info.key,
+			connectionType=connection_info.mode.value,
+			insecure=connection_info.insecure
+		)
+
+	def onConnected(self) -> None:
 		self.send(RemoteMessageType.protocol_version, version=self.protocol_version)
 		if self.channel is not None:
 			self.send(
@@ -586,13 +586,13 @@ class ConnectorThread(threading.Thread):
 	Runs until explicitly stopped.
 
 	Args:
-		connector: Transport instance to manage connections for
-		reconnectDelay: Seconds between attempts. Defaults to 5.
+		connector (Transport): Transport instance to manage connections for
+		reconnectDelay (int, optional): Seconds between attempts. Defaults to 5.
 
 	Attributes:
-		running: Whether thread should continue running
-		connector: Transport to manage connections for
-		reconnectDelay: Seconds to wait between connection attempts
+		running (bool): Whether thread should continue running
+		connector (Transport): Transport to manage connections for
+		reconnectDelay (int): Seconds to wait between connection attempts
 	"""
 
 	running: bool
@@ -620,10 +620,17 @@ class ConnectorThread(threading.Thread):
 
 
 def clearQueue(queue: Queue[Optional[bytes]]) -> None:
-	"""Empty queue without blocking to prevent memory leaks.
-	
-	Non-blocking removal of all pending items.
-	Used during shutdown and error recovery.
+	"""Empty all items from a queue without blocking.
+
+	Removes all items from the queue in a non-blocking way,
+	useful for cleaning up before disconnection.
+
+	Args:
+		queue (Queue[Optional[bytes]]): Queue instance to clear
+
+	Note:
+		This function catches and ignores any exceptions that occur
+		while trying to get items from an empty queue.
 	"""
 	try:
 		while True:

@@ -10,16 +10,16 @@ that runs in an isolated environment for security. This module ensures NVDA Remo
 connections persist when entering and leaving this secure environment.
 """
 
-from dataclasses import dataclass
 import json
 import socket
 import ssl
 import threading
 import uuid
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import shlobj
+from .connection_info import ConnectionInfo, ConnectionMode
 from logHandler import log
 from winAPI.secureDesktop import post_secureDesktopStateChange
 
@@ -35,16 +35,6 @@ def getProgramDataTempPath() -> Path:
 	if hasattr(shlobj, 'SHGetKnownFolderPath'):
 		return Path(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA)) / 'temp'
 	return Path(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA)) / 'temp'
-
-
-@dataclass(frozen=True)
-class SecureDesktopConnection:
-	"""Connection details for secure desktop session.
-	
-	Immutable container for relay server address and channel.
-	"""
-	address: Tuple[str, int]
-	channel: str
 
 
 class SecureDesktopHandler:
@@ -177,12 +167,12 @@ class SecureDesktopHandler:
 		except FileNotFoundError:
 			pass
 
-	def initializeSecureDesktop(self) -> Optional[SecureDesktopConnection]:
+	def initializeSecureDesktop(self) -> Optional[ConnectionInfo]:
 		"""
 		Initialize connection when starting in secure desktop.
 		
 		Returns:
-			SecureDesktopConnection if successful, None if not
+			ConnectionInfo instance if successful, None otherwise
 		"""
 		try:
 			data = json.loads(self.IPCFile.read_text())
@@ -194,9 +184,12 @@ class SecureDesktopHandler:
 			testSocket.connect(('127.0.0.1', port))
 			testSocket.close()
 
-			return SecureDesktopConnection(
-				address=('127.0.0.1', port),
-				channel=channel
+			return ConnectionInfo(
+				hostname='127.0.0.1',
+				mode=ConnectionMode.SLAVE,
+				key=channel,
+				port=port,
+				insecure=True
 			)
 			
 		except Exception:

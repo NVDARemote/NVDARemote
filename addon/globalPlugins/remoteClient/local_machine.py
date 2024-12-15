@@ -50,9 +50,9 @@ from speech.types import SpeechSequence
 from . import cues, input
 
 try:
-    from systemUtils import hasUiAccess
+	from systemUtils import hasUiAccess
 except ModuleNotFoundError:
-    from config import hasUiAccess
+	from config import hasUiAccess
 
 import ui
 

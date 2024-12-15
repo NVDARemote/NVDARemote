@@ -13,34 +13,35 @@ The bridge acts as an intermediary layer that:
 - Manages the lifecycle of message handlers
 
 Example:
-    >>> transport1 = TCPTransport(serializer, addr1)
-    >>> transport2 = TCPTransport(serializer, addr2) 
-    >>> bridge = BridgeTransport(transport1, transport2)
-    # Messages will now flow between transport1 and transport2
-    >>> bridge.disconnect()  # Clean up when done
+	>>> transport1 = TCPTransport(serializer, addr1)
+	>>> transport2 = TCPTransport(serializer, addr2) 
+	>>> bridge = BridgeTransport(transport1, transport2)
+	# Messages will now flow between transport1 and transport2
+	>>> bridge.disconnect()  # Clean up when done
 """
 
-from typing import Any, Set, Dict
-from enum import Enum
+from typing import Dict, Set
+
 from .protocol import RemoteMessageType
 from .transport import Transport
 
+
 class BridgeTransport:
-    """A bridge between two NVDA Remote transport instances.
-    
-    This class creates a bidirectional bridge between two Transport instances,
-    allowing them to exchange messages while providing message filtering capabilities.
-    It automatically sets up message handlers for all RemoteMessageTypes and manages
-    their lifecycle.
-    
-    Attributes:
-        excluded (Set[str]): Message types that should not be forwarded between transports.
-            By default includes connection management messages that should remain local.
-        t1 (Transport): First transport instance to bridge
-        t2 (Transport): Second transport instance to bridge
-        t1_callbacks (Dict[RemoteMessageType, callable]): Storage for t1's message handlers
-        t2_callbacks (Dict[RemoteMessageType, callable]): Storage for t2's message handlers
-    """
+	"""A bridge between two NVDA Remote transport instances.
+	
+	This class creates a bidirectional bridge between two Transport instances,
+	allowing them to exchange messages while providing message filtering capabilities.
+	It automatically sets up message handlers for all RemoteMessageTypes and manages
+	their lifecycle.
+	
+	Attributes:
+		excluded (Set[str]): Message types that should not be forwarded between transports.
+			By default includes connection management messages that should remain local.
+		t1 (Transport): First transport instance to bridge
+		t2 (Transport): Second transport instance to bridge
+		t1_callbacks (Dict[RemoteMessageType, callable]): Storage for t1's message handlers
+		t2_callbacks (Dict[RemoteMessageType, callable]): Storage for t2's message handlers
+	"""
 	excluded: Set[str] = {'client_joined', 'client_left', 'channel_joined', 'set_braille_info'}
 
 	def __init__(self, t1: Transport, t2: Transport) -> None:
