@@ -3,11 +3,11 @@ import socket
 import ssl
 import threading
 import uuid
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import shlobj
+from .connection_info import ConnectionInfo, ConnectionMode
 from logHandler import log
 from winAPI.secureDesktop import post_secureDesktopStateChange
 
@@ -24,11 +24,6 @@ def getProgramDataTempPath() -> Path:
 		return Path(shlobj.SHGetKnownFolderPath(shlobj.FolderId.PROGRAM_DATA)) / 'temp'
 	return Path(shlobj.SHGetFolderPath(0, shlobj.CSIDL_COMMON_APPDATA)) / 'temp'
 
-@dataclass(frozen=True)
-class SecureDesktopConnection:
-	"""Connection details for secure desktop."""
-	address: Tuple[str, int]
-	channel: str
 
 class SecureDesktopHandler:
 	"""Handles secure desktop transitions and management of secure desktop connections."""
@@ -156,12 +151,12 @@ class SecureDesktopHandler:
 		except FileNotFoundError:
 			pass
 
-	def initializeSecureDesktop(self) -> Optional[SecureDesktopConnection]:
+	def initializeSecureDesktop(self) -> Optional[ConnectionInfo]:
 		"""
 		Initialize connection when starting in secure desktop.
 		
 		Returns:
-			SecureDesktopConnection if successful, None if not
+			ConnectionInfo instance if successful, None otherwise
 		"""
 		try:
 			data = json.loads(self.IPCFile.read_text())
@@ -173,9 +168,12 @@ class SecureDesktopHandler:
 			testSocket.connect(('127.0.0.1', port))
 			testSocket.close()
 
-			return SecureDesktopConnection(
-				address=('127.0.0.1', port),
-				channel=channel
+			return ConnectionInfo(
+				hostname='127.0.0.1',
+				mode=ConnectionMode.SLAVE,
+				key=channel,
+				port=port,
+				insecure=True
 			)
 			
 		except Exception:
