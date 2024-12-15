@@ -216,12 +216,6 @@ class Transport:
 		Args:
 				type (RemoteMessageType): The message type to unregister from
 				handler (Callable): The handler function to remove
-
-		Example:
-				>>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
-
-		Note:
-				Must pass the exact same handler function that was previously registered
 		"""
 		self.inboundHandlers[type].unregister(handler)
 
@@ -252,7 +246,6 @@ class Transport:
 		"""
 		self.outboundHandlers[messageType].unregister()
 		del self.outboundHandlers[messageType]
-
 
 
 class TCPTransport(Transport):
