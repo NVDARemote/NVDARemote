@@ -86,7 +86,7 @@ Please either use a different server or upgrade your version of the addon.""")
 	def shouldDisplayMotd(self, motd: str) -> bool:
 		conf = configuration.get_config()
 		connection = self.getConnectionInfo()
-		address = "{host}:{port}".format(host=connection.host, port=connection.port)
+		address = "{host}:{port}".format(host=connection.hostname, port=connection.port)
 		motdBytes = motd.encode("utf-8", errors="surrogatepass")
 		hashed = hashlib.sha1(motdBytes).hexdigest()
 		current = conf["seen_motds"].get(address, "")
