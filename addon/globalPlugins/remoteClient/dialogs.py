@@ -227,7 +227,8 @@ class DirectConnectDialog(wx.Dialog):
 				hostname=serverAddr, 
 				mode=mode, 
 				key=self.getKey(), 
-				port=port
+				port=port,
+				insecure=False
 			)
 		else:  # server
 			port = int(self.panel.port.GetValue())
@@ -236,7 +237,8 @@ class DirectConnectDialog(wx.Dialog):
 				hostname='127.0.0.1',
 				mode=mode,
 				key=self.getKey(),
-				port=port
+				port=port,
+				insecure=True
 			)
 
 class CertificateUnauthorizedDialog(wx.MessageDialog):
