@@ -97,11 +97,8 @@ class Transport:
     serializer: Serializer
 
     def __init__(self, serializer: Serializer) -> None:
-        """Initialize transport with message serializer.
-        
-        Args:
-            serializer: Handles message encoding/decoding
-        """
+        """Initialize transport with message serializer."""
+        # Handles message encoding/decoding for network transmission
         self.serializer = serializer
         self.connected = False
         self.successfulConnects = 0
@@ -161,14 +158,9 @@ class Transport:
     def registerInbound(self, type: RemoteMessageType, handler: Callable) -> None:
         """Register a handler for incoming messages of a specific type.
 
-        Adds a callback function to handle messages of the specified RemoteMessageType.
-        Multiple handlers can be registered for the same message type. Handlers are
-        called in registration order when messages arrive.
-
-        Args:
-            type: The message type to handle
-            handler: Callback function to process messages of this type.
-                Will be called with the message payload as kwargs.
+        Adds a callback function to handle messages of the specified type.
+        Multiple handlers can be registered for the same message type.
+        Handlers are called in registration order when messages arrive.
 
         Threading:
             - Registration is thread-safe
@@ -186,6 +178,10 @@ class Transport:
             - Handlers can be unregistered with unregisterInbound()
             - Same handler can be registered multiple times
         """
+        # The message type to handle
+        self.type = type
+        # Callback function to process messages, called with payload as kwargs
+        self.handler = handler
         self.inboundHandlers[type].register(handler)
 
     def unregisterInbound(self, type: RemoteMessageType, handler: Callable) -> None:
@@ -193,10 +189,6 @@ class Transport:
 
         Removes a specific handler function from the list of handlers for a message type.
         If the handler was not previously registered, this is a no-op.
-
-        Args:
-            type: The message type to unregister from
-            handler: The handler function to remove
 
         Threading:
             - Unregistration is thread-safe
@@ -212,6 +204,10 @@ class Transport:
             - Other handlers for same type are unaffected
             - In-flight messages may still reach the handler
         """
+        # The message type to unregister from
+        self.type = type
+        # The handler function to remove from the registry
+        self.handler = handler
         self.inboundHandlers[type].unregister(handler)
 
 
