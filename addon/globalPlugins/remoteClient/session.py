@@ -113,6 +113,12 @@ Please either use a different server or upgrade your version of the addon.""")
 		)
 
 
+	def close(self) -> None:
+		self.transport.close()
+		
+	def __del__(self) -> None:
+		self.close()
+
 class SlaveSession(RemoteSession):
 	"""Session that runs on the slave and manages state."""
 
