@@ -73,11 +73,11 @@ class Transport:
         serializer: The serializer instance to use for message encoding/decoding
 
     Attributes:
-        connected (bool): True if transport has an active connection
-        successful_connects (int): Counter of successful connection attempts
-        connected_event (threading.Event): Event that is set when connected
-        serializer (Serializer): The message serializer instance
-        inboundHandlers (Dict[RemoteMessageType, Callable]): Registered message handlers
+        connected: True if transport has an active connection
+        successful_connects: Counter of successful connection attempts
+        connected_event: Event that is set when connected
+        serializer: The message serializer instance
+        inboundHandlers: Registered message handlers
 
     Events:
         transportConnected: Fired after connection is established and ready
