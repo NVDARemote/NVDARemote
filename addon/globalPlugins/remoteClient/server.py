@@ -39,26 +39,11 @@ logger = logging.getLogger(__name__)
 class LocalRelayServer:
 	"""Secure relay server for NVDA Remote connections.
 
-	This class implements a relay server that:
-	- Accepts encrypted connections from NVDA Remote clients
-	- Authenticates clients using a shared password
-	- Routes messages between connected clients
-	- Monitors connection health with periodic pings
-	- Supports both IPv4 and IPv6
+	Accepts encrypted connections from NVDA Remote clients and routes messages between them.
+	Creates IPv4 and IPv6 listening sockets using SSL/TLS encryption.
+	Uses select() for non-blocking I/O and monitors connection health with periodic pings.
 
-	The server creates two listening sockets (IPv4 and IPv6) and uses select()
-	for non-blocking I/O. All connections are encrypted using SSL/TLS.
-
-	Args:
-		port: TCP port number to listen on
-		password: Shared password for client authentication
-		bind_host: IPv4 address to bind to, defaults to all interfaces
-		bind_host6: IPv6 address to bind to, defaults to all interfaces
-
-	Attributes:
-		PING_TIME: Seconds between ping messages to check client health
-		clients: Dictionary mapping client sockets to Client objects
-		clientSockets: List of all connected client sockets
+	Clients must authenticate with a shared password before they can exchange messages.
 	"""
 
 	PING_TIME: int = 300
@@ -143,28 +128,14 @@ class LocalRelayServer:
 
 
 class Client:
-	"""Represents a connected NVDA Remote client.
+	"""Handles a single connected NVDA Remote client.
 
-	This class handles the connection to a single remote client including:
-	- Message parsing and serialization
-	- Authentication
-	- Protocol version negotiation
-	- Connection monitoring
-	- Message routing to other clients
+	Processes incoming messages, handles authentication and protocol negotiation,
+	and routes messages to other connected clients. Maintains a buffer of received
+	data and processes complete messages delimited by newlines.
 
-	The client maintains a buffer of received data and processes complete
-	messages delimited by newlines. Unauthenticated clients can only
-	send join and protocol_version messages.
-
-	Args:
-		server: The LocalRelayServer instance
-		socket: The client's SSL socket connection
-
-	Attributes:
-		id: Unique numeric identifier for this client
-		authenticated: Whether the client has successfully authenticated
-		connectionType: The client's declared connection type
-		protocolVersion: The negotiated protocol version
+	Unauthenticated clients can only send join and protocol_version messages.
+	Once authenticated, all messages are forwarded to other connected clients.
 	"""
 
 	id: int = 0
