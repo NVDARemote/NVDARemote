@@ -4,13 +4,19 @@ This module implements a relay server that enables NVDA Remote connections betwe
 multiple clients. It provides:
 
 - A secure SSL/TLS encrypted relay server
-- Client authentication and session management  
+- Client authentication via channel password matching
 - Message routing between connected clients
-- Protocol version negotiation
-- Connection monitoring with periodic pings
+- Protocol version recording (clients declare their version)
+- Connection monitoring with periodic one-way pings
+- Unified IPv4 and IPv6 client environment
 
-The server supports both IPv4 and IPv6 connections. Messages between clients are
-serialized using JSON format.
+The server accepts both IPv4 and IPv6 connections, with all clients sharing the same
+relay environment regardless of IP version. Messages between clients are serialized 
+using JSON format and must be newline-delimited. Invalid messages will cause client
+disconnection.
+
+When clients disconnect or lose connection, the server automatically removes them and
+notifies other connected clients of the departure.
 
 Key Classes:
     LocalRelayServer: The main relay server that accepts connections and routes messages
@@ -41,9 +47,12 @@ class LocalRelayServer:
 
 	Accepts encrypted connections from NVDA Remote clients and routes messages between them.
 	Creates IPv4 and IPv6 listening sockets using SSL/TLS encryption.
-	Uses select() for non-blocking I/O and monitors connection health with periodic pings.
+	Uses select() for non-blocking I/O and monitors connection health with periodic pings
+	(sent every PING_TIME seconds, no response expected).
 
-	Clients must authenticate with a shared password before they can exchange messages.
+	Clients must authenticate by providing the correct channel password in their join message
+	before they can exchange messages. Both IPv4 and IPv6 clients share the same channel
+	and can interact with each other transparently.
 	"""
 
 	PING_TIME: int = 300
@@ -130,12 +139,15 @@ class LocalRelayServer:
 class Client:
 	"""Handles a single connected NVDA Remote client.
 
-	Processes incoming messages, handles authentication and protocol negotiation,
-	and routes messages to other connected clients. Maintains a buffer of received
-	data and processes complete messages delimited by newlines.
+	Processes incoming messages, handles authentication via channel password,
+	records client protocol version, and routes messages to other connected clients.
+	Maintains a buffer of received data and processes complete messages delimited
+	by newlines. Invalid or unparseable messages will cause client disconnection.
 
 	Unauthenticated clients can only send join and protocol_version messages.
-	Once authenticated, all messages are forwarded to other connected clients.
+	The join message must include the correct channel password in its 'channel' field.
+	Once authenticated, all valid messages are forwarded to other connected clients.
+	When this client disconnects, all other clients are notified via client_left message.
 	"""
 
 	id: int = 0
