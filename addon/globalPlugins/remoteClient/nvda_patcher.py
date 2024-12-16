@@ -1,13 +1,10 @@
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 import braille
 import brailleInput
 import inputCore
-import nvwave
 import scriptHandler
 import speech
-import tones
-from speech.extensions import speechCanceled
 
 from . import callback_manager
 
@@ -36,7 +33,7 @@ class NVDAPatcher(callback_manager.CallbackManager):
 		self.callCallbacks('set_display', displaySize=displaySize)
 
 class NVDASlavePatcher(NVDAPatcher):
-	"""Class to manage patching of synth, tones, nvwave, and braille."""
+	"""Class to manage patching of synth and braille."""
 
 	def __init__(self) -> None:
 		super().__init__()
@@ -48,71 +45,31 @@ class NVDASlavePatcher(NVDAPatcher):
 			return
 		self.origSpeak = speech._manager.speak
 		speech._manager.speak = self.speak
-		speechCanceled.register(self.cancel)
 		self.orig_pauseSpeech = speech.pauseSpeech
 		speech.pauseSpeech = self.pauseSpeech
-
-	def registerTones(self) -> None:
-		tones.decide_beep.register(self.handle_decide_beep)
-
-	def registerNvwave(self) -> None:
-		nvwave.decide_playWaveFile.register(self.handle_decide_playWaveFile)
-
-	def registerBraille(self) -> None:
-		braille.pre_writeCells.register(self.handle_pre_writeCells)
 
 	def unpatchSpeech(self):
 		if self.origSpeak  is None:
 			return
 		speech._manager.speak = self.origSpeak
 		self.origSpeak = None
-		speechCanceled.unregister(self.cancel)
 		speech.pauseSpeech = self.orig_pauseSpeech
 		self.orig_pauseSpeech = None
 
-	def unregisterTones(self):
-		tones.decide_beep.unregister(self.handle_decide_beep)
-
-	def unregisterNvwave(self):
-		nvwave.decide_playWaveFile.unregister(self.handle_decide_playWaveFile)
-
-	def unregisterBraille(self):
-		braille.pre_writeCells.unregister(self.handle_pre_writeCells)
-
 	def register(self):
 		self.patchSpeech()
-		self.registerTones()
-		self.registerNvwave()
-		self.registerBraille()
 
 	def unregister(self):
 		self.unpatchSpeech()
-		self.unregisterTones()
-		self.unregisterNvwave()
-		self.unregisterBraille()
 
 	def speak(self, speechSequence: Any, priority: Any) -> None:
 		self.callCallbacks('speak', speechSequence=speechSequence, priority=priority)
 		self.origSpeak(speechSequence, priority)
-
-	def cancel(self) -> None:
-		self.callCallbacks('cancel_speech')
-
+		
 	def pauseSpeech(self, switch: bool) -> None:
 		self.callCallbacks('pause_speech', switch=switch)
 		self.orig_pauseSpeech(switch)
-
-	def handle_decide_beep(self, hz: float, length: int, left: int = 50, right: int = 50, isSpeechBeepCommand: bool = False) -> bool:
-		self.callCallbacks('beep', hz=hz, length=length, left=left, right=right, isSpeechBeepCommand=isSpeechBeepCommand)
-		return True
-
-	def handle_decide_playWaveFile(self, fileName: str, asynchronous: bool = True, isSpeechWaveFileCommand: bool = False) -> bool:
-		self.callCallbacks('wave', fileName=fileName, asynchronous=asynchronous, isSpeechWaveFileCommand=isSpeechWaveFileCommand)
-		return True
-
-	def handle_pre_writeCells(self, cells: List[int]) -> None:
-		self.callCallbacks('display', cells=cells)
-
+		
 class NVDAMasterPatcher(NVDAPatcher):
 	"""Class to manage patching of braille input."""
 
