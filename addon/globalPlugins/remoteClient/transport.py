@@ -143,10 +143,7 @@ class Transport:
 		self.connected = False
 		self.successfulConnects = 0
 		self.connectedEvent = threading.Event()
-		# iterate over all the message types and create a dictionary of handlers mapping to Action()
-		self.inboundHandlers: Dict[RemoteMessageType, Callable] = {
-			msg: Action() for msg in RemoteMessageType
-		}
+		self.inboundHandlers: Dict[RemoteMessageType, Action] = {}
 		self.outboundHandlers: Dict[RemoteMessageType, RemoteExtensionPoint] = {}
 		self.transportConnected = Action()
 		"""
@@ -205,6 +202,8 @@ class Transport:
 		Note:
 				Handlers are called asynchronously on the wx main thread via wx.CallAfter
 		"""
+		if type not in self.inboundHandlers:
+			self.inboundHandlers[type] = Action()
 		self.inboundHandlers[type].register(handler)
 
 	def unregisterInbound(self, type: RemoteMessageType, handler: Callable) -> None:
