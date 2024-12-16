@@ -1,3 +1,26 @@
+"""Server implementation for NVDA Remote relay functionality.
+
+This module implements a relay server that enables NVDA Remote connections between
+multiple clients. It provides:
+
+- A secure SSL/TLS encrypted relay server
+- Client authentication and session management  
+- Message routing between connected clients
+- Protocol version negotiation
+- Connection monitoring with periodic pings
+
+The server supports both IPv4 and IPv6 connections. Messages between clients are
+serialized using JSON format.
+
+Key Classes:
+    LocalRelayServer: The main relay server that accepts connections and routes messages
+    Client: Represents a connected remote client and handles its message processing
+
+Example:
+    server = LocalRelayServer(port=6837, password="secret")
+    server.run()
+"""
+
 import logging
 import os
 import socket
@@ -14,6 +37,30 @@ logger = logging.getLogger(__name__)
 
 
 class LocalRelayServer:
+	"""Secure relay server for NVDA Remote connections.
+
+	This class implements a relay server that:
+	- Accepts encrypted connections from NVDA Remote clients
+	- Authenticates clients using a shared password
+	- Routes messages between connected clients
+	- Monitors connection health with periodic pings
+	- Supports both IPv4 and IPv6
+
+	The server creates two listening sockets (IPv4 and IPv6) and uses select()
+	for non-blocking I/O. All connections are encrypted using SSL/TLS.
+
+	Args:
+		port: TCP port number to listen on
+		password: Shared password for client authentication
+		bind_host: IPv4 address to bind to, defaults to all interfaces
+		bind_host6: IPv6 address to bind to, defaults to all interfaces
+
+	Attributes:
+		PING_TIME: Seconds between ping messages to check client health
+		clients: Dictionary mapping client sockets to Client objects
+		clientSockets: List of all connected client sockets
+	"""
+
 	PING_TIME: int = 300
 	_running: bool = False
 	port: int
@@ -96,6 +143,30 @@ class LocalRelayServer:
 
 
 class Client:
+	"""Represents a connected NVDA Remote client.
+
+	This class handles the connection to a single remote client including:
+	- Message parsing and serialization
+	- Authentication
+	- Protocol version negotiation
+	- Connection monitoring
+	- Message routing to other clients
+
+	The client maintains a buffer of received data and processes complete
+	messages delimited by newlines. Unauthenticated clients can only
+	send join and protocol_version messages.
+
+	Args:
+		server: The LocalRelayServer instance
+		socket: The client's SSL socket connection
+
+	Attributes:
+		id: Unique numeric identifier for this client
+		authenticated: Whether the client has successfully authenticated
+		connectionType: The client's declared connection type
+		protocolVersion: The negotiated protocol version
+	"""
+
 	id: int = 0
 	server: LocalRelayServer
 	socket: ssl.SSLSocket
