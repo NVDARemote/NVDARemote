@@ -100,14 +100,15 @@ class RemoteSession:
 	- Transport registration
 	
 	Args:
-		local_machine (LocalMachine): Interface to local NVDA instance
-		transport (RelayTransport): Network transport layer instance
+		local_machine: Interface to local NVDA instance
+		transport: Network transport layer instance
 	
 	Attributes:
-		transport (RelayTransport): The transport layer handling network communication
-		localMachine (LocalMachine): Interface to control the local NVDA instance
-		mode (Optional[str]): Session mode - either 'master' or 'slave'
-		patcher (Optional[NVDAPatcher]): Patcher instance for NVDA modifications
+		transport: The transport layer handling network communication
+		localMachine: Interface to control the local NVDA instance 
+		mode: Session mode - either 'master' or 'slave'
+		patcher: Patcher instance for NVDA modifications
+		patchCallbacksAdded: Whether callbacks are currently registered
 	"""
 
 	transport: RelayTransport
@@ -241,15 +242,15 @@ class SlaveSession(RemoteSession):
 	- Forwarding speech/braille/tones/NVWave output to master(s)
 	- Managing connected master clients
 	- Coordinating braille display sizes
+	
 	The slave session allows multiple master connections simultaneously and manages
 	state for each connected master separately.
 	
 	Attributes:
-		mode (str): Always 'slave' for this class
-		masters (Dict[int, Dict[str, Any]]): Information about connected master clients
-		masterDisplaySizes (List[int]): Braille display sizes of connected masters
-		patchCallbacksAdded (bool): Whether callbacks are currently registered
-		patcher (NVDASlavePatcher): Patcher for slave-specific NVDA modifications
+		mode: Always 'slave' for this class
+		masters: Information about connected master clients
+		masterDisplaySizes: Braille display sizes of connected masters
+		patcher: Patcher for slave-specific NVDA modifications
 	"""
 
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
@@ -440,10 +441,9 @@ class MasterSession(RemoteSession):
 	appropriate commands to control the remote slave instance.
 	
 	Attributes:
-		mode (str): Always 'master' for this class
-		slaves (Dict[int, Dict[str, Any]]): Information about connected slave clients
-		patchCallbacksAdded (bool): Whether callbacks are currently registered
-		patcher (NVDAMasterPatcher): Patcher for master-specific NVDA modifications
+		mode: Always 'master' for this class
+		slaves: Information about connected slave clients
+		patcher: Patcher for master-specific NVDA modifications
 	"""
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
 	patcher: nvda_patcher.NVDAMasterPatcher
