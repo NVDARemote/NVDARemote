@@ -30,8 +30,9 @@ from logging import getLogger
 from queue import Queue
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 
+from dataclasses import dataclass
 import wx
-from extensionPoints import Action
+from extensionPoints import Action, HandlerRegistrar
 
 from . import configuration
 from .connection_info import ConnectionInfo
@@ -40,6 +41,50 @@ from .serializer import Serializer
 from .socket_utils import hostPortToAddress
 
 log = getLogger("transport")
+
+
+@dataclass
+class RemoteExtensionPoint:
+	"""Bridges local extension points to remote message sending.
+	
+	This class connects local NVDA extension points to the remote transport layer,
+	allowing local events to trigger remote messages with optional argument transformation.
+	
+	Args:
+		extensionPoint: The NVDA extension point to bridge
+		messageType: The remote message type to send
+		filter: Optional function to transform arguments before sending
+		transport: The transport instance (set on registration)
+		
+	The filter function, if provided, should take (*args, **kwargs) and return
+	a new kwargs dict to be sent in the message.
+	"""
+	extensionPoint: HandlerRegistrar
+	messageType: RemoteMessageType  
+	filter: Optional[Callable[..., Dict[str, Any]]] = None
+	transport: Optional["Transport"] = None
+
+	def remoteBridge(self, *args: Any, **kwargs: Any) -> bool:
+		"""Bridge function that gets registered to the extension point.
+		
+		Handles calling the filter if present and sending the message.
+		Always returns True to allow other handlers to process the event.
+		"""
+		if self.filter:
+			# Filter should transform args/kwargs into just the kwargs needed for the message
+			kwargs = self.filter(*args, **kwargs)
+		if self.transport:
+			self.transport.send(self.messageType, **kwargs)
+		return True
+
+	def register(self, transport: "Transport") -> None:
+		"""Register this bridge with a transport and the extension point."""
+		self.transport = transport
+		self.extensionPoint.register(self.remoteBridge)
+
+	def unregister(self) -> None:
+		"""Unregister this bridge from the extension point."""
+		self.extensionPoint.unregister(self.remoteBridge)
 
 
 class Transport:
@@ -99,6 +144,7 @@ class Transport:
 		self.successfulConnects = 0
 		self.connectedEvent = threading.Event()
 		self.inboundHandlers: Dict[RemoteMessageType, Action] = {}
+		self.outboundHandlers: Dict[RemoteMessageType, RemoteExtensionPoint] = {}
 		self.transportConnected = Action()
 		"""
 		Notifies when the transport is connected
@@ -169,14 +215,36 @@ class Transport:
 		Args:
 				type (RemoteMessageType): The message type to unregister from
 				handler (Callable): The handler function to remove
-
-		Example:
-				>>> transport.unregisterInbound(RemoteMessageType.key_press, handle_keypress)
-
-		Note:
-				Must pass the exact same handler function that was previously registered
 		"""
 		self.inboundHandlers[type].unregister(handler)
+
+	def registerOutbound(
+		self,
+		extensionPoint: HandlerRegistrar,
+		messageType: RemoteMessageType,
+		filter: Optional[Callable] = None,
+	):
+		"""Register an extension point to a message type.
+
+		Args:
+			extensionPoint (HandlerRegistrar): The extension point to register
+			messageType (RemoteMessageType): The message type to register the extension point to
+			filter (Optional[Callable], optional): A filter function to apply to the message before sending. Defaults to None.
+		"""
+		remoteExtension = RemoteExtensionPoint(
+			extensionPoint=extensionPoint, messageType=messageType, filter=filter
+		)
+		remoteExtension.register(self)
+		self.outboundHandlers[messageType] = remoteExtension
+
+	def unregisterOutbound(self, messageType: RemoteMessageType):
+		"""Unregister an extension point from a message type.
+
+		Args:
+			messageType (RemoteMessageType): The message type to unregister the extension point from
+		"""
+		self.outboundHandlers[messageType].unregister()
+		del self.outboundHandlers[messageType]
 
 
 class TCPTransport(Transport):

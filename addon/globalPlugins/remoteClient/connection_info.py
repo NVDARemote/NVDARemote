@@ -63,11 +63,13 @@ class ConnectionInfo:
 	def _build_url(self, mode: ConnectionMode):
 		# Build URL components
 		netloc = socket_utils.hostPortToAddress((self.hostname, self.port))
-		query = urlencode({
+		params = {
 			'key': self.key,
 			'mode': mode if isinstance(mode, str) else mode.value,
-			'insecure': str(self.insecure).lower()
-		})
+		}
+		if self.insecure:
+			params['insecure'] = 'true'
+		query = urlencode(params)
 		
 		# Use urlunparse for proper URL construction
 		return urlunparse((
