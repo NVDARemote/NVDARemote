@@ -99,23 +99,13 @@ class RemoteSession:
 	- Connection info management
 	- Transport registration
 	
-	Args:
-		local_machine: Interface to local NVDA instance
-		transport: Network transport layer instance
-	
-	Attributes:
-		transport: The transport layer handling network communication
-		localMachine: Interface to control the local NVDA instance 
-		mode: Session mode - either 'master' or 'slave'
-		patcher: Patcher instance for NVDA modifications
-		patchCallbacksAdded: Whether callbacks are currently registered
 	"""
 
-	transport: RelayTransport
-	localMachine: local_machine.LocalMachine
-	mode: Optional[connection_info.ConnectionMode] = None
-	patcher: Optional[nvda_patcher.NVDAPatcher]
-	patchCallbacksAdded: bool
+	transport: RelayTransport # The transport layer handling network communication
+	localMachine: local_machine.LocalMachine # Interface to control the local NVDA instance
+	mode: Optional[connection_info.ConnectionMode] = None # Session mode - either 'master' or 'slave'
+	patcher: Optional[nvda_patcher.NVDAPatcher] # Patcher instance for NVDA modifications
+	patchCallbacksAdded: bool # Whether callbacks are currently registered
 
 	def __init__(
 		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
@@ -193,11 +183,6 @@ Please either use a different server or upgrade your version of the addon.""")
 		- Maintenance windows
 		- Version update notifications
 		- Security advisories
-
-		Args:
-			motd: The message text to display
-			force_display: If True, always show message regardless of previous views
-
 		Note:
 			MOTD hashes are stored per-server in the config file to track
 			which messages have already been shown to the user.
@@ -275,18 +260,12 @@ class SlaveSession(RemoteSession):
 	
 	The slave session allows multiple master connections simultaneously and manages
 	state for each connected master separately.
-	
-	Attributes:
-		mode: Always 'slave' for this class
-		masters: Information about connected master clients
-		masterDisplaySizes: Braille display sizes of connected masters
-		patcher: Patcher for slave-specific NVDA modifications
 	"""
 
-	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
-	patcher: nvda_patcher.NVDASlavePatcher
-	masters: Dict[int, Dict[str, Any]]
-	masterDisplaySizes: List[int]
+	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE # Connection mode - always 'slave'
+	patcher: nvda_patcher.NVDASlavePatcher # Patcher instance for NVDA modifications
+	masters: Dict[int, Dict[str, Any]] # Information about connected master clients
+	masterDisplaySizes: List[int] # Braille display sizes of connected masters
 
 	def __init__(
 		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
@@ -413,9 +392,6 @@ class SlaveSession(RemoteSession):
 		Removes commands that cannot be properly serialized or executed remotely,
 		such as callback commands and cancellable commands.
 
-		Args:
-			speechSequence: List of speech sequence items to filter
-
 		Returns:
 			List containing only supported speech commands
 		"""
@@ -429,10 +405,6 @@ class SlaveSession(RemoteSession):
 
 		Filters the speech sequence for supported commands and sends it
 		to master instances for speaking.
-
-		Args:
-			speechSequence: The sequence of speech commands to forward
-			priority: Speech priority level ('now', 'next', or None)
 		"""
 		self.transport.send(RemoteMessageType.speak,
 							sequence=self._filterUnsupportedSpeechCommands(
@@ -442,9 +414,6 @@ class SlaveSession(RemoteSession):
 
 	def pauseSpeech(self, switch: bool) -> None:
 		"""Toggle speech pause state on master instances.
-
-		Args:
-			switch: True to pause speech, False to resume
 		"""
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
@@ -452,9 +421,6 @@ class SlaveSession(RemoteSession):
 		"""Forward braille display content to master instances.
 
 		Only sends braille data if there are connected masters with braille displays.
-
-		Args:
-			cells: List of braille cell values to display
 		"""
 		# Only send braille data when there are controlling machines with a braille display
 		if self.hasBrailleMasters():
@@ -482,15 +448,10 @@ class MasterSession(RemoteSession):
 	
 	The master session takes input from the local NVDA instance and forwards
 	appropriate commands to control the remote slave instance.
-	
-	Attributes:
-		mode: Always 'master' for this class
-		slaves: Information about connected slave clients
-		patcher: Patcher for master-specific NVDA modifications
 	"""
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
 	patcher: nvda_patcher.NVDAMasterPatcher
-	slaves: Dict[int, Dict[str, Any]]
+	slaves: Dict[int, Dict[str, Any]] # Information about connected slave
 
 	def __init__(
 		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
