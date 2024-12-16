@@ -221,26 +221,46 @@ Please either use a different server or upgrade your version of the addon.""")
 		return True
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
+		"""Handle new client connection.
+
+		Registers the patcher and callbacks if needed, then plays connection sound.
+		Called when a new remote client establishes connection.
+		"""
 		self.patcher.register()
 		if not self.patchCallbacksAdded:
 			self.registerCallbacks()
 		cues.client_connected()
 
 	def handleClientDisconnected(self, client=None):
+		"""Handle client disconnection.
+		
+		Plays disconnection sound when remote client disconnects.
+		"""
 		cues.client_disconnected()
 
 	def getConnectionInfo(self) -> connection_info.ConnectionInfo:
+		"""Get information about the current connection.
+		
+		Returns a ConnectionInfo object containing:
+		- Hostname and port of the relay server
+		- Channel key for the connection
+		- Session mode (master/slave)
+		"""
 		hostname, port = self.transport.address
 		key = self.transport.channel
 		return connection_info.ConnectionInfo(
 			hostname=hostname, port=port, key=key, mode=self.mode
 		)
 
-
 	def close(self) -> None:
+		"""Close the transport connection.
+		
+		Terminates the network connection and cleans up resources.
+		"""
 		self.transport.close()
 		
 	def __del__(self) -> None:
+		"""Ensure transport is closed when object is deleted."""
 		self.close()
 
 class SlaveSession(RemoteSession):
