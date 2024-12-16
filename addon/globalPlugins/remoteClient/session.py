@@ -139,12 +139,22 @@ class RemoteSession:
 		)
 
 	def registerCallbacks(self) -> None:
+		"""Register all callback handlers for this session.
+		
+		Registers the callbacks returned by _getPatcherCallbacks() with the patcher.
+		Sets patchCallbacksAdded flag when complete.
+		"""
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.registerCallback(event, callback)
 		self.patchCallbacksAdded = True
 
 	def unregisterCallbacks(self):
+		"""Unregister all callback handlers for this session.
+		
+		Unregisters the callbacks returned by _getPatcherCallbacks() from the patcher.
+		Clears patchCallbacksAdded flag when complete.
+		"""
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.unregisterCallback(event, callback)
@@ -316,6 +326,11 @@ class SlaveSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleTransportClosing(self) -> None:
+		"""Handle cleanup when transport connection is closing.
+		
+		Unregisters the patcher and removes any registered callbacks
+		to ensure clean shutdown of remote features.
+		"""
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
 			self.unregisterCallbacks()
@@ -365,6 +380,14 @@ class SlaveSession(RemoteSession):
 		)
 
 	def _filterUnsupportedSpeechCommands(self, speechSequence: List[Any]) -> List[Any]:
+		"""Remove unsupported speech commands from a sequence.
+		
+		Filters out commands that cannot be properly serialized or executed remotely,
+		like callback commands and cancellable commands.
+		
+		Returns:
+			Filtered list containing only supported speech commands
+		"""
 		"""Filter out unsupported speech commands from a speech sequence.
 
 		Removes commands that cannot be properly serialized or executed remotely,
