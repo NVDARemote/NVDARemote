@@ -7,15 +7,15 @@ into local NVDA actions.
 
 Key Features:
     * Speech output and cancellation with priority handling
-    * Braille display sharing and input routing
+    * Braille display sharing and input routing with size negotiation
     * Audio feedback through wave files and tones
     * Keyboard and system input simulation
-    * Secure clipboard text transfer
+    * One-way clipboard text transfer from remote to local
     * System functions like Secure Attention Sequence (SAS)
 
 The main class :class:`LocalMachine` implements all the local control operations
 that can be triggered by remote NVDA instances. It includes safety features like
-muting and proper thread synchronization through wxPython's CallAfter.
+muting and uses wxPython's CallAfter for most (but not all) thread synchronization.
 
 Example:
     A typical usage from the remote connection handler::

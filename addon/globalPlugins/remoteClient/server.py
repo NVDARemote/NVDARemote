@@ -4,16 +4,15 @@ This module implements a relay server that enables NVDA Remote connections betwe
 multiple clients. It provides:
 
 - A secure SSL/TLS encrypted relay server
-- Client authentication via channel password matching
+- Client authentication via channel password matching 
 - Message routing between connected clients
 - Protocol version recording (clients declare their version)
 - Connection monitoring with periodic one-way pings
-- Unified IPv4 and IPv6 client environment
+- Separate IPv4 and IPv6 socket handling
 
-The server accepts both IPv4 and IPv6 connections, with all clients sharing the same
-relay environment regardless of IP version. Messages between clients are serialized 
-using JSON format and must be newline-delimited. Invalid messages will cause client
-disconnection.
+The server creates separate IPv4 and IPv6 sockets but routes messages between all
+connected clients regardless of IP version. Messages use JSON format and must be
+newline-delimited. Invalid messages will cause client disconnection.
 
 When clients disconnect or lose connection, the server automatically removes them and
 notifies other connected clients of the departure.
