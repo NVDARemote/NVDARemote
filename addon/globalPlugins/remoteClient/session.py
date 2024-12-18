@@ -94,7 +94,7 @@ class RemoteSession:
 	This abstract base class defines the core functionality shared between master and slave
 	sessions. It handles basic session management tasks like:
 	
-	- Version compatibility checking
+	- Handling version mismatch notifications
 	- Message of the day handling 
 	- Connection info management
 	- Transport registration
@@ -154,15 +154,11 @@ class RemoteSession:
 	def handleVersionMismatch(self) -> None:
 		"""Handle protocol version mismatch between client and server.
 
-		This method is called when the relay server detects that the client's
+		This method is called when the transport layer detects that the client's
 		protocol version is not compatible. It:
 		1. Displays a localized error message to the user
 		2. Closes the transport connection
 		3. Prevents further communication attempts
-
-		Note:
-			Version compatibility is checked during initial handshake.
-			The connection is immediately terminated if versions mismatch.
 		"""
 		# translators: Message for version mismatch
 		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
@@ -174,7 +170,7 @@ Please either use a different server or upgrade your version of the addon.""")
 		"""Handle Message of the Day from relay server.
 
 		Displays server MOTD to user if:
-		1. It hasn't been shown before (tracked by SHA1 hash), or
+		1. It hasn't been shown before (tracked by message hash), or
 		2. force_display is True (for important announcements)
 
 		The MOTD system allows server operators to communicate important
@@ -184,7 +180,7 @@ Please either use a different server or upgrade your version of the addon.""")
 		- Version update notifications
 		- Security advisories
 		Note:
-			MOTD hashes are stored per-server in the config file to track
+			Message hashes are stored per-server in the config file to track
 			which messages have already been shown to the user.
 		"""
 		if force_display or self.shouldDisplayMotd(motd):
@@ -255,8 +251,8 @@ class SlaveSession(RemoteSession):
 	
 	- Receiving and executing commands from master(s)
 	- Forwarding speech/braille/tones/NVWave output to master(s)
-	- Managing connected master clients
-	- Coordinating braille display sizes
+	- Managing connected master clients and their braille display sizes
+	- Coordinating braille display functionality
 	
 	The slave session allows multiple master connections simultaneously and manages
 	state for each connected master separately.
@@ -372,6 +368,14 @@ class SlaveSession(RemoteSession):
 		self.setDisplaySize()
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
+		"""Get callbacks to register with the patcher.
+		
+		Returns:
+			Sequence of (event_name, callback_function) pairs for:
+			- Speech output
+			- Speech pausing
+			- Display size updates
+		"""
 		return (
 			("speak", self.speak),
 			("pause_speech", self.pauseSpeech),
@@ -385,15 +389,7 @@ class SlaveSession(RemoteSession):
 		like callback commands and cancellable commands.
 		
 		Returns:
-			Filtered list containing only supported speech commands
-		"""
-		"""Filter out unsupported speech commands from a speech sequence.
-
-		Removes commands that cannot be properly serialized or executed remotely,
-		such as callback commands and cancellable commands.
-
-		Returns:
-			List containing only supported speech commands
+			Filtered sequence containing only supported speech commands
 		"""
 		return list([
 			item for item in speechSequence
@@ -503,6 +499,11 @@ class MasterSession(RemoteSession):
 		self.sendBrailleInfo()
 
 	def handleClientDisconnected(self, client=None):
+		"""Handle client disconnection.
+		
+		Unregisters the patcher and removes any registered callbacks.
+		Also calls parent class disconnection handler.
+		"""
 		super().handleClientDisconnected(client)
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
@@ -523,6 +524,13 @@ class MasterSession(RemoteSession):
 		self.transport.send(type=RemoteMessageType.braille_input)
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
+		"""Get callbacks to register with the patcher.
+		
+		Returns:
+			Sequence of (event_name, callback_function) pairs for:
+			- Braille input handling
+			- Display info updates
+		"""
 		return (
 			("braille_input", self.brailleInput),
 			("set_display", self.sendBrailleInfo),
