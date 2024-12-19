@@ -83,7 +83,6 @@ Please either use a different server or upgrade your version of the addon.""")
 		if current == hashed:
 			return False
 		conf['seen_motds'][address] = hashed
-		configuration.save_config()
 		return True
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:

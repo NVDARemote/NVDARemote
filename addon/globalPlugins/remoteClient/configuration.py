@@ -2,14 +2,14 @@ import os
 from io import StringIO
 
 import configobj
+import config
 import globalVars
 from configobj import validate
-from config import conf as nvdaConf
 from . import socket_utils
 
 configRoot = "Remote"
-# Ensure this config is only in base sections, not sub profiles
-#nvdaConf.BASE_ONLY_SECTIONS.add(configRoot)
+# Todo: Ensure this config is only in base sections, not sub profiles, this might be part of settings panel instead?
+#config.conf.BASE_ONLY_SECTIONS.add(configRoot)
 CONFIG_FILE_NAME = 'remote.ini'
 
 _config = None
@@ -41,21 +41,15 @@ def get_config():
 		path = os.path.abspath(os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME))
 		if os.path.isfile(path):
 			_config = configobj.ConfigObj(infile=path, configspec=configspec)
-			nvdaConf.spec[configRoot] = _config.configspec.dict()
-			save_config()
-			nvdaConf[configRoot] = _config.dict()
-			save_config()
-			os.remove(path)
+			config.conf.spec[configRoot] = _config.configspec.dict()
+			config.conf[configRoot] = _config.dict()
+			config.post_configSave.register(onSave)
+			config.post_configReset.register(onReset)
 		else:
 			_config = configobj.ConfigObj(configspec=configspec)
-			nvdaConf.spec[configRoot] = _config.configspec.dict()
-			save_config()
-	_config = nvdaConf[configRoot]
+			config.conf.spec[configRoot] = _config.configspec.dict()
+	_config = config.conf[configRoot]
 	return _config
-
-def save_config():
-	nvdaConf.save()
-	return True
 
 def write_connection_to_config(address):
 	"""Writes an address to the last connected section of the config.
@@ -66,4 +60,12 @@ def write_connection_to_config(address):
 	if address in last_cons:
 		conf['connections']['last_connected'].remove(address)
 	conf['connections']['last_connected'].append(address)
-	save_config()
+
+def onSave():
+	path = os.path.abspath(os.path.join(globalVars.appArgs.configPath, CONFIG_FILE_NAME))
+	if os.path.isfile(path):
+		os.remove(path)
+	config.post_configSave.unregister(onSave)
+
+def onReset():
+	config.post_configSave.unregister(onSave)
