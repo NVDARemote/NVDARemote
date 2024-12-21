@@ -34,6 +34,15 @@ from . import connection_info
 
 
 class COPYDATASTRUCT(ctypes.Structure):
+	"""Windows COPYDATASTRUCT for inter-process communication.
+	
+	This structure is used by Windows to pass data between processes using
+	the WM_COPYDATA message. It contains fields for:
+	- Custom data value (dwData)
+	- Size of data being passed (cbData)
+	- Pointer to the actual data (lpData)
+	"""
+	
 	_fields_ = [
 		('dwData', ctypes.wintypes.LPARAM),
 		('cbData', ctypes.wintypes.DWORD),
@@ -47,9 +56,29 @@ MSGFLT_ALLOW = 1
 
 
 class URLHandlerWindow(windowUtils.CustomWindow):
+	"""Window class that receives and processes nvdaremote:// URLs.
+	
+	This window registers itself to receive WM_COPYDATA messages containing
+	URLs. When a URL is received, it:
+	1. Parses the URL into connection parameters
+	2. Validates the URL format
+	3. Calls the provided callback with the connection info
+	
+	The window automatically handles UAC elevation by allowing messages
+	from lower privilege processes.
+	"""
+	
 	className = u'NVDARemoteURLHandler'
 
 	def __init__(self, callback=None, *args, **kwargs):
+		"""Initialize URL handler window.
+		
+		Args:
+			callback (callable, optional): Function to call with parsed ConnectionInfo
+				when a valid URL is received. Defaults to None.
+			*args: Additional arguments passed to CustomWindow
+			**kwargs: Additional keyword arguments passed to CustomWindow
+		"""
 		super().__init__(*args, **kwargs)
 		self.callback = callback
 		try:
@@ -59,6 +88,20 @@ class URLHandlerWindow(windowUtils.CustomWindow):
 			pass
 
 	def windowProc(self, hwnd, msg, wParam, lParam):
+		"""Windows message procedure for handling received URLs.
+		
+		Processes WM_COPYDATA messages containing nvdaremote:// URLs.
+		Parses the URL and calls the callback if one was provided.
+		
+		Args:
+			hwnd: Window handle
+			msg: Message type
+			wParam: Source window handle
+			lParam: Pointer to COPYDATASTRUCT containing the URL
+			
+		Raises:
+			URLParsingError: If the received URL is malformed or invalid
+		"""
 		if msg != WM_COPYDATA:
 			return
 		hwnd = wParam

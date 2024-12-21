@@ -1,3 +1,15 @@
+"""Secure desktop support for NVDA Remote.
+
+This module handles the transition between regular and secure desktop sessions in Windows,
+maintaining remote connections across these transitions. It manages the creation of local
+relay servers, connection bridging, and IPC (Inter-Process Communication) between the 
+regular and secure desktop instances of NVDA.
+
+The secure desktop is a special Windows session used for UAC prompts and login screens
+that runs in an isolated environment for security. This module ensures NVDA Remote
+connections persist when entering and leaving this secure environment.
+"""
+
 import json
 import socket
 import ssl
@@ -26,7 +38,11 @@ def getProgramDataTempPath() -> Path:
 
 
 class SecureDesktopHandler:
-	"""Handles secure desktop transitions and management of secure desktop connections."""
+	"""Maintains remote connections during secure desktop transitions.
+	
+	Handles relay servers, IPC, and connection bridging between
+	regular and secure desktop sessions.
+	"""
 	
 	SD_CONNECT_BLOCK_TIMEOUT: int = 1
 

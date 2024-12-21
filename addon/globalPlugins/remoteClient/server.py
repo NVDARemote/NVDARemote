@@ -1,3 +1,31 @@
+"""Server implementation for NVDA Remote relay functionality.
+
+This module implements a relay server that enables NVDA Remote connections between
+multiple clients. It provides:
+
+- A secure SSL/TLS encrypted relay server
+- Client authentication via channel password matching 
+- Message routing between connected clients
+- Protocol version recording (clients declare their version)
+- Connection monitoring with periodic one-way pings
+- Separate IPv4 and IPv6 socket handling
+
+The server creates separate IPv4 and IPv6 sockets but routes messages between all
+connected clients regardless of IP version. Messages use JSON format and must be
+newline-delimited. Invalid messages will cause client disconnection.
+
+When clients disconnect or lose connection, the server automatically removes them and
+notifies other connected clients of the departure.
+
+Key Classes:
+    LocalRelayServer: The main relay server that accepts connections and routes messages
+    Client: Represents a connected remote client and handles its message processing
+
+Example:
+    server = LocalRelayServer(port=6837, password="secret")
+    server.run()
+"""
+
 import logging
 import os
 import socket
@@ -14,6 +42,18 @@ logger = logging.getLogger(__name__)
 
 
 class LocalRelayServer:
+	"""Secure relay server for NVDA Remote connections.
+
+	Accepts encrypted connections from NVDA Remote clients and routes messages between them.
+	Creates IPv4 and IPv6 listening sockets using SSL/TLS encryption.
+	Uses select() for non-blocking I/O and monitors connection health with periodic pings
+	(sent every PING_TIME seconds, no response expected).
+
+	Clients must authenticate by providing the correct channel password in their join message
+	before they can exchange messages. Both IPv4 and IPv6 clients share the same channel
+	and can interact with each other transparently.
+	"""
+
 	PING_TIME: int = 300
 	_running: bool = False
 	port: int
@@ -96,6 +136,19 @@ class LocalRelayServer:
 
 
 class Client:
+	"""Handles a single connected NVDA Remote client.
+
+	Processes incoming messages, handles authentication via channel password,
+	records client protocol version, and routes messages to other connected clients.
+	Maintains a buffer of received data and processes complete messages delimited
+	by newlines. Invalid or unparseable messages will cause client disconnection.
+
+	Unauthenticated clients can only send join and protocol_version messages.
+	The join message must include the correct channel password in its 'channel' field.
+	Once authenticated, all valid messages are forwarded to other connected clients.
+	When this client disconnects, all other clients are notified via client_left message.
+	"""
+
 	id: int = 0
 	server: LocalRelayServer
 	socket: ssl.SSLSocket
