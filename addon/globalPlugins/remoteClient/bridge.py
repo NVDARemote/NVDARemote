@@ -75,8 +75,8 @@ class BridgeTransport:
 		to the target transport, unless the message type is in the excluded set.
 		
 		Args:
-			target_transport (Transport): Transport instance to forward messages to
-			message_type (RemoteMessageType): Type of message this callback will handle
+			targetTransport (Transport): Transport instance to forward messages to
+			messageType (RemoteMessageType): Type of message this callback will handle
 		
 		Returns:
 			callable: A callback function that forwards messages to the target transport
