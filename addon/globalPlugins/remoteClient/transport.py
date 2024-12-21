@@ -429,6 +429,7 @@ class TCPTransport(Transport):
 		Note:
 				This method handles SSL-specific socket behavior and non-blocking reads.
 				It is called when select() indicates data is available.
+				Uses a fixed 16384 byte buffer which may need tuning for performance.
 		"""
 		# This approach may be problematic:
 		# See also server.py handle_data in class Client.

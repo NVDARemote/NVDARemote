@@ -1,3 +1,63 @@
+"""NVDA Remote session management and message routing.
+
+Implements the session layer for NVDA Remote, handling message routing,
+connection roles, and NVDA feature coordination between instances.
+
+Core Operation:
+-------------
+1. Transport layer delivers typed messages (RemoteMessageType)
+2. Session routes messages to registered handlers
+3. Handlers execute on wx main thread via CallAfter
+4. Results flow back through transport layer
+
+Connection Roles:
+--------------
+Master (Controlling)
+	- Captures and forwards input
+	- Receives remote output (speech/braille)
+	- Manages connection state
+	- Patches input handling
+
+Slave (Controlled) 
+	- Executes received commands
+	- Forwards output to master(s)
+	- Tracks connected masters
+	- Patches output handling
+
+Key Components:
+------------
+RemoteSession
+	Base session managing shared functionality:
+	- Message handler registration
+	- Connection validation
+	- Version compatibility
+	- MOTD handling
+
+MasterSession
+	Controls remote instance:
+	- Input capture/forwarding
+	- Remote output reception
+	- Connection management
+	- Master-specific patches
+
+SlaveSession
+	Controlled by remote instance:
+	- Command execution
+	- Output forwarding
+	- Multi-master support
+	- Slave-specific patches
+
+Thread Safety:
+------------
+All message handlers execute on wx main thread via CallAfter
+to ensure thread-safe NVDA operations.
+
+See Also:
+	transport.py: Network communication
+	local_machine.py: NVDA interface
+	nvda_patcher.py: Feature patches
+"""
+
 import hashlib
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, Any, Callable
@@ -29,13 +89,23 @@ EXCLUDED_SPEECH_COMMANDS = (
 
 
 class RemoteSession:
-	"""Base class for a session that runs on either the master or slave machine."""
+	"""Base class for a session that runs on either the master or slave machine.
+	
+	This abstract base class defines the core functionality shared between master and slave
+	sessions. It handles basic session management tasks like:
+	
+	- Handling version mismatch notifications
+	- Message of the day handling 
+	- Connection info management
+	- Transport registration
+	
+	"""
 
-	transport: RelayTransport
-	localMachine: local_machine.LocalMachine
-	mode: Optional[connection_info.ConnectionMode] = None
-	patcher: Optional[nvda_patcher.NVDAPatcher]
-	patchCallbacksAdded: bool
+	transport: RelayTransport # The transport layer handling network communication
+	localMachine: local_machine.LocalMachine # Interface to control the local NVDA instance
+	mode: Optional[connection_info.ConnectionMode] = None # Session mode - either 'master' or 'slave'
+	patcher: Optional[nvda_patcher.NVDAPatcher] # Patcher instance for NVDA modifications
+	patchCallbacksAdded: bool # Whether callbacks are currently registered
 
 	def __init__(
 		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
@@ -59,18 +129,37 @@ class RemoteSession:
 		)
 
 	def registerCallbacks(self) -> None:
+		"""Register all callback handlers for this session.
+		
+		Registers the callbacks returned by _getPatcherCallbacks() with the patcher.
+		Sets patchCallbacksAdded flag when complete.
+		"""
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.registerCallback(event, callback)
 		self.patchCallbacksAdded = True
 
 	def unregisterCallbacks(self):
+		"""Unregister all callback handlers for this session.
+		
+		Unregisters the callbacks returned by _getPatcherCallbacks() from the patcher.
+		Clears patchCallbacksAdded flag when complete.
+		"""
 		patcher_callbacks = self._getPatcherCallbacks()
 		for event, callback in patcher_callbacks:
 			self.patcher.unregisterCallback(event, callback)
 		self.patchCallbacksAdded = False
 
+
 	def handleVersionMismatch(self) -> None:
+		"""Handle protocol version mismatch between client and server.
+
+		This method is called when the transport layer detects that the client's
+		protocol version is not compatible. It:
+		1. Displays a localized error message to the user
+		2. Closes the transport connection
+		3. Prevents further communication attempts
+		"""
 		# translators: Message for version mismatch
 		message = _("""The version of the relay server which you have connected to is not compatible with this version of the Remote Client.
 Please either use a different server or upgrade your version of the addon.""")
@@ -78,6 +167,22 @@ Please either use a different server or upgrade your version of the addon.""")
 		self.transport.close()
 
 	def handleMOTD(self, motd: str, force_display=False):
+		"""Handle Message of the Day from relay server.
+
+		Displays server MOTD to user if:
+		1. It hasn't been shown before (tracked by message hash), or
+		2. force_display is True (for important announcements)
+
+		The MOTD system allows server operators to communicate important
+		information to users like:
+		- Service announcements
+		- Maintenance windows
+		- Version update notifications
+		- Security advisories
+		Note:
+			Message hashes are stored per-server in the config file to track
+			which messages have already been shown to the user.
+		"""
 		if force_display or self.shouldDisplayMotd(motd):
 			gui.messageBox(
 				parent=gui.mainFrame, caption=_("Message of the Day"), message=motd
@@ -97,35 +202,66 @@ Please either use a different server or upgrade your version of the addon.""")
 		return True
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
+		"""Handle new client connection.
+
+		Registers the patcher and callbacks if needed, then plays connection sound.
+		Called when a new remote client establishes connection.
+		"""
 		self.patcher.register()
 		if not self.patchCallbacksAdded:
 			self.registerCallbacks()
 		cues.client_connected()
 
 	def handleClientDisconnected(self, client=None):
+		"""Handle client disconnection.
+		
+		Plays disconnection sound when remote client disconnects.
+		"""
 		cues.client_disconnected()
 
 	def getConnectionInfo(self) -> connection_info.ConnectionInfo:
+		"""Get information about the current connection.
+		
+		Returns a ConnectionInfo object containing:
+		- Hostname and port of the relay server
+		- Channel key for the connection
+		- Session mode (master/slave)
+		"""
 		hostname, port = self.transport.address
 		key = self.transport.channel
 		return connection_info.ConnectionInfo(
 			hostname=hostname, port=port, key=key, mode=self.mode
 		)
 
-
 	def close(self) -> None:
+		"""Close the transport connection.
+		
+		Terminates the network connection and cleans up resources.
+		"""
 		self.transport.close()
 		
 	def __del__(self) -> None:
+		"""Ensure transport is closed when object is deleted."""
 		self.close()
 
 class SlaveSession(RemoteSession):
-	"""Session that runs on the slave and manages state."""
+	"""Session that runs on the controlled (slave) NVDA instance.
+	
+	This class implements the slave side of an NVDA Remote connection. It handles:
+	
+	- Receiving and executing commands from master(s)
+	- Forwarding speech/braille/tones/NVWave output to master(s)
+	- Managing connected master clients and their braille display sizes
+	- Coordinating braille display functionality
+	
+	The slave session allows multiple master connections simultaneously and manages
+	state for each connected master separately.
+	"""
 
-	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
-	patcher: nvda_patcher.NVDASlavePatcher
-	masters: Dict[int, Dict[str, Any]]
-	masterDisplaySizes: List[int]
+	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE # Connection mode - always 'slave'
+	patcher: nvda_patcher.NVDASlavePatcher # Patcher instance for NVDA modifications
+	masters: Dict[int, Dict[str, Any]] # Information about connected master clients
+	masterDisplaySizes: List[int] # Braille display sizes of connected masters
 
 	def __init__(
 		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
@@ -185,15 +321,26 @@ class SlaveSession(RemoteSession):
 			self.handleClientConnected(client)
 
 	def handleTransportClosing(self) -> None:
+		"""Handle cleanup when transport connection is closing.
+		
+		Unregisters the patcher and removes any registered callbacks
+		to ensure clean shutdown of remote features.
+		"""
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
 			self.unregisterCallbacks()
 
-	def handleTransportDisconnected(self):
+	def handleTransportDisconnected(self) -> None:
+		"""Handle disconnection from the transport layer.
+
+		Called when the transport connection is lost. This method:
+		1. Plays a connection sound cue
+		2. Removes any NVDA patches
+		"""
 		cues.client_connected()
 		self.patcher.unregister()
 
-	def handleClientDisconnected(self, client=None):
+	def handleClientDisconnected(self, client: Optional[Dict[str, Any]] = None) -> None:
 		super().handleClientDisconnected(client)
 		if client["connection_type"] == "master":
 			del self.masters[client["id"]]
@@ -221,6 +368,14 @@ class SlaveSession(RemoteSession):
 		self.setDisplaySize()
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
+		"""Get callbacks to register with the patcher.
+		
+		Returns:
+			Sequence of (event_name, callback_function) pairs for:
+			- Speech output
+			- Speech pausing
+			- Display size updates
+		"""
 		return (
 			("speak", self.speak),
 			("pause_speech", self.pauseSpeech),
@@ -228,37 +383,71 @@ class SlaveSession(RemoteSession):
 		)
 
 	def _filterUnsupportedSpeechCommands(self, speechSequence: List[Any]) -> List[Any]:
-		return list(
-			[
-				item
-				for item in speechSequence
-				if not isinstance(item, EXCLUDED_SPEECH_COMMANDS)
-			]
-		)
+		"""Remove unsupported speech commands from a sequence.
+		
+		Filters out commands that cannot be properly serialized or executed remotely,
+		like callback commands and cancellable commands.
+		
+		Returns:
+			Filtered sequence containing only supported speech commands
+		"""
+		return list([
+			item for item in speechSequence
+			if not isinstance(item, EXCLUDED_SPEECH_COMMANDS)
+		])
 
 	def speak(self, speechSequence: List[Any], priority: Optional[str]) -> None:
-		self.transport.send(
-			RemoteMessageType.speak,
-			sequence=self._filterUnsupportedSpeechCommands(speechSequence),
-			priority=priority,
-		)
+		"""Forward speech output to connected master instances.
 
-	def pauseSpeech(self, switch):
+		Filters the speech sequence for supported commands and sends it
+		to master instances for speaking.
+		"""
+		self.transport.send(RemoteMessageType.speak,
+							sequence=self._filterUnsupportedSpeechCommands(
+								speechSequence),
+							priority=priority
+							)
+
+	def pauseSpeech(self, switch: bool) -> None:
+		"""Toggle speech pause state on master instances.
+		"""
 		self.transport.send(type=RemoteMessageType.pause_speech, switch=switch)
 
-	def display(self, cells: List[int]=None):
+	def display(self, cells: List[int]) -> None:
+		"""Forward braille display content to master instances.
+
+		Only sends braille data if there are connected masters with braille displays.
+		"""
 		# Only send braille data when there are controlling machines with a braille display
 		if self.hasBrailleMasters():
 			self.transport.send(type=RemoteMessageType.display, cells=cells)
 
-	def hasBrailleMasters(self):
+	def hasBrailleMasters(self) -> bool:
+		"""Check if any connected masters have braille displays.
+
+		Returns:
+			True if at least one master has a braille display with cells > 0
+		"""
 		return bool([i for i in self.masterDisplaySizes if i > 0])
 
-
 class MasterSession(RemoteSession):
+	"""Session that runs on the controlling (master) NVDA instance.
+	
+	This class implements the master side of an NVDA Remote connection. It handles:
+	
+	- Sending control commands to slaves
+	- Receiving and playing speech/braille from slaves
+	- Playing basic notification sounds from slaves
+	- Managing connected slave clients  
+	- Synchronizing braille display information
+	- Patching NVDA for remote input handling
+	
+	The master session takes input from the local NVDA instance and forwards
+	appropriate commands to control the remote slave instance.
+	"""
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
 	patcher: nvda_patcher.NVDAMasterPatcher
-	slaves: Dict[int, Dict[str, Any]]
+	slaves: Dict[int, Dict[str, Any]] # Information about connected slave
 
 	def __init__(
 		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
@@ -310,6 +499,11 @@ class MasterSession(RemoteSession):
 		self.sendBrailleInfo()
 
 	def handleClientDisconnected(self, client=None):
+		"""Handle client disconnection.
+		
+		Unregisters the patcher and removes any registered callbacks.
+		Also calls parent class disconnection handler.
+		"""
 		super().handleClientDisconnected(client)
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
@@ -330,6 +524,13 @@ class MasterSession(RemoteSession):
 		self.transport.send(type=RemoteMessageType.braille_input)
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
+		"""Get callbacks to register with the patcher.
+		
+		Returns:
+			Sequence of (event_name, callback_function) pairs for:
+			- Braille input handling
+			- Display info updates
+		"""
 		return (
 			("braille_input", self.brailleInput),
 			("set_display", self.sendBrailleInfo),
