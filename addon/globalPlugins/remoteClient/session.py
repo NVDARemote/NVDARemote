@@ -59,11 +59,10 @@ See Also:
 """
 
 import hashlib
-import logging
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, Any, Callable
 
-log = logging.getLogger(__name__)
+from logHandler import log
 
 
 import addonHandler
