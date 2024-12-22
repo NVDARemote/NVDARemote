@@ -72,8 +72,9 @@ import tones
 import ui
 from speech.extensions import speechCanceled
 
-from . import configuration, connection_info, cues, local_machine, nvda_patcher
+from . import configuration, connection_info, cues, nvda_patcher
 
+from .localMachine import LocalMachine
 from .protocol import RemoteMessageType
 from .transport import RelayTransport
 
@@ -90,25 +91,27 @@ EXCLUDED_SPEECH_COMMANDS = (
 
 class RemoteSession:
 	"""Base class for a session that runs on either the master or slave machine.
-	
+
 	This abstract base class defines the core functionality shared between master and slave
 	sessions. It handles basic session management tasks like:
-	
+
 	- Handling version mismatch notifications
 	- Message of the day handling 
 	- Connection info management
 	- Transport registration
-	
+
 	"""
 
-	transport: RelayTransport # The transport layer handling network communication
-	localMachine: local_machine.LocalMachine # Interface to control the local NVDA instance
-	mode: Optional[connection_info.ConnectionMode] = None # Session mode - either 'master' or 'slave'
-	patcher: Optional[nvda_patcher.NVDAPatcher] # Patcher instance for NVDA modifications
-	patchCallbacksAdded: bool # Whether callbacks are currently registered
+	transport: RelayTransport  # The transport layer handling network communication
+	localMachine: LocalMachine  # Interface to control the local NVDA instance
+	# Session mode - either 'master' or 'slave'
+	mode: Optional[connection_info.ConnectionMode] = None
+	# Patcher instance for NVDA modifications
+	patcher: Optional[nvda_patcher.NVDAPatcher]
+	patchCallbacksAdded: bool  # Whether callbacks are currently registered
 
 	def __init__(
-		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
+			self, localMachine: LocalMachine, transport: RelayTransport
 	) -> None:
 		self.localMachine = localMachine
 		self.patcher = None
@@ -130,7 +133,7 @@ class RemoteSession:
 
 	def registerCallbacks(self) -> None:
 		"""Register all callback handlers for this session.
-		
+
 		Registers the callbacks returned by _getPatcherCallbacks() with the patcher.
 		Sets patchCallbacksAdded flag when complete.
 		"""
@@ -141,7 +144,7 @@ class RemoteSession:
 
 	def unregisterCallbacks(self):
 		"""Unregister all callback handlers for this session.
-		
+
 		Unregisters the callbacks returned by _getPatcherCallbacks() from the patcher.
 		Clears patchCallbacksAdded flag when complete.
 		"""
@@ -149,7 +152,6 @@ class RemoteSession:
 		for event, callback in patcher_callbacks:
 			self.patcher.unregisterCallback(event, callback)
 		self.patchCallbacksAdded = False
-
 
 	def handleVersionMismatch(self) -> None:
 		"""Handle protocol version mismatch between client and server.
@@ -180,8 +182,8 @@ Please either use a different server or upgrade your version of the addon.""")
 		- Version update notifications
 		- Security advisories
 		Note:
-			Message hashes are stored per-server in the config file to track
-			which messages have already been shown to the user.
+				Message hashes are stored per-server in the config file to track
+				which messages have already been shown to the user.
 		"""
 		if force_display or self.shouldDisplayMotd(motd):
 			gui.messageBox(
@@ -191,7 +193,8 @@ Please either use a different server or upgrade your version of the addon.""")
 	def shouldDisplayMotd(self, motd: str) -> bool:
 		conf = configuration.get_config()
 		connection = self.getConnectionInfo()
-		address = "{host}:{port}".format(host=connection.hostname, port=connection.port)
+		address = "{host}:{port}".format(
+			host=connection.hostname, port=connection.port)
 		motdBytes = motd.encode("utf-8", errors="surrogatepass")
 		hashed = hashlib.sha1(motdBytes).hexdigest()
 		current = conf["seen_motds"].get(address, "")
@@ -214,14 +217,14 @@ Please either use a different server or upgrade your version of the addon.""")
 
 	def handleClientDisconnected(self, client=None):
 		"""Handle client disconnection.
-		
+
 		Plays disconnection sound when remote client disconnects.
 		"""
 		cues.client_disconnected()
 
 	def getConnectionInfo(self) -> connection_info.ConnectionInfo:
 		"""Get information about the current connection.
-		
+
 		Returns a ConnectionInfo object containing:
 		- Hostname and port of the relay server
 		- Channel key for the connection
@@ -235,39 +238,44 @@ Please either use a different server or upgrade your version of the addon.""")
 
 	def close(self) -> None:
 		"""Close the transport connection.
-		
+
 		Terminates the network connection and cleans up resources.
 		"""
 		self.transport.close()
-		
+
 	def __del__(self) -> None:
 		"""Ensure transport is closed when object is deleted."""
 		self.close()
 
+
 class SlaveSession(RemoteSession):
 	"""Session that runs on the controlled (slave) NVDA instance.
-	
+
 	This class implements the slave side of an NVDA Remote connection. It handles:
-	
+
 	- Receiving and executing commands from master(s)
 	- Forwarding speech/braille/tones/NVWave output to master(s)
 	- Managing connected master clients and their braille display sizes
 	- Coordinating braille display functionality
-	
+
 	The slave session allows multiple master connections simultaneously and manages
 	state for each connected master separately.
 	"""
 
-	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE # Connection mode - always 'slave'
-	patcher: nvda_patcher.NVDASlavePatcher # Patcher instance for NVDA modifications
-	masters: Dict[int, Dict[str, Any]] # Information about connected master clients
-	masterDisplaySizes: List[int] # Braille display sizes of connected masters
+	# Connection mode - always 'slave'
+	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.SLAVE
+	# Patcher instance for NVDA modifications
+	patcher: nvda_patcher.NVDASlavePatcher
+	# Information about connected master clients
+	masters: Dict[int, Dict[str, Any]]
+	masterDisplaySizes: List[int]  # Braille display sizes of connected masters
 
 	def __init__(
-		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
+			self, localMachine: LocalMachine, transport: RelayTransport
 	) -> None:
 		super().__init__(localMachine, transport)
-		self.transport.registerInbound(RemoteMessageType.key, self.localMachine.sendKey)
+		self.transport.registerInbound(
+			RemoteMessageType.key, self.localMachine.sendKey)
 		self.masters = defaultdict(dict)
 		self.masterDisplaySizes = []
 		self.transport.transportClosing.register(self.handleTransportClosing)
@@ -281,7 +289,8 @@ class SlaveSession(RemoteSession):
 		self.transport.registerInbound(
 			RemoteMessageType.set_display_size, self.setDisplaySize
 		)
-		braille.filter_displaySize.register(self.localMachine.handleFilterDisplaySize)
+		braille.filter_displaySize.register(
+			self.localMachine.handleFilterDisplaySize)
 		self.transport.registerInbound(
 			RemoteMessageType.braille_input, self.localMachine.brailleInput
 		)
@@ -291,8 +300,10 @@ class SlaveSession(RemoteSession):
 
 	def registerCallbacks(self) -> None:
 		super().registerCallbacks()
-		self.transport.registerOutbound(tones.decide_beep, RemoteMessageType.tone)
-		self.transport.registerOutbound(speechCanceled, RemoteMessageType.cancel)
+		self.transport.registerOutbound(
+			tones.decide_beep, RemoteMessageType.tone)
+		self.transport.registerOutbound(
+			speechCanceled, RemoteMessageType.cancel)
 		self.transport.registerOutbound(
 			nvwave.decide_playWaveFile, RemoteMessageType.wave
 		)
@@ -310,10 +321,10 @@ class SlaveSession(RemoteSession):
 			self.masters[client["id"]]["active"] = True
 
 	def handleChannelJoined(
-		self,
-		channel: Optional[str] = None,
-		clients: Optional[List[Dict[str, Any]]] = None,
-		origin: Optional[int] = None,
+			self,
+			channel: Optional[str] = None,
+			clients: Optional[List[Dict[str, Any]]] = None,
+			origin: Optional[int] = None,
 	) -> None:
 		if clients is None:
 			clients = []
@@ -322,7 +333,7 @@ class SlaveSession(RemoteSession):
 
 	def handleTransportClosing(self) -> None:
 		"""Handle cleanup when transport connection is closing.
-		
+
 		Unregisters the patcher and removes any registered callbacks
 		to ensure clean shutdown of remote features.
 		"""
@@ -356,10 +367,10 @@ class SlaveSession(RemoteSession):
 		self.localMachine.setBrailleDisplay_size(self.masterDisplaySizes)
 
 	def handleBrailleInfo(
-		self,
-		name: Optional[str] = None,
-		numCells: int = 0,
-		origin: Optional[int] = None,
+			self,
+			name: Optional[str] = None,
+			numCells: int = 0,
+			origin: Optional[int] = None,
 	) -> None:
 		if not self.masters.get(origin):
 			return
@@ -369,12 +380,12 @@ class SlaveSession(RemoteSession):
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
 		"""Get callbacks to register with the patcher.
-		
+
 		Returns:
-			Sequence of (event_name, callback_function) pairs for:
-			- Speech output
-			- Speech pausing
-			- Display size updates
+				Sequence of (event_name, callback_function) pairs for:
+				- Speech output
+				- Speech pausing
+				- Display size updates
 		"""
 		return (
 			("speak", self.speak),
@@ -384,12 +395,12 @@ class SlaveSession(RemoteSession):
 
 	def _filterUnsupportedSpeechCommands(self, speechSequence: List[Any]) -> List[Any]:
 		"""Remove unsupported speech commands from a sequence.
-		
+
 		Filters out commands that cannot be properly serialized or executed remotely,
 		like callback commands and cancellable commands.
-		
+
 		Returns:
-			Filtered sequence containing only supported speech commands
+				Filtered sequence containing only supported speech commands
 		"""
 		return list([
 			item for item in speechSequence
@@ -426,43 +437,46 @@ class SlaveSession(RemoteSession):
 		"""Check if any connected masters have braille displays.
 
 		Returns:
-			True if at least one master has a braille display with cells > 0
+				True if at least one master has a braille display with cells > 0
 		"""
 		return bool([i for i in self.masterDisplaySizes if i > 0])
 
+
 class MasterSession(RemoteSession):
 	"""Session that runs on the controlling (master) NVDA instance.
-	
+
 	This class implements the master side of an NVDA Remote connection. It handles:
-	
+
 	- Sending control commands to slaves
 	- Receiving and playing speech/braille from slaves
 	- Playing basic notification sounds from slaves
 	- Managing connected slave clients  
 	- Synchronizing braille display information
 	- Patching NVDA for remote input handling
-	
+
 	The master session takes input from the local NVDA instance and forwards
 	appropriate commands to control the remote slave instance.
 	"""
 	mode: connection_info.ConnectionMode = connection_info.ConnectionMode.MASTER
 	patcher: nvda_patcher.NVDAMasterPatcher
-	slaves: Dict[int, Dict[str, Any]] # Information about connected slave
+	slaves: Dict[int, Dict[str, Any]]  # Information about connected slave
 
 	def __init__(
-		self, localMachine: local_machine.LocalMachine, transport: RelayTransport
+			self, localMachine: LocalMachine, transport: RelayTransport
 	) -> None:
 		super().__init__(localMachine, transport)
 		self.slaves = defaultdict(dict)
 		self.patcher = nvda_patcher.NVDAMasterPatcher()
-		self.transport.registerInbound(RemoteMessageType.speak, self.localMachine.speak)
+		self.transport.registerInbound(
+			RemoteMessageType.speak, self.localMachine.speak)
 		self.transport.registerInbound(
 			RemoteMessageType.cancel, self.localMachine.cancelSpeech
 		)
 		self.transport.registerInbound(
 			RemoteMessageType.pause_speech, self.localMachine.pauseSpeech
 		)
-		self.transport.registerInbound(RemoteMessageType.tone, self.localMachine.beep)
+		self.transport.registerInbound(
+			RemoteMessageType.tone, self.localMachine.beep)
 		self.transport.registerInbound(
 			RemoteMessageType.wave, self.localMachine.playWave
 		)
@@ -484,10 +498,10 @@ class MasterSession(RemoteSession):
 		ui.message(_("Remote NVDA not connected."))
 
 	def handleChannel_joined(
-		self,
-		channel: Optional[str] = None,
-		clients: Optional[List[Dict[str, Any]]] = None,
-		origin: Optional[int] = None,
+			self,
+			channel: Optional[str] = None,
+			clients: Optional[List[Dict[str, Any]]] = None,
+			origin: Optional[int] = None,
 	) -> None:
 		if clients is None:
 			clients = []
@@ -500,7 +514,7 @@ class MasterSession(RemoteSession):
 
 	def handleClientDisconnected(self, client=None):
 		"""Handle client disconnection.
-		
+
 		Unregisters the patcher and removes any registered callbacks.
 		Also calls parent class disconnection handler.
 		"""
@@ -510,7 +524,7 @@ class MasterSession(RemoteSession):
 			self.unregisterCallbacks()
 
 	def sendBrailleInfo(
-		self, display: Optional[Any] = None, displaySize: Optional[int] = None
+			self, display: Optional[Any] = None, displaySize: Optional[int] = None
 	) -> None:
 		if display is None:
 			display = braille.handler.display
@@ -525,11 +539,11 @@ class MasterSession(RemoteSession):
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
 		"""Get callbacks to register with the patcher.
-		
+
 		Returns:
-			Sequence of (event_name, callback_function) pairs for:
-			- Braille input handling
-			- Display info updates
+				Sequence of (event_name, callback_function) pairs for:
+				- Braille input handling
+				- Display info updates
 		"""
 		return (
 			("braille_input", self.brailleInput),

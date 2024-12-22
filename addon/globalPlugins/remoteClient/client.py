@@ -22,9 +22,10 @@ from keyboardHandler import KeyboardInputGesture
 from logHandler import log
 from utils.security import isRunningOnSecureDesktop
 
-from . import configuration, cues, local_machine, serializer, url_handler
+from . import configuration, cues, serializer, url_handler
 from .alwaysCallAfter import alwaysCallAfter
 from .connection_info import ConnectionInfo, ConnectionMode
+from .localMachine import LocalMachine
 from .menu import RemoteMenu
 from .protocol import RemoteMessageType
 from .secureDesktop import SecureDesktopHandler
@@ -52,7 +53,7 @@ Address = Tuple[str, int]  # (hostname, port)
 
 class RemoteClient:
 	localScripts: Set[Callable]
-	localMachine: local_machine.LocalMachine
+	localMachine: LocalMachine
 	masterSession: Optional[MasterSession]
 	slaveSession: Optional[SlaveSession]
 	keyModifiers: Set[KeyModifier]
@@ -70,7 +71,7 @@ class RemoteClient:
 		self.keyModifiers = set()
 		self.hostPendingModifiers = set()
 		self.localScripts = set()
-		self.localMachine = local_machine.LocalMachine()
+		self.localMachine = LocalMachine()
 		self.slaveSession = None
 		self.masterSession = None
 		self.menu: RemoteMenu = RemoteMenu(self)
