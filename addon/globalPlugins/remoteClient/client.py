@@ -68,6 +68,7 @@ class RemoteClient:
 	def __init__(
 		self,
 	):
+		log.info("Initializing NVDA Remote client")
 		self.keyModifiers = set()
 		self.hostPendingModifiers = set()
 		self.localScripts = set()
@@ -95,6 +96,7 @@ class RemoteClient:
 					)
 				)
 			)
+			log.error("Configuration file corrupted and reset")
 			queueHandler.queueFunction(
 				queueHandler.eventQueue,
 				wx.CallAfter,
@@ -190,6 +192,9 @@ class RemoteClient:
 		self.masterTransport.send(RemoteMessageType.send_SAS)
 
 	def connect(self, connectionInfo: ConnectionInfo):
+		log.info(
+			f"Initiating connection as {connectionInfo.mode.name} to {connectionInfo.hostname}:{connectionInfo.port}"
+		)
 		if connectionInfo.mode == ConnectionMode.MASTER:
 			self.connectAsMaster(connectionInfo)
 		elif connectionInfo.mode == ConnectionMode.SLAVE:
@@ -197,7 +202,9 @@ class RemoteClient:
 
 	def disconnect(self):
 		if self.masterSession is None and self.slaveSession is None:
+			log.debug("Disconnect called but no active sessions")
 			return
+		log.info("Disconnecting from remote session")
 		if self.localControlServer is not None:
 			self.localControlServer.close()
 			self.localControlServer = None
@@ -221,6 +228,7 @@ class RemoteClient:
 	@alwaysCallAfter
 	def onConnectAsMasterFailed(self):
 		if self.masterTransport.successfulConnects == 0:
+			log.error(f"Failed to connect to {self.masterTransport.address}")
 			self.disconnectAsMaster()
 			# Translators: Title of the connection error dialog.
 			gui.messageBox(
