@@ -59,8 +59,11 @@ See Also:
 """
 
 import hashlib
+import logging
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, Any, Callable
+
+log = logging.getLogger(__name__)
 
 
 import addonHandler
@@ -113,6 +116,7 @@ class RemoteSession:
 	def __init__(
 			self, localMachine: LocalMachine, transport: RelayTransport
 	) -> None:
+		log.info("Initializing Remote Session")
 		self.localMachine = localMachine
 		self.patcher = None
 		self.patchCallbacksAdded = False
@@ -155,6 +159,8 @@ class RemoteSession:
 
 	def handleVersionMismatch(self) -> None:
 		"""Handle protocol version mismatch between client and server.
+		
+		log.error("Protocol version mismatch detected with relay server")
 
 		This method is called when the transport layer detects that the client's
 		protocol version is not compatible. It:
@@ -170,6 +176,8 @@ Please either use a different server or upgrade your version of the addon.""")
 
 	def handleMOTD(self, motd: str, force_display=False):
 		"""Handle Message of the Day from relay server.
+		
+		log.info("Received MOTD from server (force_display=%s)", force_display)
 
 		Displays server MOTD to user if:
 		1. It hasn't been shown before (tracked by message hash), or
@@ -206,6 +214,8 @@ Please either use a different server or upgrade your version of the addon.""")
 
 	def handleClientConnected(self, client: Optional[Dict[str, Any]] = None) -> None:
 		"""Handle new client connection.
+		
+		log.info("Client connected: %r", client)
 
 		Registers the patcher and callbacks if needed, then plays connection sound.
 		Called when a new remote client establishes connection.
