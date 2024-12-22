@@ -347,6 +347,7 @@ class SlaveSession(RemoteSession):
 		Unregisters the patcher and removes any registered callbacks
 		to ensure clean shutdown of remote features.
 		"""
+		log.info("Transport closing, unregistering slave session patcher")
 		self.patcher.unregister()
 		if self.patchCallbacksAdded:
 			self.unregisterCallbacks()
@@ -358,12 +359,14 @@ class SlaveSession(RemoteSession):
 		1. Plays a connection sound cue
 		2. Removes any NVDA patches
 		"""
+		log.info("Transport disconnected from slave session")
 		cues.client_connected()
 		self.patcher.unregister()
 
 	def handleClientDisconnected(self, client: Optional[Dict[str, Any]] = None) -> None:
 		super().handleClientDisconnected(client)
 		if client["connection_type"] == "master":
+			log.info("Master client disconnected: %r", client)
 			del self.masters[client["id"]]
 		if not self.masters:
 			self.patcher.unregister()
@@ -374,6 +377,7 @@ class SlaveSession(RemoteSession):
 			if sizes
 			else [info.get("braille_numCells", 0) for info in self.masters.values()]
 		)
+		log.debug("Setting slave display size to: %r", self.masterDisplaySizes)
 		self.localMachine.setBrailleDisplay_size(self.masterDisplaySizes)
 
 	def handleBrailleInfo(
@@ -504,6 +508,7 @@ class MasterSession(RemoteSession):
 		)
 
 	def handleNVDANotConnected(self) -> None:
+		log.warning("Attempted to connect to remote NVDA that is not available")
 		speech.cancelSpeech()
 		ui.message(_("Remote NVDA not connected."))
 
@@ -540,6 +545,9 @@ class MasterSession(RemoteSession):
 			display = braille.handler.display
 		if displaySize is None:
 			displaySize = braille.handler.displaySize
+		log.debug("Sending braille info to slave - display: %s, size: %d", 
+				 display.name if display else "None", 
+				 displaySize if displaySize else 0)
 		self.transport.send(
 			type="set_braille_info", name=display.name, numCells=displaySize
 		)
