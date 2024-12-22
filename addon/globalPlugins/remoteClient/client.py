@@ -279,6 +279,7 @@ class RemoteClient:
 		self.menu.handleConnecting(connectionInfo.mode)
 
 	def onConnectedAsMaster(self):
+		log.info("Successfully connected as master")
 		configuration.write_connection_to_config(self.masterSession.getConnectionInfo())
 		self.menu.handleConnected(ConnectionMode.MASTER, True)
 		# We might have already created a hook thread before if we're restoring an
@@ -293,6 +294,7 @@ class RemoteClient:
 
 
 	def onDisconnectingAsMaster(self):
+		log.info("Master session disconnecting")
 		if self.menu:
 			self.menu.handleConnected(ConnectionMode.MASTER, False)
 		if self.localMachine:
@@ -308,6 +310,7 @@ class RemoteClient:
 
 
 	def onDisconnectedAsMaster(self):
+		log.info("Master session disconnected")
 		# Translators: Presented when connection to a remote computer was interupted.
 		ui.message(_("Connection interrupted"))
 
@@ -348,6 +351,7 @@ class RemoteClient:
 	### certificate handling
 	
 	def handleCertificateFailure(self, transport: RelayTransport):
+		log.warning(f"Certificate validation failed for {transport.address}")
 		self.lastFailAddress = transport.address
 		self.lastFailKey = transport.channel
 		self.disconnect()
@@ -439,6 +443,7 @@ class RemoteClient:
 			gesture.send()
 			return
 		self.sendingKeys = not self.sendingKeys
+		log.info(f"Remote key control {'enabled' if self.sendingKeys else 'disabled'}")
 		self.setReceivingBraille(self.sendingKeys)
 		if self.sendingKeys:
 			self.hostPendingModifiers = gesture.modifiers
