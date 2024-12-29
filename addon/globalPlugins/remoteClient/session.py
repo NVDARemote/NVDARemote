@@ -551,8 +551,8 @@ class MasterSession(RemoteSession):
 			type="set_braille_info", name=display.name, numCells=displaySize
 		)
 
-	def brailleInput(self) -> None:
-		self.transport.send(type=RemoteMessageType.braille_input)
+	def brailleInput(self, **kwargs) -> None:
+		self.transport.send(type=RemoteMessageType.braille_input, **kwargs)
 
 	def _getPatcherCallbacks(self) -> List[Tuple[str, Callable[..., Any]]]:
 		"""Get callbacks to register with the patcher.
